@@ -3,13 +3,44 @@
    (see store.js) — this file never touches localStorage. */
 const ListFlow = (() => {
   const MAKES = ['Alfa Romeo','Aston Martin','Audi','Bentley','BMW','BYD','Chevrolet','Cupra','Ferrari','Ford','Genesis','GWM','Holden','Honda','HSV','Hyundai','Isuzu','Jaguar','Jeep','Kia','Lamborghini','Land Rover','Lexus','Lotus','Maserati','Mazda','McLaren','Mercedes-Benz','MG','Mini','Mitsubishi','Nissan','Peugeot','Porsche','Ram','Renault','Rolls-Royce','Skoda','Subaru','Suzuki','Tesla','Toyota','Volkswagen','Volvo'];
-  const STATES = ['QLD','NSW','VIC','WA','SA','TAS','ACT','NT'];
   const SECS = [['daily','Daily','The every-day cars'],['performance','Performance','The fun ones'],['supercars','Supercar','The loud ones']];
   const YEAR_MIN = 1950, YEAR_MAX = 2027, KM_MAX = 2000000, PRICE_MAX = 20000000, PHOTO_MAX = 8;
 
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const digits = s => String(s ?? '').replace(/[^\d]/g, '');
   const suggested = d => [d.year, d.make, d.model].map(v => String(v || '').trim()).filter(Boolean).join(' ');
+  let suburbLoad = null;
+  function loadSuburbs() {
+    if (!suburbLoad) {
+      suburbLoad = fetch('data/suburbs.json').then(res => {
+        if (!res.ok) throw new Error('load');
+        return res.json();
+      }).catch(err => { suburbLoad = null; throw err; });
+    }
+    return suburbLoad;
+  }
+  function placeLabel(row) { return row[0] + ' ' + row[1] + ' ' + row[2]; }
+  function searchPlaces(rows, raw) {
+    const q = String(raw || '').trim().toLowerCase();
+    if (!q || !rows) return [];
+    if (/^\d+$/.test(q)) {
+      const hits = [];
+      for (const row of rows) {
+        const pc = row[2];
+        if (pc.startsWith(q) || (pc.startsWith('0') && !q.startsWith('0') && pc.slice(1).startsWith(q))) hits.push(row);
+        if (hits.length === 8) break;
+      }
+      return hits;
+    }
+    const prefix = [], contains = [];
+    for (const row of rows) {
+      const name = row[0].toLowerCase();
+      if (name.startsWith(q)) prefix.push(row);
+      else if (name.includes(q)) contains.push(row);
+      if (prefix.length >= 8) break;
+    }
+    return prefix.concat(contains).slice(0, 8);
+  }
   // Accepts 12000, 12,000, "12 000 km", "$189000". Rejects negatives and words.
   function parseLoose(raw, suffix) {
     let t = String(raw ?? '').trim().toLowerCase().replace(/,/g, '').replace(/\s+/g, '');
@@ -43,7 +74,7 @@ const ListFlow = (() => {
   }
 
   function start(root, opts) {
-    const draft = {sec:'', make:'', model:'', year:'', km:'', price:'', suburb:'', state:'', heading:'', headingEdited:false, desc:'', photos:[], name:'', phone:'', email:''};
+    const draft = {sec:'', make:'', model:'', year:'', km:'', price:'', suburb:'', state:'', postcode:'', tagline:'', heading:'', desc:'', photos:[], name:'', phone:'', email:''};
     let i = 0, busy = false, suggestOn = false;
 
     const steps = [
@@ -127,56 +158,37 @@ const ListFlow = (() => {
       },
       {
         question: "Where's the car located?",
-        hint: 'Suburb first, then the state.',
-        mount(body) {
-          body.innerHTML = `${field('ask-suburb', {value: draft.suburb, placeholder: 'Suburb', auto: 'address-level2'})}
-            <div class="ask-states" role="group" aria-label="State">${STATES.map(s =>
-              `<button type="button" data-choice="state" data-value="${s}" aria-pressed="${draft.state === s}">${s}</button>`).join('')}</div>`;
-          body.querySelectorAll('[data-choice="state"]').forEach(btn => {
-            btn.onclick = () => {
-              draft.state = btn.dataset.value;
-              body.querySelectorAll('[data-choice="state"]').forEach(b => b.setAttribute('aria-pressed', b === btn));
-            };
-          });
-        },
+        hint: 'Suburb or postcode. Pick one from the list. No street address.',
+        mount(body) { mountPlace(body); },
         read() {
-          const el = document.getElementById('ask-suburb');
-          if (el) draft.suburb = el.value.trim();
-          const on = document.querySelector('.ask [data-choice="state"][aria-pressed="true"]');
-          if (on) draft.state = on.dataset.value;
+          const el = document.getElementById('ask-place');
+          const label = draft.suburb && draft.state && draft.postcode ? draft.suburb + ' ' + draft.state + ' ' + draft.postcode : '';
+          if (el && el.value.trim() !== label) { draft.suburb = ''; draft.state = ''; draft.postcode = ''; }
         },
         validate() {
-          if (draft.suburb.length < 2) return 'Which suburb is it sitting in?';
-          if (!STATES.includes(draft.state)) return 'Pick a state so the right people see it.';
+          if (!draft.suburb || !draft.state || !draft.postcode) return 'Pick a suburb from the list. Street addresses do not count.';
           return '';
-        },
-        invalid() {
-          if (draft.suburb.length < 2) document.getElementById('ask-suburb')?.focus();
         }
       },
       {
         question: 'What should the heading be?',
-        hint: 'We started you off. Change it if you want.',
-        mount(body) {
-          if (!draft.headingEdited) draft.heading = suggested(draft);
-          body.innerHTML = field('ask-heading', {value: draft.heading, placeholder: '2021 Audi SQ5', maxlength: 80});
-          document.getElementById('ask-heading').addEventListener('input', e => { draft.headingEdited = true; draft.heading = e.target.value; });
-        },
+        hint: 'The car name stays put. Add a tagline if you want.',
+        mount(body) { mountHeading(body); },
         read() {
-          const el = document.getElementById('ask-heading');
-          if (!el) return;
-          draft.heading = el.value.trim();
-          if (draft.heading !== suggested(draft)) draft.headingEdited = true;
+          const el = document.getElementById('ask-tagline');
+          if (el) draft.tagline = el.value.trim().slice(0, 60);
+          const prefix = suggested(draft);
+          draft.heading = draft.tagline ? prefix + ' ' + draft.tagline : prefix;
         },
         validate() {
-          if (draft.heading.length < 3) return 'Give it a heading. Even the suggested one is fine.';
-          if (draft.heading.length > 80) return 'Heading is a bit long. Keep it under 80 characters.';
+          if (!suggested(draft)) return 'Need the year, make and model before a heading.';
+          if ((draft.tagline || '').length > 60) return 'Keep the tagline to 60 characters.';
           return '';
         }
       },
       {
         question: 'Give me a brief description',
-        hint: 'One or two real sentences. History, mods, why it is going.',
+        hint: 'One or two real sentences. History, mods, why it is for sale.',
         mount(body) {
           body.innerHTML = `<textarea class="ask-input ask-area" id="ask-desc" data-autofocus aria-labelledby="ask-q" aria-describedby="ask-hint ask-err" rows="4" maxlength="800" enterkeyhint="next" placeholder="One owner, full service history, always garaged.">${esc(draft.desc)}</textarea>`;
         },
@@ -246,6 +258,98 @@ const ListFlow = (() => {
         validate: () => ''
       }
     ];
+
+    function syncPlaceNext() {
+      const ok = document.getElementById('ask-ok');
+      if (ok && steps[i] && steps[i].question.startsWith("Where's the car")) ok.disabled = !(draft.suburb && draft.state && draft.postcode);
+    }
+    function mountPlace(body) {
+      const picked = draft.suburb && draft.state && draft.postcode ? draft.suburb + ' ' + draft.state + ' ' + draft.postcode : '';
+      body.innerHTML = `<div class="ask-combo"><input class="ask-input" id="ask-place" data-autofocus role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ask-places" aria-labelledby="ask-q" aria-describedby="ask-hint ask-err" value="${esc(picked)}" placeholder="Loading suburbs…" autocomplete="off" enterkeyhint="next" disabled><ul class="ask-list" id="ask-places" role="listbox" hidden></ul></div>`;
+      const input = document.getElementById('ask-place');
+      const list = document.getElementById('ask-places');
+      let rows = null, items = [], active = -1;
+      const close = () => { suggestOn = false; active = -1; list.hidden = true; list.innerHTML = ''; input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); };
+      const paint = () => {
+        list.querySelectorAll('button').forEach((btn, n) => btn.setAttribute('aria-selected', n === active));
+        if (active >= 0) input.setAttribute('aria-activedescendant', 'ask-opt-' + active);
+        const current = list.querySelector('[aria-selected="true"]');
+        if (current) current.scrollIntoView({ block: 'nearest' });
+      };
+      const choose = n => {
+        const row = items[n];
+        if (!row) return;
+        draft.suburb = row[0]; draft.state = row[1]; draft.postcode = row[2];
+        input.value = placeLabel(row);
+        close();
+        syncPlaceNext();
+        input.focus();
+      };
+      const open = matches => {
+        items = matches;
+        active = matches.length ? 0 : -1;
+        suggestOn = matches.length > 0;
+        list.hidden = !suggestOn;
+        input.setAttribute('aria-expanded', suggestOn ? 'true' : 'false');
+        list.innerHTML = matches.map((row, n) => `<li role="presentation"><button type="button" role="option" id="ask-opt-${n}" aria-selected="${n === active}">${esc(placeLabel(row))}</button></li>`).join('');
+        if (active >= 0) input.setAttribute('aria-activedescendant', 'ask-opt-' + active);
+        list.querySelectorAll('button').forEach((btn, n) => { btn.onmousedown = ev => ev.preventDefault(); btn.onclick = () => choose(n); });
+      };
+      const refresh = () => {
+        if (!rows) return;
+        const label = draft.suburb && draft.state && draft.postcode ? draft.suburb + ' ' + draft.state + ' ' + draft.postcode : '';
+        if (label && input.value.trim() === label) { close(); return; }
+        const matches = searchPlaces(rows, input.value);
+        if (!matches.length) { close(); return; }
+        open(matches);
+      };
+      input.addEventListener('input', () => {
+        const label = draft.suburb && draft.state && draft.postcode ? draft.suburb + ' ' + draft.state + ' ' + draft.postcode : '';
+        if (input.value.trim() !== label) { draft.suburb = ''; draft.state = ''; draft.postcode = ''; syncPlaceNext(); }
+        refresh();
+      });
+      input.addEventListener('focus', refresh);
+      input.addEventListener('blur', () => setTimeout(close, 180));
+      input.addEventListener('keydown', e => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          if (!suggestOn) return;
+          e.preventDefault(); e.stopPropagation();
+          active = e.key === 'ArrowDown' ? (active + 1) % items.length : (active - 1 + items.length) % items.length;
+          paint();
+        } else if (e.key === 'Enter' && suggestOn && active >= 0) {
+          e.preventDefault(); e.stopPropagation();
+          choose(active);
+        } else if (e.key === 'Escape') {
+          if (!suggestOn) return;
+          e.preventDefault(); e.stopPropagation();
+          close();
+        }
+      });
+      syncPlaceNext();
+      loadSuburbs().then(data => {
+        if (!input.isConnected) return;
+        rows = data;
+        input.disabled = false;
+        input.placeholder = 'Paddington or 4064';
+        input.focus();
+      }).catch(() => { if (input.isConnected) setErr('Could not load the suburb list. Check your connection and try again.'); });
+    }
+    function mountHeading(body) {
+      const prefix = suggested(draft);
+      body.innerHTML = `<div class="ask-headfield"><span class="ask-prefix-chip" id="ask-prefix"></span><input class="ask-input" id="ask-tagline" data-autofocus maxlength="60" aria-labelledby="ask-q" aria-describedby="ask-hint ask-err" placeholder="GR | Low kms | Full history" autocomplete="off" enterkeyhint="next" value="${esc(draft.tagline || '')}"></div><p class="ask-live-label">On the card</p><article class="post ask-card-preview"><div class="b"><span class="ttl" id="ask-head-live"></span><div class="price" id="ask-head-price"></div><div class="row"><span class="loc" id="ask-head-loc"></span></div></div></article>`;
+      const chip = document.getElementById('ask-prefix');
+      const input = document.getElementById('ask-tagline');
+      const live = document.getElementById('ask-head-live');
+      chip.textContent = prefix;
+      document.getElementById('ask-head-price').textContent = draft.price ? '$' + Number(draft.price).toLocaleString('en-AU') : '';
+      document.getElementById('ask-head-loc').textContent = [draft.suburb, [draft.state, draft.postcode].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+      const paint = () => {
+        const tag = input.value.trim().slice(0, 60);
+        live.textContent = tag ? prefix + ' ' + tag : prefix;
+      };
+      input.addEventListener('input', () => { if (input.value.length > 60) input.value = input.value.slice(0, 60); draft.tagline = input.value; paint(); });
+      paint();
+    }
 
     function mountMake(body) {
       body.innerHTML = `<div class="ask-combo">${field('ask-make', {value: draft.make, placeholder: 'e.g. Porsche'})}<ul class="ask-list" id="ask-makes" role="listbox" hidden></ul></div>`;
@@ -467,7 +571,7 @@ const ListFlow = (() => {
       if (!ask || !ask.isConnected || e.key !== 'Enter' || e.shiftKey || e.altKey || e.isComposing || e.repeat) return;
       if (!e.target.closest || !e.target.closest('.ask')) return;
       if (e.target.closest('#ask-back') || e.target.closest('[data-choice="sec"]')) return;
-      if (e.target.closest('#ask-makes')) return;
+      if (e.target.closest('#ask-makes') || e.target.closest('#ask-places')) return;
       const stateBtn = e.target.closest('[data-choice="state"]');
       if (stateBtn) stateBtn.parentElement.querySelectorAll('[data-choice="state"]').forEach(b => b.setAttribute('aria-pressed', b === stateBtn));
       e.preventDefault();

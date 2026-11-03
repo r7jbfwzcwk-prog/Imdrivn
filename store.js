@@ -340,7 +340,11 @@ const ListingStore = {
       const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select('id,username,display_name,avatar_url').maybeSingle();
       if (!named.error && named.data) Auth.profile = named.data;
     }
-    return this.get(inserted.data.id);
+    const saved = await this.get(inserted.data.id);
+    // postcode is chosen in the form. listings has suburb and state only, so it is kept on the
+    // in-memory card until a listings.postcode column exists.
+    if (saved && listing.postcode) saved.postcode = listing.postcode;
+    return saved;
   },
   async react(kind, id, on) {
     if (!sb || !Auth.user) throw new Error('Sign in to save cars to your account.');
