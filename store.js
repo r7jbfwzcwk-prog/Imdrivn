@@ -204,7 +204,7 @@ function storageMessage(error) {
   return msg || 'The photo upload failed. Try a smaller JPG.';
 }
 
-const LISTING_SELECT = 'id,user_id,mode,make,model,year,kms,price,suburb,state,heading,description,photos,status,created_at,profiles!listings_user_id_fkey(username,display_name),likes(count),saves(count)';
+const LISTING_SELECT = 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,photos,status,created_at,profiles!listings_user_id_fkey(username,display_name),likes(count),saves(count)';
 
 function countOf(rel) {
   if (rel == null) return 0;
@@ -240,7 +240,7 @@ function mapListing(row) {
     sec: mode === 'supercar' ? 'supercars' : mode,
     make: row.make, model: row.model, year: row.year,
     km: row.kms, kms: row.kms, price: row.price,
-    suburb: row.suburb, state: row.state,
+    suburb: row.suburb, state: row.state, postcode: row.postcode || '',
     heading: row.heading,
     desc: row.description, description: row.description,
     photos: (row.photos && row.photos.length ? row.photos.map(photoUrl) : ['data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7']),
@@ -328,7 +328,7 @@ const ListingStore = {
     const row = {
       user_id: uid, mode,
       make: listing.make, model: listing.model, year: listing.year, kms: listing.km,
-      price: listing.price, suburb: listing.suburb, state: listing.state,
+      price: listing.price, suburb: listing.suburb, state: listing.state, postcode: listing.postcode || null,
       heading: listing.heading, description: listing.desc, photos: paths, status: 'active'
     };
     const inserted = await sb.from('listings').insert(row).select('id').single();
@@ -340,11 +340,7 @@ const ListingStore = {
       const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select('id,username,display_name,avatar_url').maybeSingle();
       if (!named.error && named.data) Auth.profile = named.data;
     }
-    const saved = await this.get(inserted.data.id);
-    // postcode is chosen in the form. listings has suburb and state only, so it is kept on the
-    // in-memory card until a listings.postcode column exists.
-    if (saved && listing.postcode) saved.postcode = listing.postcode;
-    return saved;
+    return this.get(inserted.data.id);
   },
   async react(kind, id, on) {
     if (!sb || !Auth.user) throw new Error('Sign in to save cars to your account.');

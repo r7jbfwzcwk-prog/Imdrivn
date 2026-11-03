@@ -342,7 +342,7 @@ const ListFlow = (() => {
       const live = document.getElementById('ask-head-live');
       chip.textContent = prefix;
       document.getElementById('ask-head-price').textContent = draft.price ? '$' + Number(draft.price).toLocaleString('en-AU') : '';
-      document.getElementById('ask-head-loc').textContent = [draft.suburb, [draft.state, draft.postcode].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+      document.getElementById('ask-head-loc').textContent = [draft.suburb, draft.state].filter(Boolean).join(' ');
       const paint = () => {
         const tag = input.value.trim().slice(0, 60);
         live.textContent = tag ? prefix + ' ' + tag : prefix;
