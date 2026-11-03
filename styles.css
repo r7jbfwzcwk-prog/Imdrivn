@@ -162,7 +162,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .dm{position:absolute;left:10px;bottom:8px;font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:#aaa;background:rgba(0,0,0,.55);padding:1px 5px;border-radius:2px}
 
 /* ===== conversational listing flow ===== */
-.ask{max-width:760px;margin:0 auto;padding:8px 20px 36px;min-height:calc(100dvh - 220px);display:flex;flex-direction:column}
+.ask{max-width:760px;margin:0 auto;padding:8px 20px 110px;min-height:calc(100dvh - 220px);display:flex;flex-direction:column}
 body:has(.ask) footer{display:none}
 .ask-bar{height:3px;background:#2a2a2e;border-radius:99px;overflow:hidden;margin:8px 0 28px}
 .ask-bar>span{display:block;height:100%;width:0;background:var(--acc);transition:width .4s ease}
@@ -195,6 +195,13 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .ask-choice-k{display:block;font-size:1.35rem;font-weight:600}
 .ask-choice-s{display:block;margin-top:6px;color:var(--c-muted);font-size:.9rem;font-weight:400}
 .ask-choice[aria-pressed=true]{border-color:var(--acc);background:var(--c-surface2);box-shadow:0 0 0 1px var(--acc),0 0 28px var(--glow)}
+.vcond{display:grid;gap:16px}
+.vcond p{margin:0 0 6px;color:var(--c-muted);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.vcond .ask-states{margin-top:0}
+.vreview{display:grid;gap:0}
+.vreview div{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid var(--c-line)}
+.vreview span{color:var(--c-muted)}
+.vreview b{text-align:right;font-weight:600}
 .ask-states{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .ask-states button{min-width:64px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--c-line2);background:transparent;cursor:pointer}
 .ask-states button[aria-pressed=true]{border-color:var(--acc);background:var(--acc);color:#000}

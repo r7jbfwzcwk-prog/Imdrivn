@@ -187,17 +187,14 @@ async function list(){if(!await gate('list'))return;ListFlow.start(main,{async p
   posted(saved);
 }});}
 
-async function valuation(){if(!await gate('valuation'))return;const yn=(n,q)=>`<p style="margin:var(--s-4) 0 var(--s-2)">${q}</p><div class="choice c3"><label><input type="radio" name="${n}" value="yes" checked> Yes</label><label><input type="radio" name="${n}" value="no"> No</label><label><input type="radio" name="${n}" value="unsure"> Not sure</label></div>`;
-wizard('Get a <span class="grey">wholesale</span> valuation',[['Vehicle details',vehicle()],['Condition',`<label>Overall condition<select name="cond"><option>Excellent</option><option>Good</option><option>Fair</option><option>Needs work</option></select></label>${yn('hist','Full service history?')}${yn('acc','Free of accident damage?')}${yn('fin','Paid off (no finance owing)?')}<label style="margin-top:var(--s-4)">Anything else dealers should know?<textarea name="notes" rows="3"></textarea></label>`],['Photos',photos()],['Contact',contact()]],(d,imgs)=>{
-main.innerHTML='<div class="wrap form"><p class="muted">Sending your valuation…</p></div>';
-ListingStore.valuation(d,imgs).then(()=>{main.innerHTML=`<div class="wrap form"><div class="ok" role="status">${ico('shield')}<h1 style="font-size:1.4rem;margin-top:var(--s-4)">Valuation request in</h1><p>Thanks ${esc(d.name)}. Your ${esc(d.year+' '+d.make+' '+d.model)} has gone to dealers in ${esc(d.state)}. Expect offers within 24 hours by SMS and email.</p><a class="btn" href="#/">Back home</a></div></div>`}).catch(e=>{main.innerHTML=`<div class="wrap form"><p class="err" role="alert">${esc(e.message||'Could not send that.')}</p><a class="btn" href="#/valuation">Try again</a></div>`});});}
+function valuation(){ValueFlow.start(main);}
 
 function how(){main.innerHTML=`<section class="wrap feats"><div class="eyebrow">How it works</div><h1 style="font-size:clamp(1.3rem,4vw,2.2rem)">Simple. <span class="grey">Free.</span> Fast.</h1><div class="row4">
 ${[['tag','1. Snap & list','Photos, price, done. Listing is 100% free.'],['gauge','2. Hit the feed','Your ad lands in a scroll-first feed buyers love.'],['head','3. Chat direct','Buyers message you. No middleman.'],['up','4. Or go wholesale','Want it gone? Dealers make an offer.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div><a class="btn solid" href="#/sell" style="margin-top:var(--s-5)">Sell your car →</a></section>${about()}`;}
 function authLead(){const next=sessionStorage.getItem('imdrivn_next')||'';if(next==='list')return 'Sign in to post your car. It only takes a minute.';if(next==='valuation')return 'Sign in so dealers know who the offer is for.';if(next.startsWith('msg:'))return 'Sign in to message the seller.';return 'Buy, sell, and keep your saves in one account.'}
 function showAuthErr(msg){const el=$('#auth-err');if(el)el.textContent=msg||''}
 function takeNext(){const next=sessionStorage.getItem('imdrivn_next');if(!next)return false;sessionStorage.removeItem('imdrivn_next');if(next.startsWith('msg:')){messageSeller(next.slice(4));return true}location.hash='#/'+next;return true}
-function afterAuth(){if(Auth.needsHandle()){join();return}if(takeNext())return;join()}
+function afterAuth(){const next=sessionStorage.getItem('imdrivn_next')||'';if(Auth.needsHandle()&&next!=='valuation'){join();return}if(takeNext())return;join()}
 function authScreen(mode){mode=mode||'in';const title=mode==='up'?'Join IM DRIVN':mode==='forgot'?'Reset password':'Sign in';
 main.innerHTML=`<div class="wrap form auth"><div class="eyebrow">Account</div><h1>${title}</h1><p class="muted">${mode==='forgot'?'We will email you a link to set a new password.':esc(authLead())}</p>
 <form class="panel" id="auth-form">${mode==='forgot'?'':''}<label>Email<input name="email" type="email" required autocomplete="email" inputmode="email"></label>
@@ -280,9 +277,9 @@ if(Auth.recovery){if(!location.hash.startsWith('#/join'))location.hash='#/join';
 if(Auth.authReturn&&Auth.user){try{sessionStorage.removeItem('imdrivn_oauth')}catch(e){}
 const who=Auth.profile&&Auth.profile.username?'@'+Auth.profile.username:(Auth.user.email||'your account');
 toast('Signed in as '+who);
-if(Auth.needsHandle()){if(location.hash!=='#/join')location.hash='#/join';else join();return}}
-if(Auth.user&&!Auth.needsHandle())takeNext()}
-function route(){document.body.classList.remove('menu-open');closeMenu(false);closeSort(false);dropChat();if(garageAdd._key){document.removeEventListener('keydown',garageAdd._key);garageAdd._key=null}const {p,a,b,params}=hashParts();if(p==='buy'){const requested=params.get('sort');if(sortOk(requested)){SORT=requested;localStorage.setItem('imdrivn_sort',SORT)}}syncSortUi();const sortWrap=$('#sortwrap');if(sortWrap)sortWrap.hidden=p!=='buy';io&&io.disconnect();feedToken++;homeToken++;viewToken++;
+if(Auth.needsHandle()&&(sessionStorage.getItem('imdrivn_next')||'')!=='valuation'){if(location.hash!=='#/join')location.hash='#/join';else join();return}}
+if(Auth.user&&(!Auth.needsHandle()||(sessionStorage.getItem('imdrivn_next')||'')==='valuation'))takeNext()}
+function route(){document.body.classList.remove('menu-open');closeMenu(false);closeSort(false);dropChat();if(garageAdd._key){document.removeEventListener('keydown',garageAdd._key);garageAdd._key=null}if(ValueFlow._key){document.removeEventListener('keydown',ValueFlow._key);ValueFlow._key=null}const {p,a,b,params}=hashParts();if(p==='buy'){const requested=params.get('sort');if(sortOk(requested)){SORT=requested;localStorage.setItem('imdrivn_sort',SORT)}}syncSortUi();const sortWrap=$('#sortwrap');if(sortWrap)sortWrap.hidden=p!=='buy';io&&io.disconnect();feedToken++;homeToken++;viewToken++;
 const run=({'':home,buy:()=>buy(),saved:()=>buy(1),garage:()=>garage(a==='ads'),merch,msgs,messages:()=>a?chatThread(a):inbox(),car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join,u:()=>publicProfile(a),forum:()=>a==='t'&&b?forumThread(b):a?forumCategory(a):forumIndex()}[p||'']||home);
 Promise.resolve(run()).catch(()=>{});
 if(p!=='about')scrollTo(0,0);main.focus({preventScroll:true});

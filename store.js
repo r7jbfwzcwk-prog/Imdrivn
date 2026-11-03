@@ -376,29 +376,38 @@ const ListingStore = {
       else { cached.liked = on; cached.likeCount = Math.max(0, (cached.likeCount || 0) + (on ? 1 : -1)); cached.likes = cached.likeCount; }
     }
   },
-  async valuation(d, imgs) {
+  async valuation(d) {
     if (!sb) throw new Error('Accounts are offline right now. Try again in a moment.');
     await Auth.ready;
     if (!Auth.user) throw new Error('Sign in so dealers know who the offer is for.');
-    const paths = await uploadPaths(Auth.user.id, imgs, 'valuations');
-    const rego = String(d.rego || '').trim();
-    const looksVin = /^[A-HJ-NPR-Z0-9]{17}$/i.test(rego);
-    const condition = [d.cond, d.hist && ('service history: ' + d.hist), d.acc && ('accident damage: ' + d.acc), d.fin && ('finance owing: ' + d.fin), d.notes].filter(Boolean).join(' · ');
+    const paths = await uploadPaths(Auth.user.id, d.photos || [], 'valuations');
+    const rawPrice = d.expected_price != null && d.expected_price !== '' ? d.expected_price : d.expected;
+    const price = rawPrice === '' || rawPrice == null ? null : +rawPrice;
+    const condition = {
+      overall: d.overall,
+      accident: d.accident === 'yes',
+      service: d.service,
+      finance: d.finance === 'yes',
+      keys: d.keys,
+      mods: d.mods === 'yes',
+      mods_note: d.modsNote || ''
+    };
+    if (d.regoState) condition.rego_state = d.regoState;
     const { error } = await sb.from('valuations').insert({
       user_id: Auth.user.id,
-      make: d.make, model: d.model, year: d.year ? +d.year : null, kms: d.km === '' || d.km == null ? null : +d.km,
-      suburb: d.suburb || null, state: d.state || null,
-      rego: looksVin ? null : (rego || null),
-      vin: looksVin ? rego.toUpperCase() : null,
-      condition: condition || null,
-      contact_name: d.name || null,
-      contact_email: d.email || null,
-      contact_phone: d.phone || null,
-      photos: paths
+      make: d.make, model: d.model, year: +d.year, kms: +d.kms,
+      variant: d.variant || null,
+      rego: d.rego || null,
+      vin: d.vin ? String(d.vin).toUpperCase() : null,
+      suburb: d.suburb, state: d.state, postcode: d.postcode || null,
+      condition, photos: paths,
+      contact_name: d.name, contact_email: d.email, contact_phone: d.phone,
+      expected_price: price,
+      status: 'submitted'
     });
     if (error) {
       if (paths.length) await sb.storage.from('listing-photos').remove(paths);
-      throw new Error(dbMessage(error));
+      throw new Error(error.message || 'Could not send that.');
     }
   }
 };
