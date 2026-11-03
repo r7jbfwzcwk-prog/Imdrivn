@@ -187,6 +187,17 @@ if(Auth.recovery)return recoveryScreen();if(!Auth.user)return authScreen('in');i
 
 function msgs(){main.innerHTML=`<div class="wrap form"><h1 style="font-size:1.4rem">Messages</h1><div class="panel"><p class="muted">No messages yet. When buyers or sellers message you, chats land here. (Prototype)</p><a class="btn" href="#/buy">Back to the feed</a></div></div>`}
 function updateNav(){const a=document.querySelector('.dnav a[href="#/join"]');if(a)a.textContent=Auth.user?(Auth.profile&&Auth.profile.username?'@'+Auth.profile.username:'Profile'):'Sign in'}
+function toast(text, kind){let el=document.getElementById('toast');if(!el){el=document.createElement('div');el.id='toast';el.setAttribute('role','status');el.setAttribute('aria-live','polite');document.body.appendChild(el);el.addEventListener('click',()=>el.remove())}
+el.className='toast '+(kind==='error'?'toast-err':'toast-ok');el.textContent=text;clearTimeout(toast._t);toast._t=setTimeout(()=>{if(el.isConnected)el.remove()},8000)}
+function finishAuthReturn(){updateNav();
+if(Auth.oauthError){toast(Auth.oauthError,'error');Auth.oauthError='';return}
+if(Auth.recovery){if(!location.hash.startsWith('#/join'))location.hash='#/join';return}
+if(Auth.authReturn&&Auth.user){try{sessionStorage.removeItem('imdrivn_oauth')}catch(e){}
+const who=Auth.profile&&Auth.profile.username?'@'+Auth.profile.username:(Auth.user.email||'your account');
+toast('Signed in as '+who);
+if(Auth.needsHandle()){if(location.hash!=='#/join')location.hash='#/join';else join();return}}
+const next=sessionStorage.getItem('imdrivn_next');
+if(Auth.user&&next&&!Auth.needsHandle()){sessionStorage.removeItem('imdrivn_next');location.hash='#/'+next}}
 function route(){document.body.classList.remove('menu-open');const [,p,a]=location.hash.slice(1).split('/');io&&io.disconnect();feedToken++;homeToken++;viewToken++;
 const run=({'':home,buy:()=>buy(),saved:()=>buy(1),msgs,car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join}[p||'']||home);
 Promise.resolve(run()).catch(()=>{});
@@ -194,9 +205,6 @@ if(p!=='about')scrollTo(0,0);main.focus({preventScroll:true});
 document.querySelectorAll('.bnav a').forEach(x=>x.setAttribute('aria-current',x.dataset.r===(p||'')||(x.dataset.r==='buy'&&p==='car')?'page':'false'));}
 addEventListener('hashchange',route);
 Auth.listeners.add(()=>{updateNav();if(location.hash.startsWith('#/join')||Auth.recovery)join()});
+if(Auth.oauthError){toast(Auth.oauthError,'error');Auth.oauthError=''}
 route();
-Auth.ready.then(()=>{updateNav();
-if(Auth.recovery){if(!location.hash.startsWith('#/join'))location.hash='#/join';return}
-if(Auth.authReturn&&Auth.user&&Auth.needsHandle()){if(location.hash!=='#/join')location.hash='#/join';return}
-const next=sessionStorage.getItem('imdrivn_next');
-if(Auth.user&&next&&!Auth.needsHandle()){sessionStorage.removeItem('imdrivn_next');location.hash='#/'+next}});
+Auth.ready.then(()=>finishAuthReturn());

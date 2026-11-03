@@ -3,6 +3,40 @@
    and listings.photos stores those storage paths (first path is the cover). */
 const SB_URL = 'https://pcrrcyopnzcszlopmmtg.supabase.co';
 const SB_KEY = 'sb_publishable_ULArPJ33URATevUZBgUaHQ_omVbqNOY';
+
+/* Read before the client starts, so a failed OAuth redirect is not mistaken for a route. */
+const bootSearch = location.search;
+const bootHash = location.hash;
+function oauthProviderName(provider, description) {
+  const p = String(provider || '').toLowerCase();
+  if (p === 'google' || /google/i.test(description || '')) return 'Google';
+  if (p === 'apple' || /apple/i.test(description || '')) return 'Apple';
+  return '';
+}
+function oauthFailText(description, provider) {
+  const desc = String(description || '').replace(/\s+/g, ' ').trim().replace(/\.+$/, '');
+  const name = oauthProviderName(provider, desc);
+  const head = name ? name + " sign-in didn't work" : "Sign-in didn't work";
+  return (desc ? head + ': ' + desc : head) + '. Try again.';
+}
+function consumeOAuthError(search, hash) {
+  const query = new URLSearchParams(search);
+  const hashRaw = hash.startsWith('#') ? hash.slice(1) : hash;
+  const hashIsError = /(^|&)error=/.test(hashRaw) || /(^|&)error_description=/.test(hashRaw);
+  const hashParams = hashIsError ? new URLSearchParams(hashRaw) : null;
+  const error = query.get('error') || (hashParams && hashParams.get('error')) || '';
+  const description = query.get('error_description') || (hashParams && hashParams.get('error_description')) || '';
+  if (!error && !description) return '';
+  let provider = '';
+  try { provider = sessionStorage.getItem('imdrivn_oauth') || ''; sessionStorage.removeItem('imdrivn_oauth'); } catch (e) {}
+  query.delete('error'); query.delete('error_description'); query.delete('error_code');
+  const appHash = !hashIsError && hash.startsWith('#/') ? hash : '#/join';
+  const nextSearch = query.toString();
+  history.replaceState(null, '', location.pathname + (nextSearch ? '?' + nextSearch : '') + appHash);
+  return oauthFailText(description || (error === 'access_denied' ? 'Access was denied' : ''), provider);
+}
+const oauthErrorMessage = consumeOAuthError(bootSearch, bootHash);
+
 const sb = (window.supabase && window.supabase.createClient)
   ? window.supabase.createClient(SB_URL, SB_KEY, {
       auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
@@ -14,7 +48,8 @@ const Auth = {
   profile: null,
   likes: new Set(),
   saves: new Set(),
-  recovery: false,
+  recovery: /type=recovery/.test(bootSearch) || /type=recovery/.test(bootHash),
+  oauthError: oauthErrorMessage,
   listeners: new Set(),
   needsHandle() { return !!(this.user && !(this.profile && String(this.profile.username || '').trim())); },
   emit() { this.listeners.forEach(fn => { try { fn(); } catch (e) {} }); },
@@ -68,13 +103,22 @@ const Auth = {
       options: { redirectTo: location.origin + location.pathname, skipBrowserRedirect: true }
     });
     if (error) throw new Error(authMessage(error, provider));
+    try { sessionStorage.setItem('imdrivn_oauth', provider); } catch (e) {}
     if (!data || !data.url) throw new Error('Could not start that sign-in.');
     // Probe first so a disabled provider shows a message instead of leaving the page.
-    const res = await fetch(data.url, { headers: { apikey: SB_KEY }, redirect: 'manual' });
+    let res;
+    try { res = await fetch(data.url, { headers: { apikey: SB_KEY }, redirect: 'manual' }); }
+    catch (e) {
+      try { sessionStorage.removeItem('imdrivn_oauth'); } catch (err) {}
+      throw new Error('Could not reach the sign-in service. Try again.');
+    }
     if (res.type === 'opaqueredirect' || (res.status >= 300 && res.status < 400)) { location.assign(data.url); return; }
     let body = {};
     try { body = await res.json(); } catch (e) {}
-    if (!res.ok) throw new Error(authMessage({ message: body.msg || body.message || body.error_description || '' }, provider));
+    if (!res.ok) {
+      try { sessionStorage.removeItem('imdrivn_oauth'); } catch (e) {}
+      throw new Error(authMessage({ message: body.msg || body.message || body.error_description || '' }, provider));
+    }
     location.assign(data.url);
   },
   async updatePassword(password) {
@@ -111,7 +155,7 @@ const Auth = {
   }
 };
 Auth.ready = Auth.init();
-Auth.authReturn = /[?&]code=/.test(location.search) || /access_token|type=recovery/.test(location.hash);
+Auth.authReturn = (/[?&]code=/.test(bootSearch) || /access_token/.test(bootHash)) && !Auth.recovery && !oauthErrorMessage;
 
 function authMessage(error, provider) {
   const msg = error.message || error.msg || 'Something went wrong. Try again.';
