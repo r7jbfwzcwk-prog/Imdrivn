@@ -4,7 +4,7 @@ const $=(s,r=document)=>r.querySelector(s),main=$('#main');
 const aud=n=>'$'+Number(n).toLocaleString('en-AU'),kms=n=>Number(n).toLocaleString('en-AU')+' km';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const passes=l=>{const km=l.km??l.kms;return(!F.make||String(l.make).toLowerCase().includes(F.make.toLowerCase()))&&(!F.model||String(l.model).toLowerCase().includes(F.model.toLowerCase()))&&(!F.year||+l.year>=+F.year)&&(!F.km||+km<=+F.km)};
-const demosFor=saved=>DEMO.filter(l=>l.sec===m2s(MODE)&&passes(l)&&(!saved||(st()[l.id]||{}).save));
+const demosFor=saved=>DEMO.filter(l=>(saved||BUY==='all'||l.sec===m2s(BUY))&&passes(l)&&(!saved||(st()[l.id]||{}).save));
 const I={tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',up:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 16V8m-4 4 4-4 4 4"/>',
 shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 15 4-5"/><path d="M6 13h1m10 0h1M12 8v1"/>',
 lock:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/>',head:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="5" rx="1"/><rect x="17" y="14" width="4" height="5" rx="1"/><path d="M19 19c0 1.5-2 2-5 2"/>',
@@ -22,7 +22,7 @@ async function home(){const token=++homeToken;main.innerHTML=`
 ${[['shield','Verified vehicles','Every car is checked for quality and authenticity.'],['gauge','Serious buyers','Connect with genuine high performance buyers.'],['lock','Secure & safe','Safe transactions from start to finish.'],['head','Expert support','Real people, real support when you need it.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div></section>
 <section class="wrap"><div class="eyebrow">Fresh in the feed</div><div class="feed" id="fresh" style="padding:0;margin-top:var(--s-4)"></div></section>
 ${about()}`;
-let rows=[];try{rows=await ListingStore.page({mode:MODE,from:0,to:2,filters:F})}catch(e){rows=[]}
+let rows=[];try{rows=await ListingStore.page({mode:BUY,from:0,to:2,filters:F})}catch(e){rows=[]}
 if(token!==homeToken||!$('#fresh'))return;
 const fresh=(rows.length?rows:demosFor(false)).slice(0,3);
 $('#fresh').innerHTML=fresh.map(post).join('')||'<p class="muted">Nothing in this mode yet.</p>';}
@@ -58,12 +58,14 @@ const k=b.dataset.act;o[k]=!o[k];localStorage.setItem('imdrivn_social',JSON.stri
 if(k==='like'){const n=b.querySelector('span');n.textContent=+n.textContent+(o[k]?1:-1)}});
 
 /* ===== MODES (like a drive-mode selector) ===== */
-const MODES=['daily','performance','supercar'],m2s=m=>m==='supercar'?'supercars':m;
+const MODES=['daily','performance','supercar'],BUY_MODES=['all',...MODES],m2s=m=>m==='supercar'?'supercars':m;
 let MODE=localStorage.getItem('imdrivn_mode');if(!MODES.includes(MODE))MODE='daily';
-function setMode(m){MODE=m;localStorage.setItem('imdrivn_mode',m);document.body.dataset.mode=m;
-document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.m===m));}
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{setMode(b.dataset.m);const h=location.hash;if(h.startsWith('#/buy')||h.startsWith('#/saved')||h===''||h==='#/'||h.startsWith('#/about'))route();});
-setMode(MODE);
+let BUY=localStorage.getItem('imdrivn_buy');if(!BUY_MODES.includes(BUY))BUY='all';
+function syncTabs(){document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.m===BUY));}
+function setMode(m){if(!MODES.includes(m))return;MODE=m;localStorage.setItem('imdrivn_mode',m);document.body.dataset.mode=m;}
+function setBuy(m){if(!BUY_MODES.includes(m))m='all';BUY=m;localStorage.setItem('imdrivn_buy',BUY);if(m!=='all')setMode(m);syncTabs();}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{setBuy(b.dataset.m);const h=location.hash;if(h.startsWith('#/buy')||h.startsWith('#/saved')||h===''||h==='#/'||h.startsWith('#/about'))route();});
+setMode(MODE);syncTabs();
 $('#sbtn').onclick=()=>{const p=$('#spanel');p.hidden=!p.hidden;$('#sbtn').setAttribute('aria-expanded',!p.hidden);if(!p.hidden)p.querySelector('input').focus()};
 $('#bell').onclick=()=>{location.hash='#/messages'};
 $('#ig').href=INSTAGRAM_URL;$('#tt').href=TIKTOK_URL;
@@ -120,7 +122,7 @@ try{
   if(!state.remoteDone){
     if(SAVED&&!Auth.user)state.remoteDone=true;
     else{
-      const page=await ListingStore.page({mode:MODE,from:state.from,to:state.from+PAGE-1,saved:SAVED,filters:F,sort:SORT});
+      const page=await ListingStore.page({mode:SAVED?'all':BUY,from:state.from,to:state.from+PAGE-1,saved:SAVED,filters:F,sort:SORT});
       if(state.token!==feedToken)return;
       state.from+=page.length;
       if(page.length<PAGE)state.remoteDone=true;

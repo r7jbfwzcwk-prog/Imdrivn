@@ -296,7 +296,8 @@ const ListingStore = {
   async page({ mode, from, to, saved, filters, sort }) {
     if (!sb) return [];
     await Auth.ready;
-    let q = sb.from('listings').select(LISTING_SELECT).eq('mode', mode).eq('status', 'active');
+    let q = sb.from('listings').select(LISTING_SELECT).eq('status', 'active');
+    if (mode && mode !== 'all') q = q.eq('mode', mode);
     if (saved) {
       if (!Auth.user) return [];
       const ids = [...Auth.saves];

@@ -80,11 +80,11 @@ const ListFlow = (() => {
     const steps = [
       {
         id: 'section',
-        question: 'Which section?',
-        hint: 'Daily, Performance, or Supercar.',
+        question: 'Which category?',
+        hint: 'This is where the ad is shown. Not whichever tab you had open.',
         mount(body) {
-          body.innerHTML = `<div class="ask-choices" role="group" aria-labelledby="ask-q">${SECS.map(([v, label, sub], n) =>
-            `<button type="button" class="ask-choice" data-choice="sec" data-value="${v}" aria-pressed="${draft.sec === v}" ${n === 0 ? 'data-autofocus' : ''}><span class="ask-choice-k">${label}</span><span class="ask-choice-s">${sub}</span></button>`).join('')}</div>`;
+          body.innerHTML = `<div class="ask-choices sec-pick" role="group" aria-labelledby="ask-q">${SECS.map(([v, label, sub]) =>
+            `<button type="button" class="ask-choice sec-${v}" data-choice="sec" data-value="${v}" aria-pressed="${draft.sec === v}"><span class="ask-choice-k">${label}</span><span class="ask-choice-s">${sub}</span></button>`).join('')}</div>`;
           const current = body.querySelector('[aria-pressed="true"]');
           if (current) { body.querySelector('[data-autofocus]')?.removeAttribute('data-autofocus'); current.setAttribute('data-autofocus',''); }
           body.querySelectorAll('[data-choice="sec"]').forEach(btn => {
@@ -505,11 +505,11 @@ const ListFlow = (() => {
       const bar = root.querySelector('.ask-bar');
       bar.setAttribute('aria-valuenow', String(i + 1));
       bar.setAttribute('aria-valuemax', String(steps.length));
-      bar.setAttribute('aria-valuetext', `Question ${i + 1} of ${steps.length}`);
+      bar.setAttribute('aria-valuetext', `Step ${i + 1} of ${steps.length}`);
       bar.firstElementChild.style.width = ((i + 1) / steps.length * 100) + '%';
       const stage = root.querySelector('.ask-stage');
       stage.innerHTML = `<div class="ask-slide${dir > 0 ? ' from-right' : dir < 0 ? ' from-left' : ''}" role="group" aria-labelledby="ask-q">
-        <p class="ask-count">${i + 1} of ${steps.length}</p>
+        <p class="ask-count">Step ${i + 1} of ${steps.length}</p>
         <h2 class="ask-q" id="ask-q">${step.question}</h2>
         <p class="ask-hint" id="ask-hint">${step.hint || ''}</p>
         <div class="ask-body" id="ask-body"></div>
