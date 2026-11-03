@@ -387,3 +387,79 @@ const ListingStore = {
     }
   }
 };
+
+function forumErr(error) {
+  const msg = (error && error.message) || '';
+  if (/row-level security|permission/i.test(msg)) return 'Sign in with a handle to post.';
+  if (/title/i.test(msg) && /check|140/i.test(msg)) return 'Title needs to be between 3 and 140 characters.';
+  return dbMessage(error);
+}
+const Forum = {
+  async categories() {
+    if (!sb) throw new Error('Forum is offline right now.');
+    const { data, error } = await sb.from('forum_categories')
+      .select('id, slug, name, description, sort, forum_threads(count), latest:forum_threads(id, title, last_activity_at)')
+      .order('sort', { ascending: true })
+      .order('last_activity_at', { referencedTable: 'latest', ascending: false })
+      .limit(1, { referencedTable: 'latest' });
+    if (error) throw new Error(forumErr(error));
+    return data || [];
+  },
+  async category(slug) {
+    if (!sb) throw new Error('Forum is offline right now.');
+    const { data, error } = await sb.from('forum_categories').select('id, slug, name, description').eq('slug', slug).maybeSingle();
+    if (error) throw new Error(forumErr(error));
+    return data;
+  },
+  async threads(categoryId) {
+    const { data, error } = await sb.from('forum_threads')
+      .select('id, title, created_at, last_activity_at, reply_count, author_id, profiles(username)')
+      .eq('category_id', categoryId)
+      .order('last_activity_at', { ascending: false });
+    if (error) throw new Error(forumErr(error));
+    return data || [];
+  },
+  async thread(id) {
+    if (!/^[0-9a-f-]{8,}$/i.test(String(id)) && !/^\d+$/.test(String(id))) return null;
+    const thread = await sb.from('forum_threads')
+      .select('id, category_id, author_id, title, body, created_at, last_activity_at, reply_count, profiles(username), forum_categories(slug, name)')
+      .eq('id', id).maybeSingle();
+    if (thread.error) {
+      if (/invalid input syntax|22P02/i.test(thread.error.message || '')) return null;
+      throw new Error(forumErr(thread.error));
+    }
+    if (!thread.data) return null;
+    const replies = await sb.from('forum_replies')
+      .select('id, thread_id, author_id, body, created_at, profiles(username)')
+      .eq('thread_id', id).order('created_at', { ascending: true });
+    if (replies.error) throw new Error(forumErr(replies.error));
+    return { thread: thread.data, replies: replies.data || [] };
+  },
+  async createThread(categoryId, title, body) {
+    const { data, error } = await sb.from('forum_threads')
+      .insert({ category_id: categoryId, author_id: Auth.user.id, title, body })
+      .select('id').single();
+    if (error) throw new Error(forumErr(error));
+    return data;
+  },
+  async updateThread(id, title, body) {
+    const { error } = await sb.from('forum_threads').update({ title, body }).eq('id', id).eq('author_id', Auth.user.id);
+    if (error) throw new Error(forumErr(error));
+  },
+  async deleteThread(id) {
+    const { error } = await sb.from('forum_threads').delete().eq('id', id).eq('author_id', Auth.user.id);
+    if (error) throw new Error(forumErr(error));
+  },
+  async reply(threadId, body) {
+    const { error } = await sb.from('forum_replies').insert({ thread_id: threadId, author_id: Auth.user.id, body });
+    if (error) throw new Error(forumErr(error));
+  },
+  async updateReply(id, body) {
+    const { error } = await sb.from('forum_replies').update({ body }).eq('id', id).eq('author_id', Auth.user.id);
+    if (error) throw new Error(forumErr(error));
+  },
+  async deleteReply(id) {
+    const { error } = await sb.from('forum_replies').delete().eq('id', id).eq('author_id', Auth.user.id);
+    if (error) throw new Error(forumErr(error));
+  }
+};

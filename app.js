@@ -14,7 +14,8 @@ async function home(){const token=++homeToken;main.innerHTML=`
 <h1>The high<br><span class="grey">performance</span><br>marketplace</h1><hr><p><em>Australia's premium marketplace for high performance cars.</em> Free to list. Always.</p></div></section>
 <div class="wrap"><div class="paths">
 <a class="path" href="#/buy">${ico('tag')}<span class="wide">IM BUYIN</span><span class="tag">Find your next machine.</span><span class="muted">Browse premium high performance cars available now.</span><span class="btn">Browse cars →</span></a>
-<a class="path" href="#/sell">${ico('up')}<span class="wide">IM SELLIN</span><span class="tag">List with confidence.</span><span class="muted">List free, or get a wholesale offer from dealers.</span><span class="btn">Sell your car →</span></a></div></div>
+<a class="path" href="#/sell">${ico('up')}<span class="wide">IM SELLIN</span><span class="tag">List with confidence.</span><span class="muted">List free, or get a wholesale offer from dealers.</span><span class="btn">Sell your car →</span></a>
+<a class="path forum-home" href="#/forum">${ico('head')}<span class="wide">THE FORUM</span><span class="tag">Need a hand with the car?</span><span class="muted">Ask the crew. Advice, mods, meets. No gatekeeping.</span><span class="btn">Pull up a chair →</span></a></div></div>
 <section class="wrap feats" id="how"><div class="eyebrow">Built for enthusiasts. Driven by performance.</div><div class="row4">
 ${[['shield','Verified vehicles','Every car is checked for quality and authenticity.'],['gauge','Serious buyers','Connect with genuine high performance buyers.'],['lock','Secure & safe','Safe transactions from start to finish.'],['head','Expert support','Real people, real support when you need it.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div></section>
 <section class="wrap"><div class="eyebrow">Fresh in the feed</div><div class="feed" id="fresh" style="padding:0;margin-top:var(--s-4)"></div></section>
@@ -209,11 +210,12 @@ toast('Signed in as '+who);
 if(Auth.needsHandle()){if(location.hash!=='#/join')location.hash='#/join';else join();return}}
 const next=sessionStorage.getItem('imdrivn_next');
 if(Auth.user&&next&&!Auth.needsHandle()){sessionStorage.removeItem('imdrivn_next');location.hash='#/'+next}}
-function route(){document.body.classList.remove('menu-open');const [,p,a]=location.hash.slice(1).split('/');io&&io.disconnect();feedToken++;homeToken++;viewToken++;
-const run=({'':home,buy:()=>buy(),saved:()=>buy(1),msgs,car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join}[p||'']||home);
+function route(){document.body.classList.remove('menu-open');const [,p,a,b]=location.hash.slice(1).split('/');io&&io.disconnect();feedToken++;homeToken++;viewToken++;
+const run=({'':home,buy:()=>buy(),saved:()=>buy(1),msgs,car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join,forum:()=>a==='t'&&b?forumThread(b):a?forumCategory(a):forumIndex()}[p||'']||home);
 Promise.resolve(run()).catch(()=>{});
 if(p!=='about')scrollTo(0,0);main.focus({preventScroll:true});
-document.querySelectorAll('.bnav a').forEach(x=>x.setAttribute('aria-current',x.dataset.r===(p||'')||(x.dataset.r==='buy'&&p==='car')?'page':'false'));}
+const section=p==='forum'?'forum':(p||'');
+document.querySelectorAll('.bnav a, .dnav a').forEach(x=>x.setAttribute('aria-current',(x.dataset.r||x.getAttribute('href'))===(section==='forum'?'#/forum':section)&&section? 'page' : (x.dataset.r===section||(x.dataset.r==='buy'&&p==='car')?'page':'false')));}
 addEventListener('hashchange',route);
 Auth.listeners.add(()=>{updateNav();if(location.hash.startsWith('#/join')||Auth.recovery)join()});
 if(Auth.oauthError){toast(Auth.oauthError,'error');Auth.oauthError=''}

@@ -5,7 +5,7 @@
 <body data-mode="daily"><script>(function(){var q=new URLSearchParams(location.search).get('mode');if(q)localStorage.setItem('imdrivn_mode',q)})();document.body.dataset.mode=['daily','performance','supercar'].includes(localStorage.getItem('imdrivn_mode'))?localStorage.getItem('imdrivn_mode'):'daily'</script>
 <a class="skip" href="#main">Skip to content</a>
 <header class="top"><div class="bar"><a href="#/" class="logo">IM DRIVN</a>
-<nav class="dnav" aria-label="Main"><a href="#/buy">IM BUYIN</a><a href="#/sell">IM SELLIN</a><a href="#/how">How it works</a><a href="#/join">Sign in</a></nav>
+<nav class="dnav" aria-label="Main"><a href="#/buy">IM BUYIN</a><a href="#/sell">IM SELLIN</a><a href="#/forum">Forum</a><a href="#/how">How it works</a><a href="#/join">Sign in</a></nav>
 <div class="ic"><button id="sbtn" aria-label="Search" aria-expanded="false" aria-controls="spanel"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
 <button id="bell" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></button></div></div>
 <div class="tabs" role="tablist" aria-label="Drive mode"><button role="tab" data-m="daily">Daily</button><button role="tab" data-m="performance">Performance</button><button role="tab" data-m="supercar">Supercar</button></div>
@@ -15,9 +15,10 @@
 <footer><div class="logo">IM DRIVN</div><p>Free to list. Buy. Sell. Drive. Prototype © 2026 — demo cars are sample data. Cars you post are saved to your account.</p></footer>
 <nav class="bnav" aria-label="App">
 <a href="#/buy" data-r="buy" aria-label="Home feed"><svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></svg></a>
+<a href="#/forum" data-r="forum" aria-label="Forum"><svg viewBox="0 0 24 24"><path d="M5 6h14v8H9l-4 3z"/><circle cx="9" cy="10" r=".8"/><circle cx="12" cy="10" r=".8"/><circle cx="15" cy="10" r=".8"/></svg></a>
 <a href="#/msgs" data-r="msgs" aria-label="Messages"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg></a>
 <a href="#/sell" data-r="sell" class="plus" aria-label="Sell – list free"><svg viewBox="0 0 24 24"><path d="M12 7v10M7 12h10"/></svg></a>
 <a href="#/saved" data-r="saved" aria-label="Saved"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></a>
 <a href="#/join" data-r="join" aria-label="Profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4-6 8-6s7 1.5 8 6"/></svg></a></nav>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
-<script src="data.js"></script><script src="store.js"></script><script src="list-flow.js"></script><script src="app.js"></script></body></html>
+<script src="data.js"></script><script src="store.js"></script><script src="list-flow.js"></script><script src="forum.js"></script><script src="app.js"></script></body></html>
