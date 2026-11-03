@@ -323,7 +323,13 @@ const ListingStore = {
   },
   async mine() {
     if (!sb || !Auth.user) return [];
-    const { data, error } = await sb.from('listings').select(LISTING_SELECT).eq('user_id', Auth.user.id).order('created_at', { ascending: false });
+    return this.bySeller(Auth.user.id, true);
+  },
+  async bySeller(userId, includeHidden) {
+    if (!sb || !userId) return [];
+    let q = sb.from('listings').select(LISTING_SELECT).eq('user_id', userId).order('created_at', { ascending: false });
+    if (!includeHidden) q = q.eq('status', 'active');
+    const { data, error } = await q;
     if (error) throw new Error(dbMessage(error));
     return this.remember((data || []).map(mapListing));
   },
@@ -470,6 +476,83 @@ const Forum = {
   async deleteReply(id) {
     const { error } = await sb.from('forum_replies').delete().eq('id', id).eq('author_id', Auth.user.id);
     if (error) throw new Error(forumErr(error));
+  }
+};
+
+function garagePhotoUrl(photo) {
+  if (!photo) return '';
+  if (/^https?:\/\//i.test(photo) || photo.startsWith('data:')) return photo;
+  if (!sb) return photo;
+  const { data } = sb.storage.from('garage-photos').getPublicUrl(photo);
+  return data.publicUrl;
+}
+function garageStoragePath(photo) {
+  if (!photo) return '';
+  if (!/^https?:/i.test(photo)) return String(photo).replace(/^\/+/, '');
+  const mark = '/garage-photos/';
+  const at = photo.indexOf(mark);
+  if (at < 0) return '';
+  try { return decodeURIComponent(photo.slice(at + mark.length).split('?')[0]); }
+  catch (e) { return photo.slice(at + mark.length).split('?')[0]; }
+}
+function garageErr(error) {
+  const msg = (error && error.message) || '';
+  if (/row-level security|permission/i.test(msg)) return 'Sign in with a handle to change your garage.';
+  if (/jwt|session/i.test(msg)) return 'Your session expired. Sign in again.';
+  return msg || 'Could not update the garage.';
+}
+function mapGarageCar(row) {
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    make: row.make || '',
+    model: row.model || '',
+    photo_url: row.photo_url || '',
+    src: garagePhotoUrl(row.photo_url),
+    created_at: row.created_at
+  };
+}
+const Garage = {
+  async profile(handle) {
+    if (!sb) return null;
+    const name = Auth.cleanHandle(handle);
+    if (!Auth.handleOk(name)) return null;
+    const pattern = name.replace(/[\\%_]/g, ch => '\\' + ch);
+    const { data, error } = await sb.from('profiles').select('id,username').ilike('username', pattern).limit(5);
+    if (error) throw new Error(garageErr(error));
+    return (data || []).find(row => String(row.username || '').toLowerCase() === name) || null;
+  },
+  async cars(userId) {
+    if (!sb || !userId) return [];
+    const { data, error } = await sb.from('garage_cars').select('id,user_id,make,model,photo_url,created_at').eq('user_id', userId).order('created_at', { ascending: false });
+    if (error) throw new Error(garageErr(error));
+    return (data || []).map(mapGarageCar);
+  },
+  async add(make, model, dataUrl) {
+    if (!sb || !Auth.user) throw new Error('Sign in to add a car.');
+    if (Auth.needsHandle()) throw new Error('Choose a handle first.');
+    const mk = String(make || '').trim();
+    const md = String(model || '').trim();
+    if (!mk || !md || mk.length > 40 || md.length > 40) throw new Error('Make and model need 1–40 characters.');
+    const uid = Auth.user.id;
+    const blob = await dataUrlToBlob(dataUrl);
+    const path = uid + '/' + crypto.randomUUID() + '.jpg';
+    const up = await sb.storage.from('garage-photos').upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+    if (up.error) throw new Error(storageMessage(up.error));
+    const ins = await sb.from('garage_cars').insert({ user_id: uid, make: mk, model: md, photo_url: path }).select('id,user_id,make,model,photo_url,created_at').single();
+    if (ins.error) {
+      await sb.storage.from('garage-photos').remove([path]);
+      throw new Error(garageErr(ins.error));
+    }
+    return mapGarageCar(ins.data);
+  },
+  async remove(id) {
+    if (!sb || !Auth.user) throw new Error('Sign in to change your garage.');
+    const existing = await sb.from('garage_cars').select('photo_url').eq('id', id).eq('user_id', Auth.user.id).maybeSingle();
+    const del = await sb.from('garage_cars').delete().eq('id', id).eq('user_id', Auth.user.id);
+    if (del.error) throw new Error(garageErr(del.error));
+    const path = garageStoragePath(existing.data && existing.data.photo_url);
+    if (path && path.startsWith(Auth.user.id + '/')) await sb.storage.from('garage-photos').remove([path]);
   }
 };
 

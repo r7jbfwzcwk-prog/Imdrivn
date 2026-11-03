@@ -8,10 +8,11 @@ function fEl(tag, attrs, text) {
   if (text != null) node.textContent = text;
   return node;
 }
-function fHandle(row) {
+function fHandleNode(row) {
   const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
-  const name = profile && profile.username ? String(profile.username).replace(/^@/, '') : 'driver';
-  return '@' + name;
+  const name = profile && profile.username ? String(profile.username).replace(/^@/, '') : '';
+  if (!name) return fEl('span', { class: 'fhandle' }, '@driver');
+  return fEl('a', { class: 'fhandle', href: '#/u/' + encodeURIComponent(name) }, '@' + name);
 }
 function fCount(rel) {
   if (!rel) return 0;
@@ -40,7 +41,7 @@ function fError(parent, error) {
 }
 function fMeta(row, whenIso) {
   const meta = fEl('div', { class: 'fmeta' });
-  meta.append(fEl('span', { class: 'fhandle' }, fHandle(row)), fEl('time', null, whenLabel(whenIso)));
+  meta.append(fHandleNode(row), fEl('time', null, whenLabel(whenIso)));
   return meta;
 }
 function fActions(authorId, onEdit, onDelete) {
@@ -142,17 +143,18 @@ async function forumCategory(slug) {
   if (token !== viewToken) return;
   if (!threads.length) list.append(fEl('p', { class: 'fempty' }, 'Quiet in here. Be the one who asks.'));
   threads.forEach(thread => {
-    const link = fEl('a', { class: 'fthread', href: '#/forum/t/' + encodeURIComponent(thread.id) });
+    const card = fEl('article', { class: 'fthread' });
+    const link = fEl('a', { class: 'fthread-title', href: '#/forum/t/' + encodeURIComponent(thread.id) });
     link.append(fEl('h2', null, thread.title || ''));
     const meta = fEl('div', { class: 'fmeta' });
     const replies = Number(thread.reply_count) || 0;
     meta.append(
-      fEl('span', { class: 'fhandle' }, fHandle(thread)),
+      fHandleNode(thread),
       fEl('span', null, replies === 1 ? '1 reply' : replies + ' replies'),
       fEl('time', null, whenLabel(thread.last_activity_at || thread.created_at))
     );
-    link.append(meta);
-    list.append(link);
+    card.append(link, meta);
+    list.append(card);
   });
 }
 
