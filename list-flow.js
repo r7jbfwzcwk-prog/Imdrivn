@@ -458,7 +458,7 @@ const ListFlow = (() => {
       } catch (e) {
         busy = false;
         if (btn) btn.disabled = false;
-        setErr('Could not save that — storage is full. Drop a photo or two and try again.');
+        setErr(e && e.message ? e.message : 'Could not save that. Try again in a moment.');
       }
     }
 
