@@ -256,6 +256,14 @@ function mapListing(row) {
     created_at: row.created_at
   };
 }
+function applyListingSort(q, sort) {
+  if (sort === 'price-asc') q = q.order('price', { ascending: true });
+  else if (sort === 'price-desc') q = q.order('price', { ascending: false });
+  else if (sort === 'year-desc') q = q.order('year', { ascending: false });
+  else if (sort === 'year-asc') q = q.order('year', { ascending: true });
+  else return q.order('created_at', { ascending: false });
+  return q.order('created_at', { ascending: false });
+}
 function likePattern(value) {
   return '%' + String(value || '').replace(/[%_,]/g, '') + '%';
 }
@@ -285,10 +293,10 @@ async function uploadPaths(uid, dataUrls, folder) {
 const ListingStore = {
   cache: new Map(),
   remember(rows) { rows.forEach(l => this.cache.set(l.id, l)); return rows; },
-  async page({ mode, from, to, saved, filters }) {
+  async page({ mode, from, to, saved, filters, sort }) {
     if (!sb) return [];
     await Auth.ready;
-    let q = sb.from('listings').select(LISTING_SELECT).eq('mode', mode).eq('status', 'active').order('created_at', { ascending: false });
+    let q = sb.from('listings').select(LISTING_SELECT).eq('mode', mode).eq('status', 'active');
     if (saved) {
       if (!Auth.user) return [];
       const ids = [...Auth.saves];
@@ -300,6 +308,7 @@ const ListingStore = {
     if (f.model) q = q.ilike('model', likePattern(f.model));
     if (f.year) q = q.gte('year', +f.year);
     if (f.km) q = q.lte('kms', +f.km);
+    q = applyListingSort(q, saved ? 'new' : sort);
     const { data, error } = await q.range(from, to);
     if (error) throw new Error(dbMessage(error));
     return this.remember((data || []).map(mapListing));

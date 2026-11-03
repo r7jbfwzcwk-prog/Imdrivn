@@ -18,7 +18,7 @@ async function home(){const token=++homeToken;main.innerHTML=`
 <div class="wrap"><div class="paths">
 <a class="path" href="#/buy">${ico('tag')}<span class="wide">IM BUYIN</span><span class="tag">Find your next machine.</span><span class="muted">Browse premium high performance cars available now.</span><span class="btn">Browse cars →</span></a>
 <a class="path" href="#/sell">${ico('up')}<span class="wide">IM SELLIN</span><span class="tag">List with confidence.</span><span class="muted">List free, or get a wholesale offer from dealers.</span><span class="btn">Sell your car →</span></a>
-<a class="path" href="#/merch">${ico('bag')}<span class="wide">IM MERCH</span><span class="tag">Wear the drive.</span><span class="muted">Tees, hoodies, caps. The drop is close.</span><span class="btn">See the drop →</span></a>
+<a class="path" href="#/merch">${ico('bag')}<span class="wide">MERCH</span><span class="tag">Wear the drive.</span><span class="muted">Tees, hoodies, caps. The drop is close.</span><span class="btn">See the drop →</span></a>
 <a class="path forum-home" href="#/forum">${ico('head')}<span class="wide">THE FORUM</span><span class="tag">Need a hand with the car?</span><span class="muted">Ask the crew. Advice, mods, meets. No gatekeeping.</span><span class="btn">Pull up a chair →</span></a></div></div>
 <section class="wrap feats" id="how"><div class="eyebrow">Built for enthusiasts. Driven by performance.</div><div class="row4">
 ${[['shield','Verified vehicles','Every car is checked for quality and authenticity.'],['gauge','Serious buyers','Connect with genuine high performance buyers.'],['lock','Secure & safe','Safe transactions from start to finish.'],['head','Expert support','Real people, real support when you need it.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div></section>
@@ -71,7 +71,7 @@ function closeMenu(focusBack){if(!appMenu||appMenu.hidden)return;appMenu.hidden=
 function openMenu(){appMenu.hidden=false;menuBtn.setAttribute('aria-expanded','true');const first=appMenu.querySelector('a');if(first)first.focus()}
 menuBtn.onclick=()=>{if(appMenu.hidden)openMenu();else closeMenu(false)};
 document.addEventListener('click',e=>{if(appMenu.hidden||e.target.closest('#appmenu')||e.target.closest('#menubtn'))return;closeMenu(false)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!appMenu.hidden){e.preventDefault();closeMenu(true)}});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#sortsheet')&&!$('#sortsheet').hidden){e.preventDefault();closeSort(true);return}if(!appMenu.hidden){e.preventDefault();closeMenu(true)}});
 appMenu.addEventListener('keydown',e=>{const items=[...appMenu.querySelectorAll('a')];const i=items.indexOf(document.activeElement);
 if(e.key==='ArrowDown'){e.preventDefault();items[(i+1)%items.length].focus()}
 if(e.key==='ArrowUp'){e.preventDefault();items[(i-1+items.length)%items.length].focus()}
@@ -80,8 +80,31 @@ if(e.key==='End'){e.preventDefault();items[items.length-1].focus()}});
 
 let F={make:'',model:'',year:'',km:''},io,SAVED=false,homeToken=0,feedToken=0,viewToken=0,feedState=null;
 const PAGE=8;
-$('#qs').onsubmit=e=>{e.preventDefault();Object.assign(F,Object.fromEntries(new FormData(e.target)));$('#spanel').hidden=true;location.hash==='#/buy'?route():location.hash='#/buy';};
-$('#qs').onreset=()=>{F={make:'',model:'',year:'',km:''};setTimeout(()=>location.hash==='#/buy'?route():location.hash='#/buy')};
+const SORTS=[['new','Newest posts','Newest'],['price-asc','Price: low to high','Low–high'],['price-desc','Price: high to low','High–low'],['year-desc','Year: newest to oldest','New–old'],['year-asc','Year: oldest to newest','Old–new']];
+const sortOk=id=>SORTS.some(s=>s[0]===id);
+let SORT=localStorage.getItem('imdrivn_sort');if(!sortOk(SORT))SORT='new';
+const sortMeta=id=>SORTS.find(s=>s[0]===id)||SORTS[0];
+function buyHash(){return SORT&&SORT!=='new'?'#/buy?sort='+SORT:'#/buy'}
+function hashParts(){const raw=location.hash.startsWith('#')?location.hash.slice(1):'';const q=raw.indexOf('?');const path=q<0?raw:raw.slice(0,q);const params=new URLSearchParams(q<0?'':raw.slice(q+1));const bits=path.split('/');return{p:bits[1]||'',a:bits[2],b:bits[3],params}}
+function syncSortUi(){const meta=sortMeta(SORT);const btn=$('#sortbtn');if(btn){btn.textContent=meta[2];btn.title=meta[1];btn.setAttribute('aria-label','Sort: '+meta[1])}
+document.querySelectorAll('#sortsheet [data-sort]').forEach(b=>b.setAttribute('aria-selected',b.dataset.sort===SORT?'true':'false'))}
+function openSort(){const back=$('#sortback'),sheet=$('#sortsheet'),btn=$('#sortbtn');if(!sheet)return;back.hidden=false;sheet.hidden=false;btn.setAttribute('aria-expanded','true');const cur=sheet.querySelector('[aria-selected=true]')||sheet.querySelector('button');if(cur)cur.focus()}
+function closeSort(focusBack){const back=$('#sortback'),sheet=$('#sortsheet'),btn=$('#sortbtn');if(!sheet||sheet.hidden)return;back.hidden=true;sheet.hidden=true;btn.setAttribute('aria-expanded','false');if(focusBack)btn.focus()}
+function setSort(id){if(!sortOk(id))id='new';SORT=id;localStorage.setItem('imdrivn_sort',SORT);syncSortUi();closeSort(true);const next=buyHash();if(location.hash===next)route();else location.hash=next}
+function listingTime(l){if(l.created_at){const t=Date.parse(l.created_at);if(!Number.isNaN(t))return t}if(l.ago!=null&&l.ago!=='')return Date.now()-Number(l.ago)*3600000;return 0}
+function sortRows(rows,sort){const list=rows.slice(),tie=(a,b)=>listingTime(b)-listingTime(a)||String(b.id).localeCompare(String(a.id));
+list.sort((a,b)=>{if(sort==='price-asc')return(+a.price-+b.price)||tie(a,b);if(sort==='price-desc')return(+b.price-+a.price)||tie(a,b);if(sort==='year-desc')return(+b.year-+a.year)||tie(a,b);if(sort==='year-asc')return(+a.year-+b.year)||tie(a,b);return tie(a,b)});return list}
+$('#sortbtn').onclick=()=>{$('#sortsheet').hidden?openSort():closeSort(false)};
+$('#sortback').onclick=()=>closeSort(true);
+$('#sortsheet').onclick=e=>{const b=e.target.closest('[data-sort]');if(b)setSort(b.dataset.sort)};
+$('#sortsheet').addEventListener('keydown',e=>{const items=[...$('#sortsheet').querySelectorAll('[data-sort]')];const i=items.indexOf(document.activeElement);
+if(e.key==='ArrowDown'){e.preventDefault();items[(i+1)%items.length].focus()}
+if(e.key==='ArrowUp'){e.preventDefault();items[(Math.max(i,0)-1+items.length)%items.length].focus()}
+if(e.key==='Home'){e.preventDefault();items[0].focus()}
+if(e.key==='End'){e.preventDefault();items[items.length-1].focus()}});
+syncSortUi();
+$('#qs').onsubmit=e=>{e.preventDefault();Object.assign(F,Object.fromEntries(new FormData(e.target)));$('#spanel').hidden=true;$('#sbtn').setAttribute('aria-expanded','false');const next=buyHash();location.hash===next?route():location.hash=next};
+$('#qs').onreset=()=>{F={make:'',model:'',year:'',km:''};setTimeout(()=>{const next=buyHash();location.hash===next?route():location.hash=next})};
 function askSignIn(message,next){sessionStorage.setItem('imdrivn_next',next);main.innerHTML=`<div class="wrap form auth"><div class="eyebrow">Account</div><h1>Sign in</h1><p class="muted">${esc(message)}</p><a class="btn solid" href="#/join">Sign in</a></div>`}
 async function buy(saved){if(saved){await Auth.ready;if(!Auth.user){askSignIn('Sign in to see the cars you saved.','saved');return}}
 const token=++feedToken;SAVED=!!saved;const f=[F.make,F.model,F.year&&F.year+'+',F.km&&'≤'+F.km+' km'].filter(Boolean);
@@ -96,14 +119,14 @@ try{
   if(!state.remoteDone){
     if(SAVED&&!Auth.user)state.remoteDone=true;
     else{
-      const page=await ListingStore.page({mode:MODE,from:state.from,to:state.from+PAGE-1,saved:SAVED,filters:F});
+      const page=await ListingStore.page({mode:MODE,from:state.from,to:state.from+PAGE-1,saved:SAVED,filters:F,sort:SORT});
       if(state.token!==feedToken)return;
       state.from+=page.length;
       if(page.length<PAGE)state.remoteDone=true;
       rows.push(...page);
     }
   }
-  if(state.remoteDone&&!state.demosAdded){if(!SAVED&&state.from===0)rows.push(...demosFor(false));state.demosAdded=true}
+  if(state.remoteDone&&!state.demosAdded){if(!SAVED&&state.from===0)rows.push(...sortRows(demosFor(false),SORT));state.demosAdded=true}
   rows=rows.filter(l=>!state.seen.has(l.id));
   rows.forEach(l=>state.seen.add(l.id));
   const feed=$('#feed'),moreEl=$('#more');
@@ -112,7 +135,7 @@ try{
   if(rows.length)feed.insertAdjacentHTML('beforeend',rows.map(post).join(''));
   if(state.remoteDone&&state.demosAdded&&moreEl){moreEl.hidden=true;io&&io.disconnect()}
 }catch(e){if(state.token!==feedToken)return;const feed=$('#feed'),moreEl=$('#more');
-if(feed&&!state.seen.size){if(SAVED){feed.innerHTML='<p class="muted">Nothing saved in this mode yet. Tap the bookmark on a car.</p>';if(moreEl)moreEl.hidden=true;return}const demos=demosFor(false);demos.forEach(l=>state.seen.add(l.id));state.remoteDone=true;state.demosAdded=true;feed.innerHTML=demos.map(post).join('')+(demos.length?'':'<p class="muted">Live listings did not load.</p>');if(moreEl)moreEl.hidden=true;return}
+if(feed&&!state.seen.size){if(SAVED){feed.innerHTML='<p class="muted">Nothing saved in this mode yet. Tap the bookmark on a car.</p>';if(moreEl)moreEl.hidden=true;return}const demos=sortRows(demosFor(false),SORT);demos.forEach(l=>state.seen.add(l.id));state.remoteDone=true;state.demosAdded=true;feed.innerHTML=demos.map(post).join('')+(demos.length?'':'<p class="muted">Live listings did not load.</p>');if(moreEl)moreEl.hidden=true;return}
 if(moreEl)moreEl.textContent='Could not load more. Scroll to try again.'
 }finally{state.busy=false}}
 
@@ -153,10 +176,15 @@ f.onsubmit=e=>{e.preventDefault();const bad=[...sets[i].querySelectorAll('[requi
 if(i<sets.length-1){i++;show();scrollTo(0,0);return}onDone(Object.fromEntries(new FormData(f)),imgs);};}
 
 async function gate(next){await Auth.ready;if(!Auth.user||Auth.needsHandle()){sessionStorage.setItem('imdrivn_next',next);if(location.hash!=='#/join')location.hash='#/join';else join();return false}return true}
+function posted(l){const title=l.heading||[l.year,l.make,l.model].filter(Boolean).join(' ');
+main.innerHTML=`<div class="wrap form posted"><div class="eyebrow">IM SELLIN</div><h1 style="font-size:clamp(1.3rem,4vw,2rem)">You're in</h1><p class="muted">${esc(title)} is submitted.</p>
+<aside class="verify-card" role="note"><p>Heads up: a member of the IM DRIVN team may contact you to verify you're a real person and not sitting in a call centre somewhere. That's how we keep our marketplace safer. Your ad will be live shortly.</p></aside>
+<div class="posted-actions"><a class="btn solid" href="#/car/${esc(l.id)}">See your ad</a><a class="btn" href="#/buy">Back to the feed</a></div></div>`;
+main.focus({preventScroll:true})}
 async function list(){if(!await gate('list'))return;ListFlow.start(main,{async publish(d){
   const saved=await ListingStore.create({sec:d.sec,make:d.make.trim(),model:d.model.trim(),year:+d.year,km:+d.km,price:+d.price,suburb:d.suburb.trim(),state:d.state,postcode:d.postcode,heading:d.heading.trim(),desc:d.desc.trim(),photos:d.photos.slice(),name:d.name.trim(),phone:d.phone.trim(),email:d.email.trim()});
   setMode(saved.mode||(saved.sec==='supercars'?'supercar':saved.sec));
-  location.hash='#/car/'+saved.id;
+  posted(saved);
 }});}
 
 async function valuation(){if(!await gate('valuation'))return;const yn=(n,q)=>`<p style="margin:var(--s-4) 0 var(--s-2)">${q}</p><div class="choice c3"><label><input type="radio" name="${n}" value="yes" checked> Yes</label><label><input type="radio" name="${n}" value="no"> No</label><label><input type="radio" name="${n}" value="unsure"> Not sure</label></div>`;
@@ -222,7 +250,7 @@ let rows=[];try{rows=await ListingStore.mine()}catch(e){rows=[]}
 if(token!==viewToken||!$('#mine'))return;
 $('#mine').innerHTML=rows.length?rows.map(post).join(''):'<p class="muted">Garage is empty. List a car and it shows up here.</p><a class="btn" href="#/list">List your car</a>';}
 function merch(){const items=[['Tee','Heavyweight. The one you actually wear.'],['Hoodie','Cold start, warm hoodie.'],['Cap','Low crown. Logo only.'],['Sticker pack','Bumper, laptop, water bottle. Your call.']];
-main.innerHTML=`<div class="wrap merch"><div class="eyebrow">IM MERCH</div><h1 style="font-size:clamp(1.6rem,5vw,2.6rem)">Merch dropping soon</h1><p class="muted">We're cooking the drop. Nothing to buy yet — just the lineup.</p><div class="merch-grid">${items.map(([name,line])=>`<article class="merch-card"><div class="swatch">${esc(name)}</div><h2>${esc(name)}</h2><p>${esc(line)}</p><span class="soon">Coming soon</span></article>`).join('')}</div><a class="btn solid" href="${esc(INSTAGRAM_URL)}" target="_blank" rel="noopener">Notify me</a></div>`}
+main.innerHTML=`<div class="wrap merch"><div class="eyebrow">MERCH</div><h1 style="font-size:clamp(1.6rem,5vw,2.6rem)">Merch dropping soon</h1><p class="muted">We're cooking the drop. Nothing to buy yet — just the lineup.</p><div class="merch-grid">${items.map(([name,line])=>`<article class="merch-card"><div class="swatch">${esc(name)}</div><h2>${esc(name)}</h2><p>${esc(line)}</p><span class="soon">Coming soon</span></article>`).join('')}</div><a class="btn solid" href="${esc(INSTAGRAM_URL)}" target="_blank" rel="noopener">Notify me</a></div>`}
 function updateNav(){const a=document.querySelector('.dnav a[href="#/join"]');if(a)a.textContent=Auth.user?(Auth.profile&&Auth.profile.username?'@'+Auth.profile.username:'Profile'):'Sign in'}
 function toast(text, kind){let el=document.getElementById('toast');if(!el){el=document.createElement('div');el.id='toast';el.setAttribute('role','status');el.setAttribute('aria-live','polite');document.body.appendChild(el);el.addEventListener('click',()=>el.remove())}
 el.className='toast '+(kind==='error'?'toast-err':'toast-ok');el.textContent=text;clearTimeout(toast._t);toast._t=setTimeout(()=>{if(el.isConnected)el.remove()},8000)}
@@ -235,7 +263,7 @@ toast('Signed in as '+who);
 if(Auth.needsHandle()){if(location.hash!=='#/join')location.hash='#/join';else join();return}}
 const next=sessionStorage.getItem('imdrivn_next');
 if(Auth.user&&next&&!Auth.needsHandle()){sessionStorage.removeItem('imdrivn_next');location.hash='#/'+next}}
-function route(){document.body.classList.remove('menu-open');closeMenu(false);const [,p,a,b]=location.hash.slice(1).split('/');io&&io.disconnect();feedToken++;homeToken++;viewToken++;
+function route(){document.body.classList.remove('menu-open');closeMenu(false);closeSort(false);const {p,a,b,params}=hashParts();if(p==='buy'){const requested=params.get('sort');if(sortOk(requested)){SORT=requested;localStorage.setItem('imdrivn_sort',SORT)}}syncSortUi();const sortWrap=$('#sortwrap');if(sortWrap)sortWrap.hidden=p!=='buy';io&&io.disconnect();feedToken++;homeToken++;viewToken++;
 const run=({'':home,buy:()=>buy(),saved:()=>buy(1),garage,merch,msgs,car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join,forum:()=>a==='t'&&b?forumThread(b):a?forumCategory(a):forumIndex()}[p||'']||home);
 Promise.resolve(run()).catch(()=>{});
 if(p!=='about')scrollTo(0,0);main.focus({preventScroll:true});
