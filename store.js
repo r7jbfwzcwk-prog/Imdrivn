@@ -518,7 +518,7 @@ const Garage = {
     const name = Auth.cleanHandle(handle);
     if (!Auth.handleOk(name)) return null;
     const pattern = name.replace(/[\\%_]/g, ch => '\\' + ch);
-    const { data, error } = await sb.from('profiles').select('id,username').ilike('username', pattern).limit(5);
+    const { data, error } = await sb.from('profiles').select('id,username,created_at').ilike('username', pattern).limit(5);
     if (error) throw new Error(garageErr(error));
     return (data || []).find(row => String(row.username || '').toLowerCase() === name) || null;
   },

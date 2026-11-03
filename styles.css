@@ -315,5 +315,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .gcar b{font-weight:600}
 .gdel{align-self:flex-start;font-size:.8rem}
 .gwho{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:clamp(1.6rem,4vw,2.4rem)}
+.joined{margin:2px 0 var(--s-4);color:var(--c-muted)}
+.seller-line{margin:6px 0 14px}
 .g-preview img{width:min(100%,420px);aspect-ratio:16/10;object-fit:cover;border-radius:14px;margin-top:12px;border:1px solid var(--c-line)}
 .thread-pin a{text-decoration:none;color:inherit}
