@@ -124,6 +124,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .detailn h2{font-size:clamp(1.4rem,4vw,2.2rem)}
 .dnav{display:none}@media(min-width:900px){.dnav{display:flex;gap:22px;margin-left:auto;margin-right:12px}.dnav a{text-decoration:none;font-size:.7rem;letter-spacing:.16em;color:#bbb}.dnav a:hover{color:var(--acc)}.socials{margin-left:0}}
 .tabs{display:flex;justify-content:space-around;max-width:520px;margin:0 auto;border-bottom:1px solid #1a1a1d}
+.tabs[hidden]{display:none}
 .tabs button{background:none;border:0;padding:12px 6px 10px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:#8a8a90;cursor:pointer;position:relative;transition:color var(--ease)}
 .tabs button::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--acc);transform:scaleX(0);transition:transform var(--ease) ease,background var(--ease)}
 .tabs button[aria-selected=true]{color:var(--acc)}.tabs button[aria-selected=true]::after{transform:scaleX(1)}
