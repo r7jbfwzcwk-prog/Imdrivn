@@ -358,6 +358,15 @@ const ListingStore = {
     }
     return this.get(inserted.data.id);
   },
+  async markSold(id) {
+    if (!sb || !Auth.user) throw new Error('Sign in to update your ad.');
+    const { data, error } = await sb.from('listings').update({ status: 'sold' }).eq('id', id).eq('user_id', Auth.user.id).select('id,status').maybeSingle();
+    if (error) throw new Error(dbMessage(error));
+    if (!data) throw new Error('Could not mark that sold. You can only do this on your own ad.');
+    const cached = this.cache.get(id);
+    if (cached) cached.status = 'sold';
+    return data;
+  },
   async react(kind, id, on) {
     if (!sb || !Auth.user) throw new Error('Sign in to save cars to your account.');
     const table = kind === 'save' ? 'saves' : 'likes';

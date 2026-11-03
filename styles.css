@@ -163,6 +163,11 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 @media(min-width:900px){.bnav{max-width:480px;margin:0 auto 12px;border:1px solid #1a1a1d;border-radius:20px}}
 [class*=" s-"],[class^="s-"]{--sec:var(--acc)}
 .dm{position:absolute;left:10px;bottom:8px;font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:#aaa;background:rgba(0,0,0,.55);padding:1px 5px;border-radius:2px}
+.sold-badge{position:absolute;left:10px;bottom:8px;font-size:.62rem;letter-spacing:.16em;font-weight:700;color:#000;background:#f2f2f2;padding:3px 7px;border-radius:3px}
+.sold-banner{margin:16px 0 0;padding:14px 16px;border:1px solid #f2f2f2;border-radius:12px;letter-spacing:.2em;font-weight:700;text-align:center}
+.sold-btn{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;min-height:36px;padding:0 14px;border:1px solid var(--c-line2);border-radius:999px;background:transparent;color:#fff;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.sold-btn:hover,.sold-btn:focus-visible{border-color:#fff}
+.post.is-sold{opacity:.72}
 
 /* ===== conversational listing flow ===== */
 .ask{max-width:760px;margin:0 auto;padding:8px 20px 110px;min-height:calc(100dvh - 220px);display:flex;flex-direction:column}
