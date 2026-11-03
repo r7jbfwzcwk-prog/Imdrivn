@@ -29,10 +29,11 @@ $('#fresh').innerHTML=fresh.map(post).join('')||'<p class="muted">Nothing in thi
 const about=()=>`<section class="about" id="about"><div class="img" role="img" aria-label="Taillight of a dark car"></div><div class="txt"><div class="eyebrow">About IM DRIVN</div>
 <h2>More than a marketplace.<br>It's a community.</h2><p class="muted">IM DRIVN connects Australia's car community — from supercars to performance weapons to the daily drive. Buy. Sell. Drive. All in one place. Listing is 100% free.</p><a class="btn" href="#/how">Learn more</a></div><div class="water" aria-hidden="true">IM DRIVN</div></section>`;
 
-const SV={heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',mark:'<path d="M6 3h12v18l-6-4-6 4z"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',
+const SV={heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',send:'<path d="M4 7h16v10H4z"/><path d="m4 8 8 5 8-5"/>',mark:'<path d="M6 3h12v18l-6-4-6 4z"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',
 check:'<circle cx="12" cy="12" r="9" class="fillc"/><path d="m8 12 3 3 5-6" stroke="#000"/>'};
 const sv=(k,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${SV[k]}</svg>`;
 const st=()=>JSON.parse(localStorage.getItem('imdrivn_social')||'{}');
+function canMessage(l){return !!(l&&!l.demo&&l.user_id&&!(Auth.user&&l.user_id===Auth.user.id))}
 function post(l){const demo=!!l.demo,S=demo?(st()[l.id]||{}):{like:!!l.liked,save:!!l.saved},lk=demo?(l.likes||0)+(S.like?1:0):(l.likeCount||0),cm=(l.comments||0),title=l.heading||(l.year+' '+l.make+' '+l.model);
 return`<article class="post s-${l.sec}"><a class="car" href="#/car/${l.id}"><img src="${esc(l.photos[0])}" alt="${esc(title)}" loading="lazy" onerror="${FALLBACK}">
 <span class="new">NEW</span><span class="ago">${esc(l.when||(l.ago?l.ago+'h ago':'Just now'))}</span>${demo?'<span class="dm">Demo</span>':''}${l.status&&l.status!=='active'?`<span class="dm">${esc(l.status)}</span>`:''}</a>
@@ -40,9 +41,11 @@ return`<article class="post s-${l.sec}"><a class="car" href="#/car/${l.id}"><img
 <div class="row"><span class="loc">${sv('pin')}${esc([l.suburb, l.state].filter(Boolean).join(' '))}</span><span class="handle">${sv('pin','sm')}@${esc((l.handle||'you').replace(/^@/,''))}${sv('check','ck')}</span></div>
 <div class="acts"><button data-act="like" data-id="${l.id}" data-demo="${demo?1:0}" aria-pressed="${!!S.like}" aria-label="Like">${sv('heart')}<span>${lk}</span></button>
 <button data-act="cmt" data-id="${l.id}" data-demo="${demo?1:0}" aria-label="Comments">${sv('chat')}<span>${cm}</span></button>
+${canMessage(l)?`<button data-act="msg" data-id="${l.id}" aria-label="Message seller">${sv('send')}</button>`:''}
 <button class="bm" data-act="save" data-id="${l.id}" data-demo="${demo?1:0}" aria-pressed="${!!S.save}" aria-label="Save">${sv('mark')}</button></div>
 </div></article>`;}
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-act]');if(!b||b.closest('.ask-preview'))return;
+if(b.dataset.act==='msg'){messageSeller(b.dataset.id);return}
 if(b.dataset.act==='cmt'){location.hash='#/car/'+b.dataset.id;return}
 const demo=b.dataset.demo==='1';
 if(!demo){if(!Auth.user){sessionStorage.setItem('imdrivn_next',(location.hash||'#/buy').replace(/^#\//,''));location.hash='#/join';return}
@@ -62,7 +65,7 @@ document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-select
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{setMode(b.dataset.m);const h=location.hash;if(h.startsWith('#/buy')||h.startsWith('#/saved')||h===''||h==='#/'||h.startsWith('#/about'))route();});
 setMode(MODE);
 $('#sbtn').onclick=()=>{const p=$('#spanel');p.hidden=!p.hidden;$('#sbtn').setAttribute('aria-expanded',!p.hidden);if(!p.hidden)p.querySelector('input').focus()};
-$('#bell').onclick=()=>alert('Notifications are coming soon (prototype).');
+$('#bell').onclick=()=>{location.hash='#/messages'};
 $('#ig').href=INSTAGRAM_URL;$('#tt').href=TIKTOK_URL;
 const menuBtn=$('#menubtn'),appMenu=$('#appmenu');
 function closeMenu(focusBack){if(!appMenu||appMenu.hidden)return;appMenu.hidden=true;menuBtn.setAttribute('aria-expanded','false');if(focusBack)menuBtn.focus()}
@@ -104,7 +107,7 @@ syncSortUi();
 $('#qs').onsubmit=e=>{e.preventDefault();Object.assign(F,Object.fromEntries(new FormData(e.target)));$('#spanel').hidden=true;$('#sbtn').setAttribute('aria-expanded','false');const next=buyHash();location.hash===next?route():location.hash=next};
 $('#qs').onreset=()=>{F={make:'',model:'',year:'',km:''};setTimeout(()=>{const next=buyHash();location.hash===next?route():location.hash=next})};
 function askSignIn(message,next){sessionStorage.setItem('imdrivn_next',next);main.innerHTML=`<div class="wrap form auth"><div class="eyebrow">Account</div><h1>Sign in</h1><p class="muted">${esc(message)}</p><a class="btn solid" href="#/join">Sign in</a></div>`}
-async function buy(saved){if(saved){await Auth.ready;if(!Auth.user){askSignIn('Sign in to see the cars you saved.','saved');return}}
+async function buy(saved){await Auth.ready;if(saved){if(!Auth.user){askSignIn('Sign in to see the cars you saved.','saved');return}}
 const token=++feedToken;SAVED=!!saved;const f=[F.make,F.model,F.year&&F.year+'+',F.km&&'≤'+F.km+' km'].filter(Boolean);
 main.innerHTML=`${saved?'<h1 class="feed-title">Saved cars</h1>':''}${f.length?`<div class="filt">Search: ${esc(f.join(' · '))} <button onclick="$('#qs').reset()">Clear</button></div>`:''}<div class="feed" id="feed"></div><div class="loader" id="more">Loading more machines…</div>`;
 feedState={token,from:0,remoteDone:false,demosAdded:false,busy:false,seen:new Set(),note:''};
@@ -137,7 +140,7 @@ if(feed&&!state.seen.size){if(SAVED){feed.innerHTML='<p class="muted">Nothing sa
 if(moreEl)moreEl.textContent='Could not load more. Scroll to try again.'
 }finally{state.busy=false}}
 
-async function car(id){const token=++viewToken;let l=DEMO.find(x=>x.id===id)||ListingStore.cache.get(id);
+async function car(id){const token=++viewToken;await Auth.ready;if(token!==viewToken)return;let l=DEMO.find(x=>x.id===id)||ListingStore.cache.get(id);
 if(!l){main.innerHTML='<div class="wrap"><p class="muted">Loading…</p></div>';try{l=await ListingStore.get(id)}catch(e){l=null}}
 if(token!==viewToken)return;
 if(!l){main.innerHTML='<div class="wrap"><h2>Listing not found</h2><a class="btn" href="#/buy">Back to feed</a></div>';return}
@@ -148,10 +151,9 @@ main.innerHTML=`<div class="wrap s-${l.sec}"><a href="#/buy" class="eyebrow">←
 <div class="eyebrow" style="margin-top:var(--s-5);color:var(--sec)">${SECTIONS[l.sec]} ${l.demo?'· Demo data':''}</div><h1 style="font-size:clamp(1.2rem,3vw,2rem)">${esc(title)}</h1><div class="price">${aud(l.price)}</div>
 <div class="specs">${specs.map(s=>`<div><span class="meta">${s[0]}</span><b>${esc(s[1])}</b></div>`).join('')}</div>
 <h2 style="font-size:1rem">Description</h2><p class="muted">${esc(l.desc)}</p></div>
-<form class="panel" id="contact"><h2 style="font-size:1rem">Message seller</h2><label>Name<input name="n" required autocomplete="name"></label><label>Email<input name="e" type="email" required autocomplete="email"></label><label>Phone<input name="p" type="tel" autocomplete="tel"></label>
-<label>Message<textarea name="m" rows="4">Hi, is the ${esc(l.make+' '+l.model)} still available?</textarea></label><button class="btn solid">Send message</button><p class="meta">Prototype: messages aren't really sent.</p></form></div></div>`;
+<div class="panel" id="contact"><h2 style="font-size:1rem">${l.user_id&&Auth.user&&l.user_id===Auth.user.id?'Your ad':'Message seller'}</h2>${sellerPanel(l)}</div></div></div>`;
 main.querySelectorAll('.thumbs button').forEach(b=>b.onclick=()=>{$('#big').src=b.dataset.src;main.querySelectorAll('.thumbs button').forEach(x=>x.setAttribute('aria-current',x===b))});
-$('#contact').onsubmit=e=>{e.preventDefault();e.target.innerHTML='<div class="ok" role="status"><h2 style="font-size:1rem">Message sent (demo)</h2><p class="muted">In the real site the seller would get this now.</p></div>'};}
+const msgBtn=$('#msg-seller');if(msgBtn)msgBtn.onclick=()=>messageSeller(l.id);}
 
 function sell(){main.innerHTML=`<div class="wrap"><div class="eyebrow">IM SELLIN</div><h1 style="font-size:clamp(1.4rem,4vw,2.4rem)">How do you<br><span class="grey">want to sell?</span></h1><div class="paths" style="margin-top:var(--s-5)">
 <a class="path" href="#/list">${ico('tag')}<span class="wide" style="font-size:1.6rem">List free</span><span class="tag">100% free. No catch.</span><span class="muted">Post your ad to the feed and deal direct with buyers.</span><span class="btn">List your car free →</span></a>
@@ -192,9 +194,10 @@ ListingStore.valuation(d,imgs).then(()=>{main.innerHTML=`<div class="wrap form">
 
 function how(){main.innerHTML=`<section class="wrap feats"><div class="eyebrow">How it works</div><h1 style="font-size:clamp(1.3rem,4vw,2.2rem)">Simple. <span class="grey">Free.</span> Fast.</h1><div class="row4">
 ${[['tag','1. Snap & list','Photos, price, done. Listing is 100% free.'],['gauge','2. Hit the feed','Your ad lands in a scroll-first feed buyers love.'],['head','3. Chat direct','Buyers message you. No middleman.'],['up','4. Or go wholesale','Want it gone? Dealers make an offer.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div><a class="btn solid" href="#/sell" style="margin-top:var(--s-5)">Sell your car →</a></section>${about()}`;}
-function authLead(){const next=sessionStorage.getItem('imdrivn_next');return next==='list'?'Sign in to post your car. It only takes a minute.':next==='valuation'?'Sign in so dealers know who the offer is for.':'Buy, sell, and keep your saves in one account.'}
+function authLead(){const next=sessionStorage.getItem('imdrivn_next')||'';if(next==='list')return 'Sign in to post your car. It only takes a minute.';if(next==='valuation')return 'Sign in so dealers know who the offer is for.';if(next.startsWith('msg:'))return 'Sign in to message the seller.';return 'Buy, sell, and keep your saves in one account.'}
 function showAuthErr(msg){const el=$('#auth-err');if(el)el.textContent=msg||''}
-function afterAuth(){if(Auth.needsHandle()){join();return}const next=sessionStorage.getItem('imdrivn_next');if(next){sessionStorage.removeItem('imdrivn_next');location.hash='#/'+next;return}join()}
+function takeNext(){const next=sessionStorage.getItem('imdrivn_next');if(!next)return false;sessionStorage.removeItem('imdrivn_next');if(next.startsWith('msg:')){messageSeller(next.slice(4));return true}location.hash='#/'+next;return true}
+function afterAuth(){if(Auth.needsHandle()){join();return}if(takeNext())return;join()}
 function authScreen(mode){mode=mode||'in';const title=mode==='up'?'Join IM DRIVN':mode==='forgot'?'Reset password':'Sign in';
 main.innerHTML=`<div class="wrap form auth"><div class="eyebrow">Account</div><h1>${title}</h1><p class="muted">${mode==='forgot'?'We will email you a link to set a new password.':esc(authLead())}</p>
 <form class="panel" id="auth-form">${mode==='forgot'?'':''}<label>Email<input name="email" type="email" required autocomplete="email" inputmode="email"></label>
@@ -241,7 +244,18 @@ async function join(){const token=++viewToken;main.innerHTML='<div class="wrap f
 if(token!==viewToken)return;if(!sb){main.innerHTML='<div class="wrap form auth"><h1>Sign in</h1><p class="err">Accounts are offline right now. The demo feed still works.</p><a class="btn" href="#/buy">Browse cars</a></div>';return}
 if(Auth.recovery)return recoveryScreen();if(!Auth.user)return authScreen('in');if(Auth.needsHandle())return handleScreen();return profileScreen()}
 
-function msgs(){main.innerHTML=`<div class="wrap form"><h1 style="font-size:1.4rem">Messages</h1><div class="panel"><p class="muted">No messages yet. When buyers or sellers message you, chats land here.</p><a class="btn" href="#/buy">Back to the feed</a></div></div>`}
+function sellerPanel(l){if(l.demo||!l.user_id)return '<p class="muted">Sample car. There is no seller to message.</p>';if(Auth.user&&l.user_id===Auth.user.id)return '<p class="muted">Buyers message you from this car. Replies land in Messages.</p><a class="btn" href="#/messages">Open messages</a>';return '<p class="muted">Chat in the app. Your number stays off the ad.</p><button class="btn solid" type="button" id="msg-seller">Message seller</button>'}
+async function messageSeller(listingId){await Auth.ready;if(!Auth.user){sessionStorage.setItem('imdrivn_next','msg:'+listingId);location.hash='#/join';return}if(Auth.needsHandle()){sessionStorage.setItem('imdrivn_next','msg:'+listingId);if(location.hash!=='#/join')location.hash='#/join';else join();return}let listing=ListingStore.cache.get(listingId);if(!listing){try{listing=await ListingStore.get(listingId)}catch(e){listing=null}}if(!listing||listing.demo||!listing.user_id){toast('That car has no seller to message.','error');return}if(listing.user_id===Auth.user.id)return;try{const conv=await Chat.open(listing);const dest='#/messages/'+conv.id;if(location.hash===dest)route();else location.hash=dest}catch(e){toast(e.message||'Could not open that chat.','error')}}
+function setMsgBadge(n){document.querySelectorAll('[data-msg-badge]').forEach(el=>{if(!n){el.hidden=true;el.textContent='';return}el.hidden=false;el.textContent=n>9?'9+':String(n)});const bell=$('#bell');if(bell)bell.setAttribute('aria-label',n?('Notifications, '+n+' unread'):'Notifications')}
+async function refreshUnread(){if(!sb||!Auth.user){setMsgBadge(0);return}try{setMsgBadge(await Chat.unreadCount())}catch(e){}}
+let chatChannel=null,inboxChannel=null,liveChat=null;
+function dropChat(){liveChat=null;if(chatChannel&&sb){sb.removeChannel(chatChannel);chatChannel=null}}
+function watchInbox(){if(!sb)return;if(inboxChannel){sb.removeChannel(inboxChannel);inboxChannel=null}if(!Auth.user){setMsgBadge(0);return}refreshUnread();inboxChannel=sb.channel('inbox:'+Auth.user.id).on('postgres_changes',{event:'*',schema:'public',table:'conversations'},()=>{refreshUnread();const here=hashParts();if((here.p==='messages'||here.p==='msgs')&&!here.a)inbox()}).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},()=>refreshUnread()).subscribe()}
+function inboxRow(c){return `<a class="inbox-row" href="#/messages/${esc(c.id)}"><img src="${esc(c.thumb)}" alt="" onerror="${FALLBACK}"><span class="inbox-copy"><span class="inbox-top"><b>@${esc(String(c.handle||'member').replace(/^@/,''))}</b><time>${esc(c.when)}</time></span><span class="inbox-car">${esc(c.heading)}</span><span class="inbox-last">${esc(c.last||'No messages yet')}</span></span>${c.unread?'<span class="unread-dot" aria-label="Unread"></span>':'<span></span>'}</a>`}
+async function inbox(){const token=++viewToken;await Auth.ready;if(token!==viewToken)return;if(!Auth.user){askSignIn('Sign in to read your messages.','messages');return}if(Auth.needsHandle()){sessionStorage.setItem('imdrivn_next','messages');location.hash='#/join';return}main.innerHTML=`<div class="wrap msgs"><div class="eyebrow">Inbox</div><h1 style="font-size:clamp(1.4rem,4vw,2rem)">Messages</h1><div id="inbox"><p class="muted">Loading…</p></div></div>`;let rows=[];try{rows=await Chat.inbox()}catch(e){if(token!==viewToken||!$('#inbox'))return;$('#inbox').innerHTML=`<p class="err">${esc(e.message||'Could not load messages.')}</p>`;return}if(token!==viewToken||!$('#inbox'))return;$('#inbox').innerHTML=rows.length?`<div class="inbox">${rows.map(inboxRow).join('')}</div>`:'<p class="muted">No messages yet. Open a car and tap Message seller.</p>';refreshUnread()}
+function bubbleHtml(row){const mine=Auth.user&&row.sender_id===Auth.user.id;return `<div class="bubble ${mine?'mine':'theirs'}">${esc(row.body)}</div>`}
+async function chatThread(id){const token=++viewToken;await Auth.ready;if(token!==viewToken)return;if(!Auth.user){askSignIn('Sign in to read your messages.','messages/'+id);return}if(Auth.needsHandle()){sessionStorage.setItem('imdrivn_next','messages/'+id);location.hash='#/join';return}main.innerHTML='<div class="wrap"><p class="muted">Loading…</p></div>';let conv;try{conv=await Chat.get(id)}catch(e){if(token!==viewToken)return;main.innerHTML=`<div class="wrap"><p class="err">${esc(e.message||'Could not open that chat.')}</p><a class="btn" href="#/messages">Back to messages</a></div>`;return}if(token!==viewToken)return;if(!conv){main.innerHTML='<div class="wrap"><h2>Chat not found</h2><a class="btn" href="#/messages">Back to messages</a></div>';return}let listing=null;try{listing=await ListingStore.get(conv.listing_id)}catch(e){listing=null}if(token!==viewToken)return;const otherId=conv.buyer_id===Auth.user.id?conv.seller_id:conv.buyer_id;let handle='member';try{const names=await sb.from('profiles').select('username').eq('id',otherId).maybeSingle();if(names.data&&names.data.username)handle=names.data.username}catch(e){}if(token!==viewToken)return;const title=listing?(listing.heading||[listing.year,listing.make,listing.model].filter(Boolean).join(' ')):'Listing';const pin=listing?`<a class="thread-pin" href="#/car/${esc(listing.id)}"><img src="${esc(listing.photos[0]||'')}" alt="" onerror="${FALLBACK}"><span><strong>${esc(title)}</strong><span class="muted">${esc(aud(listing.price))} · @${esc(String(handle).replace(/^@/,''))}</span></span></a>`:`<div class="thread-pin"><span><strong>Listing</strong></span></div>`;main.innerHTML=`<div class="wrap thread"><a href="#/messages" class="eyebrow">← Messages</a>${pin}<div class="bubbles" id="bubbles" aria-live="polite"></div><p class="err" id="msg-err" role="alert"></p><form class="composer" id="composer"><input id="msg-body" maxlength="2000" autocomplete="off" placeholder="Write a message" aria-label="Message"><button class="btn solid" type="submit">Send</button></form></div>`;const seen=new Set();const box=$('#bubbles');function add(row){if(!row||seen.has(row.id)||liveChat!==id)return;seen.add(row.id);box.insertAdjacentHTML('beforeend',bubbleHtml(row));box.scrollTop=box.scrollHeight}if(token!==viewToken)return;liveChat=id;if(sb){chatChannel=sb.channel('chat:'+id).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+id},payload=>{if(liveChat!==id)return;const row=payload.new;add(row);if(row&&row.sender_id!==Auth.user.id)Chat.markRead(conv,row.created_at).then(()=>refreshUnread()).catch(()=>{})}).subscribe()}let msgs=[];try{msgs=await Chat.messages(id)}catch(e){if(token!==viewToken)return;$('#msg-err').textContent=e.message||'Could not load messages.';return}if(token!==viewToken||liveChat!==id)return;msgs.forEach(add);const latest=msgs.length?msgs[msgs.length-1].created_at:new Date().toISOString();Chat.markRead(conv,latest).then(()=>refreshUnread()).catch(()=>{});$('#composer').onsubmit=async e=>{e.preventDefault();const input=$('#msg-body');const body=(input.value||'').trim();$('#msg-err').textContent='';if(!body)return;input.disabled=true;try{const row=await Chat.send(id,body);input.value='';add(row);await Chat.markRead(conv,row.created_at);refreshUnread()}catch(err){$('#msg-err').textContent=err.message||'Could not send that.'}finally{if(input.isConnected){input.disabled=false;input.focus()}}}}
+function msgs(){const {a}=hashParts();return a?chatThread(a):inbox()}
 async function garage(){const token=++viewToken;await Auth.ready;if(token!==viewToken)return;if(!Auth.user){askSignIn('Sign in to open your garage.','garage');return}
 main.innerHTML=`<div class="wrap"><div class="eyebrow">My garage</div><h1 style="font-size:clamp(1.4rem,4vw,2.2rem)">Your cars</h1><p class="muted">Everything you've listed. The ones still up, and the ones that aren't.</p><div class="feed" id="mine"></div></div>`;
 let rows=[];try{rows=await ListingStore.mine()}catch(e){rows=[]}
@@ -262,16 +276,15 @@ if(Auth.authReturn&&Auth.user){try{sessionStorage.removeItem('imdrivn_oauth')}ca
 const who=Auth.profile&&Auth.profile.username?'@'+Auth.profile.username:(Auth.user.email||'your account');
 toast('Signed in as '+who);
 if(Auth.needsHandle()){if(location.hash!=='#/join')location.hash='#/join';else join();return}}
-const next=sessionStorage.getItem('imdrivn_next');
-if(Auth.user&&next&&!Auth.needsHandle()){sessionStorage.removeItem('imdrivn_next');location.hash='#/'+next}}
-function route(){document.body.classList.remove('menu-open');closeMenu(false);closeSort(false);const {p,a,b,params}=hashParts();if(p==='buy'){const requested=params.get('sort');if(sortOk(requested)){SORT=requested;localStorage.setItem('imdrivn_sort',SORT)}}syncSortUi();const sortWrap=$('#sortwrap');if(sortWrap)sortWrap.hidden=p!=='buy';io&&io.disconnect();feedToken++;homeToken++;viewToken++;
-const run=({'':home,buy:()=>buy(),saved:()=>buy(1),garage,merch,msgs,car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join,forum:()=>a==='t'&&b?forumThread(b):a?forumCategory(a):forumIndex()}[p||'']||home);
+if(Auth.user&&!Auth.needsHandle())takeNext()}
+function route(){document.body.classList.remove('menu-open');closeMenu(false);closeSort(false);dropChat();const {p,a,b,params}=hashParts();if(p==='buy'){const requested=params.get('sort');if(sortOk(requested)){SORT=requested;localStorage.setItem('imdrivn_sort',SORT)}}syncSortUi();const sortWrap=$('#sortwrap');if(sortWrap)sortWrap.hidden=p!=='buy';io&&io.disconnect();feedToken++;homeToken++;viewToken++;
+const run=({'':home,buy:()=>buy(),saved:()=>buy(1),garage,merch,msgs,messages:()=>a?chatThread(a):inbox(),car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join,forum:()=>a==='t'&&b?forumThread(b):a?forumCategory(a):forumIndex()}[p||'']||home);
 Promise.resolve(run()).catch(()=>{});
 if(p!=='about')scrollTo(0,0);main.focus({preventScroll:true});
-const section=p==='forum'?'forum':(p||'');
+const section=p==='forum'?'forum':(p==='messages'||p==='msgs')?'messages':(p||'');
 document.querySelectorAll('.bnav a, .dnav a').forEach(x=>x.setAttribute('aria-current',(x.dataset.r||x.getAttribute('href'))===(section==='forum'?'#/forum':section)&&section? 'page' : (x.dataset.r===section||(x.dataset.r==='buy'&&p==='car')?'page':'false')));}
 addEventListener('hashchange',route);
-Auth.listeners.add(()=>{updateNav();if(location.hash.startsWith('#/join')||Auth.recovery)join()});
+Auth.listeners.add(()=>{updateNav();watchInbox();if(location.hash.startsWith('#/join')||Auth.recovery)join()});
 if(Auth.oauthError){toast(Auth.oauthError,'error');Auth.oauthError=''}
 route();
-Auth.ready.then(()=>finishAuthReturn());
+Auth.ready.then(()=>{finishAuthReturn();watchInbox()});

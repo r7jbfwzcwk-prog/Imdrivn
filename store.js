@@ -472,3 +472,113 @@ const Forum = {
     if (error) throw new Error(forumErr(error));
   }
 };
+
+function chatErr(error) {
+  const msg = (error && error.message) || '';
+  if (/row-level security|permission/i.test(msg)) return 'You need to be signed in to do that.';
+  if (/jwt|session/i.test(msg)) return 'Your session expired. Sign in again.';
+  if (/2000|body/i.test(msg) && /check|length/i.test(msg)) return 'Keep the message between 1 and 2000 characters.';
+  return msg || 'Could not do that.';
+}
+function chatUnread(row, uid) {
+  if (!row || !row.last_message_at) return false;
+  const read = row.buyer_id === uid ? row.buyer_last_read : row.seller_last_read;
+  if (!read) return true;
+  return Date.parse(row.last_message_at) > Date.parse(read);
+}
+const Chat = {
+  unread: chatUnread,
+  async inbox() {
+    if (!sb || !Auth.user) return [];
+    const uid = Auth.user.id;
+    const { data, error } = await sb.from('conversations')
+      .select('id,listing_id,buyer_id,seller_id,created_at,last_message_at,last_message,buyer_last_read,seller_last_read')
+      .or('buyer_id.eq.' + uid + ',seller_id.eq.' + uid)
+      .order('last_message_at', { ascending: false, nullsFirst: false });
+    if (error) throw new Error(chatErr(error));
+    const rows = (data || []).slice().sort((a, b) => Date.parse(b.last_message_at || b.created_at || 0) - Date.parse(a.last_message_at || a.created_at || 0));
+    const listingIds = [...new Set(rows.map(r => r.listing_id).filter(Boolean))];
+    const peopleIds = [...new Set(rows.flatMap(r => [r.buyer_id, r.seller_id]).filter(Boolean))];
+    const [listings, profiles] = await Promise.all([
+      listingIds.length ? sb.from('listings').select('id,heading,year,make,model,photos,price').in('id', listingIds) : { data: [] },
+      peopleIds.length ? sb.from('profiles').select('id,username').in('id', peopleIds) : { data: [] }
+    ]);
+    const listingById = new Map((listings.data || []).map(l => [l.id, l]));
+    const handleById = new Map((profiles.data || []).map(p => [p.id, p.username]));
+    return rows.map(row => {
+      const listing = listingById.get(row.listing_id) || {};
+      const other = row.buyer_id === uid ? row.seller_id : row.buyer_id;
+      const photos = listing.photos || [];
+      return {
+        id: row.id,
+        listingId: row.listing_id,
+        buyer_id: row.buyer_id,
+        seller_id: row.seller_id,
+        last: row.last_message || '',
+        when: whenLabel(row.last_message_at || row.created_at),
+        unread: chatUnread(row, uid),
+        handle: handleById.get(other) || 'member',
+        heading: listing.heading || [listing.year, listing.make, listing.model].filter(Boolean).join(' ') || 'Listing',
+        price: listing.price,
+        thumb: photos.length ? photoUrl(photos[0]) : ''
+      };
+    });
+  },
+  async open(listing) {
+    if (!sb || !Auth.user) throw new Error('Sign in to message the seller.');
+    const uid = Auth.user.id;
+    const found = await sb.from('conversations').select('id').eq('listing_id', listing.id).eq('buyer_id', uid).maybeSingle();
+    if (found.error) throw new Error(chatErr(found.error));
+    if (found.data) return found.data;
+    const inserted = await sb.from('conversations').insert({
+      listing_id: listing.id,
+      buyer_id: uid,
+      seller_id: listing.user_id
+    }).select('id').single();
+    if (inserted.error) {
+      if (inserted.error.code === '23505') {
+        const again = await sb.from('conversations').select('id').eq('listing_id', listing.id).eq('buyer_id', uid).maybeSingle();
+        if (again.data) return again.data;
+      }
+      throw new Error(chatErr(inserted.error));
+    }
+    return inserted.data;
+  },
+  async get(id) {
+    if (!sb || !/^[0-9a-f-]{36}$/i.test(id)) return null;
+    const { data, error } = await sb.from('conversations').select('id,listing_id,buyer_id,seller_id,created_at,last_message_at,last_message,buyer_last_read,seller_last_read').eq('id', id).maybeSingle();
+    if (error) throw new Error(chatErr(error));
+    return data;
+  },
+  async messages(id) {
+    const { data, error } = await sb.from('messages').select('id,conversation_id,sender_id,body,created_at').eq('conversation_id', id).order('created_at', { ascending: true });
+    if (error) throw new Error(chatErr(error));
+    return data || [];
+  },
+  async send(id, body) {
+    const text = String(body || '').trim();
+    if (!text || text.length > 2000) throw new Error('Keep the message between 1 and 2000 characters.');
+    const { data, error } = await sb.from('messages').insert({
+      conversation_id: id,
+      sender_id: Auth.user.id,
+      body: text
+    }).select('id,conversation_id,sender_id,body,created_at').single();
+    if (error) throw new Error(chatErr(error));
+    return data;
+  },
+  async markRead(conv, stamp) {
+    if (!sb || !Auth.user || !conv) return;
+    const col = conv.buyer_id === Auth.user.id ? 'buyer_last_read' : 'seller_last_read';
+    const when = stamp || new Date().toISOString();
+    const { error } = await sb.from('conversations').update({ [col]: when }).eq('id', conv.id);
+    if (error) throw new Error(chatErr(error));
+    conv[col] = when;
+  },
+  async unreadCount() {
+    if (!sb || !Auth.user) return 0;
+    const uid = Auth.user.id;
+    const { data, error } = await sb.from('conversations').select('buyer_id,seller_id,last_message_at,buyer_last_read,seller_last_read').or('buyer_id.eq.' + uid + ',seller_id.eq.' + uid);
+    if (error) return 0;
+    return (data || []).filter(row => chatUnread(row, uid)).length;
+  }
+};
