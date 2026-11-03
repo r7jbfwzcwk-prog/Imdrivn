@@ -127,17 +127,31 @@ const Auth = {
     this.recovery = false;
     await this.refreshUser();
   },
+  cleanHandle(raw) {
+    return String(raw || '').trim().replace(/^@+/, '').toLowerCase().replace(/[^a-z0-9._]/g, '').slice(0, 20);
+  },
+  handleOk(username) { return /^[a-z0-9._]{3,20}$/.test(username); },
+  async handleFree(raw) {
+    const username = this.cleanHandle(raw);
+    if (!this.handleOk(username) || !sb) return false;
+    const pattern = username.replace(/[\\%_]/g, ch => '\\' + ch);
+    const { data, error } = await sb.from('profiles').select('id,username').ilike('username', pattern).limit(5);
+    if (error) throw error;
+    const mine = this.user && this.user.id;
+    return !(data || []).some(row => String(row.username || '').toLowerCase() === username && row.id !== mine);
+  },
   async setHandle(raw) {
-    const username = String(raw || '').trim().replace(/^@/, '').toLowerCase();
-    if (!/^[a-z0-9](?:[a-z0-9._]{1,18}[a-z0-9])$/.test(username)) {
-      throw new Error('Use 3–20 letters or numbers. Dots and underscores can sit in the middle.');
+    if (this.profile && String(this.profile.username || '').trim()) {
+      throw new Error('Handle cannot be changed once set.');
     }
+    const username = this.cleanHandle(raw);
+    if (!this.handleOk(username)) throw new Error('Use 3–20 characters: letters, numbers, dots, and underscores.');
     const id = this.user.id;
     let res = await sb.from('profiles').update({ username }).eq('id', id).select('id,username,display_name,avatar_url').maybeSingle();
-    if (res.error) throw new Error(res.error.code === '23505' ? 'That @handle is taken. Try another.' : dbMessage(res.error));
+    if (res.error) throw new Error(handleError(res.error));
     if (!res.data) {
       res = await sb.from('profiles').insert({ id, username }).select('id,username,display_name,avatar_url').single();
-      if (res.error) throw new Error(res.error.code === '23505' ? 'That @handle is taken. Try another.' : dbMessage(res.error));
+      if (res.error) throw new Error(handleError(res.error));
     }
     this.profile = res.data;
     return res.data;
@@ -169,9 +183,16 @@ function authMessage(error, provider) {
   if (/redirect/i.test(msg)) return 'This site is not on the sign-in allow list yet. Try email, or add this URL in Supabase.';
   return msg;
 }
+function handleError(error) {
+  const msg = (error && error.message) || '';
+  if (/cannot be changed once set/i.test(msg)) return 'Handle cannot be changed once set.';
+  if ((error && error.code === '23505') || /duplicate key|unique constraint/i.test(msg)) return "That handle's taken, try another";
+  return dbMessage(error);
+}
 function dbMessage(error) {
   const msg = error.message || 'Something went wrong.';
-  if (error.code === '23505' || /duplicate|unique/i.test(msg)) return 'That @handle is taken. Try another.';
+  if (/cannot be changed once set/i.test(msg)) return 'Handle cannot be changed once set.';
+  if (error.code === '23505' || /duplicate|unique/i.test(msg)) return "That handle's taken, try another";
   if (/row-level security/i.test(msg)) return 'You need to be signed in to do that.';
   if (/jwt|session/i.test(msg)) return 'Your session expired. Sign in again.';
   return msg;
