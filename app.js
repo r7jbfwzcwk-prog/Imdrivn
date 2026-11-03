@@ -1,7 +1,7 @@
 const $=(s,r=document)=>r.querySelector(s),main=$('#main');
 const aud=n=>'$'+Number(n).toLocaleString('en-AU'),kms=n=>Number(n).toLocaleString('en-AU')+' km';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const mine=()=>JSON.parse(localStorage.getItem('imdrivn_listings')||'[]');
+const mine=()=>ListingStore.list();
 const all=()=>[...mine(),...DEMO];
 const I={tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',up:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 16V8m-4 4 4-4 4 4"/>',
 shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 15 4-5"/><path d="M6 13h1m10 0h1M12 8v1"/>',
@@ -17,7 +17,7 @@ function home(){main.innerHTML=`
 <a class="path" href="#/sell">${ico('up')}<span class="wide">IM SELLIN</span><span class="tag">List with confidence.</span><span class="muted">List free, or get a wholesale offer from dealers.</span><span class="btn">Sell your car →</span></a></div></div>
 <section class="wrap feats" id="how"><div class="eyebrow">Built for enthusiasts. Driven by performance.</div><div class="row4">
 ${[['shield','Verified vehicles','Every car is checked for quality and authenticity.'],['gauge','Serious buyers','Connect with genuine high performance buyers.'],['lock','Secure & safe','Safe transactions from start to finish.'],['head','Expert support','Real people, real support when you need it.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div></section>
-<section class="wrap"><div class="eyebrow">Fresh in the feed</div><div class="feed" style="padding:0;margin-top:var(--s-4)">${DEMO.filter(l=>l.sec===m2s(MODE)).slice(0,3).map(post).join('')}</div></section>
+<section class="wrap"><div class="eyebrow">Fresh in the feed</div><div class="feed" style="padding:0;margin-top:var(--s-4)">${all().filter(l=>l.sec===m2s(MODE)).slice(0,3).map(post).join('')}</div></section>
 ${about()}`;}
 const about=()=>`<section class="about" id="about"><div class="img" role="img" aria-label="Taillight of a dark car"></div><div class="txt"><div class="eyebrow">About IM DRIVN</div>
 <h2>More than a marketplace.<br>It's a community.</h2><p class="muted">IM DRIVN connects Australia's car community — from supercars to performance weapons to the daily drive. Buy. Sell. Drive. All in one place. Listing is 100% free.</p><a class="btn" href="#/how">Learn more</a></div><div class="water" aria-hidden="true">IM DRIVN</div></section>`;
@@ -26,16 +26,16 @@ const SV={heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5
 check:'<circle cx="12" cy="12" r="9" class="fillc"/><path d="m8 12 3 3 5-6" stroke="#000"/>'};
 const sv=(k,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${SV[k]}</svg>`;
 const st=()=>JSON.parse(localStorage.getItem('imdrivn_social')||'{}');
-function post(l){const S=st()[l.id]||{},lk=(l.likes||0)+(S.like?1:0),cm=(l.comments||0);
-return`<article class="post s-${l.sec}"><a class="car" href="#/car/${l.id}"><img src="${esc(l.photos[0])}" alt="${esc(l.year+' '+l.make+' '+l.model)}" loading="lazy" onerror="${FALLBACK}">
+function post(l){const S=st()[l.id]||{},lk=(l.likes||0)+(S.like?1:0),cm=(l.comments||0),title=l.heading||(l.year+' '+l.make+' '+l.model);
+return`<article class="post s-${l.sec}"><a class="car" href="#/car/${l.id}"><img src="${esc(l.photos[0])}" alt="${esc(title)}" loading="lazy" onerror="${FALLBACK}">
 <span class="new">NEW</span><span class="ago">${l.ago?l.ago+'h ago':'Just now'}</span>${l.demo?'<span class="dm">Demo</span>':''}</a>
-<div class="b"><a href="#/car/${l.id}" class="ttl">${l.year} ${esc(l.make)} ${esc(l.model)}</a><div class="price">${aud(l.price)}</div>
+<div class="b"><a href="#/car/${l.id}" class="ttl">${esc(title)}</a><div class="price">${aud(l.price)}</div>
 <div class="row"><span class="loc">${sv('pin')}${esc(l.suburb)}, ${l.state}</span><span class="handle">${sv('pin','sm')}@${esc((l.handle||'you').replace(/^@/,''))}${sv('check','ck')}</span></div>
 <div class="acts"><button data-act="like" data-id="${l.id}" aria-pressed="${!!S.like}" aria-label="Like">${sv('heart')}<span>${lk}</span></button>
 <button data-act="cmt" data-id="${l.id}" aria-label="Comments">${sv('chat')}<span>${cm}</span></button>
 <button class="bm" data-act="save" data-id="${l.id}" aria-pressed="${!!S.save}" aria-label="Save">${sv('mark')}</button></div>
 </div></article>`;}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const s=st(),o=s[b.dataset.id]||(s[b.dataset.id]={});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.closest('.ask-preview'))return;const s=st(),o=s[b.dataset.id]||(s[b.dataset.id]={});
 if(b.dataset.act==='cmt'){location.hash='#/car/'+b.dataset.id;return}
 const k=b.dataset.act;o[k]=!o[k];localStorage.setItem('imdrivn_social',JSON.stringify(s));b.setAttribute('aria-pressed',o[k]);
 if(k==='like'){const n=b.querySelector('span');n.textContent=+n.textContent+(o[k]?1:-1)}});
@@ -63,10 +63,12 @@ io&&io.disconnect();io=new IntersectionObserver(e=>e[0].isIntersecting&&more(),{
 function more(){const m=match();if(!m.length||!$('#feed'))return;$('#feed').insertAdjacentHTML('beforeend',[...m].sort(()=>Math.random()-.5).map(post).join(''));}
 
 function car(id){const l=all().find(x=>x.id===id);if(!l){main.innerHTML='<div class="wrap"><h2>Listing not found</h2><a class="btn" href="#/buy">Back to feed</a></div>';return}
+const title=l.heading||(l.year+' '+l.make+' '+l.model);
+const specs=[['Year',l.year],['Kilometres',(l.km||l.km===0)?kms(l.km):''],['Body',l.body||''],['Transmission',l.trans||''],['Location',[l.suburb,l.state].filter(Boolean).join(', ')],['Rego / VIN',l.rego||'On request']].filter(s=>s[1]!==''&&s[1]!=null);
 main.innerHTML=`<div class="wrap s-${l.sec}"><a href="#/buy" class="eyebrow">← Back to feed</a><div class="detail" style="margin-top:var(--s-4)"><div>
-<div class="gal"><img class="main" id="big" src="${esc(l.photos[0])}" alt="${esc(l.make+' '+l.model)} main photo" onerror="${FALLBACK}"><div class="thumbs">${l.photos.map((p,i)=>`<button aria-label="Show photo ${i+1}" aria-current="${i===0}" data-src="${esc(p)}"><img src="${esc(p)}" alt="" onerror="${FALLBACK}"></button>`).join('')}</div></div>
-<div class="eyebrow" style="margin-top:var(--s-5);color:var(--sec)">${SECTIONS[l.sec]} ${l.demo?'· Demo data':''}</div><h1 style="font-size:clamp(1.2rem,3vw,2rem)">${l.year} ${esc(l.make)} ${esc(l.model)}</h1><div class="price">${aud(l.price)}</div>
-<div class="specs">${[['Year',l.year],['Kilometres',kms(l.km)],['Body',l.body],['Transmission',l.trans],['Location',l.suburb+', '+l.state],['Rego / VIN',l.rego||'On request']].map(s=>`<div><span class="meta">${s[0]}</span><b>${esc(s[1])}</b></div>`).join('')}</div>
+<div class="gal"><img class="main" id="big" src="${esc(l.photos[0])}" alt="${esc(title)} main photo" onerror="${FALLBACK}"><div class="thumbs">${l.photos.map((p,i)=>`<button aria-label="Show photo ${i+1}" aria-current="${i===0}" data-src="${esc(p)}"><img src="${esc(p)}" alt="" onerror="${FALLBACK}"></button>`).join('')}</div></div>
+<div class="eyebrow" style="margin-top:var(--s-5);color:var(--sec)">${SECTIONS[l.sec]} ${l.demo?'· Demo data':''}</div><h1 style="font-size:clamp(1.2rem,3vw,2rem)">${esc(title)}</h1><div class="price">${aud(l.price)}</div>
+<div class="specs">${specs.map(s=>`<div><span class="meta">${s[0]}</span><b>${esc(s[1])}</b></div>`).join('')}</div>
 <h2 style="font-size:1rem">Description</h2><p class="muted">${esc(l.desc)}</p></div>
 <form class="panel" id="contact"><h2 style="font-size:1rem">Message seller</h2><label>Name<input name="n" required autocomplete="name"></label><label>Email<input name="e" type="email" required autocomplete="email"></label><label>Phone<input name="p" type="tel" autocomplete="tel"></label>
 <label>Message<textarea name="m" rows="4">Hi, is the ${esc(l.make+' '+l.model)} still available?</textarea></label><button class="btn solid">Send message</button><p class="meta">Prototype: messages aren't really sent.</p></form></div></div>`;
@@ -77,7 +79,6 @@ function sell(){main.innerHTML=`<div class="wrap"><div class="eyebrow">IM SELLIN
 <a class="path" href="#/list">${ico('tag')}<span class="wide" style="font-size:1.6rem">List free</span><span class="tag">100% free. No catch.</span><span class="muted">Post your ad to the feed and deal direct with buyers.</span><span class="btn">List your car free →</span></a>
 <a class="path" href="#/valuation">${ico('gauge')}<span class="wide" style="font-size:1.6rem">Wholesale</span><span class="tag">Sell fast to dealers.</span><span class="muted">Answer a few questions and verified dealers make you an offer.</span><span class="btn">Get a valuation →</span></a></div></div>`;}
 
-const secChoice=()=>`<div class="choice c3">${Object.entries(SECTIONS).map(([k,v],i)=>`<label><input type="radio" name="sec" value="${k}" ${k===m2s(MODE)?'checked':''}> ${v}</label>`).join('')}</div>`;
 const vehicle=()=>`<div class="grid2"><label class="full">Rego or VIN (optional)<input name="rego"></label><label>Make<input name="make" required></label><label>Model<input name="model" required></label>
 <label>Year<input name="year" type="number" min="1950" max="2027" required></label><label>Kilometres<input name="km" type="number" min="0" required></label>
 <label>Body<select name="body">${['Coupe','Sedan','Hatch','SUV','Ute','Wagon','Convertible'].map(o=>`<option>${o}</option>`).join('')}</select></label><label>Transmission<select name="trans"><option>Auto</option><option>Manual</option></select></label></div>`;
@@ -94,10 +95,12 @@ $('#bk').onclick=()=>{i--;show()};
 f.onsubmit=e=>{e.preventDefault();const bad=[...sets[i].querySelectorAll('[required]')].find(x=>!x.checkValidity());if(bad){$('#er').textContent='Please fill in '+bad.closest('label').firstChild.textContent.trim()+'.';bad.focus();return}$('#er').textContent='';
 if(i<sets.length-1){i++;show();scrollTo(0,0);return}onDone(Object.fromEntries(new FormData(f)),imgs);};}
 
-function list(){wizard('List your car <span class="grey">free</span>',[['Section',secChoice()],['Vehicle details',vehicle()],['Photos',photos()],['Price & contact',`<label>Asking price (AUD)<input name="price" type="number" min="1" required></label><label>Description<textarea name="desc" rows="4"></textarea></label>${contact()}`]],(d,imgs)=>{
-const l={id:'u'+Date.now(),sec:d.sec,make:d.make,model:d.model,year:+d.year,km:+d.km,price:+d.price,suburb:d.suburb,state:d.state,body:d.body,trans:d.trans,rego:d.rego,desc:d.desc||'No description yet.',photos:imgs.length?imgs:[U(POOL[d.sec][0])]};
-try{localStorage.setItem('imdrivn_listings',JSON.stringify([l,...mine()]))}catch(e){l.photos=[U(POOL[d.sec][0])];localStorage.setItem('imdrivn_listings',JSON.stringify([l,...mine()]))}
-location.hash='#/car/'+l.id;});}
+function list(){ListFlow.start(main,{async publish(d){
+  const handle=(d.name||'you').trim().toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/^\.|\.$/g,'')||'you';
+  const saved=await ListingStore.create({sec:d.sec,make:d.make.trim(),model:d.model.trim(),year:+d.year,km:+d.km,price:+d.price,suburb:d.suburb.trim(),state:d.state,heading:d.heading.trim(),desc:d.desc.trim(),photos:d.photos.slice(),name:d.name.trim(),phone:d.phone.trim(),email:d.email.trim(),handle,likes:0,comments:0});
+  setMode(saved.sec==='supercars'?'supercar':saved.sec);
+  location.hash='#/car/'+saved.id;
+}});}
 
 function valuation(){const yn=(n,q)=>`<p style="margin:var(--s-4) 0 var(--s-2)">${q}</p><div class="choice c3"><label><input type="radio" name="${n}" value="yes" checked> Yes</label><label><input type="radio" name="${n}" value="no"> No</label><label><input type="radio" name="${n}" value="unsure"> Not sure</label></div>`;
 wizard('Get a <span class="grey">wholesale</span> valuation',[['Vehicle details',vehicle()],['Condition',`<label>Overall condition<select name="cond"><option>Excellent</option><option>Good</option><option>Fair</option><option>Needs work</option></select></label>${yn('hist','Full service history?')}${yn('acc','Free of accident damage?')}${yn('fin','Paid off (no finance owing)?')}<label style="margin-top:var(--s-4)">Anything else dealers should know?<textarea name="notes" rows="3"></textarea></label>`],['Photos',photos()],['Contact',contact()]],(d)=>{
