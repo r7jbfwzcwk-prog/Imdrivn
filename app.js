@@ -1,3 +1,5 @@
+const INSTAGRAM_URL='https://instagram.com/imdrivn';
+const TIKTOK_URL='https://tiktok.com/@imdrivn';
 const $=(s,r=document)=>r.querySelector(s),main=$('#main');
 const aud=n=>'$'+Number(n).toLocaleString('en-AU'),kms=n=>Number(n).toLocaleString('en-AU')+' km';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -5,7 +7,8 @@ const passes=l=>{const km=l.km??l.kms;return(!F.make||String(l.make).toLowerCase
 const demosFor=saved=>DEMO.filter(l=>l.sec===m2s(MODE)&&passes(l)&&(!saved||(st()[l.id]||{}).save));
 const I={tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',up:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 16V8m-4 4 4-4 4 4"/>',
 shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 15 4-5"/><path d="M6 13h1m10 0h1M12 8v1"/>',
-lock:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/>',head:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="5" rx="1"/><rect x="17" y="14" width="4" height="5" rx="1"/><path d="M19 19c0 1.5-2 2-5 2"/>'};
+lock:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/>',head:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="5" rx="1"/><rect x="17" y="14" width="4" height="5" rx="1"/><path d="M19 19c0 1.5-2 2-5 2"/>',
+bag:'<path d="M6 8h12l-1 12H7z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/>'};
 const ico=k=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
 const FALLBACK="this.onerror=null;this.src='data:image/svg+xml,'+encodeURIComponent('<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 10&quot;><rect width=&quot;16&quot; height=&quot;10&quot; fill=&quot;%231b1b1e&quot;/><text x=&quot;8&quot; y=&quot;5.6&quot; font-size=&quot;1&quot; fill=&quot;%23777&quot; text-anchor=&quot;middle&quot;>PHOTO</text></svg>')";
 
@@ -15,6 +18,7 @@ async function home(){const token=++homeToken;main.innerHTML=`
 <div class="wrap"><div class="paths">
 <a class="path" href="#/buy">${ico('tag')}<span class="wide">IM BUYIN</span><span class="tag">Find your next machine.</span><span class="muted">Browse premium high performance cars available now.</span><span class="btn">Browse cars →</span></a>
 <a class="path" href="#/sell">${ico('up')}<span class="wide">IM SELLIN</span><span class="tag">List with confidence.</span><span class="muted">List free, or get a wholesale offer from dealers.</span><span class="btn">Sell your car →</span></a>
+<a class="path" href="#/merch">${ico('bag')}<span class="wide">IM MERCH</span><span class="tag">Wear the drive.</span><span class="muted">Tees, hoodies, caps. The drop is close.</span><span class="btn">See the drop →</span></a>
 <a class="path forum-home" href="#/forum">${ico('head')}<span class="wide">THE FORUM</span><span class="tag">Need a hand with the car?</span><span class="muted">Ask the crew. Advice, mods, meets. No gatekeeping.</span><span class="btn">Pull up a chair →</span></a></div></div>
 <section class="wrap feats" id="how"><div class="eyebrow">Built for enthusiasts. Driven by performance.</div><div class="row4">
 ${[['shield','Verified vehicles','Every car is checked for quality and authenticity.'],['gauge','Serious buyers','Connect with genuine high performance buyers.'],['lock','Secure & safe','Safe transactions from start to finish.'],['head','Expert support','Real people, real support when you need it.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div></section>
@@ -61,13 +65,27 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{setMode(b.da
 setMode(MODE);
 $('#sbtn').onclick=()=>{const p=$('#spanel');p.hidden=!p.hidden;$('#sbtn').setAttribute('aria-expanded',!p.hidden);if(!p.hidden)p.querySelector('input').focus()};
 $('#bell').onclick=()=>alert('Notifications are coming soon (prototype).');
+$('#ig').href=INSTAGRAM_URL;$('#tt').href=TIKTOK_URL;
+const menuBtn=$('#menubtn'),appMenu=$('#appmenu');
+function closeMenu(focusBack){if(!appMenu||appMenu.hidden)return;appMenu.hidden=true;menuBtn.setAttribute('aria-expanded','false');if(focusBack)menuBtn.focus()}
+function openMenu(){appMenu.hidden=false;menuBtn.setAttribute('aria-expanded','true');const first=appMenu.querySelector('a');if(first)first.focus()}
+menuBtn.onclick=()=>{if(appMenu.hidden)openMenu();else closeMenu(false)};
+document.addEventListener('click',e=>{if(appMenu.hidden||e.target.closest('#appmenu')||e.target.closest('#menubtn'))return;closeMenu(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!appMenu.hidden){e.preventDefault();closeMenu(true)}});
+appMenu.addEventListener('keydown',e=>{const items=[...appMenu.querySelectorAll('a')];const i=items.indexOf(document.activeElement);
+if(e.key==='ArrowDown'){e.preventDefault();items[(i+1)%items.length].focus()}
+if(e.key==='ArrowUp'){e.preventDefault();items[(i-1+items.length)%items.length].focus()}
+if(e.key==='Home'){e.preventDefault();items[0].focus()}
+if(e.key==='End'){e.preventDefault();items[items.length-1].focus()}});
 
 let F={make:'',model:'',year:'',km:''},io,SAVED=false,homeToken=0,feedToken=0,viewToken=0,feedState=null;
 const PAGE=8;
 $('#qs').onsubmit=e=>{e.preventDefault();Object.assign(F,Object.fromEntries(new FormData(e.target)));$('#spanel').hidden=true;location.hash==='#/buy'?route():location.hash='#/buy';};
 $('#qs').onreset=()=>{F={make:'',model:'',year:'',km:''};setTimeout(()=>location.hash==='#/buy'?route():location.hash='#/buy')};
-async function buy(saved){const token=++feedToken;SAVED=!!saved;const f=[F.make,F.model,F.year&&F.year+'+',F.km&&'≤'+F.km+' km'].filter(Boolean);
-main.innerHTML=`${saved?'<h1 class="feed-title">Saved</h1>':''}${saved&&!Auth.user?'<p class="filt">Sign in to keep saves on your account.</p>':''}${f.length?`<div class="filt">Search: ${esc(f.join(' · '))} <button onclick="$('#qs').reset()">Clear</button></div>`:''}<div class="feed" id="feed"></div><div class="loader" id="more">Loading more machines…</div>`;
+function askSignIn(message,next){sessionStorage.setItem('imdrivn_next',next);main.innerHTML=`<div class="wrap form auth"><div class="eyebrow">Account</div><h1>Sign in</h1><p class="muted">${esc(message)}</p><a class="btn solid" href="#/join">Sign in</a></div>`}
+async function buy(saved){if(saved){await Auth.ready;if(!Auth.user){askSignIn('Sign in to see the cars you saved.','saved');return}}
+const token=++feedToken;SAVED=!!saved;const f=[F.make,F.model,F.year&&F.year+'+',F.km&&'≤'+F.km+' km'].filter(Boolean);
+main.innerHTML=`${saved?'<h1 class="feed-title">Saved cars</h1>':''}${f.length?`<div class="filt">Search: ${esc(f.join(' · '))} <button onclick="$('#qs').reset()">Clear</button></div>`:''}<div class="feed" id="feed"></div><div class="loader" id="more">Loading more machines…</div>`;
 feedState={token,from:0,remoteDone:false,demosAdded:false,busy:false,seen:new Set(),note:''};
 await fillFeed();
 if(token!==feedToken||!$('#more')||$('#more').hidden)return;
@@ -85,7 +103,7 @@ try{
       rows.push(...page);
     }
   }
-  if(state.remoteDone&&!state.demosAdded){if(SAVED||state.from===0)rows.push(...demosFor(SAVED));state.demosAdded=true}
+  if(state.remoteDone&&!state.demosAdded){if(!SAVED&&state.from===0)rows.push(...demosFor(false));state.demosAdded=true}
   rows=rows.filter(l=>!state.seen.has(l.id));
   rows.forEach(l=>state.seen.add(l.id));
   const feed=$('#feed'),moreEl=$('#more');
@@ -94,7 +112,7 @@ try{
   if(rows.length)feed.insertAdjacentHTML('beforeend',rows.map(post).join(''));
   if(state.remoteDone&&state.demosAdded&&moreEl){moreEl.hidden=true;io&&io.disconnect()}
 }catch(e){if(state.token!==feedToken)return;const feed=$('#feed'),moreEl=$('#more');
-if(feed&&!state.seen.size){const demos=demosFor(SAVED);demos.forEach(l=>state.seen.add(l.id));state.remoteDone=true;state.demosAdded=true;feed.innerHTML=demos.map(post).join('')+(demos.length?'':`<p class="muted">${SAVED?'Nothing saved in this mode yet.':'Live listings did not load.'}</p>`);if(moreEl)moreEl.hidden=true;return}
+if(feed&&!state.seen.size){if(SAVED){feed.innerHTML='<p class="muted">Nothing saved in this mode yet. Tap the bookmark on a car.</p>';if(moreEl)moreEl.hidden=true;return}const demos=demosFor(false);demos.forEach(l=>state.seen.add(l.id));state.remoteDone=true;state.demosAdded=true;feed.innerHTML=demos.map(post).join('')+(demos.length?'':'<p class="muted">Live listings did not load.</p>');if(moreEl)moreEl.hidden=true;return}
 if(moreEl)moreEl.textContent='Could not load more. Scroll to try again.'
 }finally{state.busy=false}}
 
@@ -197,7 +215,14 @@ async function join(){const token=++viewToken;main.innerHTML='<div class="wrap f
 if(token!==viewToken)return;if(!sb){main.innerHTML='<div class="wrap form auth"><h1>Sign in</h1><p class="err">Accounts are offline right now. The demo feed still works.</p><a class="btn" href="#/buy">Browse cars</a></div>';return}
 if(Auth.recovery)return recoveryScreen();if(!Auth.user)return authScreen('in');if(Auth.needsHandle())return handleScreen();return profileScreen()}
 
-function msgs(){main.innerHTML=`<div class="wrap form"><h1 style="font-size:1.4rem">Messages</h1><div class="panel"><p class="muted">No messages yet. When buyers or sellers message you, chats land here. (Prototype)</p><a class="btn" href="#/buy">Back to the feed</a></div></div>`}
+function msgs(){main.innerHTML=`<div class="wrap form"><h1 style="font-size:1.4rem">Messages</h1><div class="panel"><p class="muted">No messages yet. When buyers or sellers message you, chats land here.</p><a class="btn" href="#/buy">Back to the feed</a></div></div>`}
+async function garage(){const token=++viewToken;await Auth.ready;if(token!==viewToken)return;if(!Auth.user){askSignIn('Sign in to open your garage.','garage');return}
+main.innerHTML=`<div class="wrap"><div class="eyebrow">My garage</div><h1 style="font-size:clamp(1.4rem,4vw,2.2rem)">Your cars</h1><p class="muted">Everything you've listed. The ones still up, and the ones that aren't.</p><div class="feed" id="mine"></div></div>`;
+let rows=[];try{rows=await ListingStore.mine()}catch(e){rows=[]}
+if(token!==viewToken||!$('#mine'))return;
+$('#mine').innerHTML=rows.length?rows.map(post).join(''):'<p class="muted">Garage is empty. List a car and it shows up here.</p><a class="btn" href="#/list">List your car</a>';}
+function merch(){const items=[['Tee','Heavyweight. The one you actually wear.'],['Hoodie','Cold start, warm hoodie.'],['Cap','Low crown. Logo only.'],['Sticker pack','Bumper, laptop, water bottle. Your call.']];
+main.innerHTML=`<div class="wrap merch"><div class="eyebrow">IM MERCH</div><h1 style="font-size:clamp(1.6rem,5vw,2.6rem)">Merch dropping soon</h1><p class="muted">We're cooking the drop. Nothing to buy yet — just the lineup.</p><div class="merch-grid">${items.map(([name,line])=>`<article class="merch-card"><div class="swatch">${esc(name)}</div><h2>${esc(name)}</h2><p>${esc(line)}</p><span class="soon">Coming soon</span></article>`).join('')}</div><a class="btn solid" href="${esc(INSTAGRAM_URL)}" target="_blank" rel="noopener">Notify me</a></div>`}
 function updateNav(){const a=document.querySelector('.dnav a[href="#/join"]');if(a)a.textContent=Auth.user?(Auth.profile&&Auth.profile.username?'@'+Auth.profile.username:'Profile'):'Sign in'}
 function toast(text, kind){let el=document.getElementById('toast');if(!el){el=document.createElement('div');el.id='toast';el.setAttribute('role','status');el.setAttribute('aria-live','polite');document.body.appendChild(el);el.addEventListener('click',()=>el.remove())}
 el.className='toast '+(kind==='error'?'toast-err':'toast-ok');el.textContent=text;clearTimeout(toast._t);toast._t=setTimeout(()=>{if(el.isConnected)el.remove()},8000)}
@@ -210,8 +235,8 @@ toast('Signed in as '+who);
 if(Auth.needsHandle()){if(location.hash!=='#/join')location.hash='#/join';else join();return}}
 const next=sessionStorage.getItem('imdrivn_next');
 if(Auth.user&&next&&!Auth.needsHandle()){sessionStorage.removeItem('imdrivn_next');location.hash='#/'+next}}
-function route(){document.body.classList.remove('menu-open');const [,p,a,b]=location.hash.slice(1).split('/');io&&io.disconnect();feedToken++;homeToken++;viewToken++;
-const run=({'':home,buy:()=>buy(),saved:()=>buy(1),msgs,car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join,forum:()=>a==='t'&&b?forumThread(b):a?forumCategory(a):forumIndex()}[p||'']||home);
+function route(){document.body.classList.remove('menu-open');closeMenu(false);const [,p,a,b]=location.hash.slice(1).split('/');io&&io.disconnect();feedToken++;homeToken++;viewToken++;
+const run=({'':home,buy:()=>buy(),saved:()=>buy(1),garage,merch,msgs,car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join,forum:()=>a==='t'&&b?forumThread(b):a?forumCategory(a):forumIndex()}[p||'']||home);
 Promise.resolve(run()).catch(()=>{});
 if(p!=='about')scrollTo(0,0);main.focus({preventScroll:true});
 const section=p==='forum'?'forum':(p||'');
