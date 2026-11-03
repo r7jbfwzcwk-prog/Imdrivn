@@ -82,9 +82,19 @@ body{transition:--acc var(--ease) ease,--acc-dim var(--ease) ease,--glow var(--e
 .top{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.94);backdrop-filter:blur(10px)}
 .bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #1a1a1d}
 .logo{font-family:var(--font-head);font-style:italic;font-size:1.05rem;letter-spacing:.04em;text-decoration:none;color:#fff;font-weight:700;text-shadow:0 0 .5px #fff}
+a.logo{display:inline-flex;align-items:center;flex:0 0 auto;line-height:0;text-shadow:none}
+header a.logo img{height:13px;width:auto}
+@media(min-width:900px){header a.logo img{height:18px}}
+footer a.logo{margin:0 auto 10px}
+footer a.logo img{height:18px;width:auto;max-width:220px}
 .ic{position:relative;display:flex;gap:2px}.ic button{background:none;border:0;width:40px;height:40px;display:grid;place-items:center;cursor:pointer;color:#fff}
 .socials{display:flex;align-items:center;gap:0;margin-left:auto}.socials a{width:40px;height:40px;display:grid;place-items:center;color:#c8c8cc}
 .socials a:hover,.socials a:focus-visible{color:var(--acc)}
+@media(max-width:899px){
+  .bar{padding:10px 10px}
+  .socials a{width:32px;height:36px}
+  .ic button{width:34px;height:36px}
+}
 .top svg,.bnav svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .top .socials svg{width:20px;height:20px;fill:currentColor;stroke:none}
 .sortwrap{display:flex;align-items:center;flex:0 0 auto}
