@@ -387,7 +387,7 @@ const notify=`<a class="btn solid" href="${esc(INSTAGRAM_URL)}" target="_blank" 
 const wear=[['Tee','Heavyweight. The one you actually wear.'],['Hoodie','Cold start, warm hoodie.'],['Cap','Low crown. Logo only.'],['Sticker pack','Bumper, laptop, water bottle. Your call.']];
 const detail=[['Wash Pack','Bucket, mitt, soap. No swirl marks.'],['Interior Pack','Cabin reset. Smells freshly detailed.'],['Ceramic Shine Pack','Bead game loud. Paint stays protected.'],['Full Detail Kit','The whole routine. One box.']];
 main.innerHTML=`<div class="wrap merch"><div class="eyebrow">MERCH</div><h1 style="font-size:clamp(1.6rem,5vw,2.6rem)">Merch dropping soon</h1><p class="muted">We're cooking the drop. Nothing to buy yet — just the lineup.</p><div class="merch-grid">${cards(wear)}</div>${notify}<section class="detailn"><h2>IM DETAILN</h2><p class="muted">Keep it clean. Keep it DRIVN.</p><div class="merch-grid">${cards(detail)}</div>${notify}</section></div>`}
-function updateNav(){const a=document.querySelector('.dnav a[href="#/join"]');if(a)a.textContent=Auth.user?(Auth.profile&&Auth.profile.username?'@'+Auth.profile.username:'Profile'):'Sign in'}
+function updateNav(){const a=document.querySelector('.nav-account');if(a)a.textContent=Auth.user?(Auth.profile&&Auth.profile.username?'@'+Auth.profile.username:'Profile'):'Sign in'}
 function toast(text, kind){let el=document.getElementById('toast');if(!el){el=document.createElement('div');el.id='toast';el.setAttribute('role','status');el.setAttribute('aria-live','polite');document.body.appendChild(el);el.addEventListener('click',()=>el.remove())}
 el.className='toast '+(kind==='error'?'toast-err':'toast-ok');el.textContent=text;clearTimeout(toast._t);toast._t=setTimeout(()=>{if(el.isConnected)el.remove()},8000)}
 function finishAuthReturn(){updateNav();
@@ -403,7 +403,7 @@ const pages={'':home,buy:()=>buy(),saved:()=>buy(1),garage:()=>garage(a==='ads')
 Promise.resolve(run()).catch(()=>{});
 if(p!=='about')scrollTo(0,0);main.focus({preventScroll:true});
 const section=p==='forum'?'forum':(p==='messages'||p==='msgs')?'messages':(p||'');
-document.querySelectorAll('.bnav a, .dnav a').forEach(x=>x.setAttribute('aria-current',(x.dataset.r||x.getAttribute('href'))===(section==='forum'?'#/forum':section)&&section? 'page' : (x.dataset.r===section||(x.dataset.r==='buy'&&p==='car')?'page':'false')));}
+document.querySelectorAll('.bnav a, .dnav a, .nav-account').forEach(x=>{const key=x.dataset.r||String(x.getAttribute('href')||'').replace(/^#\//,'');const on=(key===section&&!!section)||(key==='buy'&&p==='car');x.setAttribute('aria-current',on?'page':'false')});}
 addEventListener('hashchange',route);
 Auth.listeners.add(()=>{updateNav();watchInbox();if(location.hash.startsWith('#/join')||Auth.recovery)join()});
 if(Auth.oauthError){toast(Auth.oauthError,'error');Auth.oauthError=''}
