@@ -30,7 +30,7 @@ $('#fresh').innerHTML=fresh.map(post).join('')||'<p class="muted">Nothing in thi
 const about=()=>`<section class="about" id="about"><div class="img" role="img" aria-label="Taillight of a dark car"></div><div class="txt"><div class="eyebrow">About IM DRIVN</div>
 <h2>More than a marketplace.<br>It's a community.</h2><p class="muted">IM DRIVN connects Australia's car community — from supercars to performance weapons to the daily drive. Buy. Sell. Drive. All in one place. Listing is 100% free.</p><a class="btn" href="#/how">Learn more</a></div><div class="water" aria-hidden="true">IM DRIVN</div></section>`;
 
-const SV={heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',send:'<path d="M4 7h16v10H4z"/><path d="m4 8 8 5 8-5"/>',mark:'<path d="M6 3h12v18l-6-4-6 4z"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',
+const SV={heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',send:'<path d="M4 7h16v10H4z"/><path d="m4 8 8 5 8-5"/>',mark:'<path d="M6 3h12v18l-6-4-6 4z"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',
 check:'<circle cx="12" cy="12" r="9" class="fillc"/><path d="m8 12 3 3 5-6" stroke="#000"/>'};
 const sv=(k,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${SV[k]}</svg>`;
 const st=()=>JSON.parse(localStorage.getItem('imdrivn_social')||'{}');
@@ -39,14 +39,13 @@ function liveAd(l){return !!(l&&!l.demo&&(!l.status||l.status==='active'))}
 function cylLabel(n){const num=+n;if(!num)return '';const v={6:'V6',8:'V8',10:'V10',12:'V12'};return v[num]||(num+' cyl')}
 function boostBadges(l){const perf=l.sec==='performance'||l.sec==='supercars';if(!perf)return '';const turbo=l.turbo===true,blown=l.supercharged===true;const bits=[];if(turbo)bits.push('Turbo');if(blown)bits.push('Supercharged');if(!bits.length&&l.turbo===false&&l.supercharged===false)bits.push('NA');if(!bits.length)return '';return `<span class="boosts">${bits.map(b=>`<span class="boost${b==='NA'?' is-na':''}">${b}</span>`).join('')}</span>`}
 function powerLine(l){const text=[cylLabel(l.cylinders),String(l.engine||'').trim()].filter(Boolean).join(' · ');const badges=boostBadges(l);if(!text&&!badges)return '';return `<div class="power">${text?`<span class="power-spec">${esc(text)}</span>`:''}${badges}</div>`}
-function post(l,ownerList){const demo=!!l.demo,S=demo?(st()[l.id]||{}):{like:!!l.liked,save:!!l.saved},lk=demo?(l.likes||0)+(S.like?1:0):(l.likeCount||0),cm=(l.comments||0),title=l.heading||(l.year+' '+l.make+' '+l.model),sold=l.status==='sold';
+function post(l,ownerList){const demo=!!l.demo,S=demo?(st()[l.id]||{}):{like:!!l.liked,save:!!l.saved},lk=demo?(l.likes||0)+(S.like?1:0):(l.likeCount||0),title=l.heading||(l.year+' '+l.make+' '+l.model),sold=l.status==='sold';
 return`<article class="post s-${l.sec}${sold?' is-sold':''}"><a class="car" href="#/car/${l.id}"><img src="${esc(l.photos[0])}" alt="${esc(title)}" loading="lazy" onerror="${FALLBACK}">
 ${sold?'':'<span class="new">NEW</span>'}<span class="ago">${esc(l.when||(l.ago?l.ago+'h ago':'Just now'))}</span>${demo?'<span class="dm">Demo</span>':''}${sold?'<span class="sold-badge">SOLD</span>':l.status&&l.status!=='active'?`<span class="dm">${esc(l.status)}</span>`:''}</a>
 <div class="b"><a href="#/car/${l.id}" class="ttl">${esc(title)}</a><div class="price">${aud(l.price)}</div>
 ${powerLine(l)}
 <div class="row"><span class="loc">${sv('pin')}${esc([l.suburb, l.state].filter(Boolean).join(' '))}</span>${atHandle(l.handle, true)}</div>
 <div class="acts"><button data-act="like" data-id="${l.id}" data-demo="${demo?1:0}" aria-pressed="${!!S.like}" aria-label="Like">${sv('heart')}<span>${lk}</span></button>
-<button data-act="cmt" data-id="${l.id}" data-demo="${demo?1:0}" aria-label="Comments">${sv('chat')}<span>${cm}</span></button>
 ${canMessage(l)?`<button data-act="msg" data-id="${l.id}" aria-label="Message seller">${sv('send')}</button>`:''}
 <button class="bm" data-act="save" data-id="${l.id}" data-demo="${demo?1:0}" aria-pressed="${!!S.save}" aria-label="Save">${sv('mark')}</button></div>
 ${ownerList&&liveAd(l)?`<button type="button" class="sold-btn" data-act="sold" data-id="${esc(l.id)}">Sold</button>`:''}
@@ -54,7 +53,6 @@ ${ownerList&&liveAd(l)?`<button type="button" class="sold-btn" data-act="sold" d
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-act]');if(!b||b.closest('.ask-preview'))return;
 if(b.dataset.act==='msg'){messageSeller(b.dataset.id);return}
 if(b.dataset.act==='sold'){markSold(b);return}
-if(b.dataset.act==='cmt'){location.hash='#/car/'+b.dataset.id;return}
 const demo=b.dataset.demo==='1';
 if(!demo){if(!Auth.user){sessionStorage.setItem('imdrivn_next',(location.hash||'#/buy').replace(/^#\//,''));location.hash='#/join';return}
 const on=b.getAttribute('aria-pressed')==='true';

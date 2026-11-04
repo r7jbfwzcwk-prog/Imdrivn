@@ -255,7 +255,6 @@ function mapListing(row) {
     liked: Auth.likes.has(row.id),
     saved: Auth.saves.has(row.id),
     likes: countOf(row.likes),
-    comments: 0,
     user_id: row.user_id,
     created_at: row.created_at
   };

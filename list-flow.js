@@ -398,7 +398,7 @@ const ListFlow = (() => {
             heading: draft.heading, price: +draft.price, suburb: draft.suburb, state: draft.state,
             engine: draft.engine, cylinders: draft.cylinders === 'electric' ? null : (draft.cylinders ? +draft.cylinders : null),
             turbo: boosted() ? draft.turbo : null, supercharged: boosted() ? draft.supercharged : null,
-            handle, photos: draft.photos.slice(), likes: 0, comments: 0, ago: 0
+            handle, photos: draft.photos.slice(), likes: 0, ago: 0
           };
           body.innerHTML = `<div class="feed ask-preview">${post(listing)}</div>`;
         }
