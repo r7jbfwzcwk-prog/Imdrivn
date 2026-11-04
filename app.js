@@ -18,7 +18,7 @@ car:'<path d="M3 14h18"/><path d="M5 14 7 9h10l2 5"/><circle cx="7.5" cy="16.5" 
 cart:'<path d="M3 5h2.2L7 14h11.2l1.5-6.5H7"/><circle cx="9" cy="18.2" r="1.4"/><circle cx="16.4" cy="18.2" r="1.4"/>',
 spark:'<path d="m12 3 1.8 5.2H19l-4.2 3.1 1.6 5.2L12 13.6 7.6 16.5l1.6-5.2L5 8.2h5.2z"/>',
 trophy:'<path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H5.4A2.4 2.4 0 0 0 8 9.6"/><path d="M16 6h2.6A2.4 2.4 0 0 1 16 9.6"/><path d="M12 14v2"/><path d="M9.2 20h5.6l-.7-4h-4.2z"/>',
-dollar:'<path d="M12 3v18"/><path d="M16.5 7.2c0-1.8-2-2.9-4.5-2.9S7.5 5.4 7.5 7.4s1.8 2.6 4.5 3.1 4.5 1.2 4.5 3.2-2 3-4.5 3-4.5-1.2-4.5-3"/>'};
+note:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.25"/><circle cx="6" cy="9.2" r=".7" fill="currentColor" stroke="none"/><circle cx="18" cy="9.2" r=".7" fill="currentColor" stroke="none"/><circle cx="6" cy="14.8" r=".7" fill="currentColor" stroke="none"/><circle cx="18" cy="14.8" r=".7" fill="currentColor" stroke="none"/>'};
 const ico=k=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
 const FALLBACK="this.onerror=null;this.src='data:image/svg+xml,'+encodeURIComponent('<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 10&quot;><rect width=&quot;16&quot; height=&quot;10&quot; fill=&quot;%231b1b1e&quot;/><text x=&quot;8&quot; y=&quot;5.6&quot; font-size=&quot;1&quot; fill=&quot;%23777&quot; text-anchor=&quot;middle&quot;>PHOTO</text></svg>')";
 
@@ -306,7 +306,7 @@ function buyChooser(){main.innerHTML=`<section class="lanes"><div class="lanes-c
 main.querySelectorAll('.lane-col').forEach(col=>{const on=()=>col.classList.add('is-lit');const off=()=>col.classList.remove('is-lit');col.addEventListener('pointerdown',on);col.addEventListener('pointerup',off);col.addEventListener('pointercancel',off);col.addEventListener('pointerleave',off);});}
 function sell(){main.innerHTML=`<div class="wrap"><div class="eyebrow">IM SELLIN</div><h1 style="font-size:clamp(1.4rem,4vw,2.4rem)">How do you<br><span class="grey">want to sell?</span></h1><div class="paths" style="margin-top:var(--s-5)">
 <a class="path sell-list" href="#/list">${ico('tag')}<span class="wide" style="font-size:1.6rem">List free</span><span class="tag">100% free. No catch.</span><span class="muted">Post your ad to the feed and deal direct with buyers.</span><span class="btn">List your car free →</span></a>
-<a class="path sell-whole" href="#/valuation">${ico('dollar')}<span class="wide" style="font-size:1.6rem">Wholesale</span><span class="tag">Sell fast to dealers.</span><span class="muted">Answer a few questions and verified dealers make you an offer.</span><span class="btn">Get a valuation →</span></a></div></div>`;}
+<a class="path sell-whole" href="#/valuation">${ico('note')}<span class="wide" style="font-size:1.6rem">Wholesale</span><span class="tag">Sell fast to dealers.</span><span class="muted">Answer a few questions and verified dealers make you an offer.</span><span class="btn">Get a valuation →</span></a></div></div>`;}
 
 const vehicle=()=>`<div class="grid2"><label class="full">Rego or VIN (optional)<input name="rego"></label><label>Make<input name="make" required></label><label>Model<input name="model" required></label>
 <label>Year<input name="year" type="number" min="1950" max="2027" required></label><label>Kilometres<input name="km" type="number" min="0" required></label>
