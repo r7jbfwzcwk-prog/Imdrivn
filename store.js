@@ -344,7 +344,7 @@ function stampWordmark(ctx, logo, w, h) {
   ctx.restore();
 }
 function photoMark(){
-  return '<span class="wm" aria-hidden="true"><img src="img/logo.svg" alt=""></span>';
+  return '<span class="wm" aria-hidden="true">IM DRIVN</span>';
 }
 function preparePhoto(file) {
   return new Promise((resolve, reject) => {

@@ -310,16 +310,16 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .feed-title{font-size:1rem;text-align:center;margin-top:16px;color:var(--acc)}.filt{max-width:440px;margin:12px auto 0;padding:0 12px;font-size:.8rem;color:var(--c-muted)}.filt button{background:none;border:0;color:var(--acc);cursor:pointer;text-decoration:underline}
 .post{position:relative;background:#050506;border:1px solid var(--acc-dim);border-radius:var(--r-card);overflow:hidden;box-shadow:0 0 18px var(--glow);transition:border-radius var(--ease),box-shadow var(--ease)}
 .post .car{position:relative;display:block}.post .car img{width:100%;aspect-ratio:16/7.5;object-fit:cover;background:#111}
-.shot{position:relative;display:block}
-.wm{position:absolute;right:6px;bottom:6px;z-index:2;width:28%;max-width:118px;min-width:48px;pointer-events:none;opacity:.62}
-.wm img{width:100%;height:auto;display:block;filter:brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,.75))}
+.shot{position:relative;display:block;container-type:inline-size}
+.wm{position:absolute;right:8px;bottom:8px;z-index:2;width:auto;max-width:none;min-width:0;margin:0;padding:0;border:0;background:transparent;color:#fff;font-family:var(--font-body);font-style:normal;font-weight:600;font-size:11px;font-size:2.55cqw;letter-spacing:.06em;line-height:1;text-transform:uppercase;text-decoration:none;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.75);pointer-events:none;opacity:.66}
 .thumbs button.shot{overflow:hidden}
-.thumbs .wm,.inbox-photo .wm,.thread-pin .wm{right:3px;bottom:2px;width:62%;min-width:0;max-width:56px;opacity:.75}
+.thumbs .wm{font-size:6px;font-size:clamp(5px,11cqw,8px);letter-spacing:.04em;opacity:.7}
+.inbox-photo .wm,.thread-pin .wm{right:3px;bottom:2px;font-size:6px;font-size:clamp(5px,11cqw,8px);letter-spacing:.04em;opacity:.7}
 .inbox-photo.shot{width:64px;flex:none}
 .thread-pin > a.shot{flex:none;width:84px}
 .shot-main{border-radius:var(--r-md);overflow:hidden}
 .shot-main .main{border-radius:0}
-.ask-photo .wm{right:8px;bottom:8px;width:42%;max-width:92px}
+.ask-photo .wm{right:8px;bottom:8px;font-size:10px;font-size:clamp(8px,7cqw,13px)}
 .new{position:absolute;top:10px;left:10px;font-size:.58rem;font-weight:600;letter-spacing:.08em;padding:3px 7px;border:1px solid var(--acc);color:#fff;border-radius:3px;background:rgba(0,0,0,.55);transition:border-color var(--ease)}
 .ago{position:absolute;top:10px;right:12px;font-size:.68rem;color:var(--acc);text-shadow:0 0 4px #000;transition:color var(--ease)}
 .post .b{padding:10px 14px 12px}.ttl{display:block;text-decoration:none;font-size:.95rem;font-weight:500;color:#fff}
