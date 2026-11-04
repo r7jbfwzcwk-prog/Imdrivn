@@ -150,8 +150,8 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 @media(min-width:900px){
  .bar{flex-wrap:nowrap}
  .bar-end{display:flex;align-items:center;flex:0 1 auto;min-width:0;margin-left:12px}
- .dnav{display:flex;flex:1 0 auto;align-items:center;justify-content:space-between;gap:8px;margin-left:20px}
- .dnav a{display:inline-flex;align-items:center;justify-content:center;flex:0 1 auto;white-space:nowrap;text-decoration:none;font-size:.62rem;letter-spacing:.03em;line-height:1.15;color:#f2f2f2;background:#000;border:1px solid #d9a441;border-radius:6px;padding:7px 8px}
+ .dnav{display:flex;flex:0 1 auto;align-items:center;justify-content:flex-end;gap:12px;margin-left:auto}
+ .dnav a{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;white-space:nowrap;text-decoration:none;font-size:.62rem;letter-spacing:.03em;line-height:1.15;color:#f2f2f2;background:#000;border:1px solid #d9a441;border-radius:6px;padding:7px 8px}
  .dnav a:hover,.dnav a:focus-visible{background:rgba(217,164,65,.14);border-color:#f0c36a;color:#fff;outline:none}
  .dnav a[aria-current=page]{background:rgba(217,164,65,.24);border-color:#d9a441;color:#d9a441}
  .nav-account{display:inline-flex;align-items:center;flex:1 1 auto;min-width:0;max-width:11rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none;font-size:.68rem;letter-spacing:.06em;color:#f2f2f2}
