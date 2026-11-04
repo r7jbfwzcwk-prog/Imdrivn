@@ -366,7 +366,11 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .sold-badge{position:absolute;left:10px;bottom:8px;font-size:.62rem;letter-spacing:.16em;font-weight:700;color:#000;background:#f2f2f2;padding:3px 7px;border-radius:3px}
 .sold-banner{margin:16px 0 0;padding:14px 16px;border:1px solid #f2f2f2;border-radius:12px;letter-spacing:.2em;font-weight:700;text-align:center}
 .offer-row{display:grid;gap:12px;margin-top:var(--s-5)}
-@media(min-width:900px){.offer-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:900px){.offer-row{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.report-link{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:0;border:0;background:none;color:#9a9aa2;font-size:.8rem;letter-spacing:.02em;cursor:pointer}
+.report-link .report-ico{width:16px;height:16px;stroke:#e07a3a;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.report-link:hover,.report-link:focus-visible{color:#f2f2f2;outline:none}
+.report-link:hover .report-ico,.report-link:focus-visible .report-ico{stroke:#e5242b}
 .inspect{display:flex;flex-direction:column;min-width:0;margin:0;padding:16px;background:#000;border:1px solid var(--c-line);border-radius:12px}
 .inspect p{margin:0 0 12px;color:var(--c-muted);font-size:.85rem;line-height:1.4}
 .inspect .btn{width:100%;margin-top:auto;min-height:52px;border-color:#d9a441;color:#d9a441;letter-spacing:.08em;line-height:1.25;padding:12px 14px;text-align:center;white-space:normal}
