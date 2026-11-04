@@ -2,7 +2,6 @@
    One question per screen. Persistence goes through ListingStore.create()
    (see store.js) — this file never touches localStorage. */
 const ListFlow = (() => {
-  const MAKES = ['Alfa Romeo','Aston Martin','Audi','Bentley','BMW','BYD','Chevrolet','Cupra','Ferrari','Ford','Genesis','GWM','Holden','Honda','HSV','Hyundai','Isuzu','Jaguar','Jeep','Kia','Lamborghini','Land Rover','Lexus','Lotus','Maserati','Mazda','McLaren','Mercedes-Benz','MG','Mini','Mitsubishi','Nissan','Peugeot','Porsche','Ram','Renault','Rolls-Royce','Skoda','Subaru','Suzuki','Tesla','Toyota','Volkswagen','Volvo'];
   const SECS = [['daily','Daily','The every-day cars'],['performance','Performance','The fun ones'],['supercars','Supercar','The loud ones']];
   const YEAR_MIN = 1950, YEAR_MAX = 2027, KM_MAX = 2000000, PRICE_MAX = 20000000, PHOTO_MAX = 8;
 
@@ -18,6 +17,51 @@ const ListFlow = (() => {
       }).catch(err => { suburbLoad = null; throw err; });
     }
     return suburbLoad;
+  }
+  let catalog = { makes: [], models: {} };
+  let catalogLoad = null;
+  function loadCatalog() {
+    if (!catalogLoad) {
+      catalogLoad = fetch('data/models.json').then(res => {
+        if (!res.ok) throw new Error('load');
+        return res.json();
+      }).then(data => {
+        catalog = {
+          makes: Array.isArray(data.makes) ? data.makes : [],
+          models: data.models && typeof data.models === 'object' ? data.models : {}
+        };
+        return catalog;
+      }).catch(err => { catalogLoad = null; throw err; });
+    }
+    return catalogLoad;
+  }
+  function foldName(s) {
+    return String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+  function titleName(raw) {
+    return String(raw || '').trim().replace(/\s+/g, ' ').split(' ').map(word => word.split('-').map(part => {
+      if (!part) return part;
+      const lower = part.toLowerCase();
+      if (/^mc[a-z]/.test(lower) && lower.length > 3) return 'Mc' + lower.charAt(2).toUpperCase() + lower.slice(3);
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    }).join('-')).join(' ');
+  }
+  function namesFor(kind, make) {
+    if (kind === 'make') return catalog.makes || [];
+    const hit = (catalog.makes || []).find(m => foldName(m) === foldName(make));
+    return hit ? (catalog.models[hit] || []) : [];
+  }
+  function canonicalName(list, raw) {
+    const key = foldName(raw);
+    if (!key) return '';
+    return list.find(m => foldName(m) === key) || titleName(raw);
+  }
+  function rankNames(list, q) {
+    return list.filter(m => foldName(m).includes(q)).sort((a, b) => {
+      const as = foldName(a).startsWith(q) ? 0 : 1;
+      const bs = foldName(b).startsWith(q) ? 0 : 1;
+      return as - bs || a.localeCompare(b, 'en', { sensitivity: 'base' });
+    }).slice(0, 8);
   }
   function placeLabel(row) { return row[0] + ' ' + row[1] + ' ' + row[2]; }
   function searchPlaces(rows, raw) {
@@ -103,9 +147,16 @@ const ListFlow = (() => {
       },
       {
         question: "What's the make?",
-        hint: 'Start typing. Pick a suggestion, or write your own.',
-        mount: body => mountMake(body),
-        read() { const el = document.getElementById('ask-make'); if (el) draft.make = el.value.trim(); },
+        hint: 'Start typing. Pick a make, or choose Use if yours is not listed.',
+        mount: body => mountName(body, {id:'ask-make', listId:'ask-makes', kind:'make', value: draft.make, placeholder:'e.g. Porsche', min:2}),
+        read() {
+          const el = document.getElementById('ask-make');
+          if (!el) return;
+          const next = canonicalName(namesFor('make'), el.value);
+          if (foldName(next) !== foldName(draft.make)) draft.model = '';
+          draft.make = next;
+          el.value = next;
+        },
         validate() {
           if (draft.make.length < 2) return draft.make ? 'Make needs at least 2 letters.' : "What's the make? Even a weird badge counts.";
           return '';
@@ -113,10 +164,15 @@ const ListFlow = (() => {
       },
       {
         question: 'Now tell me the model?',
-        hint: 'Golf R, CX-5, 720S — whatever is on the back.',
-        mount: body => { body.innerHTML = field('ask-model', {value: draft.model, placeholder: 'e.g. Civic Type R'}); },
-        read() { const el = document.getElementById('ask-model'); if (el) draft.model = el.value.trim(); },
-        validate: () => draft.model ? '' : "Don't ghost the model. Golf R, CX-5, 720S…"
+        hint: 'The model name, not the badge. Civic, not Civic Type R. Type your own if it is not listed.',
+        mount: body => mountName(body, {id:'ask-model', listId:'ask-models', kind:'model', value: draft.model, placeholder:'e.g. Civic', min:1}),
+        read() {
+          const el = document.getElementById('ask-model');
+          if (!el) return;
+          draft.model = canonicalName(namesFor('model', draft.make), el.value);
+          el.value = draft.model;
+        },
+        validate: () => draft.model ? '' : 'Add the model. Civic, CX-5, 720S…'
       },
       {
         question: 'What year?',
@@ -351,43 +407,56 @@ const ListFlow = (() => {
       paint();
     }
 
-    function mountMake(body) {
-      body.innerHTML = `<div class="ask-combo">${field('ask-make', {value: draft.make, placeholder: 'e.g. Porsche'})}<ul class="ask-list" id="ask-makes" role="listbox" hidden></ul></div>`;
-      const input = document.getElementById('ask-make');
-      const list = document.getElementById('ask-makes');
-      let items = [], active = -1;
+    function mountName(body, opts) {
+      body.innerHTML = `<div class="ask-combo">${field(opts.id, {value: opts.value, placeholder: 'Loading…', extra: 'disabled'})}<ul class="ask-list" id="${opts.listId}" role="listbox" hidden></ul></div>`;
+      const input = document.getElementById(opts.id);
+      const list = document.getElementById(opts.listId);
+      let items = [], active = -1, justChose = false;
       const close = () => { suggestOn = false; active = -1; list.hidden = true; list.innerHTML = ''; input.setAttribute('aria-expanded','false'); input.removeAttribute('aria-activedescendant'); };
-      const open = matches => {
-        items = matches;
-        active = matches.length ? 0 : -1;
-        suggestOn = matches.length > 0;
+      const open = rows => {
+        items = rows;
+        active = rows.length ? 0 : -1;
+        suggestOn = rows.length > 0;
         list.hidden = !suggestOn;
         input.setAttribute('aria-expanded', suggestOn ? 'true' : 'false');
-        list.innerHTML = matches.map((m, n) => `<li role="presentation"><button type="button" role="option" id="ask-opt-${n}" aria-selected="${n === active}">${esc(m)}</button></li>`).join('');
+        list.innerHTML = rows.map((row, n) => `<li role="presentation"><button type="button" role="option" id="ask-opt-${n}" class="${row.custom ? 'is-custom' : ''}" aria-selected="${n === active}">${esc(row.label)}</button></li>`).join('');
         if (active >= 0) input.setAttribute('aria-activedescendant', 'ask-opt-' + active);
         list.querySelectorAll('button').forEach((btn, n) => { btn.onmousedown = ev => ev.preventDefault(); btn.onclick = () => choose(n); });
       };
       const paint = () => {
         list.querySelectorAll('button').forEach((btn, n) => btn.setAttribute('aria-selected', n === active));
         if (active >= 0) input.setAttribute('aria-activedescendant', 'ask-opt-' + active);
+        const current = list.querySelector('[aria-selected="true"]');
+        if (current) current.scrollIntoView({ block: 'nearest' });
       };
-      const choose = n => { input.value = items[n]; draft.make = items[n]; close(); input.focus(); };
+      const choose = n => {
+        const row = items[n];
+        if (!row) return;
+        input.value = row.value;
+        justChose = true;
+        close();
+        input.focus();
+      };
       const refresh = () => {
-        const q = input.value.trim().toLowerCase();
+        const raw = input.value.trim();
+        const q = foldName(raw);
         if (!q) { close(); return; }
-        const matches = MAKES.filter(m => m.toLowerCase().includes(q)).sort((a, b) => {
-          const d = a.toLowerCase().indexOf(q) - b.toLowerCase().indexOf(q);
-          return d || a.localeCompare(b);
-        }).slice(0, 6);
-        if (!matches.length) { close(); return; }
-        open(matches);
+        const options = opts.kind === 'make' ? (catalog.makes || []) : namesFor('model', draft.make);
+        const exact = options.find(m => foldName(m) === q);
+        const rows = rankNames(options, q).map(m => ({label: m, value: m}));
+        if (!exact && foldName(raw).length >= opts.min) {
+          const custom = canonicalName(options, raw);
+          rows.push({label: 'Use "' + custom + '"', value: custom, custom: true});
+        }
+        if (!rows.length) { close(); return; }
+        open(rows);
       };
       input.setAttribute('role','combobox');
       input.setAttribute('aria-autocomplete','list');
       input.setAttribute('aria-expanded','false');
-      input.setAttribute('aria-controls','ask-makes');
-      input.addEventListener('input', () => { draft.make = input.value; refresh(); });
-      input.addEventListener('focus', refresh);
+      input.setAttribute('aria-controls', opts.listId);
+      input.addEventListener('input', () => { justChose = false; refresh(); });
+      input.addEventListener('focus', () => { if (justChose) { justChose = false; return; } refresh(); });
       input.addEventListener('blur', () => setTimeout(close, 150));
       input.addEventListener('keydown', e => {
         if (!suggestOn) return;
@@ -403,6 +472,15 @@ const ListFlow = (() => {
           close();
         }
       });
+      const ready = () => {
+        if (!input.isConnected) return;
+        input.disabled = false;
+        input.placeholder = opts.placeholder;
+        if (input.value) refresh();
+        input.focus();
+      };
+      if ((catalog.makes || []).length) ready();
+      else loadCatalog().then(ready).catch(() => { if (input.isConnected) { input.disabled = false; input.placeholder = opts.placeholder; setErr('Could not load the list. You can still type your own.'); input.focus(); } });
     }
 
     function mountPhotos(body) {
@@ -584,7 +662,7 @@ const ListFlow = (() => {
       if (!ask || !ask.isConnected || e.key !== 'Enter' || e.shiftKey || e.altKey || e.isComposing || e.repeat) return;
       if (!e.target.closest || !e.target.closest('.ask')) return;
       if (e.target.closest('#ask-back') || e.target.closest('[data-choice="sec"]')) return;
-      if (e.target.closest('#ask-makes') || e.target.closest('#ask-places')) return;
+      if (e.target.closest('#ask-makes') || e.target.closest('#ask-models') || e.target.closest('#ask-places')) return;
       const stateBtn = e.target.closest('[data-choice="state"]');
       if (stateBtn) stateBtn.parentElement.querySelectorAll('[data-choice="state"]').forEach(b => b.setAttribute('aria-pressed', b === stateBtn));
       e.preventDefault();
@@ -602,5 +680,6 @@ const ListFlow = (() => {
     render(0);
   }
 
+  loadCatalog();
   return {start, _key: null};
 })();

@@ -246,6 +246,7 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .ask-list{list-style:none;margin:8px 0 0;padding:6px;border:1px solid var(--c-line);border-radius:12px;background:#121214;max-height:240px;overflow:auto}
 .ask-list button{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;padding:12px;border-radius:8px;cursor:pointer;font-size:1.05rem}
 .ask-list button[aria-selected=true],.ask-list button:hover{background:var(--c-surface2);color:var(--acc)}
+.ask-list button.is-custom{color:var(--acc)}
 .ask-stack{display:grid;gap:18px}
 .ask-lab{display:grid;gap:4px;color:var(--c-muted);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
 .ask-tip{margin:0 0 14px;padding:12px 14px;border:1px solid var(--acc-dim);border-left:4px solid var(--acc);border-radius:12px;background:color-mix(in srgb,var(--acc) 12%,#101012);color:var(--c-text);font-size:.98rem;line-height:1.45}

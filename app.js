@@ -173,7 +173,6 @@ function searchBits(){
 }
 async function loadSearchCatalog(){
   try{const res=await fetch('data/models.json');if(res.ok)searchCatalog=await res.json()}catch(e){}
-  DEMO.forEach(l=>rememberSearchName(l.make,l.model));
   paintSearch(searchDraft());
   if(!sb)return;
   try{
