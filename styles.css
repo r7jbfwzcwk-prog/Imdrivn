@@ -238,9 +238,10 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .merch-card h2{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1rem;margin:0}
 .merch-product{background:#000;border-color:#d9a441;padding:0 0 14px;overflow:hidden;box-shadow:0 0 18px var(--glow)}
 .merch-product img{width:100%;aspect-ratio:1;object-fit:contain;background:#0a0a0b;display:block}
-.merch-product h2,.merch-product p,.merch-product .soon{margin-left:14px;margin-right:14px}
+.merch-product h2,.merch-product .soon{margin-left:14px;margin-right:14px}
 .merch-product h2{margin-top:12px}
 .merch-card p{margin:0;color:var(--c-muted);font-size:.88rem}
+.merch-product p{margin-left:14px;margin-right:14px}
 .soon{margin-top:auto;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--acc)}
 .merch .btn{margin-top:8px}
 .detailn{margin-top:var(--s-7);padding-top:var(--s-6);border-top:1px solid var(--c-line)}
