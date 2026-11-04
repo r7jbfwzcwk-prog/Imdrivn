@@ -45,6 +45,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
  .hero hr{margin:8px 0}
 }
 .path{display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--s-2);padding:var(--s-7) var(--s-5);border:1px solid rgba(255,255,255,.16);border-radius:var(--r-lg);background:linear-gradient(180deg, transparent 0%, #000 56%);text-decoration:none;transition:.25s}
+.home-paths .path{padding-top:16px}
 .path .wide,.path .tag,.path .muted{text-shadow:0 1px 8px rgba(0,0,0,.8)}
 .path .ico{filter:drop-shadow(0 2px 6px rgba(0,0,0,.75))}
 .path .btn{text-shadow:0 1px 6px rgba(0,0,0,.85)}
