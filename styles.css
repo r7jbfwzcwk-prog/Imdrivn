@@ -81,34 +81,18 @@ body.is-lanes{display:flex;flex-direction:column;min-height:100dvh}
 body.is-lanes #main{flex:1 1 auto;display:flex;flex-direction:column}
 body.is-lanes footer{border-top:1px solid #d9a441}
 .lanes{position:relative;flex:1 1 auto;display:flex;flex-direction:column;min-height:calc(100dvh - 220px);background:#000}
-.lane-bgs{position:absolute;inset:0;z-index:0;pointer-events:none}
-.lane-shade{position:absolute;top:0;bottom:0}
-.lane-shade-daily{left:0;width:48%;z-index:3}
-.lane-shade-perf{left:22%;width:56%;z-index:2}
-.lane-shade-super{left:54%;width:46%;z-index:1}
-.lane-shade-daily,.lane-shade-perf{filter:drop-shadow(5px 0 1px rgba(0,0,0,.28)) drop-shadow(12px 0 14px rgba(0,0,0,.42))}
-.lane-tears{position:absolute;width:0;height:0}
-.lane-fibre,.lane-bg{position:absolute;inset:0}
-.lane-fibre{background:#f4efe4;pointer-events:none}
-.lane-bg{background-repeat:no-repeat;background-size:100% 100%}
-.lane-bg::after,.lane-fibre::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.42;mix-blend-mode:multiply;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");background-size:140px 140px}
-.lane-fibre::after{opacity:.55}
-.lane-bg-daily{background-color:#2f7bff;background-image:linear-gradient(168deg,#8eb6ff 0%,#2f7bff 42%,#0d316f 100%);clip-path:url(#tear-daily)}
-.lane-fibre-daily{clip-path:url(#fibre-daily)}
-.lane-bg-perf{background-color:#e5242b;background-image:linear-gradient(168deg,#ff8a8e 0%,#e5242b 44%,#6c1014 100%);clip-path:url(#tear-perf)}
-.lane-fibre-perf{clip-path:url(#fibre-perf)}
-.lane-bg-super{background-color:#d9a441;background-image:linear-gradient(168deg,#f6d78f 0%,#d9a441 42%,#5e3f10 100%)}
-.lane-mark{position:absolute;z-index:1;width:min(20%,170px);height:auto;opacity:.85;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7));pointer-events:none}
-.lane-bg-daily .lane-mark{left:5%;bottom:6%}
-.lane-bg-perf .lane-mark{left:40%;bottom:6%}
-.lane-bg-super .lane-mark{right:3%;bottom:6%}
-.lanes-copy{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;padding:18px 16px calc(28px + env(safe-area-inset-bottom))}
-.lanes-head .eyebrow,.lanes-head h1{text-shadow:0 2px 14px rgba(0,0,0,.85)}
-.lanes-head h1{font-size:clamp(1.4rem,4vw,2.2rem);margin-bottom:18px}
-.chooser-paths{display:grid;gap:16px;grid-template-columns:minmax(0,1fr);align-items:stretch}
-@media(min-width:760px){.chooser-paths{grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(36px,6vw,72px);align-items:center}}
-.lanes .path{background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1.5px solid var(--acc);padding:28px 16px 32px;box-shadow:none;transform:none;transition:transform .35s ease,background .35s ease,box-shadow .35s ease,border-color .35s ease}
-.lanes .path .wide{font-size:clamp(1.05rem,1.8vw,1.45rem);letter-spacing:.04em;overflow-wrap:normal}
+.lanes-copy{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;padding:18px 16px calc(28px + env(safe-area-inset-bottom))}
+.lanes-head h1{text-shadow:0 2px 14px rgba(0,0,0,.85);font-size:clamp(1.4rem,4vw,2.2rem);margin-bottom:18px}
+.chooser-paths{flex:1;display:grid;gap:8px;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+.lane-col{position:relative;container-type:inline-size;display:flex;align-items:center;justify-content:center;min-width:0;padding:22px 14px;background:#000}
+.lane-col::before{content:"";position:absolute;inset:0;opacity:.18;transition:opacity .4s ease;pointer-events:none}
+.lane-daily::before{background:#2f7bff}
+.lane-performance::before{background:#e5242b}
+.lane-supercar::before{background:#d9a441}
+.lane-col:hover::before,.lane-col:focus-within::before,.lane-col:active::before,.lane-col.is-lit::before{opacity:1}
+@media(prefers-reduced-motion:reduce){.lane-col::before{transition:none}}
+.lanes .path{position:relative;z-index:1;width:100%;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1.5px solid var(--acc);padding:28px 16px 32px;box-shadow:none;transform:none;transition:transform .35s ease,background .35s ease,box-shadow .35s ease,border-color .35s ease}
+.lanes .path .wide{font-size:clamp(.85rem,7.2cqw,1.45rem);letter-spacing:.03em;overflow-wrap:normal}
 .lanes .path .btn{margin-top:auto;border-color:var(--acc);color:var(--acc);background:transparent}
 .lanes .path:hover,.lanes .path:focus-visible,.lanes .path:active{transform:scale(1.04);background:#000;border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 0 28px var(--glow)}
 @media(prefers-reduced-motion:reduce){.lanes .path:hover,.lanes .path:focus-visible,.lanes .path:active{transform:none}}
@@ -116,21 +100,13 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .pick-performance{--acc:#e5242b;--acc-dim:rgba(229,36,43,.55);--glow:rgba(229,36,43,.45)}
 .pick-supercar{--acc:#d9a441;--acc-dim:rgba(217,164,65,.6);--glow:rgba(217,164,65,.45)}
 @media(max-width:759px){
- .lane-shade-daily,.lane-shade-perf,.lane-shade-super{left:0;width:100%}
- .lane-shade-daily{top:0;bottom:auto;height:40%;z-index:3}
- .lane-shade-perf{top:32%;bottom:auto;height:40%;z-index:2}
- .lane-shade-super{top:62%;bottom:auto;height:38%;z-index:1}
- .lane-shade-daily,.lane-shade-perf{filter:drop-shadow(0 5px 1px rgba(0,0,0,.28)) drop-shadow(0 12px 14px rgba(0,0,0,.42))}
- .lane-bg-daily{clip-path:url(#tear-daily-m)}
- .lane-fibre-daily{clip-path:url(#fibre-daily-m)}
- .lane-bg-perf{clip-path:url(#tear-perf-m)}
- .lane-fibre-perf{clip-path:url(#fibre-perf-m)}
- .lane-bg-daily .lane-mark{left:auto;right:4%;top:18%;bottom:auto;width:min(34%,150px)}
- .lane-bg-perf .lane-mark{left:auto;right:4%;top:46%;bottom:auto;width:min(34%,150px)}
- .lane-bg-super .lane-mark{right:4%;bottom:10%;width:min(34%,150px)}
- .chooser-paths{gap:8px}
+ .chooser-paths{grid-template-columns:minmax(0,1fr);gap:8px}
+ .lane-col{padding:12px 14px}
  .lanes-head h1{font-size:1.3rem;margin-bottom:6px}
- .lanes .path{padding:10px 14px 12px}
+ .lanes .path{padding:16px 16px 18px}
+ .lanes .path .wide{font-size:1.35rem}
+ .lanes .path .tag{font-size:.9rem}
+ .lanes .path .btn{font-size:.65rem;letter-spacing:.12em;min-height:40px;padding:0 14px}
  .lanes-copy{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 }
 .view-all-row{text-align:center;margin:16px 0 0}
