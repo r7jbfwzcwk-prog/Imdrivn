@@ -183,6 +183,12 @@ body.is-all{--acc:#c0c0c0;--acc-dim:rgba(192,192,192,.55);--glow:rgba(192,192,19
 body.is-home{--acc:#d9a441;--acc-dim:rgba(217,164,65,.6);--glow:rgba(217,164,65,.22)}
 body.is-home .path{border-color:rgba(217,164,65,.55)}
 body.is-home .path .btn{border-color:#d9a441;color:#d9a441}
+body.is-list{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glow:rgba(47,123,255,.22)}
+body.is-wholesale{--acc:#22c55e;--acc-dim:rgba(34,197,94,.55);--glow:rgba(34,197,94,.22)}
+.sell-list{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glow:rgba(47,123,255,.28)}
+.sell-whole{--acc:#22c55e;--acc-dim:rgba(34,197,94,.55);--glow:rgba(34,197,94,.28)}
+.sell-list,.sell-whole{border-color:var(--acc)}
+.sell-list .btn,.sell-whole .btn,.sell-list .btn:hover,.sell-whole .btn:hover{border-color:var(--acc);color:var(--acc);background:transparent}
 @property --acc{syntax:'<color>';inherits:true;initial-value:#2f7bff}
 @property --acc-dim{syntax:'<color>';inherits:true;initial-value:transparent}
 @property --glow{syntax:'<color>';inherits:true;initial-value:transparent}
