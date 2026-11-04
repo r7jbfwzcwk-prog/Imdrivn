@@ -257,7 +257,15 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .new{position:absolute;top:10px;left:10px;font-size:.58rem;font-weight:600;letter-spacing:.08em;padding:3px 7px;border:1px solid var(--acc);color:#fff;border-radius:3px;background:rgba(0,0,0,.55);transition:border-color var(--ease)}
 .ago{position:absolute;top:10px;right:12px;font-size:.68rem;color:var(--acc);text-shadow:0 0 4px #000;transition:color var(--ease)}
 .post .b{padding:10px 14px 12px}.ttl{display:block;text-decoration:none;font-size:.95rem;font-weight:500;color:#fff}
-.post .price{font-family:var(--font-body);font-size:.95rem;font-weight:500;letter-spacing:0;color:#fff}
+.post .price{font-family:var(--font-body);font-size:.95rem;font-weight:600;letter-spacing:0;color:var(--acc)}
+[data-mode=daily]{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glow:rgba(47,123,255,.16)}
+[data-mode=performance]{--acc:#e5242b;--acc-dim:rgba(229,36,43,.55);--glow:rgba(229,36,43,.2)}
+[data-mode=supercar]{--acc:#d9a441;--acc-dim:rgba(217,164,65,.6);--glow:rgba(217,164,65,.22)}
+[data-mode] .price{color:var(--acc)}
+.lane-group{margin-top:22px}
+.lane-label{margin:0 0 10px;font-family:var(--font-body);font-style:normal;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;color:var(--acc)}
+.inbox-row[data-mode]{border-color:var(--acc-dim)}
+.inbox-row[data-mode] .inbox-car{color:var(--acc)}
 .power{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
 .power-spec{color:#c8c8cc;font-size:.8rem}
 .boosts{display:inline-flex;flex-wrap:wrap;gap:4px}

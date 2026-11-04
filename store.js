@@ -733,7 +733,7 @@ const Chat = {
     const listingIds = [...new Set(rows.map(r => r.listing_id).filter(Boolean))];
     const peopleIds = [...new Set(rows.flatMap(r => [r.buyer_id, r.seller_id]).filter(Boolean))];
     const [listings, profiles] = await Promise.all([
-      listingIds.length ? sb.from('listings').select('id,heading,year,make,model,photos,price').in('id', listingIds) : { data: [] },
+      listingIds.length ? sb.from('listings').select('id,heading,year,make,model,photos,price,mode').in('id', listingIds) : { data: [] },
       peopleIds.length ? sb.from('profiles').select('id,username').in('id', peopleIds) : { data: [] }
     ]);
     const listingById = new Map((listings.data || []).map(l => [l.id, l]));
@@ -753,6 +753,7 @@ const Chat = {
         handle: handleById.get(other) || 'member',
         heading: listing.heading || [listing.year, listing.make, listing.model].filter(Boolean).join(' ') || 'Listing',
         price: listing.price,
+        mode: listing.mode || '',
         thumb: photos.length ? photoUrl(photos[0]) : ''
       };
     });
