@@ -366,9 +366,10 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .dm{position:absolute;left:10px;bottom:8px;font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:#aaa;background:rgba(0,0,0,.55);padding:1px 5px;border-radius:2px}
 .sold-badge{position:absolute;left:10px;bottom:8px;font-size:.62rem;letter-spacing:.16em;font-weight:700;color:#000;background:#f2f2f2;padding:3px 7px;border-radius:3px}
 .sold-banner{margin:16px 0 0;padding:14px 16px;border:1px solid #f2f2f2;border-radius:12px;letter-spacing:.2em;font-weight:700;text-align:center}
-.offer-row{display:grid;gap:12px;margin-top:var(--s-5)}
-@media(min-width:900px){.offer-row{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.report-link{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:0;border:0;background:none;color:#9a9aa2;font-size:.8rem;letter-spacing:.02em;cursor:pointer}
+.offer-stack{display:grid;gap:12px;margin-top:var(--s-5)}
+.offer-row{display:grid;gap:12px}
+@media(min-width:760px){.offer-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.report-link{display:inline-flex;align-items:center;gap:8px;margin-top:36px;padding:0;border:0;background:none;color:#9a9aa2;font-size:.8rem;letter-spacing:.02em;cursor:pointer}
 .report-link .report-ico{width:16px;height:16px;stroke:#e07a3a;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .report-link:hover,.report-link:focus-visible{color:#f2f2f2;outline:none}
 .report-link:hover .report-ico,.report-link:focus-visible .report-ico{stroke:#e5242b}
