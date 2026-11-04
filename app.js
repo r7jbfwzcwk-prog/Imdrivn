@@ -275,7 +275,7 @@ const msgBtn=$('#msg-seller');if(msgBtn)msgBtn.onclick=()=>messageSeller(l.id);
 bindOffer('book-inspect',INSPECTION_URL);bindOffer('need-finance',FINANCE_URL);}
 function bindOffer(id,url){const el=$('#'+id);if(el)el.onclick=e=>{if((url||'#')==='#'){e.preventDefault();toast('Coming soon')}}}
 function offerLink(id,url,label){const href=url||'#';const ext=href!=='#'&&!href.startsWith('#');return `<a class="btn" id="${id}" href="${esc(href)}"${ext?' target="_blank" rel="noopener"':''}>${label}</a>`}
-function inspectionCta(){return `<aside class="inspect"><p>Whether it's down the road or interstate, we can help.</p><div class="inspect-actions">${offerLink('book-inspect',INSPECTION_URL,'Book a pre-purchase inspection')}${offerLink('need-finance',FINANCE_URL,'Need finance?')}</div></aside>`}
+function inspectionCta(){return `<div class="offer-row"><aside class="inspect"><p>Whether it's down the road or interstate, we can help.</p>${offerLink('book-inspect',INSPECTION_URL,'Book a pre-purchase inspection')}</aside><aside class="inspect"><p>Need help with the purchase? We got you.</p>${offerLink('need-finance',FINANCE_URL,'Need finance?')}</aside></div>`}
 
 function buyChooser(){const mark='<img class="lane-mark" src="img/logo.svg" alt="">';main.innerHTML=`<section class="lanes"><div class="lane-bgs" aria-hidden="true">
 <div class="lane-shade lane-shade-super"><div class="lane-bg lane-bg-super">${mark}</div></div>
