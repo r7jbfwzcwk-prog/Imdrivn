@@ -204,7 +204,7 @@ function storageMessage(error) {
   return msg || 'The photo upload failed. Try a smaller JPG.';
 }
 
-const LISTING_SELECT = 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,photos,status,created_at,profiles!listings_user_id_fkey(username,display_name),likes(count),saves(count)';
+const LISTING_SELECT = 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,photos,status,created_at,profiles!listings_user_id_fkey(username,display_name),likes(count),saves(count)';
 
 function countOf(rel) {
   if (rel == null) return 0;
@@ -243,6 +243,10 @@ function mapListing(row) {
     suburb: row.suburb, state: row.state, postcode: row.postcode || '',
     heading: row.heading,
     desc: row.description, description: row.description,
+    engine: row.engine || '',
+    cylinders: row.cylinders == null ? null : row.cylinders,
+    turbo: row.turbo,
+    supercharged: row.supercharged,
     photos: (row.photos && row.photos.length ? row.photos.map(photoUrl) : ['data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7']),
     status: row.status,
     handle: (profile && profile.username) || 'you',
@@ -263,6 +267,11 @@ function applyListingSort(q, sort) {
   else if (sort === 'year-asc') q = q.order('year', { ascending: true });
   else return q.order('created_at', { ascending: false });
   return q.order('created_at', { ascending: false });
+}
+function cylinderCount(value) {
+  if (value == null || value === '' || value === 'electric') return null;
+  const n = +value;
+  return n >= 1 && n <= 16 ? n : null;
 }
 function keywordOr(word) {
   const safe = String(word || '').replace(/[%_"\\(),]/g, '').trim();
@@ -349,11 +358,17 @@ const ListingStore = {
     const uid = Auth.user.id;
     const paths = await uploadPaths(uid, listing.photos);
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
+    const boost = mode === 'performance' || mode === 'supercar';
     const row = {
       user_id: uid, mode,
       make: listing.make, model: listing.model, year: listing.year, kms: listing.km,
       price: listing.price, suburb: listing.suburb, state: listing.state, postcode: listing.postcode || null,
-      heading: listing.heading, description: listing.desc, photos: paths, status: 'active'
+      heading: listing.heading, description: listing.desc,
+      engine: listing.engine ? String(listing.engine).trim() : null,
+      cylinders: cylinderCount(listing.cylinders),
+      turbo: boost && listing.turbo != null ? !!listing.turbo : null,
+      supercharged: boost && listing.supercharged != null ? !!listing.supercharged : null,
+      photos: paths, status: 'active'
     };
     const inserted = await sb.from('listings').insert(row).select('id').single();
     if (inserted.error) {

@@ -156,6 +156,12 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .ago{position:absolute;top:10px;right:12px;font-size:.68rem;color:var(--acc);text-shadow:0 0 4px #000;transition:color var(--ease)}
 .post .b{padding:10px 14px 12px}.ttl{display:block;text-decoration:none;font-size:.95rem;font-weight:500;color:#fff}
 .post .price{font-family:var(--font-body);font-size:.95rem;font-weight:500;letter-spacing:0;color:#fff}
+.power{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.power-spec{color:#c8c8cc;font-size:.8rem}
+.boosts{display:inline-flex;flex-wrap:wrap;gap:4px}
+.boost{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--acc);color:var(--acc);border-radius:999px;padding:2px 7px}
+.boost.is-na{border-color:var(--c-line2);color:var(--c-muted)}
+.ask-picks button{font-size:.95rem;letter-spacing:0;text-transform:none}
 .row{display:flex;justify-content:space-between;align-items:center;font-size:.68rem;color:#9a9aa2;margin-top:2px;gap:8px}
 .loc,.handle{display:flex;align-items:center;gap:3px}.handle{color:#c8c8cc}
 .i{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}

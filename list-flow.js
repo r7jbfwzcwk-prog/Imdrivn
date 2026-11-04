@@ -118,10 +118,41 @@ const ListFlow = (() => {
   }
 
   function start(root, opts) {
-    const draft = {sec:'', make:'', model:'', year:'', km:'', price:'', suburb:'', state:'', postcode:'', tagline:'', heading:'', desc:'', photos:[], name:'', phone:'', email:''};
-    let i = 0, busy = false, suggestOn = false;
+    const draft = {sec:'', make:'', model:'', year:'', km:'', price:'', suburb:'', state:'', postcode:'', tagline:'', heading:'', desc:'', engine:'', cylinders:'', turbo:null, supercharged:null, photos:[], name:'', phone:'', email:''};
+    let i = 0, busy = false, suggestOn = false, steps = [];
+    const POWER_NOTE = 'Electric/rotary';
+    function boosted() { return draft.sec === 'performance' || draft.sec === 'supercars'; }
+    function rebuildSteps() {
+      steps = allSteps.filter(step => !step.boost || boosted());
+      if (i >= steps.length) i = Math.max(0, steps.length - 1);
+    }
+    function notePower(on) {
+      const suffix = ' · ' + POWER_NOTE;
+      const text = draft.engine || '';
+      if (on) {
+        if (!text.trim()) draft.engine = POWER_NOTE;
+        else if (text !== POWER_NOTE && !text.endsWith(suffix) && !/electric|rotary/i.test(text)) draft.engine = text.trim() + suffix;
+        return;
+      }
+      if (text === POWER_NOTE) draft.engine = '';
+      else if (text.endsWith(suffix)) draft.engine = text.slice(0, -suffix.length).trim();
+    }
+    function mountPicks(body, spec) {
+      const cur = spec.get();
+      body.innerHTML = `<div class="ask-states ask-picks" role="group" aria-labelledby="ask-q">${spec.options.map(([v, label]) =>
+        `<button type="button" data-choice="${spec.choice}" data-value="${esc(v)}" aria-pressed="${String(cur) === String(v)}">${esc(label)}</button>`).join('')}</div>`;
+      const current = body.querySelector('[aria-pressed="true"]');
+      if (current) current.setAttribute('data-autofocus', '');
+      body.querySelectorAll('button').forEach(btn => {
+        btn.onclick = () => {
+          spec.set(btn.dataset.value);
+          body.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b === btn));
+          setTimeout(() => { if (steps[i] && steps[i].id === spec.id && !busy) go(1); }, 140);
+        };
+      });
+    }
 
-    const steps = [
+    const allSteps = [
       {
         id: 'section',
         question: 'Which category?',
@@ -134,6 +165,7 @@ const ListFlow = (() => {
           body.querySelectorAll('[data-choice="sec"]').forEach(btn => {
             btn.onclick = () => {
               draft.sec = btn.dataset.value;
+              rebuildSteps();
               body.querySelectorAll('[data-choice="sec"]').forEach(b => b.setAttribute('aria-pressed', b === btn));
               setTimeout(() => { if (steps[i] && steps[i].id === 'section' && !busy) go(1); }, 140);
             };
@@ -142,6 +174,7 @@ const ListFlow = (() => {
         read() {
           const on = document.querySelector('.ask [data-choice="sec"][aria-pressed="true"]');
           if (on) draft.sec = on.dataset.value;
+          rebuildSteps();
         },
         validate: () => ['daily','performance','supercars'].includes(draft.sec) ? '' : 'Pick a lane first — Daily, Performance, or Supercar.'
       },
@@ -185,6 +218,70 @@ const ListFlow = (() => {
           if (y < YEAR_MIN || y > YEAR_MAX) return `That year is outside ${YEAR_MIN}–${YEAR_MAX}. Try again.`;
           return '';
         }
+      },
+      {
+        id: 'engine',
+        question: 'What engine you running?',
+        hint: 'Optional. 2JZ-GTE 3.0L, LS3, or leave it blank.',
+        mount(body) { body.innerHTML = field('ask-engine', {value: draft.engine, placeholder: '2JZ-GTE 3.0L', maxlength: 80, extra: 'spellcheck="false"'}); },
+        read() { const el = document.getElementById('ask-engine'); if (el) draft.engine = el.value.trim().slice(0, 80); },
+        validate: () => ''
+      },
+      {
+        id: 'cylinders',
+        question: 'How many cylinders?',
+        hint: 'Count the pots. Electric or rotary has none.',
+        mount(body) {
+          mountPicks(body, {
+            id: 'cylinders', choice: 'cyl',
+            options: [['3','3'],['4','4'],['5','5'],['6','6'],['8','8'],['10','10'],['12','12'],['electric','Electric/rotary']],
+            get: () => draft.cylinders,
+            set(v) { draft.cylinders = v; notePower(v === 'electric'); }
+          });
+        },
+        read() {
+          const on = document.querySelector('.ask [data-choice="cyl"][aria-pressed="true"]');
+          if (on) { draft.cylinders = on.dataset.value; notePower(draft.cylinders === 'electric'); }
+        },
+        validate: () => draft.cylinders ? '' : 'Pick a cylinder count, or Electric/rotary.'
+      },
+      {
+        id: 'turbo',
+        boost: true,
+        question: 'Is it turbo?',
+        hint: 'Forced induction. You can say yes to this and supercharged.',
+        mount(body) {
+          mountPicks(body, {
+            id: 'turbo', choice: 'turbo',
+            options: [['yes','Yes'],['no','No']],
+            get: () => draft.turbo === true ? 'yes' : draft.turbo === false ? 'no' : '',
+            set(v) { draft.turbo = v === 'yes'; }
+          });
+        },
+        read() {
+          const on = document.querySelector('.ask [data-choice="turbo"][aria-pressed="true"]');
+          if (on) draft.turbo = on.dataset.value === 'yes';
+        },
+        validate: () => draft.turbo === true || draft.turbo === false ? '' : 'Yes or no — is it turbo?'
+      },
+      {
+        id: 'supercharged',
+        boost: true,
+        question: 'Is it supercharged?',
+        hint: 'Yes to both means twincharged.',
+        mount(body) {
+          mountPicks(body, {
+            id: 'supercharged', choice: 'blown',
+            options: [['yes','Yes'],['no','No']],
+            get: () => draft.supercharged === true ? 'yes' : draft.supercharged === false ? 'no' : '',
+            set(v) { draft.supercharged = v === 'yes'; }
+          });
+        },
+        read() {
+          const on = document.querySelector('.ask [data-choice="blown"][aria-pressed="true"]');
+          if (on) draft.supercharged = on.dataset.value === 'yes';
+        },
+        validate: () => draft.supercharged === true || draft.supercharged === false ? '' : 'Yes or no — is it supercharged?'
       },
       {
         question: 'How many kms?',
@@ -307,6 +404,8 @@ const ListFlow = (() => {
           const listing = {
             id: 'preview', sec: draft.sec, year: +draft.year, make: draft.make, model: draft.model,
             heading: draft.heading, price: +draft.price, suburb: draft.suburb, state: draft.state,
+            engine: draft.engine, cylinders: draft.cylinders === 'electric' ? null : (draft.cylinders ? +draft.cylinders : null),
+            turbo: boosted() ? draft.turbo : null, supercharged: boosted() ? draft.supercharged : null,
             handle, photos: draft.photos.slice(), likes: 0, comments: 0, ago: 0
           };
           body.innerHTML = `<div class="feed ask-preview">${post(listing)}</div>`;
@@ -661,7 +760,7 @@ const ListFlow = (() => {
       const ask = document.querySelector('.ask');
       if (!ask || !ask.isConnected || e.key !== 'Enter' || e.shiftKey || e.altKey || e.isComposing || e.repeat) return;
       if (!e.target.closest || !e.target.closest('.ask')) return;
-      if (e.target.closest('#ask-back') || e.target.closest('[data-choice="sec"]')) return;
+      if (e.target.closest('#ask-back') || e.target.closest('[data-choice="sec"]') || e.target.closest('[data-choice="cyl"]') || e.target.closest('[data-choice="turbo"]') || e.target.closest('[data-choice="blown"]')) return;
       if (e.target.closest('#ask-makes') || e.target.closest('#ask-models') || e.target.closest('#ask-places')) return;
       const stateBtn = e.target.closest('[data-choice="state"]');
       if (stateBtn) stateBtn.parentElement.querySelectorAll('[data-choice="state"]').forEach(b => b.setAttribute('aria-pressed', b === stateBtn));
@@ -673,6 +772,7 @@ const ListFlow = (() => {
     ListFlow._key = onKey;
     document.addEventListener('keydown', onKey);
 
+    rebuildSteps();
     root.innerHTML = `<div class="ask">
       <div class="ask-bar" role="progressbar" aria-valuemin="1" aria-valuemax="${steps.length}" aria-valuenow="1" aria-label="Listing progress"><span></span></div>
       <div class="ask-stage"></div>

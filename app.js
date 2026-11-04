@@ -36,10 +36,14 @@ const sv=(k,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">$
 const st=()=>JSON.parse(localStorage.getItem('imdrivn_social')||'{}');
 function canMessage(l){return !!(l&&!l.demo&&l.user_id&&l.status!=='sold'&&!(Auth.user&&l.user_id===Auth.user.id))}
 function liveAd(l){return !!(l&&!l.demo&&(!l.status||l.status==='active'))}
+function cylLabel(n){const num=+n;if(!num)return '';const v={6:'V6',8:'V8',10:'V10',12:'V12'};return v[num]||(num+' cyl')}
+function boostBadges(l){const perf=l.sec==='performance'||l.sec==='supercars';if(!perf)return '';const turbo=l.turbo===true,blown=l.supercharged===true;const bits=[];if(turbo)bits.push('Turbo');if(blown)bits.push('Supercharged');if(!bits.length&&l.turbo===false&&l.supercharged===false)bits.push('NA');if(!bits.length)return '';return `<span class="boosts">${bits.map(b=>`<span class="boost${b==='NA'?' is-na':''}">${b}</span>`).join('')}</span>`}
+function powerLine(l){const text=[cylLabel(l.cylinders),String(l.engine||'').trim()].filter(Boolean).join(' · ');const badges=boostBadges(l);if(!text&&!badges)return '';return `<div class="power">${text?`<span class="power-spec">${esc(text)}</span>`:''}${badges}</div>`}
 function post(l,ownerList){const demo=!!l.demo,S=demo?(st()[l.id]||{}):{like:!!l.liked,save:!!l.saved},lk=demo?(l.likes||0)+(S.like?1:0):(l.likeCount||0),cm=(l.comments||0),title=l.heading||(l.year+' '+l.make+' '+l.model),sold=l.status==='sold';
 return`<article class="post s-${l.sec}${sold?' is-sold':''}"><a class="car" href="#/car/${l.id}"><img src="${esc(l.photos[0])}" alt="${esc(title)}" loading="lazy" onerror="${FALLBACK}">
 ${sold?'':'<span class="new">NEW</span>'}<span class="ago">${esc(l.when||(l.ago?l.ago+'h ago':'Just now'))}</span>${demo?'<span class="dm">Demo</span>':''}${sold?'<span class="sold-badge">SOLD</span>':l.status&&l.status!=='active'?`<span class="dm">${esc(l.status)}</span>`:''}</a>
 <div class="b"><a href="#/car/${l.id}" class="ttl">${esc(title)}</a><div class="price">${aud(l.price)}</div>
+${powerLine(l)}
 <div class="row"><span class="loc">${sv('pin')}${esc([l.suburb, l.state].filter(Boolean).join(' '))}</span>${atHandle(l.handle, true)}</div>
 <div class="acts"><button data-act="like" data-id="${l.id}" data-demo="${demo?1:0}" aria-pressed="${!!S.like}" aria-label="Like">${sv('heart')}<span>${lk}</span></button>
 <button data-act="cmt" data-id="${l.id}" data-demo="${demo?1:0}" aria-label="Comments">${sv('chat')}<span>${cm}</span></button>
@@ -253,10 +257,10 @@ if(!l){main.innerHTML='<div class="wrap"><p class="muted">Loading…</p></div>';
 if(token!==viewToken)return;
 if(!l){main.innerHTML='<div class="wrap"><h2>Listing not found</h2><a class="btn" href="#/buy">Back to feed</a></div>';return}
 const title=l.heading||(l.year+' '+l.make+' '+l.model);
-const specs=[['Year',l.year],['Kilometres',(l.km||l.km===0)?kms(l.km):''],['Body',l.body||''],['Transmission',l.trans||''],['Location',[l.suburb,l.state,l.postcode].filter(Boolean).join(' ')],['Rego / VIN',l.rego||'On request']].filter(s=>s[1]!==''&&s[1]!=null);
+const specs=[['Year',l.year],['Cylinders',cylLabel(l.cylinders)],['Engine',l.engine||''],['Kilometres',(l.km||l.km===0)?kms(l.km):''],['Body',l.body||''],['Transmission',l.trans||''],['Location',[l.suburb,l.state,l.postcode].filter(Boolean).join(' ')],['Rego / VIN',l.rego||'On request']].filter(s=>s[1]!==''&&s[1]!=null);
 main.innerHTML=`<div class="wrap s-${l.sec}"><a href="#/buy" class="eyebrow">← Back to feed</a><div class="detail" style="margin-top:var(--s-4)"><div>
 <div class="gal"><img class="main" id="big" src="${esc(l.photos[0])}" alt="${esc(title)} main photo" onerror="${FALLBACK}"><div class="thumbs">${l.photos.map((p,i)=>`<button aria-label="Show photo ${i+1}" aria-current="${i===0}" data-src="${esc(p)}"><img src="${esc(p)}" alt="" onerror="${FALLBACK}"></button>`).join('')}</div></div>
-${l.status==='sold'?'<div class="sold-banner" role="status">SOLD</div>':''}<div class="eyebrow" style="margin-top:var(--s-5);color:var(--sec)">${SECTIONS[l.sec]} ${l.demo?'· Demo data':''}</div><h1 style="font-size:clamp(1.2rem,3vw,2rem)">${esc(title)}</h1><div class="price">${aud(l.price)}</div><div class="seller-line">${atHandle(l.handle, true)}</div>
+${l.status==='sold'?'<div class="sold-banner" role="status">SOLD</div>':''}<div class="eyebrow" style="margin-top:var(--s-5);color:var(--sec)">${SECTIONS[l.sec]} ${l.demo?'· Demo data':''}</div><h1 style="font-size:clamp(1.2rem,3vw,2rem)">${esc(title)}</h1><div class="price">${aud(l.price)}</div>${boostBadges(l)?`<div class="power">${boostBadges(l)}</div>`:''}<div class="seller-line">${atHandle(l.handle, true)}</div>
 <div class="specs">${specs.map(s=>`<div><span class="meta">${s[0]}</span><b>${esc(s[1])}</b></div>`).join('')}</div>
 <h2 style="font-size:1rem">Description</h2><p class="muted">${esc(l.desc)}</p></div>
 <div class="panel" id="contact"><h2 style="font-size:1rem">${l.user_id&&Auth.user&&l.user_id===Auth.user.id?'Your ad':'Message seller'}</h2>${sellerPanel(l)}</div></div></div>`;
@@ -290,7 +294,7 @@ main.innerHTML=`<div class="wrap form posted"><div class="eyebrow">IM SELLIN</di
 <div class="posted-actions"><a class="btn solid" href="#/car/${esc(l.id)}">See your ad</a><a class="btn" href="#/buy">Back to the feed</a></div></div>`;
 main.focus({preventScroll:true})}
 async function list(){if(!await gate('list'))return;ListFlow.start(main,{async publish(d){
-  const saved=await ListingStore.create({sec:d.sec,make:d.make.trim(),model:d.model.trim(),year:+d.year,km:+d.km,price:+d.price,suburb:d.suburb.trim(),state:d.state,postcode:d.postcode,heading:d.heading.trim(),desc:d.desc.trim(),photos:d.photos.slice(),name:d.name.trim(),phone:d.phone.trim(),email:d.email.trim()});
+  const saved=await ListingStore.create({sec:d.sec,make:d.make.trim(),model:d.model.trim(),year:+d.year,km:+d.km,price:+d.price,suburb:d.suburb.trim(),state:d.state,postcode:d.postcode,heading:d.heading.trim(),desc:d.desc.trim(),engine:(d.engine||'').trim(),cylinders:d.cylinders,turbo:d.turbo,supercharged:d.supercharged,photos:d.photos.slice(),name:d.name.trim(),phone:d.phone.trim(),email:d.email.trim()});
   setMode(saved.mode||(saved.sec==='supercars'?'supercar':saved.sec));
   posted(saved);
 }});}
