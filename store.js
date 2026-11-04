@@ -273,6 +273,11 @@ function cylinderCount(value) {
   const n = +value;
   return n >= 1 && n <= 16 ? n : null;
 }
+function auMobile(raw) {
+  let d = String(raw || '').replace(/\D/g, '');
+  if (d.startsWith('61')) d = '0' + d.slice(2);
+  return /^04\d{8}$/.test(d) ? d : '';
+}
 function keywordOr(word) {
   const safe = String(word || '').replace(/[%_"\\(),]/g, '').trim();
   if (!safe) return '';
@@ -356,6 +361,11 @@ const ListingStore = {
     await Auth.ready;
     if (!Auth.user) throw new Error('Sign in before you post.');
     const uid = Auth.user.id;
+    if (!listing.photos || !listing.photos.length) throw new Error('Add at least one photo before you post. The first one is the cover.');
+    const email = String(listing.email || '').trim();
+    const mobile = auMobile(listing.mobile || listing.phone);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Add an email before you post.');
+    if (!mobile) throw new Error('Use an Australian mobile, like 0412 345 678.');
     const paths = await uploadPaths(uid, listing.photos);
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
     const boost = mode === 'performance' || mode === 'supercar';
@@ -374,6 +384,17 @@ const ListingStore = {
     if (inserted.error) {
       if (paths.length) await sb.storage.from('listing-photos').remove(paths);
       throw new Error(dbMessage(inserted.error));
+    }
+    const contact = await sb.from('listing_contacts').insert({
+      listing_id: inserted.data.id,
+      user_id: uid,
+      email,
+      mobile
+    }).select('listing_id').maybeSingle();
+    if (contact.error) {
+      await sb.from('listings').delete().eq('id', inserted.data.id).eq('user_id', uid);
+      if (paths.length) await sb.storage.from('listing-photos').remove(paths);
+      throw new Error('Could not save your contact details, so the ad was not posted. ' + dbMessage(contact.error));
     }
     if (listing.name && Auth.profile && !String(Auth.profile.display_name || '').trim()) {
       const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select('id,username,display_name,avatar_url').maybeSingle();

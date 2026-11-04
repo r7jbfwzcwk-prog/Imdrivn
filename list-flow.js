@@ -355,50 +355,56 @@ const ListFlow = (() => {
         question: 'Add your photos',
         hint: 'First photo is the cover. Drag to reorder. Space adds more, Enter continues.',
         mount: body => mountPhotos(body),
-        validate: () => draft.photos.length ? '' : 'Add at least one photo. The first one becomes the cover.'
+        validate: () => draft.photos.length ? '' : 'Add at least one photo before you continue. The first one is the cover.'
       },
       {
-        question: 'Your name and phone or email',
-        hint: 'So buyers can reach an actual human. One of phone or email is enough.',
+        question: 'Your email and mobile',
+        hint: 'Both are required. We filled in the email on your account if we have it.',
         mount(body) {
+          if (!draft.email && typeof Auth !== 'undefined' && Auth.user && Auth.user.email) draft.email = Auth.user.email;
           body.innerHTML = `<div class="ask-stack">
             <label class="ask-lab">Name${field('ask-name', {value: draft.name, placeholder: 'Your name', auto: 'name'})}</label>
-            <label class="ask-lab">Phone${field('ask-phone', {value: draft.phone, placeholder: '04xx xxx xxx', auto: 'tel', mode: 'tel'})}</label>
             <label class="ask-lab">Email${field('ask-email', {value: draft.email, placeholder: 'you@email.com', auto: 'email', mode: 'email'})}</label>
-          </div>`;
+            <label class="ask-lab">Mobile${field('ask-phone', {value: draft.phone, placeholder: '0412 345 678', auto: 'tel', mode: 'tel'})}</label>
+          </div>
+          <p class="ask-private">Kept private. Buyers contact you through IM DRIVN messages.</p>`;
           const name = document.getElementById('ask-name');
           name.setAttribute('data-autofocus','');
-          document.getElementById('ask-phone').removeAttribute('data-autofocus');
           document.getElementById('ask-email').removeAttribute('data-autofocus');
+          document.getElementById('ask-phone').removeAttribute('data-autofocus');
         },
         read() {
           const name = document.getElementById('ask-name');
           const phone = document.getElementById('ask-phone');
           const email = document.getElementById('ask-email');
           if (name) draft.name = name.value.trim();
-          if (phone) draft.phone = phone.value.trim();
           if (email) draft.email = email.value.trim();
+          if (phone) {
+            const norm = auMobile(phone.value);
+            draft.phone = norm || phone.value.trim();
+            if (norm) phone.value = norm;
+          }
         },
         validate() {
           if (draft.name.length < 2) return 'What should people call you?';
-          const phoneDigits = digits(draft.phone);
-          const hasPhone = phoneDigits.length > 0;
-          const hasEmail = draft.email.length > 0;
-          if (!hasPhone && !hasEmail) return 'Phone or email — we need one so this is not a dead listing.';
-          if (hasEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email)) return 'That email looks off. Mind checking it?';
-          if (hasPhone && (phoneDigits.length < 8 || phoneDigits.length > 15)) return 'That phone number looks off. Check the digits?';
+          if (!draft.email) return 'Add your email. Buyers will not see it.';
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email)) return 'That email looks off. Mind checking it?';
+          if (!draft.phone) return 'Add your mobile. Buyers will not see it.';
+          if (!auMobile(draft.phone)) return 'Use an Australian mobile, like 0412 345 678 or +61 412 345 678.';
+          draft.phone = auMobile(draft.phone);
           return '';
         },
         invalid() {
           if (draft.name.length < 2) document.getElementById('ask-name')?.focus();
-          else if (draft.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email)) document.getElementById('ask-email')?.focus();
-          else if (!digits(draft.phone) && !draft.email) document.getElementById('ask-phone')?.focus();
+          else if (!draft.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email)) document.getElementById('ask-email')?.focus();
+          else document.getElementById('ask-phone')?.focus();
         }
       },
       {
         question: "How's this looking?",
         hint: 'This is the card people will scroll past. Or stop on.',
         focusOk: true,
+        validate: () => draft.photos.length ? '' : 'Add at least one photo before you post. The first one is the cover.',
         mount(body) {
           const handle = (draft.name || 'you').trim().toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '') || 'you';
           const listing = {
@@ -409,8 +415,7 @@ const ListFlow = (() => {
             handle, photos: draft.photos.slice(), likes: 0, comments: 0, ago: 0
           };
           body.innerHTML = `<div class="feed ask-preview">${post(listing)}</div>`;
-        },
-        validate: () => ''
+        }
       }
     ];
 
