@@ -103,6 +103,18 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .ico{width:34px;height:34px;stroke:currentColor;fill:none;stroke-width:1.3}
 /* features */
 .feats{text-align:center}.feats .row4{display:grid;grid-template-columns:1fr 1fr;margin-top:var(--s-5)}
+.smart{text-align:left;padding-top:var(--s-6);padding-bottom:var(--s-7)}
+.smart h2{font-size:clamp(1.3rem,3.5vw,2rem)}
+.golden-rule{margin:var(--s-5) 0;padding:22px 22px 22px 24px;border:1px solid #d9a441;border-left:6px solid #d9a441;border-radius:16px;background:linear-gradient(180deg,rgba(217,164,65,.22),#101012);box-shadow:0 0 32px rgba(217,164,65,.2)}
+.golden-kicker{margin:0 0 8px;color:#d9a441;font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase}
+.golden-rule p:last-child{margin:0;font-size:clamp(1.15rem,2.6vw,1.55rem);line-height:1.35;font-weight:600}
+.smart h3{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1rem;margin:var(--s-5) 0 var(--s-3)}
+.smart-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+@media(min-width:760px){.smart-list{grid-template-columns:1fr 1fr}}
+.smart-list.buyer{grid-template-columns:1fr}
+.smart-list li{padding:12px 14px;border:1px solid #2c2c30;border-radius:12px;background:#141416;line-height:1.45}
+.smart-list a{color:#d9a441;font-weight:600}
+.smart-list .btn{min-height:0;margin-top:8px;padding:0 14px;font-size:.65rem;border-color:#d9a441;color:#d9a441;background:#000}
 .feat{padding:var(--s-5) var(--s-3);display:grid;justify-items:center;gap:var(--s-2)}
 .feat h3{font-family:var(--font-body);font-style:normal;font-size:.72rem;letter-spacing:.14em;margin:0}.feat p{margin:0;font-size:.8rem;color:var(--c-muted)}
 @media(min-width:760px){.feats .row4{grid-template-columns:repeat(4,1fr)}.feat+.feat{border-left:1px solid var(--c-line)}}
