@@ -1,5 +1,6 @@
 const INSTAGRAM_URL='https://instagram.com/imdrivn';
 const TIKTOK_URL='https://tiktok.com/@imdrivn';
+const INSPECTION_URL='#';
 const $=(s,r=document)=>r.querySelector(s),main=$('#main');
 const aud=n=>'$'+Number(n).toLocaleString('en-AU'),kms=n=>Number(n).toLocaleString('en-AU')+' km';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -260,10 +261,12 @@ main.innerHTML=`<div class="wrap s-${l.sec}"><a href="#/buy" class="eyebrow">←
 <div class="gal"><img class="main" id="big" src="${esc(l.photos[0])}" alt="${esc(title)} main photo" onerror="${FALLBACK}"><div class="thumbs">${l.photos.map((p,i)=>`<button aria-label="Show photo ${i+1}" aria-current="${i===0}" data-src="${esc(p)}"><img src="${esc(p)}" alt="" onerror="${FALLBACK}"></button>`).join('')}</div></div>
 ${l.status==='sold'?'<div class="sold-banner" role="status">SOLD</div>':''}<div class="eyebrow" style="margin-top:var(--s-5);color:var(--sec)">${SECTIONS[l.sec]} ${l.demo?'· Demo data':''}</div><h1 style="font-size:clamp(1.2rem,3vw,2rem)">${esc(title)}</h1><div class="price">${aud(l.price)}</div>${boostBadges(l)?`<div class="power">${boostBadges(l)}</div>`:''}<div class="seller-line">${atHandle(l.handle, true)}</div>
 <div class="specs">${specs.map(s=>`<div><span class="meta">${s[0]}</span><b>${esc(s[1])}</b></div>`).join('')}</div>
-<h2 style="font-size:1rem">Description</h2><p class="muted">${esc(l.desc)}</p></div>
+<h2 style="font-size:1rem">Description</h2><p class="muted">${esc(l.desc)}</p>${l.status==='sold'?'':inspectionCta()}</div>
 <div class="panel" id="contact"><h2 style="font-size:1rem">${l.user_id&&Auth.user&&l.user_id===Auth.user.id?'Your ad':'Message seller'}</h2>${sellerPanel(l)}</div></div></div>`;
 main.querySelectorAll('.thumbs button').forEach(b=>b.onclick=()=>{$('#big').src=b.dataset.src;main.querySelectorAll('.thumbs button').forEach(x=>x.setAttribute('aria-current',x===b))});
-const msgBtn=$('#msg-seller');if(msgBtn)msgBtn.onclick=()=>messageSeller(l.id);}
+const msgBtn=$('#msg-seller');if(msgBtn)msgBtn.onclick=()=>messageSeller(l.id);
+const book=$('#book-inspect');if(book)book.onclick=e=>{if((INSPECTION_URL||'#')==='#'){e.preventDefault();toast('Coming soon')}};}
+function inspectionCta(){const url=INSPECTION_URL||'#';const ext=url!=='#'&&!url.startsWith('#');return `<aside class="inspect"><p>Whether it's down the road or interstate, we can help.</p><a class="btn" id="book-inspect" href="${esc(url)}"${ext?' target="_blank" rel="noopener"':''}>Book a pre-purchase inspection</a></aside>`}
 
 function sell(){main.innerHTML=`<div class="wrap"><div class="eyebrow">IM SELLIN</div><h1 style="font-size:clamp(1.4rem,4vw,2.4rem)">How do you<br><span class="grey">want to sell?</span></h1><div class="paths" style="margin-top:var(--s-5)">
 <a class="path" href="#/list">${ico('tag')}<span class="wide" style="font-size:1.6rem">List free</span><span class="tag">100% free. No catch.</span><span class="muted">Post your ad to the feed and deal direct with buyers.</span><span class="btn">List your car free →</span></a>

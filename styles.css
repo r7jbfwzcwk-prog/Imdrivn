@@ -206,6 +206,15 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .dm{position:absolute;left:10px;bottom:8px;font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:#aaa;background:rgba(0,0,0,.55);padding:1px 5px;border-radius:2px}
 .sold-badge{position:absolute;left:10px;bottom:8px;font-size:.62rem;letter-spacing:.16em;font-weight:700;color:#000;background:#f2f2f2;padding:3px 7px;border-radius:3px}
 .sold-banner{margin:16px 0 0;padding:14px 16px;border:1px solid #f2f2f2;border-radius:12px;letter-spacing:.2em;font-weight:700;text-align:center}
+.inspect{margin-top:var(--s-5);padding:16px;background:#000;border:1px solid var(--c-line);border-radius:12px}
+.inspect p{margin:0 0 12px;color:var(--c-muted);font-size:.85rem;line-height:1.4}
+.inspect .btn{width:100%;border-color:#d9a441;color:#d9a441;letter-spacing:.08em;line-height:1.25;padding:12px 14px;text-align:center}
+.inspect .btn:hover{border-color:#d9a441;background:rgba(217,164,65,.08)}
+.s-daily .inspect .btn,.s-daily .inspect .btn:hover{border-color:#2f7bff;color:#2f7bff}
+.s-daily .inspect .btn:hover{background:rgba(47,123,255,.08)}
+.s-performance .inspect .btn,.s-performance .inspect .btn:hover{border-color:#e5242b;color:#e5242b}
+.s-performance .inspect .btn:hover{background:rgba(229,36,43,.08)}
+.s-supercars .inspect .btn,.s-supercars .inspect .btn:hover{border-color:#d9a441;color:#d9a441}
 .sold-btn{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;min-height:36px;padding:0 14px;border:1px solid var(--c-line2);border-radius:999px;background:transparent;color:#fff;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
 .sold-btn:hover,.sold-btn:focus-visible{border-color:#fff}
 .post.is-sold{opacity:.72}
