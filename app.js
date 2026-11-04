@@ -1,6 +1,7 @@
 const INSTAGRAM_URL='https://instagram.com/imdrivn';
 const TIKTOK_URL='https://tiktok.com/@imdrivn';
 const INSPECTION_URL='#';
+const FINANCE_URL='#';
 const $=(s,r=document)=>r.querySelector(s),main=$('#main');
 const aud=n=>'$'+Number(n).toLocaleString('en-AU'),kms=n=>Number(n).toLocaleString('en-AU')+' km';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -265,8 +266,10 @@ ${l.status==='sold'?'<div class="sold-banner" role="status">SOLD</div>':''}<div 
 <div class="panel" id="contact"><h2 style="font-size:1rem">${l.user_id&&Auth.user&&l.user_id===Auth.user.id?'Your ad':'Message seller'}</h2>${sellerPanel(l)}</div></div></div>`;
 main.querySelectorAll('.thumbs button').forEach(b=>b.onclick=()=>{$('#big').src=b.dataset.src;main.querySelectorAll('.thumbs button').forEach(x=>x.setAttribute('aria-current',x===b))});
 const msgBtn=$('#msg-seller');if(msgBtn)msgBtn.onclick=()=>messageSeller(l.id);
-const book=$('#book-inspect');if(book)book.onclick=e=>{if((INSPECTION_URL||'#')==='#'){e.preventDefault();toast('Coming soon')}};}
-function inspectionCta(){const url=INSPECTION_URL||'#';const ext=url!=='#'&&!url.startsWith('#');return `<aside class="inspect"><p>Whether it's down the road or interstate, we can help.</p><a class="btn" id="book-inspect" href="${esc(url)}"${ext?' target="_blank" rel="noopener"':''}>Book a pre-purchase inspection</a></aside>`}
+bindOffer('book-inspect',INSPECTION_URL);bindOffer('need-finance',FINANCE_URL);}
+function bindOffer(id,url){const el=$('#'+id);if(el)el.onclick=e=>{if((url||'#')==='#'){e.preventDefault();toast('Coming soon')}}}
+function offerLink(id,url,label){const href=url||'#';const ext=href!=='#'&&!href.startsWith('#');return `<a class="btn" id="${id}" href="${esc(href)}"${ext?' target="_blank" rel="noopener"':''}>${label}</a>`}
+function inspectionCta(){return `<aside class="inspect"><p>Whether it's down the road or interstate, we can help.</p><div class="inspect-actions">${offerLink('book-inspect',INSPECTION_URL,'Book a pre-purchase inspection')}${offerLink('need-finance',FINANCE_URL,'Need finance?')}</div></aside>`}
 
 function sell(){main.innerHTML=`<div class="wrap"><div class="eyebrow">IM SELLIN</div><h1 style="font-size:clamp(1.4rem,4vw,2.4rem)">How do you<br><span class="grey">want to sell?</span></h1><div class="paths" style="margin-top:var(--s-5)">
 <a class="path" href="#/list">${ico('tag')}<span class="wide" style="font-size:1.6rem">List free</span><span class="tag">100% free. No catch.</span><span class="muted">Post your ad to the feed and deal direct with buyers.</span><span class="btn">List your car free →</span></a>

@@ -209,7 +209,8 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .sold-banner{margin:16px 0 0;padding:14px 16px;border:1px solid #f2f2f2;border-radius:12px;letter-spacing:.2em;font-weight:700;text-align:center}
 .inspect{margin-top:var(--s-5);padding:16px;background:#000;border:1px solid var(--c-line);border-radius:12px}
 .inspect p{margin:0 0 12px;color:var(--c-muted);font-size:.85rem;line-height:1.4}
-.inspect .btn{width:100%;border-color:#d9a441;color:#d9a441;letter-spacing:.08em;line-height:1.25;padding:12px 14px;text-align:center}
+.inspect-actions{display:flex;flex-wrap:wrap;gap:12px}
+.inspect .btn{flex:1 1 17rem;width:auto;border-color:#d9a441;color:#d9a441;letter-spacing:.08em;line-height:1.25;padding:12px 14px;text-align:center}
 .inspect .btn:hover{border-color:#d9a441;background:rgba(217,164,65,.08)}
 .s-daily .inspect .btn,.s-daily .inspect .btn:hover{border-color:#2f7bff;color:#2f7bff}
 .s-daily .inspect .btn:hover{background:rgba(47,123,255,.08)}
