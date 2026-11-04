@@ -605,8 +605,8 @@ const ListFlow = (() => {
         if (drop) { drop.hidden = full; drop.disabled = full; }
         if (input) input.disabled = full;
         if (noteEl && !full) noteEl.textContent = '';
-        host.innerHTML = draft.photos.map((src, n) => `<div class="ask-photo${n === 0 ? ' is-cover' : ''}" data-i="${n}" tabindex="0" role="group" aria-label="${n === 0 ? 'Cover photo' : 'Photo ' + (n + 1)}. Use arrow keys to reorder">
-          <img src="${src}" alt="">
+        host.innerHTML = draft.photos.map((src, n) => `<div class="ask-photo shot${n === 0 ? ' is-cover' : ''}" data-i="${n}" tabindex="0" role="group" aria-label="${n === 0 ? 'Cover photo' : 'Photo ' + (n + 1)}. Use arrow keys to reorder">
+          <img src="${src}" alt="">${photoMark()}
           ${n === 0 ? '<span class="ask-cover">Cover</span>' : ''}
           <button type="button" class="ask-x" data-remove="${n}" aria-label="Remove photo ${n + 1}">×</button>
         </div>`).join('');

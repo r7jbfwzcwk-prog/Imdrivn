@@ -335,13 +335,16 @@ function stampWordmark(ctx, logo, w, h) {
   const x = Math.max(0, w - pad - logoW);
   const y = Math.max(0, h - pad - logoH);
   ctx.save();
-  ctx.globalAlpha = 0.85;
+  ctx.globalAlpha = 0.55;
   ctx.shadowColor = 'rgba(0,0,0,0.7)';
   ctx.shadowBlur = Math.max(2, Math.round(logoW * 0.05));
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = Math.max(1, Math.round(logoW * 0.018));
   ctx.drawImage(logo, x, y, logoW, logoH);
   ctx.restore();
+}
+function photoMark(){
+  return '<span class="wm" aria-hidden="true"><img src="img/logo.svg" alt=""></span>';
 }
 function preparePhoto(file) {
   return new Promise((resolve, reject) => {

@@ -282,11 +282,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 }
 .tabs{display:flex;justify-content:space-around;max-width:520px;margin:0 auto;border-bottom:1px solid #1a1a1d}
 .tabs[hidden]{display:none}
-.tabs button{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:none;border:0;padding:12px 6px 10px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:#8a8a90;cursor:pointer;position:relative;transition:color var(--ease)}
-.tabs .ico{width:15px;height:15px;stroke-width:1.6}
-.tabs button[data-m=daily] .ico{stroke:#2f7bff}
-.tabs button[data-m=performance] .ico{stroke:#e5242b}
-.tabs button[data-m=supercar] .ico{stroke:#d9a441}
+.tabs button{background:none;border:0;padding:12px 6px 10px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:#8a8a90;cursor:pointer;position:relative;transition:color var(--ease)}
 .tabs button::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--acc);transform:scaleX(0);transition:transform var(--ease) ease,background var(--ease)}
 .tabs button[aria-selected=true]{color:var(--acc)}.tabs button[aria-selected=true]::after{transform:scaleX(1)}
 .tabs button[data-m=all][aria-selected=true]{color:#c0c0c0}
@@ -313,6 +309,16 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .feed-title{font-size:1rem;text-align:center;margin-top:16px;color:var(--acc)}.filt{max-width:440px;margin:12px auto 0;padding:0 12px;font-size:.8rem;color:var(--c-muted)}.filt button{background:none;border:0;color:var(--acc);cursor:pointer;text-decoration:underline}
 .post{position:relative;background:#050506;border:1px solid var(--acc-dim);border-radius:var(--r-card);overflow:hidden;box-shadow:0 0 18px var(--glow);transition:border-radius var(--ease),box-shadow var(--ease)}
 .post .car{position:relative;display:block}.post .car img{width:100%;aspect-ratio:16/7.5;object-fit:cover;background:#111}
+.shot{position:relative;display:block}
+.wm{position:absolute;right:6px;bottom:6px;z-index:2;width:28%;max-width:118px;min-width:48px;pointer-events:none;opacity:.62}
+.wm img{width:100%;height:auto;display:block;filter:brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,.75))}
+.thumbs button.shot{overflow:hidden}
+.thumbs .wm,.inbox-photo .wm,.thread-pin .wm{right:3px;bottom:2px;width:62%;min-width:0;max-width:56px;opacity:.75}
+.inbox-photo.shot{width:64px;flex:none}
+.thread-pin > a.shot{flex:none;width:84px}
+.shot-main{border-radius:var(--r-md);overflow:hidden}
+.shot-main .main{border-radius:0}
+.ask-photo .wm{right:8px;bottom:8px;width:42%;max-width:92px}
 .new{position:absolute;top:10px;left:10px;font-size:.58rem;font-weight:600;letter-spacing:.08em;padding:3px 7px;border:1px solid var(--acc);color:#fff;border-radius:3px;background:rgba(0,0,0,.55);transition:border-color var(--ease)}
 .ago{position:absolute;top:10px;right:12px;font-size:.68rem;color:var(--acc);text-shadow:0 0 4px #000;transition:color var(--ease)}
 .post .b{padding:10px 14px 12px}.ttl{display:block;text-decoration:none;font-size:.95rem;font-weight:500;color:#fff}

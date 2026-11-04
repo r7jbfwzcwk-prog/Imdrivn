@@ -200,7 +200,7 @@ const ValueFlow = (() => {
       body.innerHTML = `${note}<button type="button" class="ask-drop" id="v-drop" data-autofocus>Add photos</button><input class="ask-file" id="v-files" type="file" accept="image/*" multiple tabindex="-1" aria-hidden="true"><div class="ask-photos" id="v-photos"></div>`;
       const host = document.getElementById('v-photos');
       const input = document.getElementById('v-files');
-      const draw = () => { host.innerHTML = draft.photos.map((src, n) => `<div class="ask-photo${n === 0 ? ' is-cover' : ''}"><img src="${src}" alt=""><button type="button" class="ask-x" data-remove="${n}" aria-label="Remove photo ${n + 1}">×</button></div>`).join(''); };
+      const draw = () => { host.innerHTML = draft.photos.map((src, n) => `<div class="ask-photo shot${n === 0 ? ' is-cover' : ''}"><img src="${src}" alt="">${photoMark()}<button type="button" class="ask-x" data-remove="${n}" aria-label="Remove photo ${n + 1}">×</button></div>`).join(''); };
       const add = async files => {
         const images = [...files].filter(f => /^image\//.test(f.type));
         const room = PHOTO_MAX - draft.photos.length;
