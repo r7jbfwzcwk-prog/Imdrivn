@@ -182,7 +182,7 @@ function searchBits(){
   return bits;
 }
 async function loadSearchCatalog(){
-  try{const res=await fetch('data/models.json');if(res.ok)searchCatalog=await res.json()}catch(e){}
+  try{const res=await fetch('data/models.json?v=26');if(res.ok)searchCatalog=await res.json()}catch(e){}
   paintSearch(searchDraft());
   if(!sb)return;
   try{

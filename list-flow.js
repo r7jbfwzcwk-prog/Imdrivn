@@ -23,7 +23,7 @@ const ListFlow = (() => {
   let catalogLoad = null;
   function loadCatalog() {
     if (!catalogLoad) {
-      catalogLoad = fetch('data/models.json').then(res => {
+      catalogLoad = fetch('data/models.json?v=26').then(res => {
         if (!res.ok) throw new Error('load');
         return res.json();
       }).then(data => {
