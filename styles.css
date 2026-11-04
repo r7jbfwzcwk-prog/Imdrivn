@@ -535,9 +535,6 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .fthread-title{text-decoration:none;color:inherit}
 .inbox-photo img,.inbox-row>a img{width:64px;height:48px;object-fit:cover;border-radius:8px;background:#111;display:block}
 .inbox-car,.inbox-last{text-decoration:none;color:inherit}
-.gtabs{display:flex;gap:18px;margin:var(--s-4) 0}
-.gtabs a{text-decoration:none;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-muted);padding-bottom:6px;border-bottom:2px solid transparent}
-.gtabs a[aria-selected=true]{color:var(--acc);border-bottom-color:var(--acc)}
 .garage-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:var(--s-4)}
 @media(min-width:760px){.garage-grid{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:1100px){.garage-grid{grid-template-columns:repeat(4,1fr)}}
