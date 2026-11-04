@@ -296,6 +296,23 @@ function listingSpec(listing) {
     vin: vin || null
   };
 }
+const VinOrders = {
+  async create({ vin, email, listingId }) {
+    if (!sb) throw new Error('Orders are offline right now.');
+    const cleanVin = String(vin || '').toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, 17);
+    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(cleanVin)) throw new Error('VIN must be 17 characters and cannot include I, O, or Q.');
+    const cleanEmail = String(email || '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) throw new Error('Add a valid email so we can send the report.');
+    const listing_id = /^[0-9a-f-]{36}$/i.test(String(listingId || '')) ? listingId : null;
+    const { error } = await sb.from('vin_check_orders').insert({
+      vin: cleanVin,
+      email: cleanEmail,
+      listing_id,
+      user_id: Auth.user ? Auth.user.id : null
+    });
+    if (error) throw new Error(error.message || 'Could not start that order.');
+  }
+};
 const VinAsk = {
   async asked(listingId) {
     if (!sb || !Auth.user || !listingId) return false;
