@@ -77,13 +77,15 @@ if(k==='like'){const n=b.querySelector('span');n.textContent=+n.textContent+(o[k
 const MODES=['daily','performance','supercar'],BUY_MODES=['all',...MODES],m2s=m=>m==='supercar'?'supercars':m;
 let MODE=localStorage.getItem('imdrivn_mode');if(!MODES.includes(MODE))MODE='daily';
 let BUY=localStorage.getItem('imdrivn_buy');if(!BUY_MODES.includes(BUY))BUY='all';
-function syncTabs(){document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.m===BUY));}
+function syncTabs(){document.querySelectorAll('.tabs button[role=tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.m===BUY));}
 function setMode(m){if(!MODES.includes(m))return;MODE=m;localStorage.setItem('imdrivn_mode',m);document.body.dataset.mode=m;}
 function setBuy(m){if(!BUY_MODES.includes(m))m='all';BUY=m;localStorage.setItem('imdrivn_buy',BUY);if(m!=='all')setMode(m);syncTabs();}
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{setBuy(b.dataset.m);const h=location.hash;if(h==='#/buy'||h.startsWith('#/buy?')||h.startsWith('#/saved')||h===''||h==='#/'||h.startsWith('#/about'))route();});
+document.querySelectorAll('.tabs button[role=tab]').forEach(b=>b.onclick=()=>{setBuy(b.dataset.m);const h=location.hash;if(h==='#/buy'||h.startsWith('#/buy?')||h.startsWith('#/saved')||h===''||h==='#/'||h.startsWith('#/about'))route();});
 document.addEventListener('click',e=>{const pick=e.target.closest('[data-pick]');if(pick)setBuy(pick.dataset.pick)});
 setMode(MODE);syncTabs();
-$('#sbtn').onclick=()=>{const p=$('#spanel');p.hidden=!p.hidden;$('#sbtn').setAttribute('aria-expanded',!p.hidden);if(!p.hidden)p.querySelector('input').focus()};
+function setSearchOpen(open){const panel=$('#spanel');if(!panel)return;panel.hidden=!open;document.querySelectorAll('#sbtn,#feedsearch').forEach(b=>b.setAttribute('aria-expanded',open?'true':'false'));if(open){const field=panel.querySelector('input');if(field)field.focus()}}
+$('#sbtn').onclick=()=>setSearchOpen($('#spanel').hidden);
+$('#feedsearch').onclick=()=>setSearchOpen($('#spanel').hidden);
 $('#bell').onclick=()=>{location.hash='#/messages'};
 $('#ig').href=INSTAGRAM_URL;$('#tt').href=TIKTOK_URL;
 const menuBtn=$('#menubtn'),appMenu=$('#appmenu');
@@ -163,7 +165,7 @@ function paintSearch(state){
   form.querySelector('[name=year]').value=src.year||'';
   form.querySelector('[name=yearTo]').value=src.yearTo||'';
   form.querySelector('[name=km]').value=src.km||'';
-  $('#sbtn').classList.toggle('is-on',searchOn());
+  document.querySelectorAll('#sbtn,#feedsearch').forEach(b=>b.classList.toggle('is-on',searchOn()));
 }
 function readSearch(form){
   const data=Object.fromEntries(new FormData(form));
@@ -206,15 +208,17 @@ let SORT=localStorage.getItem('imdrivn_sort');if(!sortOk(SORT))SORT='new';
 const sortMeta=id=>SORTS.find(s=>s[0]===id)||SORTS[0];
 function buyHash(){return SORT&&SORT!=='new'?'#/buy?sort='+SORT:'#/buy'}
 function hashParts(){const raw=location.hash.startsWith('#')?location.hash.slice(1):'';const q=raw.indexOf('?');const path=q<0?raw:raw.slice(0,q);const params=new URLSearchParams(q<0?'':raw.slice(q+1));const bits=path.split('/');return{p:bits[1]||'',a:bits[2],b:bits[3],params}}
-function syncSortUi(){const meta=sortMeta(SORT);const btn=$('#sortbtn');if(btn){btn.textContent=meta[2];btn.title=meta[1];btn.setAttribute('aria-label','Sort: '+meta[1])}
+function syncSortUi(){const meta=sortMeta(SORT);const btn=$('#sortbtn');if(btn){const val=btn.querySelector('.tab-tool-value');if(val)val.textContent=meta[2];btn.title=meta[1];btn.setAttribute('aria-label','Sort: '+meta[1])}
 document.querySelectorAll('#sortsheet [data-sort]').forEach(b=>b.setAttribute('aria-selected',b.dataset.sort===SORT?'true':'false'))}
-function openSort(){const back=$('#sortback'),sheet=$('#sortsheet'),btn=$('#sortbtn');if(!sheet)return;back.hidden=false;sheet.hidden=false;btn.setAttribute('aria-expanded','true');const cur=sheet.querySelector('[aria-selected=true]')||sheet.querySelector('button');if(cur)cur.focus()}
+function placeSortSheet(){const sheet=$('#sortsheet'),btn=$('#sortbtn');if(!sheet||!btn)return;if(window.innerWidth<900){sheet.style.left='';sheet.style.right='';sheet.style.top='';return}const r=btn.getBoundingClientRect();const width=280;sheet.style.left=Math.min(Math.max(8,r.left),window.innerWidth-width-8)+'px';sheet.style.right='auto';sheet.style.top=(r.bottom+8)+'px'}
+function openSort(){const back=$('#sortback'),sheet=$('#sortsheet'),btn=$('#sortbtn');if(!sheet||!btn)return;placeSortSheet();back.hidden=false;sheet.hidden=false;btn.setAttribute('aria-expanded','true');const cur=sheet.querySelector('[aria-selected=true]')||sheet.querySelector('button');if(cur)cur.focus()}
 function closeSort(focusBack){const back=$('#sortback'),sheet=$('#sortsheet'),btn=$('#sortbtn');if(!sheet||sheet.hidden)return;back.hidden=true;sheet.hidden=true;btn.setAttribute('aria-expanded','false');if(focusBack)btn.focus()}
 function setSort(id){if(!sortOk(id))id='new';SORT=id;localStorage.setItem('imdrivn_sort',SORT);syncSortUi();closeSort(true);const next=buyHash();if(location.hash===next)route();else location.hash=next}
 function listingTime(l){if(l.created_at){const t=Date.parse(l.created_at);if(!Number.isNaN(t))return t}if(l.ago!=null&&l.ago!=='')return Date.now()-Number(l.ago)*3600000;return 0}
 function sortRows(rows,sort){const list=rows.slice(),tie=(a,b)=>listingTime(b)-listingTime(a)||String(b.id).localeCompare(String(a.id));
 list.sort((a,b)=>{if(sort==='price-asc')return(+a.price-+b.price)||tie(a,b);if(sort==='price-desc')return(+b.price-+a.price)||tie(a,b);if(sort==='year-desc')return(+b.year-+a.year)||tie(a,b);if(sort==='year-asc')return(+a.year-+b.year)||tie(a,b);return tie(a,b)});return list}
 $('#sortbtn').onclick=()=>{$('#sortsheet').hidden?openSort():closeSort(false)};
+addEventListener('resize',()=>{if($('#sortsheet')&&!$('#sortsheet').hidden)placeSortSheet()});
 $('#sortback').onclick=()=>closeSort(true);
 $('#sortsheet').onclick=e=>{const b=e.target.closest('[data-sort]');if(b)setSort(b.dataset.sort)};
 $('#sortsheet').addEventListener('keydown',e=>{const items=[...$('#sortsheet').querySelectorAll('[data-sort]')];const i=items.indexOf(document.activeElement);
@@ -224,7 +228,7 @@ if(e.key==='Home'){e.preventDefault();items[0].focus()}
 if(e.key==='End'){e.preventDefault();items[items.length-1].focus()}});
 syncSortUi();
 $('#qs [name=make]').addEventListener('change',()=>fillSearchModels($('#qs [name=make]').value,''));
-$('#qs').onsubmit=e=>{e.preventDefault();readSearch(e.target);$('#spanel').hidden=true;$('#sbtn').setAttribute('aria-expanded','false');const next=buyHash();location.hash===next?route():location.hash=next};
+$('#qs').onsubmit=e=>{e.preventDefault();readSearch(e.target);setSearchOpen(false);const next=buyHash();location.hash===next?route():location.hash=next};
 $('#qs').onreset=()=>{F=blankSearch();setTimeout(()=>{paintSearch();const next=buyHash();location.hash===next?route():location.hash=next})};
 loadSearchCatalog();
 function askSignIn(message,next){sessionStorage.setItem('imdrivn_next',next);main.innerHTML=`<div class="wrap form auth"><div class="eyebrow">Account</div><h1>Sign in</h1><p class="muted">${esc(message)}</p><a class="btn solid" href="#/join">Sign in</a></div>`}
@@ -427,7 +431,7 @@ const who=Auth.profile&&Auth.profile.username?'@'+Auth.profile.username:(Auth.us
 toast('Signed in as '+who);
 if(Auth.needsHandle()&&(sessionStorage.getItem('imdrivn_next')||'')!=='valuation'){if(location.hash!=='#/join')location.hash='#/join';else join();return}}
 if(Auth.user&&(!Auth.needsHandle()||(sessionStorage.getItem('imdrivn_next')||'')==='valuation'))takeNext()}
-function route(){document.body.classList.remove('menu-open');closeMenu(false);closeSort(false);dropChat();if(garageAdd._key){document.removeEventListener('keydown',garageAdd._key);garageAdd._key=null}if(ListFlow._key){document.removeEventListener('keydown',ListFlow._key);ListFlow._key=null}if(ValueFlow._key){document.removeEventListener('keydown',ValueFlow._key);ValueFlow._key=null}const {p,a,b,params}=hashParts();if(p==='buy'){const requested=params.get('sort');if(sortOk(requested)){SORT=requested;localStorage.setItem('imdrivn_sort',SORT)}}syncSortUi();const sortWrap=$('#sortwrap');if(sortWrap)sortWrap.hidden=p!=='buy';const modeTabs=document.querySelector('.tabs');if(modeTabs)modeTabs.hidden=!(p==='buy'||p==='car');io&&io.disconnect();feedToken++;homeToken++;viewToken++;
+function route(){document.body.classList.remove('menu-open');closeMenu(false);closeSort(false);dropChat();if(garageAdd._key){document.removeEventListener('keydown',garageAdd._key);garageAdd._key=null}if(ListFlow._key){document.removeEventListener('keydown',ListFlow._key);ListFlow._key=null}if(ValueFlow._key){document.removeEventListener('keydown',ValueFlow._key);ValueFlow._key=null}const {p,a,b,params}=hashParts();if(p==='buy'){const requested=params.get('sort');if(sortOk(requested)){SORT=requested;localStorage.setItem('imdrivn_sort',SORT)}}syncSortUi();const onFeed=p==='buy';const modebar=document.querySelector('.modebar');if(modebar)modebar.hidden=!(onFeed||p==='car');const sortBtn=$('#sortbtn');if(sortBtn)sortBtn.hidden=!onFeed;const feedSearch=$('#feedsearch');if(feedSearch)feedSearch.hidden=!onFeed;const headerSearch=$('#sbtn');if(headerSearch)headerSearch.hidden=onFeed;io&&io.disconnect();feedToken++;homeToken++;viewToken++;
 const pages={'':home,buy:()=>buy(),buyin:buyChooser,saved:()=>buy(1),garage:()=>garage(a==='ads'),merch,msgs,messages:()=>a?chatThread(a):inbox(),car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join,u:()=>publicProfile(a),forum:()=>a==='t'&&b?forumThread(b):a?forumCategory(a):forumIndex()};document.body.classList.toggle('is-home',p===''||p==='about'||!Object.prototype.hasOwnProperty.call(pages,p||''));document.body.classList.toggle('is-all',(p==='buy'||p==='car')&&BUY==='all');document.body.classList.toggle('is-lanes',p==='buyin');document.body.classList.toggle('is-list',p==='list');document.body.classList.toggle('is-wholesale',p==='valuation');const run=pages[p||'']||home;
 Promise.resolve(run()).catch(()=>{});
 if(p!=='about')scrollTo(0,0);main.focus({preventScroll:true});
