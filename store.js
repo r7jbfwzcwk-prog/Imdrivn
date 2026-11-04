@@ -730,8 +730,9 @@ const Forum = {
     if (error) throw new Error(forumErr(error));
   },
   async reply(threadId, body) {
-    const { error } = await sb.from('forum_replies').insert({ thread_id: threadId, author_id: Auth.user.id, body });
+    const { data, error } = await sb.from('forum_replies').insert({ thread_id: threadId, author_id: Auth.user.id, body }).select('id').single();
     if (error) throw new Error(forumErr(error));
+    return data;
   },
   async updateReply(id, body) {
     const { error } = await sb.from('forum_replies').update({ body }).eq('id', id).eq('author_id', Auth.user.id);
@@ -930,3 +931,53 @@ const Chat = {
     return (data || []).filter(row => chatUnread(row, uid)).length;
   }
 };
+
+function noteErr(error) {
+  return (error && error.message) || 'Could not load notifications.';
+}
+const Notes = {
+  async list() {
+    if (!sb || !Auth.user) return [];
+    const { data, error } = await sb.from('notifications')
+      .select('id,actor_id,thread_id,reply_id,thread_title,read_at,created_at,actor:profiles!notifications_actor_id_fkey(username),thread:forum_threads!notifications_thread_id_fkey(title,author_id)')
+      .order('created_at', { ascending: false })
+      .limit(30);
+    if (error) throw new Error(noteErr(error));
+    const uid = Auth.user.id;
+    return (data || []).map(row => {
+      const actor = Array.isArray(row.actor) ? row.actor[0] : row.actor;
+      const thread = Array.isArray(row.thread) ? row.thread[0] : row.thread;
+      return {
+        id: row.id,
+        threadId: row.thread_id,
+        replyId: row.reply_id,
+        handle: actor && actor.username ? String(actor.username).replace(/^@/, '') : '',
+        title: (thread && thread.title) || row.thread_title || '',
+        yours: !!(thread && thread.author_id === uid),
+        read: !!row.read_at,
+        when: whenLabel(row.created_at)
+      };
+    });
+  },
+  async unreadCount() {
+    if (!sb || !Auth.user) return 0;
+    const { count, error } = await sb.from('notifications').select('id', { count: 'exact', head: true }).is('read_at', null);
+    if (error) return 0;
+    return count || 0;
+  },
+  async markRead(id) {
+    if (!sb || !Auth.user || !id) return;
+    const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', id).is('read_at', null);
+    if (error) throw new Error(noteErr(error));
+  },
+  async markReadForReply(replyId) {
+    if (!sb || !Auth.user || !replyId) return;
+    const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('reply_id', replyId).is('read_at', null);
+    if (error) throw new Error(noteErr(error));
+  }
+};
+function noteLine(note) {
+  const who = '@' + (note.handle || 'driver');
+  const title = note.title || 'a thread';
+  return note.yours ? who + ' replied to your thread "' + title + '"' : who + ' replied in "' + title + '"';
+}

@@ -188,7 +188,7 @@ function fComposer(cat) {
   return box;
 }
 
-async function forumThread(rawId) {
+async function forumThread(rawId, replyId) {
   const token = ++viewToken;
   let id = rawId || '';
   try { id = decodeURIComponent(id); } catch (e) {}
@@ -221,10 +221,18 @@ async function forumThread(rawId) {
   if (!data.replies.length) replies.append(fEl('p', { class: 'fempty' }, 'No replies yet. If you know, say it.'));
   data.replies.forEach(reply => replies.append(fPost(reply, false, () => forumThread(id))));
   wrap.append(replies, fReplyBox(id));
+  if (replyId) {
+    const target = document.getElementById('reply-' + replyId);
+    if (target) {
+      target.classList.add('is-target');
+      requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    }
+    Notes.markReadForReply(replyId).then(() => refreshUnread()).catch(() => {});
+  }
 }
 
 function fPost(row, isThread, afterDelete) {
-  const article = fEl('article', { class: isThread ? 'fpost fop' : 'fpost' });
+  const article = fEl('article', { class: isThread ? 'fpost fop' : 'fpost', id: isThread ? null : 'reply-' + row.id });
   article.append(fMeta(row, row.created_at));
   const title = isThread ? fEl('h1', null, row.title || '') : null;
   const body = fEl('div', { class: 'fbody' }, row.body || '');

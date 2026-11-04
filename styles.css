@@ -510,6 +510,14 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 #menu-msgs{justify-content:space-between}
 #menu-msgs .nav-badge{position:static}
 .inbox{display:grid;gap:10px}
+.note-list{display:grid;gap:8px;margin-bottom:14px}
+.note-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--c-line);border-radius:14px;background:var(--c-surface);color:var(--c-text);cursor:pointer}
+.note-row span{font-size:.92rem;line-height:1.35}
+.note-row time{flex:none;color:var(--c-muted);font-size:.75rem}
+.note-row.is-unread{border-color:var(--acc);box-shadow:0 0 14px var(--glow)}
+.note-row:hover,.note-row:focus-visible{border-color:var(--acc);outline:none}
+.fpost{scroll-margin-top:96px}
+.fpost.is-target{box-shadow:0 0 0 1px var(--acc),0 0 18px var(--glow)}
 .inbox-row{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--c-line);border-radius:14px;background:var(--c-surface);text-decoration:none}
 .inbox-row img{width:64px;height:48px;object-fit:cover;border-radius:8px;background:#111}
 .inbox-copy{display:grid;gap:2px;min-width:0}
