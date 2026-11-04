@@ -282,7 +282,11 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 }
 .tabs{display:flex;justify-content:space-around;max-width:520px;margin:0 auto;border-bottom:1px solid #1a1a1d}
 .tabs[hidden]{display:none}
-.tabs button{background:none;border:0;padding:12px 6px 10px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:#8a8a90;cursor:pointer;position:relative;transition:color var(--ease)}
+.tabs button{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:none;border:0;padding:12px 6px 10px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:#8a8a90;cursor:pointer;position:relative;transition:color var(--ease)}
+.tabs .ico{width:15px;height:15px;stroke-width:1.6}
+.tabs button[data-m=daily] .ico{stroke:#2f7bff}
+.tabs button[data-m=performance] .ico{stroke:#e5242b}
+.tabs button[data-m=supercar] .ico{stroke:#d9a441}
 .tabs button::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--acc);transform:scaleX(0);transition:transform var(--ease) ease,background var(--ease)}
 .tabs button[aria-selected=true]{color:var(--acc)}.tabs button[aria-selected=true]::after{transform:scaleX(1)}
 .tabs button[data-m=all][aria-selected=true]{color:#c0c0c0}
@@ -318,7 +322,8 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 [data-mode=supercar]{--acc:#d9a441;--acc-dim:rgba(217,164,65,.6);--glow:rgba(217,164,65,.22)}
 [data-mode] .price{color:var(--acc)}
 .lane-group{margin-top:22px}
-.lane-label{margin:0 0 10px;font-family:var(--font-body);font-style:normal;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;color:var(--acc)}
+.lane-label{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-family:var(--font-body);font-style:normal;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;color:var(--acc)}
+.lane-label .ico{width:16px;height:16px;stroke-width:1.6;color:var(--acc)}
 .inbox-row[data-mode]{border-color:var(--acc-dim)}
 .inbox-row[data-mode] .inbox-car{color:var(--acc)}
 .power{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}

@@ -13,8 +13,12 @@ shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2
 lock:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/>',head:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="5" rx="1"/><rect x="17" y="14" width="4" height="5" rx="1"/><path d="M19 19c0 1.5-2 2-5 2"/>',
 bag:'<path d="M6 8h12l-1 12H7z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/>',
 car:'<path d="M3 14h18"/><path d="M5 14 7 9h10l2 5"/><circle cx="7.5" cy="16.5" r="1.4"/><circle cx="16.5" cy="16.5" r="1.4"/>',
-spark:'<path d="m12 3 1.8 5.2H19l-4.2 3.1 1.6 5.2L12 13.6 7.6 16.5l1.6-5.2L5 8.2h5.2z"/>'};
+cart:'<path d="M3 5h2.2L7 14h11.2l1.5-6.5H7"/><circle cx="9" cy="18.2" r="1.4"/><circle cx="16.4" cy="18.2" r="1.4"/>',
+spark:'<path d="m12 3 1.8 5.2H19l-4.2 3.1 1.6 5.2L12 13.6 7.6 16.5l1.6-5.2L5 8.2h5.2z"/>',
+trophy:'<path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H5.4A2.4 2.4 0 0 0 8 9.6"/><path d="M16 6h2.6A2.4 2.4 0 0 1 16 9.6"/><path d="M12 14v2"/><path d="M9.2 20h5.6l-.7-4h-4.2z"/>'};
 const ico=k=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
+const LANE_ICO={daily:'cart',performance:'gauge',supercar:'trophy'};
+document.querySelectorAll('.tabs button').forEach(b=>{const k=LANE_ICO[b.dataset.m];if(k)b.insertAdjacentHTML('afterbegin',ico(k));});
 const FALLBACK="this.onerror=null;this.src='data:image/svg+xml,'+encodeURIComponent('<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 10&quot;><rect width=&quot;16&quot; height=&quot;10&quot; fill=&quot;%231b1b1e&quot;/><text x=&quot;8&quot; y=&quot;5.6&quot; font-size=&quot;1&quot; fill=&quot;%23777&quot; text-anchor=&quot;middle&quot;>PHOTO</text></svg>')";
 
 async function home(){const token=++homeToken;main.innerHTML=`
@@ -44,7 +48,7 @@ function cylLabel(n){const num=+n;if(!num)return '';const v={6:'V6',8:'V8',10:'V
 function boostBadges(l){const perf=l.sec==='performance'||l.sec==='supercars';if(!perf)return '';const turbo=l.turbo===true,blown=l.supercharged===true;const bits=[];if(turbo)bits.push('Turbo');if(blown)bits.push('Supercharged');if(!bits.length&&l.turbo===false&&l.supercharged===false)bits.push('NA');if(!bits.length)return '';return `<span class="boosts">${bits.map(b=>`<span class="boost${b==='NA'?' is-na':''}">${b}</span>`).join('')}</span>`}
 function powerLine(l){const text=[cylLabel(l.cylinders),String(l.engine||'').trim()].filter(Boolean).join(' · ');const badges=boostBadges(l);if(!text&&!badges)return '';return `<div class="power">${text?`<span class="power-spec">${esc(text)}</span>`:''}${badges}</div>`}
 function laneOf(l){const raw=String((l&&(l.mode||l.sec))||'').toLowerCase();if(raw==='supercar'||raw==='supercars')return 'supercar';if(raw==='performance')return 'performance';return 'daily'}
-function laneGroups(rows, owner){const lanes=[['daily','Daily'],['performance','Performance'],['supercar','Supercar']];return lanes.map(([key,label])=>{const items=rows.filter(l=>laneOf(l)===key);if(!items.length)return '';return `<section class="lane-group" data-mode="${key}"><h3 class="lane-label">${label}</h3><div class="feed">${items.map(l=>post(l,owner===true)).join('')}</div></section>`}).join('')}
+function laneGroups(rows, owner){const lanes=[['daily','Daily','cart'],['performance','Performance','gauge'],['supercar','Supercar','trophy']];return lanes.map(([key,label,icon])=>{const items=rows.filter(l=>laneOf(l)===key);if(!items.length)return '';return `<section class="lane-group" data-mode="${key}"><h3 class="lane-label">${ico(icon)}<span>${label}</span></h3><div class="feed">${items.map(l=>post(l,owner===true)).join('')}</div></section>`}).join('')}
 function post(l,ownerList){const demo=!!l.demo,S=demo?(st()[l.id]||{}):{like:!!l.liked,save:!!l.saved},lk=demo?(l.likes||0)+(S.like?1:0):(l.likeCount||0),title=l.heading||(l.year+' '+l.make+' '+l.model),sold=l.status==='sold';
 return`<article class="post s-${l.sec}${sold?' is-sold':''}" data-mode="${laneOf(l)}"><a class="car" href="#/car/${l.id}"><img src="${esc(l.photos[0])}" alt="${esc(title)}" loading="lazy" onerror="${FALLBACK}">
 ${sold?'':'<span class="new">NEW</span>'}<span class="ago">${esc(l.when||(l.ago?l.ago+'h ago':'Just now'))}</span>${demo?'<span class="dm">Demo</span>':''}${sold?'<span class="sold-badge">SOLD</span>':l.status&&l.status!=='active'?`<span class="dm">${esc(l.status)}</span>`:''}</a>
@@ -282,9 +286,9 @@ function buyChooser(){const mark='<img class="lane-mark" src="img/logo.svg" alt=
 <div class="lane-shade lane-shade-perf"><div class="lane-fibre lane-fibre-perf"></div><div class="lane-bg lane-bg-perf">${mark}</div></div>
 <div class="lane-shade lane-shade-daily"><div class="lane-fibre lane-fibre-daily"></div><div class="lane-bg lane-bg-daily">${mark}</div></div>
 </div><div class="lanes-copy"><div class="lanes-head"><div class="eyebrow">IM BUYIN</div><h1>Pick your<br><span class="grey">lane.</span></h1></div><div class="chooser-paths">
-<a class="path pick-daily" href="#/buy" data-pick="daily">${ico('car')}<span class="wide">Daily</span><span class="tag">Every day machines.</span><span class="btn">Browse daily →</span></a>
+<a class="path pick-daily" href="#/buy" data-pick="daily">${ico('cart')}<span class="wide">Daily</span><span class="tag">Every day machines.</span><span class="btn">Browse daily →</span></a>
 <a class="path pick-performance" href="#/buy" data-pick="performance">${ico('gauge')}<span class="wide">Performance</span><span class="tag">Hot metal, real pace.</span><span class="btn">Browse performance →</span></a>
-<a class="path pick-supercar" href="#/buy" data-pick="supercar">${ico('spark')}<span class="wide">Supercar</span><span class="tag">The top shelf.</span><span class="btn">Browse supercars →</span></a>
+<a class="path pick-supercar" href="#/buy" data-pick="supercar">${ico('trophy')}<span class="wide">Supercar</span><span class="tag">The top shelf.</span><span class="btn">Browse supercars →</span></a>
 </div><p class="view-all-row"><a class="view-all" href="#/buy" data-pick="all">View all</a></p></div></section>`;}
 function sell(){main.innerHTML=`<div class="wrap"><div class="eyebrow">IM SELLIN</div><h1 style="font-size:clamp(1.4rem,4vw,2.4rem)">How do you<br><span class="grey">want to sell?</span></h1><div class="paths" style="margin-top:var(--s-5)">
 <a class="path sell-list" href="#/list">${ico('tag')}<span class="wide" style="font-size:1.6rem">List free</span><span class="tag">100% free. No catch.</span><span class="muted">Post your ad to the feed and deal direct with buyers.</span><span class="btn">List your car free →</span></a>
