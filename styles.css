@@ -86,12 +86,19 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .lane-shade-daily{left:0;width:48%;z-index:3}
 .lane-shade-perf{left:22%;width:56%;z-index:2}
 .lane-shade-super{left:54%;width:46%;z-index:1}
-.lane-shade-daily,.lane-shade-perf{filter:drop-shadow(4px 0 0 rgba(0,0,0,.82)) drop-shadow(7px 0 3px rgba(0,0,0,.55))}
-.lane-bg{position:absolute;inset:0;background-repeat:no-repeat;background-size:100% 100%}
-.lane-bg-daily{background-color:#2f7bff;background-image:linear-gradient(168deg,#8eb6ff 0%,#2f7bff 42%,#0d316f 100%);clip-path:polygon(0 0,87.5% 0,87.9% 7%,81.3% 14%,83.5% 22%,75.2% 30%,76.7% 38%,69.2% 46%,72.1% 54%,65.8% 62%,67.3% 70%,59.4% 78%,60% 86%,53.8% 93%,54.2% 100%,0 100%)}
-.lane-bg-perf{background-color:#e5242b;background-image:linear-gradient(168deg,#ff8a8e 0%,#e5242b 44%,#6c1014 100%);clip-path:polygon(35.7% 0,36.1% 7%,30.4% 14%,32.3% 22%,25.2% 30%,26.4% 38%,20% 46%,22.5% 54%,17.1% 62%,18.4% 70%,11.6% 78%,12.1% 86%,6.8% 93%,7.1% 100%,66.1% 100%,65.7% 93%,71.1% 86%,70.5% 78%,77.3% 70%,76.1% 62%,81.4% 54%,78.9% 46%,85.4% 38%,84.1% 30%,91.3% 22%,89.3% 14%,95% 7%,94.6% 0)}
-.lane-bg-super{background-color:#d9a441;background-image:linear-gradient(168deg,#f6d78f 0%,#d9a441 42%,#5e3f10 100%);clip-path:polygon(45.7% 0,46.1% 7%,39.1% 14%,41.5% 22%,32.8% 30%,34.3% 38%,26.5% 46%,29.6% 54%,23% 62%,24.6% 70%,16.3% 78%,17% 86%,10.4% 93%,10.9% 100%,100% 100%,100% 0)}
-.lane-mark{position:absolute;width:min(20%,170px);height:auto;opacity:.85;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7));pointer-events:none}
+.lane-shade-daily,.lane-shade-perf{filter:drop-shadow(5px 0 1px rgba(0,0,0,.28)) drop-shadow(12px 0 14px rgba(0,0,0,.42))}
+.lane-tears{position:absolute;width:0;height:0}
+.lane-fibre,.lane-bg{position:absolute;inset:0}
+.lane-fibre{background:#f4efe4;pointer-events:none}
+.lane-bg{background-repeat:no-repeat;background-size:100% 100%}
+.lane-bg::after,.lane-fibre::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.42;mix-blend-mode:multiply;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");background-size:140px 140px}
+.lane-fibre::after{opacity:.55}
+.lane-bg-daily{background-color:#2f7bff;background-image:linear-gradient(168deg,#8eb6ff 0%,#2f7bff 42%,#0d316f 100%);clip-path:url(#tear-daily)}
+.lane-fibre-daily{clip-path:url(#fibre-daily)}
+.lane-bg-perf{background-color:#e5242b;background-image:linear-gradient(168deg,#ff8a8e 0%,#e5242b 44%,#6c1014 100%);clip-path:url(#tear-perf)}
+.lane-fibre-perf{clip-path:url(#fibre-perf)}
+.lane-bg-super{background-color:#d9a441;background-image:linear-gradient(168deg,#f6d78f 0%,#d9a441 42%,#5e3f10 100%)}
+.lane-mark{position:absolute;z-index:1;width:min(20%,170px);height:auto;opacity:.85;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7));pointer-events:none}
 .lane-bg-daily .lane-mark{left:5%;bottom:6%}
 .lane-bg-perf .lane-mark{left:40%;bottom:6%}
 .lane-bg-super .lane-mark{right:3%;bottom:6%}
@@ -113,10 +120,11 @@ body.is-lanes footer{border-top:1px solid #d9a441}
  .lane-shade-daily{top:0;bottom:auto;height:40%;z-index:3}
  .lane-shade-perf{top:32%;bottom:auto;height:40%;z-index:2}
  .lane-shade-super{top:62%;bottom:auto;height:38%;z-index:1}
- .lane-shade-daily,.lane-shade-perf{filter:drop-shadow(0 4px 0 rgba(0,0,0,.82)) drop-shadow(0 8px 3px rgba(0,0,0,.55))}
- .lane-bg-daily{clip-path:polygon(0 0,100% 0,100% 62%,86% 70%,72% 58%,58% 74%,44% 60%,30% 76%,16% 62%,0 78%)}
- .lane-bg-perf{clip-path:polygon(0 0,100% 0,100% 62%,86% 70%,72% 58%,58% 74%,44% 60%,30% 76%,16% 62%,0 78%)}
- .lane-bg-super{clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+ .lane-shade-daily,.lane-shade-perf{filter:drop-shadow(0 5px 1px rgba(0,0,0,.28)) drop-shadow(0 12px 14px rgba(0,0,0,.42))}
+ .lane-bg-daily{clip-path:url(#tear-daily-m)}
+ .lane-fibre-daily{clip-path:url(#fibre-daily-m)}
+ .lane-bg-perf{clip-path:url(#tear-perf-m)}
+ .lane-fibre-perf{clip-path:url(#fibre-perf-m)}
  .lane-bg-daily .lane-mark{left:auto;right:4%;top:18%;bottom:auto;width:min(34%,150px)}
  .lane-bg-perf .lane-mark{left:auto;right:4%;top:46%;bottom:auto;width:min(34%,150px)}
  .lane-bg-super .lane-mark{right:4%;bottom:10%;width:min(34%,150px)}
