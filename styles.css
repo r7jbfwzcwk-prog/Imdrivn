@@ -133,6 +133,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 @media(min-width:900px){.sortsheet{left:auto;right:16px;bottom:auto;top:108px;width:280px;padding:6px;border:1px solid var(--acc);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55)}}
 .appmenu{position:absolute;right:0;top:calc(100% + 8px);z-index:40;min-width:220px;max-width:calc(100vw - 24px);padding:6px;background:#101012;border:1px solid var(--acc);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55)}
 .appmenu a{display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:10px;text-decoration:none;font-size:.95rem}
+#my-ads{scroll-margin-top:96px}
 .appmenu a:hover,.appmenu a:focus-visible{background:#1b1b1e;color:var(--acc);outline:none}
 .merch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:var(--s-5) 0}
 @media(min-width:760px){.merch-grid{grid-template-columns:repeat(4,1fr)}}
