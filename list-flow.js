@@ -95,21 +95,7 @@ const ListFlow = (() => {
   }
 
   function compress(file) {
-    return new Promise((resolve, reject) => {
-      const im = new Image();
-      const url = URL.createObjectURL(file);
-      im.onload = () => {
-        const w = Math.min(900, im.width || 1);
-        const h = Math.max(1, Math.round((im.height || 1) * w / (im.width || 1)));
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        c.getContext('2d').drawImage(im, 0, 0, w, h);
-        URL.revokeObjectURL(url);
-        resolve(c.toDataURL('image/jpeg', .72));
-      };
-      im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
-      im.src = url;
-    });
+    return preparePhoto(file);
   }
 
   function field(id, opts) {

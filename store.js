@@ -278,6 +278,94 @@ function auMobile(raw) {
   if (d.startsWith('61')) d = '0' + d.slice(2);
   return /^04\d{8}$/.test(d) ? d : '';
 }
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const im = new Image();
+    im.onload = () => resolve(im);
+    im.onerror = () => reject(new Error('image'));
+    im.src = src;
+  });
+}
+function wordmarkInk(im) {
+  const w = 360;
+  const h = Math.max(1, Math.round(w * (im.naturalHeight || 1) / (im.naturalWidth || 1)));
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  ctx.fillStyle = '#ff00ff';
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(im, 0, 0, w, h);
+  const data = ctx.getImageData(0, 0, w, h).data;
+  let ink = 0;
+  for (let i = 0; i < data.length; i += 16) {
+    if (Math.abs(data[i] - 255) + Math.abs(data[i + 2] - 255) > 40) ink++;
+  }
+  return ink;
+}
+function loadSvgWordmark() {
+  return fetch('img/logo.svg').then(res => {
+    if (!res.ok) throw new Error('logo');
+    return res.text();
+  }).then(text => {
+    const sized = text.replace('<svg ', '<svg width="1760" height="200" ');
+    const url = URL.createObjectURL(new Blob([sized], { type: 'image/svg+xml;charset=utf-8' }));
+    return loadImage(url).finally(() => URL.revokeObjectURL(url));
+  });
+}
+let wordmarkTask = null;
+function wordmark() {
+  if (!wordmarkTask) {
+    wordmarkTask = loadSvgWordmark().then(im => wordmarkInk(im) > 30 ? im : Promise.reject(new Error('blank'))).catch(() => loadImage('img/logo-wordmark.png').then(im => {
+      if (wordmarkInk(im) < 30) throw new Error('logo');
+      return im;
+    })).catch(err => { wordmarkTask = null; throw err; });
+  }
+  return wordmarkTask;
+}
+function stampWordmark(ctx, logo, w, h) {
+  const aspect = (logo.naturalWidth || 1) / (logo.naturalHeight || 1);
+  let logoW = Math.round(w * 0.2);
+  let logoH = Math.max(1, Math.round(logoW / aspect));
+  const maxH = Math.round(h * 0.28);
+  if (logoH > maxH) {
+    logoH = Math.max(1, maxH);
+    logoW = Math.max(1, Math.round(logoH * aspect));
+  }
+  const pad = Math.round(Math.min(w, h) * 0.03);
+  const x = Math.max(0, w - pad - logoW);
+  const y = Math.max(0, h - pad - logoH);
+  ctx.save();
+  ctx.globalAlpha = 0.85;
+  ctx.shadowColor = 'rgba(0,0,0,0.7)';
+  ctx.shadowBlur = Math.max(2, Math.round(logoW * 0.05));
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = Math.max(1, Math.round(logoW * 0.018));
+  ctx.drawImage(logo, x, y, logoW, logoH);
+  ctx.restore();
+}
+function preparePhoto(file) {
+  return new Promise((resolve, reject) => {
+    const im = new Image();
+    const url = URL.createObjectURL(file);
+    im.onload = () => {
+      const max = 2000;
+      const scale = Math.min(1, max / Math.max(im.width || 1, im.height || 1));
+      const w = Math.max(1, Math.round((im.width || 1) * scale));
+      const h = Math.max(1, Math.round((im.height || 1) * scale));
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(im, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      wordmark().then(logo => {
+        stampWordmark(ctx, logo, w, h);
+        resolve(c.toDataURL('image/jpeg', 0.85));
+      }).catch(() => reject(new Error('Could not stamp the photo. Try that one again.')));
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
+    im.src = url;
+  });
+}
 function keywordOr(word) {
   const safe = String(word || '').replace(/[%_"\\(),]/g, '').trim();
   if (!safe) return '';
