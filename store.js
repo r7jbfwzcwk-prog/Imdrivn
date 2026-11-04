@@ -204,7 +204,7 @@ function storageMessage(error) {
   return msg || 'The photo upload failed. Try a smaller JPG.';
 }
 
-const LISTING_SELECT = 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,photos,status,created_at,profiles!listings_user_id_fkey(username,display_name),likes(count),saves(count)';
+const LISTING_SELECT = 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,rego,vin,photos,status,created_at,profiles!listings_user_id_fkey(username,display_name),likes(count),saves(count)';
 
 function countOf(rel) {
   if (rel == null) return 0;
@@ -245,8 +245,13 @@ function mapListing(row) {
     desc: row.description, description: row.description,
     engine: row.engine || '',
     cylinders: row.cylinders == null ? null : row.cylinders,
-    turbo: row.turbo,
-    supercharged: row.supercharged,
+    turbo: row.induction === 'Turbo' || row.turbo === true,
+    supercharged: row.induction === 'Supercharged' || (row.induction == null && row.supercharged === true),
+    induction: row.induction || (row.supercharged === true ? 'Supercharged' : row.turbo === true ? 'Turbo' : 'N/A'),
+    transmission: row.transmission || '',
+    trans: row.transmission || '',
+    rego: row.rego || '',
+    vin: row.vin || '',
     photos: (row.photos && row.photos.length ? row.photos.map(photoUrl) : ['data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7']),
     photoPaths: Array.isArray(row.photos) ? row.photos.slice() : [],
     status: row.status,
@@ -273,6 +278,45 @@ function cylinderCount(value) {
   const n = +value;
   return n >= 1 && n <= 16 ? n : null;
 }
+function listingSpec(listing) {
+  const induction = listing.induction === 'Turbo' || listing.induction === 'Supercharged' || listing.induction === 'N/A'
+    ? listing.induction
+    : (listing.supercharged === true ? 'Supercharged' : listing.turbo === true ? 'Turbo' : 'N/A');
+  const rawTrans = String(listing.transmission || listing.trans || '').trim().toLowerCase();
+  const transmission = rawTrans === 'manual' ? 'Manual' : (rawTrans === 'auto' || rawTrans === 'automatic' ? 'Auto' : null);
+  const rego = String(listing.rego || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+  const vin = String(listing.vin || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 17);
+  return {
+    cylinders: cylinderCount(listing.cylinders),
+    induction,
+    turbo: induction === 'Turbo',
+    supercharged: induction === 'Supercharged',
+    transmission,
+    rego: rego || null,
+    vin: vin || null
+  };
+}
+const VinAsk = {
+  async asked(listingId) {
+    if (!sb || !Auth.user || !listingId) return false;
+    const { data, error } = await sb.from('vin_requests').select('listing_id').eq('listing_id', listingId).eq('buyer_id', Auth.user.id).maybeSingle();
+    if (error) throw new Error(error.message || 'Could not check that request.');
+    return !!data;
+  },
+  async claim(listingId) {
+    if (!sb || !Auth.user) throw new Error('Sign in to ask for the rego or VIN.');
+    const { error } = await sb.from('vin_requests').insert({ listing_id: listingId, buyer_id: Auth.user.id });
+    if (error) {
+      if (error.code === '23505') return false;
+      throw new Error(error.message || 'Could not save that request.');
+    }
+    return true;
+  },
+  async release(listingId) {
+    if (!sb || !Auth.user || !listingId) return;
+    await sb.from('vin_requests').delete().eq('listing_id', listingId).eq('buyer_id', Auth.user.id);
+  }
+};
 function auMobile(raw) {
   let d = String(raw || '').replace(/\D/g, '');
   if (d.startsWith('61')) d = '0' + d.slice(2);
@@ -502,18 +546,24 @@ const ListingStore = {
     const mobile = auMobile(listing.mobile || listing.phone);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Add an email before you post.');
     if (!mobile) throw new Error('Use an Australian mobile, like 0412 345 678.');
+    const spec = listingSpec(listing);
+    if (!spec.transmission) throw new Error('Pick Auto or Manual.');
+    if (!spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
     const paths = await uploadPaths(uid, listing.photos);
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
-    const boost = mode === 'performance' || mode === 'supercar';
     const row = {
       user_id: uid, mode,
       make: listing.make, model: listing.model, year: listing.year, kms: listing.km,
       price: listing.price, suburb: listing.suburb, state: listing.state, postcode: listing.postcode || null,
       heading: listing.heading, description: listing.desc,
       engine: listing.engine ? String(listing.engine).trim() : null,
-      cylinders: cylinderCount(listing.cylinders),
-      turbo: boost && listing.turbo != null ? !!listing.turbo : null,
-      supercharged: boost && listing.supercharged != null ? !!listing.supercharged : null,
+      cylinders: spec.cylinders,
+      induction: spec.induction,
+      turbo: spec.turbo,
+      supercharged: spec.supercharged,
+      transmission: spec.transmission,
+      rego: spec.rego,
+      vin: spec.vin,
       photos: paths, status: 'active'
     };
     const inserted = await sb.from('listings').insert(row).select('id').single();
@@ -558,6 +608,9 @@ const ListingStore = {
     const mobile = auMobile(listing.mobile || listing.phone);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Add an email before you update.');
     if (!mobile) throw new Error('Use an Australian mobile, like 0412 345 678.');
+    const spec = listingSpec(listing);
+    if (!spec.transmission) throw new Error('Pick Auto or Manual.');
+    if (!spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
     if (!['daily', 'performance', 'supercar'].includes(mode)) throw new Error('Pick a lane first — Daily, Performance, or Supercar.');
     const current = await sb.from('listings').select('id,photos,status').eq('id', id).eq('user_id', uid).maybeSingle();
@@ -572,16 +625,19 @@ const ListingStore = {
       if (fresh.length) await sb.storage.from('listing-photos').remove(fresh);
       throw new Error('Add at least one photo before you update. The first one is the cover.');
     }
-    const boost = mode === 'performance' || mode === 'supercar';
     const row = {
       mode,
       make: listing.make, model: listing.model, year: listing.year, kms: listing.km,
       price: listing.price, suburb: listing.suburb, state: listing.state, postcode: listing.postcode || null,
       heading: listing.heading, description: listing.desc,
       engine: listing.engine ? String(listing.engine).trim() : null,
-      cylinders: cylinderCount(listing.cylinders),
-      turbo: boost && listing.turbo != null ? !!listing.turbo : null,
-      supercharged: boost && listing.supercharged != null ? !!listing.supercharged : null,
+      cylinders: spec.cylinders,
+      induction: spec.induction,
+      turbo: spec.turbo,
+      supercharged: spec.supercharged,
+      transmission: spec.transmission,
+      rego: spec.rego,
+      vin: spec.vin,
       photos: next
     };
     const updated = await sb.from('listings').update(row).eq('id', id).eq('user_id', uid).eq('status', 'active').select('id').maybeSingle();

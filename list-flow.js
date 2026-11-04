@@ -106,10 +106,8 @@ const ListFlow = (() => {
 
   function start(root, opts) {
     const seed = (opts && opts.draft) || {};
-    const draft = {sec:'', make:'', model:'', year:'', km:'', price:'', suburb:'', state:'', postcode:'', tagline:'', heading:'', desc:'', engine:'', cylinders:'', turbo:null, supercharged:null, photos:[], name:'', phone:'', email:''};
+    const draft = {sec:'', make:'', model:'', year:'', km:'', price:'', suburb:'', state:'', postcode:'', tagline:'', heading:'', desc:'', engine:'', cylinders:'', transmission:'', induction:'', rego:'', vin:'', photos:[], name:'', phone:'', email:''};
     Object.keys(draft).forEach(key => { if (seed[key] !== undefined && seed[key] !== null) draft[key] = seed[key]; });
-    if (seed.turbo === null) draft.turbo = null;
-    if (seed.supercharged === null) draft.supercharged = null;
     draft.photos = Array.isArray(draft.photos) ? draft.photos.slice(0, PHOTO_MAX) : [];
     draft.year = draft.year == null ? '' : String(draft.year);
     draft.km = draft.km == null ? '' : String(draft.km);
@@ -226,60 +224,54 @@ const ListFlow = (() => {
         validate: () => ''
       },
       {
+        id: 'transmission',
+        question: 'Auto or manual?',
+        hint: 'Tap one. No typing.',
+        mount(body) {
+          mountPicks(body, {
+            id: 'transmission', choice: 'trans',
+            options: [['Auto','Auto'],['Manual','Manual']],
+            get: () => draft.transmission,
+            set(v) { draft.transmission = v; }
+          });
+        },
+        read() {
+          const on = document.querySelector('.ask [data-choice="trans"][aria-pressed="true"]');
+          if (on) draft.transmission = on.dataset.value;
+        },
+        validate: () => draft.transmission === 'Auto' || draft.transmission === 'Manual' ? '' : 'Tap Auto or Manual.'
+      },
+      {
         id: 'cylinders',
         question: 'How many cylinders?',
-        hint: 'Count the pots. Electric or rotary has none.',
-        mount(body) {
-          mountPicks(body, {
-            id: 'cylinders', choice: 'cyl',
-            options: [['3','3'],['4','4'],['5','5'],['6','6'],['8','8'],['10','10'],['12','12'],['electric','Electric/rotary']],
-            get: () => draft.cylinders,
-            set(v) { draft.cylinders = v; notePower(v === 'electric'); }
-          });
-        },
-        read() {
-          const on = document.querySelector('.ask [data-choice="cyl"][aria-pressed="true"]');
-          if (on) { draft.cylinders = on.dataset.value; notePower(draft.cylinders === 'electric'); }
-        },
-        validate: () => draft.cylinders ? '' : 'Pick a cylinder count, or Electric/rotary.'
+        hint: 'Number only.',
+        mount(body) { body.innerHTML = field('ask-cyl', {value: draft.cylinders, placeholder: '6', mode: 'numeric', maxlength: 2, extra: 'spellcheck="false"'}); },
+        read() { const el = document.getElementById('ask-cyl'); if (el) draft.cylinders = digits(el.value).slice(0, 2); },
+        validate() {
+          if (!/^\d+$/.test(draft.cylinders)) return 'Cylinders need to be a number.';
+          const n = +draft.cylinders;
+          if (n < 1 || n > 16) return 'Use a whole number from 1 to 16.';
+          draft.cylinders = String(n);
+          return '';
+        }
       },
       {
-        id: 'turbo',
-        boost: true,
-        question: 'Is it turbo?',
-        hint: 'Forced induction. You can say yes to this and supercharged.',
+        id: 'induction',
+        question: 'What induction?',
+        hint: 'N/A means naturally aspirated. Tap one.',
         mount(body) {
           mountPicks(body, {
-            id: 'turbo', choice: 'turbo',
-            options: [['yes','Yes'],['no','No']],
-            get: () => draft.turbo === true ? 'yes' : draft.turbo === false ? 'no' : '',
-            set(v) { draft.turbo = v === 'yes'; }
+            id: 'induction', choice: 'induct',
+            options: [['N/A','N/A'],['Turbo','Turbo'],['Supercharged','Supercharged']],
+            get: () => draft.induction,
+            set(v) { draft.induction = v; }
           });
         },
         read() {
-          const on = document.querySelector('.ask [data-choice="turbo"][aria-pressed="true"]');
-          if (on) draft.turbo = on.dataset.value === 'yes';
+          const on = document.querySelector('.ask [data-choice="induct"][aria-pressed="true"]');
+          if (on) draft.induction = on.dataset.value;
         },
-        validate: () => draft.turbo === true || draft.turbo === false ? '' : 'Yes or no — is it turbo?'
-      },
-      {
-        id: 'supercharged',
-        boost: true,
-        question: 'Is it supercharged?',
-        hint: 'Yes to both means twincharged.',
-        mount(body) {
-          mountPicks(body, {
-            id: 'supercharged', choice: 'blown',
-            options: [['yes','Yes'],['no','No']],
-            get: () => draft.supercharged === true ? 'yes' : draft.supercharged === false ? 'no' : '',
-            set(v) { draft.supercharged = v === 'yes'; }
-          });
-        },
-        read() {
-          const on = document.querySelector('.ask [data-choice="blown"][aria-pressed="true"]');
-          if (on) draft.supercharged = on.dataset.value === 'yes';
-        },
-        validate: () => draft.supercharged === true || draft.supercharged === false ? '' : 'Yes or no — is it supercharged?'
+        validate: () => draft.induction === 'N/A' || draft.induction === 'Turbo' || draft.induction === 'Supercharged' ? '' : 'Tap N/A, Turbo, or Supercharged.'
       },
       {
         question: 'How many kms?',
@@ -320,6 +312,25 @@ const ListFlow = (() => {
           if (!draft.suburb || !draft.state || !draft.postcode) return 'Pick a suburb from the list. Street addresses do not count.';
           return '';
         }
+      },
+      {
+        id: 'identity',
+        question: 'Rego and VIN?',
+        hint: 'Optional. Leave both blank and the ad says On request.',
+        mount(body) {
+          body.innerHTML = `<div class="ask-stack">
+            <label class="ask-lab">Registration${field('ask-rego', {value: draft.rego, placeholder: 'ABC123', maxlength: 12, extra: 'spellcheck="false" autocapitalize="characters"'})}</label>
+            <label class="ask-lab">VIN${field('ask-vin', {value: draft.vin, placeholder: '17 characters', maxlength: 17, extra: 'spellcheck="false" autocapitalize="characters"'})}</label>
+          </div>`;
+          document.getElementById('ask-vin').removeAttribute('data-autofocus');
+        },
+        read() {
+          const rego = document.getElementById('ask-rego');
+          const vin = document.getElementById('ask-vin');
+          if (rego) draft.rego = rego.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+          if (vin) draft.vin = vin.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 17);
+        },
+        validate: () => ''
       },
       {
         question: 'What should the heading be?',
@@ -408,8 +419,9 @@ const ListFlow = (() => {
           const listing = {
             id: 'preview', sec: draft.sec, year: +draft.year, make: draft.make, model: draft.model,
             heading: draft.heading, price: +draft.price, suburb: draft.suburb, state: draft.state,
-            engine: draft.engine, cylinders: draft.cylinders === 'electric' ? null : (draft.cylinders ? +draft.cylinders : null),
-            turbo: boosted() ? draft.turbo : null, supercharged: boosted() ? draft.supercharged : null,
+            engine: draft.engine, cylinders: draft.cylinders ? +draft.cylinders : null,
+            induction: draft.induction, turbo: draft.induction === 'Turbo', supercharged: draft.induction === 'Supercharged',
+            trans: draft.transmission, rego: draft.rego, vin: draft.vin,
             handle, photos: draft.photos.slice(), likes: 0, ago: 0
           };
           body.innerHTML = `<div class="feed ask-preview">${post(listing)}</div>`;
@@ -763,7 +775,8 @@ const ListFlow = (() => {
       const ask = document.querySelector('.ask');
       if (!ask || !ask.isConnected || e.key !== 'Enter' || e.shiftKey || e.altKey || e.isComposing || e.repeat) return;
       if (!e.target.closest || !e.target.closest('.ask')) return;
-      if (e.target.closest('#ask-back') || e.target.closest('[data-choice="sec"]') || e.target.closest('[data-choice="cyl"]') || e.target.closest('[data-choice="turbo"]') || e.target.closest('[data-choice="blown"]')) return;
+      if (e.target.id === 'ask-rego') { e.preventDefault(); document.getElementById('ask-vin')?.focus(); return; }
+      if (e.target.closest('#ask-back') || e.target.closest('[data-choice="sec"]') || e.target.closest('[data-choice="trans"]') || e.target.closest('[data-choice="induct"]')) return;
       if (e.target.closest('#ask-makes') || e.target.closest('#ask-models') || e.target.closest('#ask-places')) return;
       const stateBtn = e.target.closest('[data-choice="state"]');
       if (stateBtn) stateBtn.parentElement.querySelectorAll('[data-choice="state"]').forEach(b => b.setAttribute('aria-pressed', b === stateBtn));

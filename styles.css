@@ -143,6 +143,8 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .thumbs{display:flex;gap:var(--s-2);margin-top:var(--s-2)}.thumbs button{flex:1;padding:0;border:1px solid var(--c-line);border-radius:var(--r-sm);overflow:hidden;cursor:pointer;min-height:var(--tap);background:none}
 .thumbs img{aspect-ratio:16/10;object-fit:cover;width:100%}.thumbs button[aria-current=true]{border-color:var(--c-text)}
 .specs{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);margin:var(--s-4) 0}.specs div{border:1px solid var(--c-line);padding:var(--s-3);border-radius:var(--r-sm)}.specs b{display:block;font-weight:600}
+.rego-ask{background:none;border:0;padding:0;color:var(--acc);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.rego-ask:hover,.rego-ask:focus-visible{color:#fff;outline:none}
 .panel{border:1px solid var(--c-line);background:var(--c-surface);border-radius:var(--r-lg);padding:var(--s-5);display:grid;gap:var(--s-3);align-self:start}
 /* forms */
 .form{max-width:680px;margin:0 auto}.progress{display:flex;gap:var(--s-1);margin:var(--s-4) 0}.progress i{flex:1;height:2px;background:var(--c-line)}.progress i.on{background:var(--acc)}
