@@ -320,8 +320,11 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .s-performance .inspect .btn,.s-performance .inspect .btn:hover{border-color:#e5242b;color:#e5242b}
 .s-performance .inspect .btn:hover{background:rgba(229,36,43,.08)}
 .s-supercars .inspect .btn,.s-supercars .inspect .btn:hover{border-color:#d9a441;color:#d9a441}
+.owner-acts{display:flex;gap:8px;margin-top:12px}
+.owner-acts .sold-btn{flex:1 1 0;margin-top:0;min-width:0}
 .sold-btn{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;min-height:36px;padding:0 14px;border:1px solid var(--c-line2);border-radius:999px;background:transparent;color:#fff;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
 .sold-btn:hover,.sold-btn:focus-visible{border-color:#fff}
+.sold-btn:disabled{opacity:.55;cursor:default}
 .post.is-sold{opacity:.72}
 
 /* ===== conversational listing flow ===== */

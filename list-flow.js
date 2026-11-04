@@ -1,6 +1,7 @@
 /* Typeform-style "list your car free" flow.
-   One question per screen. Persistence goes through ListingStore.create()
-   (see store.js) — this file never touches localStorage. */
+   One question per screen. New ads go through ListingStore.create().
+   Edits pass opts.draft and opts.submitLabel and save with ListingStore.update().
+   This file never touches localStorage. */
 const ListFlow = (() => {
   const SECS = [['daily','Daily','The every-day cars'],['performance','Performance','The fun ones'],['supercars','Supercar','The loud ones']];
   const YEAR_MIN = 1950, YEAR_MAX = 2027, KM_MAX = 2000000, PRICE_MAX = 20000000, PHOTO_MAX = 8;
@@ -104,7 +105,18 @@ const ListFlow = (() => {
   }
 
   function start(root, opts) {
+    const seed = (opts && opts.draft) || {};
     const draft = {sec:'', make:'', model:'', year:'', km:'', price:'', suburb:'', state:'', postcode:'', tagline:'', heading:'', desc:'', engine:'', cylinders:'', turbo:null, supercharged:null, photos:[], name:'', phone:'', email:''};
+    Object.keys(draft).forEach(key => { if (seed[key] !== undefined && seed[key] !== null) draft[key] = seed[key]; });
+    if (seed.turbo === null) draft.turbo = null;
+    if (seed.supercharged === null) draft.supercharged = null;
+    draft.photos = Array.isArray(draft.photos) ? draft.photos.slice(0, PHOTO_MAX) : [];
+    draft.year = draft.year == null ? '' : String(draft.year);
+    draft.km = draft.km == null ? '' : String(draft.km);
+    draft.price = draft.price == null ? '' : String(draft.price);
+    const submitLabel = (opts && opts.submitLabel) || 'Post it';
+    const editing = !!(opts && opts.editing);
+    const photoNeed = editing ? 'Add at least one photo before you update. The first one is the cover.' : 'Add at least one photo before you post. The first one is the cover.';
     let i = 0, busy = false, suggestOn = false, steps = [];
     const POWER_NOTE = 'Electric/rotary';
     function boosted() { return draft.sec === 'performance' || draft.sec === 'supercars'; }
@@ -341,7 +353,7 @@ const ListFlow = (() => {
         question: 'Add your photos',
         hint: 'First photo is the cover. Drag to reorder. Space adds more, Enter continues.',
         mount: body => mountPhotos(body),
-        validate: () => draft.photos.length ? '' : 'Add at least one photo before you continue. The first one is the cover.'
+        validate: () => draft.photos.length ? '' : photoNeed
       },
       {
         question: 'Your email and mobile',
@@ -390,7 +402,7 @@ const ListFlow = (() => {
         question: "How's this looking?",
         hint: 'This is the card people will scroll past. Or stop on.',
         focusOk: true,
-        validate: () => draft.photos.length ? '' : 'Add at least one photo before you post. The first one is the cover.',
+        validate: () => draft.photos.length ? '' : photoNeed,
         mount(body) {
           const handle = (draft.name || 'you').trim().toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '') || 'you';
           const listing = {
@@ -697,7 +709,7 @@ const ListFlow = (() => {
         <p class="ask-err" id="ask-err" role="alert"></p>
         <div class="ask-nav">
           <button type="button" class="btn" id="ask-back" ${i === 0 ? 'hidden' : ''}>Back</button>
-          <button type="button" class="btn solid" id="ask-ok">${i === steps.length - 1 ? 'Post it' : 'OK'}</button>
+          <button type="button" class="btn solid" id="ask-ok">${i === steps.length - 1 ? submitLabel : 'OK'}</button>
         </div>
         ${i === steps.length - 1 ? '' : '<p class="ask-key">Enter ↵</p>'}
       </div>`;

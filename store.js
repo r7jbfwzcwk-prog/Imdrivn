@@ -248,6 +248,7 @@ function mapListing(row) {
     turbo: row.turbo,
     supercharged: row.supercharged,
     photos: (row.photos && row.photos.length ? row.photos.map(photoUrl) : ['data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7']),
+    photoPaths: Array.isArray(row.photos) ? row.photos.slice() : [],
     status: row.status,
     handle: (profile && profile.username) || 'you',
     when: whenLabel(row.created_at),
@@ -393,6 +394,51 @@ async function uploadPaths(uid, dataUrls, folder) {
   }
   return paths;
 }
+function listingPhotoPath(src) {
+  if (!src || String(src).startsWith('data:')) return '';
+  const marker = '/listing-photos/';
+  const text = String(src);
+  const at = text.indexOf(marker);
+  const raw = (at >= 0 ? text.slice(at + marker.length) : (/^https?:/i.test(text) ? '' : text.replace(/^\/+/, ''))).split(/[?#]/)[0];
+  if (!raw || raw.includes('..') || raw.includes('\\')) return '';
+  try { return decodeURIComponent(raw); } catch (e) { return raw; }
+}
+async function resolveListingPhotos(uid, photos, existing) {
+  const owned = new Set(existing || []);
+  const next = [];
+  const fresh = [];
+  try {
+    for (const src of photos || []) {
+      if (!src) continue;
+      if (String(src).startsWith('data:')) {
+        const uploaded = await uploadPaths(uid, [src]);
+        fresh.push(uploaded[0]);
+        next.push(uploaded[0]);
+        continue;
+      }
+      const path = listingPhotoPath(src);
+      const known = !!path && path.split('/')[0] === uid && ([...owned].some(item => item === path || listingPhotoPath(item) === path) || [...owned].some(item => photoUrl(item) === src));
+      if (!known) throw new Error('One of those photos is not on this ad. Remove it and add it again.');
+      next.push(path);
+    }
+  } catch (err) {
+    if (fresh.length) await sb.storage.from('listing-photos').remove(fresh);
+    throw err;
+  }
+  return { next, fresh };
+}
+async function saveListingContact(listingId, uid, email, mobile) {
+  const existing = await sb.from('listing_contacts').select('listing_id').eq('listing_id', listingId).eq('user_id', uid).maybeSingle();
+  if (existing.error) throw new Error('The ad was updated, but your contact details did not save. ' + dbMessage(existing.error));
+  if (existing.data) {
+    const upd = await sb.from('listing_contacts').update({ email, mobile }).eq('listing_id', listingId).eq('user_id', uid).select('listing_id').maybeSingle();
+    if (upd.error) throw new Error('The ad was updated, but your contact details did not save. ' + dbMessage(upd.error));
+    if (!upd.data) throw new Error('The ad was updated, but your contact details did not save. You can only edit your own ad.');
+    return;
+  }
+  const inserted = await sb.from('listing_contacts').insert({ listing_id: listingId, user_id: uid, email, mobile }).select('listing_id').maybeSingle();
+  if (inserted.error || !inserted.data) throw new Error('The ad was updated, but your contact details did not save. ' + dbMessage(inserted.error || {}));
+}
 
 const ListingStore = {
   cache: new Map(),
@@ -423,8 +469,8 @@ const ListingStore = {
     if (error) throw new Error(dbMessage(error));
     return this.remember((data || []).map(mapListing));
   },
-  async get(id) {
-    if (this.cache.has(id)) return this.cache.get(id);
+  async get(id, fresh) {
+    if (!fresh && this.cache.has(id)) return this.cache.get(id);
     if (!sb || !/^[0-9a-f-]{36}$/i.test(id)) return null;
     await Auth.ready;
     const { data, error } = await sb.from('listings').select(LISTING_SELECT).eq('id', id).maybeSingle();
@@ -488,6 +534,71 @@ const ListingStore = {
       if (!named.error && named.data) Auth.profile = named.data;
     }
     return this.get(inserted.data.id);
+  },
+  async contact(id) {
+    if (!sb || !Auth.user) return null;
+    await Auth.ready;
+    const { data, error } = await sb.from('listing_contacts').select('email,mobile').eq('listing_id', id).eq('user_id', Auth.user.id).maybeSingle();
+    if (error) throw new Error(dbMessage(error));
+    return data || null;
+  },
+  async update(id, listing) {
+    if (!sb) throw new Error('Accounts are offline right now. Try again in a moment.');
+    await Auth.ready;
+    if (!Auth.user) throw new Error('Sign in to update your ad.');
+    const uid = Auth.user.id;
+    const blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    const incoming = (listing.photos || []).filter(src => src && src !== blank);
+    if (!incoming.length) throw new Error('Add at least one photo before you update. The first one is the cover.');
+    if (incoming.length > 8) throw new Error('8 is the max.');
+    const email = String(listing.email || '').trim();
+    const mobile = auMobile(listing.mobile || listing.phone);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Add an email before you update.');
+    if (!mobile) throw new Error('Use an Australian mobile, like 0412 345 678.');
+    const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
+    if (!['daily', 'performance', 'supercar'].includes(mode)) throw new Error('Pick a lane first — Daily, Performance, or Supercar.');
+    const current = await sb.from('listings').select('id,photos,status').eq('id', id).eq('user_id', uid).maybeSingle();
+    if (current.error) throw new Error(dbMessage(current.error));
+    if (!current.data) throw new Error('You can only edit your own ad.');
+    if (current.data.status !== 'active') throw new Error('Only live ads can be edited.');
+    const existing = current.data.photos || [];
+    const resolved = await resolveListingPhotos(uid, incoming, existing);
+    const next = resolved.next;
+    const fresh = resolved.fresh;
+    if (!next.length) {
+      if (fresh.length) await sb.storage.from('listing-photos').remove(fresh);
+      throw new Error('Add at least one photo before you update. The first one is the cover.');
+    }
+    const boost = mode === 'performance' || mode === 'supercar';
+    const row = {
+      mode,
+      make: listing.make, model: listing.model, year: listing.year, kms: listing.km,
+      price: listing.price, suburb: listing.suburb, state: listing.state, postcode: listing.postcode || null,
+      heading: listing.heading, description: listing.desc,
+      engine: listing.engine ? String(listing.engine).trim() : null,
+      cylinders: cylinderCount(listing.cylinders),
+      turbo: boost && listing.turbo != null ? !!listing.turbo : null,
+      supercharged: boost && listing.supercharged != null ? !!listing.supercharged : null,
+      photos: next
+    };
+    const updated = await sb.from('listings').update(row).eq('id', id).eq('user_id', uid).eq('status', 'active').select('id').maybeSingle();
+    if (updated.error || !updated.data) {
+      if (fresh.length) await sb.storage.from('listing-photos').remove(fresh);
+      if (updated.error) throw new Error(dbMessage(updated.error));
+      throw new Error('Could not update that ad. You can only edit your own.');
+    }
+    const drop = existing.filter(item => item && !next.some(path => path === item || listingPhotoPath(item) === path)).map(item => {
+      const path = listingPhotoPath(item);
+      return path && path.split('/')[0] === uid ? path : '';
+    }).filter(Boolean);
+    if (drop.length) await sb.storage.from('listing-photos').remove(drop);
+    await saveListingContact(id, uid, email, mobile);
+    if (listing.name && Auth.profile && !String(Auth.profile.display_name || '').trim()) {
+      const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select('id,username,display_name,avatar_url').maybeSingle();
+      if (!named.error && named.data) Auth.profile = named.data;
+    }
+    this.cache.delete(id);
+    return this.get(id);
   },
   async markSold(id) {
     if (!sb || !Auth.user) throw new Error('Sign in to update your ad.');
