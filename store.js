@@ -264,8 +264,11 @@ function applyListingSort(q, sort) {
   else return q.order('created_at', { ascending: false });
   return q.order('created_at', { ascending: false });
 }
-function likePattern(value) {
-  return '%' + String(value || '').replace(/[%_,]/g, '') + '%';
+function keywordOr(word) {
+  const safe = String(word || '').replace(/[%_"\\(),]/g, '').trim();
+  if (!safe) return '';
+  const pat = '"%' + safe + '%"';
+  return ['make', 'model', 'heading', 'description'].map(col => col + '.ilike.' + pat).join(',');
 }
 async function dataUrlToBlob(url) {
   const res = await fetch(url);
@@ -305,10 +308,15 @@ const ListingStore = {
       q = q.in('id', ids);
     }
     const f = filters || {};
-    if (f.make) q = q.ilike('make', likePattern(f.make));
-    if (f.model) q = q.ilike('model', likePattern(f.model));
+    if (f.make) q = q.ilike('make', f.make);
+    if (f.model) q = q.ilike('model', f.model);
     if (f.year) q = q.gte('year', +f.year);
-    if (f.km) q = q.lte('kms', +f.km);
+    if (f.yearTo) q = q.lte('year', +f.yearTo);
+    if (f.km) q = q.lt('kms', +f.km);
+    String(f.q || '').trim().split(/\s+/).filter(Boolean).forEach(word => {
+      const clause = keywordOr(word);
+      if (clause) q = q.or(clause);
+    });
     q = applyListingSort(q, saved ? 'new' : sort);
     const { data, error } = await q.range(from, to);
     if (error) throw new Error(dbMessage(error));

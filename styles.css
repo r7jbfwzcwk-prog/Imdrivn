@@ -130,9 +130,22 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .tabs button[aria-selected=true]{color:var(--acc)}.tabs button[aria-selected=true]::after{transform:scaleX(1)}
 .tabs button[data-m=all][aria-selected=true]{color:#f4f4f6}
 .tabs button[data-m=all][aria-selected=true]::after{background:#f4f4f6}
-#spanel{padding:12px 16px;border-bottom:1px solid #1a1a1d;max-width:720px;margin:0 auto}
-.qs{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(min-width:640px){.qs{grid-template-columns:repeat(4,1fr) auto auto}}
-.qs input:focus{border-color:var(--acc);outline:0}
+#spanel{padding:12px 16px 16px;border-bottom:1px solid #1a1a1d;max-width:960px;margin:0 auto;background:#000;max-height:min(72dvh,720px);overflow:auto}
+#spanel[hidden]{display:none}
+.qs{display:grid;grid-template-columns:1fr;gap:10px;color-scheme:dark}
+@media(min-width:640px){.qs{grid-template-columns:1fr 1fr}}
+@media(min-width:900px){.qs{grid-template-columns:repeat(3,1fr)}}
+.qs-wide,.qs-actions{grid-column:1 / -1}
+.qs label{display:grid;gap:4px;color:var(--c-muted);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
+.qs input,.qs select{width:100%;min-height:44px;padding:0 12px;border:1px solid var(--c-line);border-radius:12px;background:#0e0e10;color:var(--c-text);font:500 .95rem/1.2 var(--font-body);letter-spacing:0;text-transform:none}
+.qs select{padding-right:32px;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--c-muted) 50%),linear-gradient(135deg,var(--c-muted) 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 13px) 19px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.qs select:disabled{opacity:.45}
+.qs input:focus,.qs select:focus{border-color:var(--acc);outline:none}
+.qs-actions{display:flex;gap:8px}
+.qs-actions .btn{flex:1}
+@media(min-width:640px){.qs-actions .btn{flex:0 0 auto}}
+#sbtn.is-on{color:var(--acc)}
+#sbtn.is-on svg{stroke:var(--acc)}
 /* feed */
 .feed{max-width:440px;margin:0 auto;padding:14px 12px;display:grid;gap:14px}
 @media(min-width:900px){.feed{max-width:900px;grid-template-columns:1fr 1fr;gap:18px;padding:22px}}

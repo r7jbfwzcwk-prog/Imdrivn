@@ -20,8 +20,15 @@
 <button id="menubtn" type="button" aria-label="Menu" aria-haspopup="menu" aria-expanded="false" aria-controls="appmenu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button>
 <nav id="appmenu" class="appmenu" hidden role="menu" aria-label="Account"><a role="menuitem" href="#/saved">Saved cars</a><a role="menuitem" href="#/messages" id="menu-msgs">Messages<span class="nav-badge" data-msg-badge hidden></span></a><a role="menuitem" href="#/forum">Forum</a><a role="menuitem" href="#/garage">My garage</a></nav></div></div>
 <div class="tabs" role="tablist" aria-label="Drive mode" hidden><button role="tab" data-m="all">All</button><button role="tab" data-m="daily">Daily</button><button role="tab" data-m="performance">Performance</button><button role="tab" data-m="supercar">Supercar</button></div>
-<div id="spanel" hidden><form class="qs" id="qs" role="search"><input name="make" placeholder="Make" aria-label="Make"><input name="model" placeholder="Model" aria-label="Model">
-<input name="year" type="number" placeholder="Year from" aria-label="Year from"><input name="km" type="number" placeholder="Max km" aria-label="Max kilometres"><button class="btn sm solid">Search</button><button type="reset" class="btn sm">Clear</button></form></div></header>
+<div id="spanel" hidden><form class="qs" id="qs" role="search" autocomplete="off">
+<label class="qs-wide">Keyword<input name="q" type="search" placeholder="supra or toyota supra" aria-label="Keyword" enterkeyhint="search"></label>
+<label>Make<select name="make" aria-label="Make"><option value="">Any</option></select></label>
+<label>Model<select name="model" aria-label="Model" disabled><option value="">Any</option></select></label>
+<label>Year from<select name="year" aria-label="Year from"><option value="">Any</option></select></label>
+<label>Year to<select name="yearTo" aria-label="Year to"><option value="">Any</option></select></label>
+<label>Kilometres<select name="km" aria-label="Kilometres"><option value="">Any</option><option value="10000">Under 10,000</option><option value="20000">Under 20,000</option><option value="40000">Under 40,000</option><option value="60000">Under 60,000</option><option value="80000">Under 80,000</option><option value="100000">Under 100,000</option><option value="150000">Under 150,000</option><option value="200000">Under 200,000</option></select></label>
+<div class="qs-actions"><button class="btn sm solid" type="submit">Search</button><button type="reset" class="btn sm">Clear</button></div>
+</form></div></header>
 <main id="main" tabindex="-1"></main>
 <footer><a href="#/" class="logo"><img src="img/logo.svg" alt="IM DRIVN" data-wordmark></a><p>Free to list. Buy. Sell. Drive. Prototype © 2026 — demo cars are sample data. Cars you post are saved to your account.</p></footer>
 <div id="sortback" class="sortback" hidden></div>

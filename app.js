@@ -3,8 +3,9 @@ const TIKTOK_URL='https://tiktok.com/@imdrivn';
 const $=(s,r=document)=>r.querySelector(s),main=$('#main');
 const aud=n=>'$'+Number(n).toLocaleString('en-AU'),kms=n=>Number(n).toLocaleString('en-AU')+' km';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const passes=l=>{const km=l.km??l.kms;return(!F.make||String(l.make).toLowerCase().includes(F.make.toLowerCase()))&&(!F.model||String(l.model).toLowerCase().includes(F.model.toLowerCase()))&&(!F.year||+l.year>=+F.year)&&(!F.km||+km<=+F.km)};
-const demosFor=saved=>DEMO.filter(l=>(saved||BUY==='all'||l.sec===m2s(BUY))&&passes(l)&&(!saved||(st()[l.id]||{}).save));
+const fold=s=>String(s??'').normalize('NFD').replace(/\p{M}/gu,'').toLowerCase();
+const passes=l=>{if(l.status==='sold')return false;const km=l.km??l.kms;const makeOk=!F.make||fold(l.make)===fold(F.make);const modelOk=!F.model||fold(l.model)===fold(F.model);const yearOk=(!F.year||+l.year>=+F.year)&&(!F.yearTo||+l.year<=+F.yearTo);const kmOk=!F.km||+km<+F.km;const words=String(F.q||'').trim().split(/\s+/).filter(Boolean).map(fold);const hay=fold([l.make,l.model,l.heading,l.desc,l.description].filter(Boolean).join(' '));return makeOk&&modelOk&&yearOk&&kmOk&&words.every(w=>hay.includes(w))};
+const demosFor=(saved,filtered=true)=>DEMO.filter(l=>l.status!=='sold'&&(saved||BUY==='all'||l.sec===m2s(BUY))&&(!filtered||passes(l))&&(!saved||(st()[l.id]||{}).save));
 const I={tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',up:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 16V8m-4 4 4-4 4 4"/>',
 shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 15 4-5"/><path d="M6 13h1m10 0h1M12 8v1"/>',
 lock:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/>',head:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="5" rx="1"/><rect x="17" y="14" width="4" height="5" rx="1"/><path d="M19 19c0 1.5-2 2-5 2"/>',
@@ -22,9 +23,9 @@ async function home(){const token=++homeToken;main.innerHTML=`
 ${[['shield','Verified vehicles','Every car is checked for quality and authenticity.'],['gauge','Serious buyers','Connect with genuine high performance buyers.'],['lock','Secure & safe','Safe transactions from start to finish.'],['head','Expert support','Real people, real support when you need it.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div></section>
 <section class="wrap"><div class="eyebrow">Fresh in the feed</div><div class="feed" id="fresh" style="padding:0;margin-top:var(--s-4)"></div></section>
 ${about()}`;
-let rows=[];try{rows=await ListingStore.page({mode:BUY,from:0,to:2,filters:F})}catch(e){rows=[]}
+let rows=[];try{rows=await ListingStore.page({mode:BUY,from:0,to:2})}catch(e){rows=[]}
 if(token!==homeToken||!$('#fresh'))return;
-const fresh=(rows.length?rows:demosFor(false)).slice(0,3);
+const fresh=(rows.length?rows:demosFor(false,false)).slice(0,3);
 $('#fresh').innerHTML=fresh.map(post).join('')||'<p class="muted">Nothing in this mode yet.</p>';}
 const about=()=>`<section class="about" id="about"><div class="img" role="img" aria-label="Taillight of a dark car"></div><div class="txt"><div class="eyebrow">About IM DRIVN</div>
 <h2>More than a marketplace.<br>It's a community.</h2><p class="muted">IM DRIVN connects Australia's car community — from supercars to performance weapons to the daily drive. Buy. Sell. Drive. All in one place. Listing is 100% free.</p><a class="btn" href="#/how">Learn more</a></div><div class="water" aria-hidden="true">IM DRIVN</div></section>`;
@@ -84,7 +85,108 @@ if(e.key==='ArrowUp'){e.preventDefault();items[(i-1+items.length)%items.length].
 if(e.key==='Home'){e.preventDefault();items[0].focus()}
 if(e.key==='End'){e.preventDefault();items[items.length-1].focus()}});
 
-let F={make:'',model:'',year:'',km:''},io,SAVED=false,homeToken=0,feedToken=0,viewToken=0,feedState=null;
+let F={q:'',make:'',model:'',year:'',yearTo:'',km:''},io,SAVED=false,homeToken=0,feedToken=0,viewToken=0,feedState=null;
+const blankSearch=()=>({q:'',make:'',model:'',year:'',yearTo:'',km:''});
+const searchOn=()=>Object.values(F).some(v=>String(v||'').trim());
+let searchCatalog={makes:[],models:{}};
+const searchExtras=new Map();
+function rememberSearchName(make, model){
+  const name=String(make||'').trim();
+  if(!name)return;
+  const key=fold(name);
+  if(!searchExtras.has(key))searchExtras.set(key,{name,models:new Set()});
+  const slot=searchExtras.get(key);
+  const known=(searchCatalog.makes||[]).find(m=>fold(m)===key);
+  if(known)slot.name=known;
+  const modelName=String(model||'').trim();
+  if(modelName)slot.models.add(modelName);
+}
+const byName=(a,b)=>a.localeCompare(b,'en',{sensitivity:'base'});
+function modelsFor(make){
+  const key=fold(make);
+  const canonical=(searchCatalog.makes||[]).find(m=>fold(m)===key)||make;
+  const listed=((searchCatalog.models||{})[canonical]||[]).slice();
+  const extra=searchExtras.get(key);
+  const seen=new Set(listed.map(fold));
+  if(extra)extra.models.forEach(model=>{if(!seen.has(fold(model))){seen.add(fold(model));listed.push(model)}});
+  return listed.sort(byName);
+}
+function makesFor(){
+  const names=(searchCatalog.makes||[]).slice();
+  const seen=new Set(names.map(fold));
+  searchExtras.forEach(slot=>{if(!seen.has(fold(slot.name))){seen.add(fold(slot.name));names.push(slot.name)}});
+  return names.sort(byName);
+}
+function fillSearchYears(){
+  ['year','yearTo'].forEach(name=>{
+    const sel=$(`#qs [name="${name}"]`);
+    if(!sel||sel.options.length>1)return;
+    const years=[];
+    for(let y=2027;y>=1950;y--)years.push(`<option value="${y}">${y}</option>`);
+    sel.insertAdjacentHTML('beforeend',years.join(''));
+  });
+}
+function fillSearchModels(make, selected){
+  const sel=$('#qs [name=model]');
+  if(!sel)return;
+  const models=make?modelsFor(make):[];
+  const keep=models.find(m=>fold(m)===fold(selected))||'';
+  sel.innerHTML=`<option value="">Any</option>${models.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}`;
+  sel.value=keep;
+  sel.disabled=!make;
+}
+function paintSearch(state){
+  const form=$('#qs');
+  if(!form)return;
+  const src=state||F;
+  fillSearchYears();
+  const makes=makesFor();
+  const make=makes.find(m=>fold(m)===fold(src.make))||'';
+  const makeSel=form.querySelector('[name=make]');
+  makeSel.innerHTML=`<option value="">Any</option>${makes.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}`;
+  makeSel.value=make;
+  fillSearchModels(make, make?src.model:'');
+  form.querySelector('[name=q]').value=src.q||'';
+  form.querySelector('[name=year]').value=src.year||'';
+  form.querySelector('[name=yearTo]').value=src.yearTo||'';
+  form.querySelector('[name=km]').value=src.km||'';
+  $('#sbtn').classList.toggle('is-on',searchOn());
+}
+function readSearch(form){
+  const data=Object.fromEntries(new FormData(form));
+  let year=data.year||'', yearTo=data.yearTo||'';
+  if(year&&yearTo&&+year>+yearTo){const swap=year;year=yearTo;yearTo=swap}
+  const make=data.make||'';
+  F={q:String(data.q||'').replace(/\s+/g,' ').trim(),make,model:make?(data.model||''):'',year,yearTo,km:data.km||''};
+  paintSearch();
+}
+function searchBits(){
+  const bits=[];
+  if(F.q)bits.push(F.q);
+  if(F.make)bits.push(F.make);
+  if(F.model)bits.push(F.model);
+  if(F.year&&F.yearTo)bits.push(F.year+'–'+F.yearTo);
+  else if(F.year)bits.push(F.year+'+');
+  else if(F.yearTo)bits.push('Up to '+F.yearTo);
+  if(F.km)bits.push('Under '+Number(F.km).toLocaleString('en-AU')+' km');
+  return bits;
+}
+async function loadSearchCatalog(){
+  try{const res=await fetch('data/models.json');if(res.ok)searchCatalog=await res.json()}catch(e){}
+  DEMO.forEach(l=>rememberSearchName(l.make,l.model));
+  paintSearch(searchDraft());
+  if(!sb)return;
+  try{
+    const {data}=await sb.from('listings').select('make,model').eq('status','active').limit(1000);
+    (data||[]).forEach(row=>rememberSearchName(row.make,row.model));
+    paintSearch(searchDraft());
+  }catch(e){}
+}
+function searchDraft(){
+  const form=$('#qs');
+  if(!form||!form.querySelector('[name=make]').options.length)return F;
+  return {q:form.querySelector('[name=q]').value,make:form.querySelector('[name=make]').value,model:form.querySelector('[name=model]').value,year:form.querySelector('[name=year]').value,yearTo:form.querySelector('[name=yearTo]').value,km:form.querySelector('[name=km]').value};
+}
 const PAGE=8;
 const SORTS=[['new','Newest posts','Newest'],['price-asc','Price: low to high','Low–high'],['price-desc','Price: high to low','High–low'],['year-desc','Year: newest to oldest','New–old'],['year-asc','Year: oldest to newest','Old–new']];
 const sortOk=id=>SORTS.some(s=>s[0]===id);
@@ -109,11 +211,13 @@ if(e.key==='ArrowUp'){e.preventDefault();items[(Math.max(i,0)-1+items.length)%it
 if(e.key==='Home'){e.preventDefault();items[0].focus()}
 if(e.key==='End'){e.preventDefault();items[items.length-1].focus()}});
 syncSortUi();
-$('#qs').onsubmit=e=>{e.preventDefault();Object.assign(F,Object.fromEntries(new FormData(e.target)));$('#spanel').hidden=true;$('#sbtn').setAttribute('aria-expanded','false');const next=buyHash();location.hash===next?route():location.hash=next};
-$('#qs').onreset=()=>{F={make:'',model:'',year:'',km:''};setTimeout(()=>{const next=buyHash();location.hash===next?route():location.hash=next})};
+$('#qs [name=make]').addEventListener('change',()=>fillSearchModels($('#qs [name=make]').value,''));
+$('#qs').onsubmit=e=>{e.preventDefault();readSearch(e.target);$('#spanel').hidden=true;$('#sbtn').setAttribute('aria-expanded','false');const next=buyHash();location.hash===next?route():location.hash=next};
+$('#qs').onreset=()=>{F=blankSearch();setTimeout(()=>{paintSearch();const next=buyHash();location.hash===next?route():location.hash=next})};
+loadSearchCatalog();
 function askSignIn(message,next){sessionStorage.setItem('imdrivn_next',next);main.innerHTML=`<div class="wrap form auth"><div class="eyebrow">Account</div><h1>Sign in</h1><p class="muted">${esc(message)}</p><a class="btn solid" href="#/join">Sign in</a></div>`}
 async function buy(saved){await Auth.ready;if(saved){if(!Auth.user){askSignIn('Sign in to see the cars you saved.','saved');return}}
-const token=++feedToken;SAVED=!!saved;const f=[F.make,F.model,F.year&&F.year+'+',F.km&&'≤'+F.km+' km'].filter(Boolean);
+const token=++feedToken;SAVED=!!saved;const f=searchBits();
 main.innerHTML=`${saved?'<h1 class="feed-title">Saved cars</h1>':''}${f.length?`<div class="filt">Search: ${esc(f.join(' · '))} <button onclick="$('#qs').reset()">Clear</button></div>`:''}<div class="feed" id="feed"></div><div class="loader" id="more">Loading more machines…</div>`;
 feedState={token,from:0,remoteDone:false,demosAdded:false,busy:false,seen:new Set(),note:''};
 await fillFeed();
