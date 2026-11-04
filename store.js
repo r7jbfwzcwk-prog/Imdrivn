@@ -56,7 +56,7 @@ const Auth = {
   async sync() {
     if (!this.user) { this.profile = null; this.likes = new Set(); this.saves = new Set(); return; }
     const [profile, likes, saves] = await Promise.all([
-      sb.from('profiles').select('id,username,display_name,avatar_url').eq('id', this.user.id).maybeSingle(),
+      sb.from('profiles').select('id,username,display_name,avatar_url,is_admin').eq('id', this.user.id).maybeSingle(),
       sb.from('likes').select('listing_id').eq('user_id', this.user.id),
       sb.from('saves').select('listing_id').eq('user_id', this.user.id)
     ]);
@@ -147,10 +147,10 @@ const Auth = {
     const username = this.cleanHandle(raw);
     if (!this.handleOk(username)) throw new Error('Use 3–20 characters: letters, numbers, dots, and underscores.');
     const id = this.user.id;
-    let res = await sb.from('profiles').update({ username }).eq('id', id).select('id,username,display_name,avatar_url').maybeSingle();
+    let res = await sb.from('profiles').update({ username }).eq('id', id).select('id,username,display_name,avatar_url,is_admin').maybeSingle();
     if (res.error) throw new Error(handleError(res.error));
     if (!res.data) {
-      res = await sb.from('profiles').insert({ id, username }).select('id,username,display_name,avatar_url').single();
+      res = await sb.from('profiles').insert({ id, username }).select('id,username,display_name,avatar_url,is_admin').single();
       if (res.error) throw new Error(handleError(res.error));
     }
     this.profile = res.data;
@@ -533,7 +533,7 @@ const ListingStore = {
       throw new Error('Could not save your contact details, so the ad was not posted. ' + dbMessage(contact.error));
     }
     if (listing.name && Auth.profile && !String(Auth.profile.display_name || '').trim()) {
-      const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select('id,username,display_name,avatar_url').maybeSingle();
+      const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select('id,username,display_name,avatar_url,is_admin').maybeSingle();
       if (!named.error && named.data) Auth.profile = named.data;
     }
     return this.get(inserted.data.id);
@@ -597,7 +597,7 @@ const ListingStore = {
     if (drop.length) await sb.storage.from('listing-photos').remove(drop);
     await saveListingContact(id, uid, email, mobile);
     if (listing.name && Auth.profile && !String(Auth.profile.display_name || '').trim()) {
-      const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select('id,username,display_name,avatar_url').maybeSingle();
+      const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select('id,username,display_name,avatar_url,is_admin').maybeSingle();
       if (!named.error && named.data) Auth.profile = named.data;
     }
     this.cache.delete(id);
@@ -974,6 +974,56 @@ const Notes = {
     if (!sb || !Auth.user || !replyId) return;
     const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('reply_id', replyId).is('read_at', null);
     if (error) throw new Error(noteErr(error));
+  }
+};
+const REPORT_REASONS = ['Scam/fake listing', 'Wrong details', 'Already sold', 'Offensive content', 'Other'];
+const Reports = {
+  reasons: REPORT_REASONS,
+  async submit(listingId, reason, details) {
+    if (!sb || !Auth.user) throw new Error('Sign in to report an ad.');
+    if (!REPORT_REASONS.includes(reason)) throw new Error('Choose a reason.');
+    const note = String(details || '').trim();
+    if (note.length > 2000) throw new Error('Keep the details under 2000 characters.');
+    const { error } = await sb.from('ad_reports').insert({
+      listing_id: listingId,
+      reporter_id: Auth.user.id,
+      reason,
+      details: note || null
+    });
+    if (error) {
+      if (error.code === '23505') throw new Error('You already reported this ad.');
+      if (/row-level security|permission/i.test(error.message || '')) throw new Error('Sign in to report an ad.');
+      throw new Error(error.message || 'Could not send that report.');
+    }
+  },
+  async open() {
+    if (!sb || !Auth.user) return [];
+    const { data, error } = await sb.from('ad_reports')
+      .select('id,listing_id,reason,details,status,created_at,reporter:profiles!ad_reports_reporter_id_fkey(username),listing:listings!ad_reports_listing_id_fkey(id,heading,year,make,model,user_id,status)')
+      .eq('status', 'open')
+      .order('created_at', { ascending: true });
+    if (error) throw new Error(error.message || 'Could not load reports.');
+    return (data || []).map(row => {
+      const reporter = Array.isArray(row.reporter) ? row.reporter[0] : row.reporter;
+      const listing = Array.isArray(row.listing) ? row.listing[0] : row.listing;
+      const title = listing ? (listing.heading || [listing.year, listing.make, listing.model].filter(Boolean).join(' ')) : '';
+      return {
+        id: row.id,
+        listingId: row.listing_id,
+        reason: row.reason,
+        details: row.details || '',
+        when: whenLabel(row.created_at),
+        reporter: reporter && reporter.username ? String(reporter.username).replace(/^@/, '') : '',
+        title: title || 'Listing',
+        sellerId: listing && listing.user_id || '',
+        status: row.status
+      };
+    });
+  },
+  async review(id) {
+    if (!sb || !Auth.user) throw new Error('Sign in to review reports.');
+    const { error } = await sb.from('ad_reports').update({ status: 'reviewed' }).eq('id', id).eq('status', 'open');
+    if (error) throw new Error(error.message || 'Could not update that report.');
   }
 };
 function noteLine(note) {
