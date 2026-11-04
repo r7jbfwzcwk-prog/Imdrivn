@@ -11,7 +11,9 @@ const demosFor=(saved,filtered=true)=>DEMO.filter(l=>l.status!=='sold'&&(saved||
 const I={tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',up:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 16V8m-4 4 4-4 4 4"/>',
 shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 15 4-5"/><path d="M6 13h1m10 0h1M12 8v1"/>',
 lock:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/>',head:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="5" rx="1"/><rect x="17" y="14" width="4" height="5" rx="1"/><path d="M19 19c0 1.5-2 2-5 2"/>',
-bag:'<path d="M6 8h12l-1 12H7z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/>'};
+bag:'<path d="M6 8h12l-1 12H7z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/>',
+car:'<path d="M3 14h18"/><path d="M5 14 7 9h10l2 5"/><circle cx="7.5" cy="16.5" r="1.4"/><circle cx="16.5" cy="16.5" r="1.4"/>',
+spark:'<path d="m12 3 1.8 5.2H19l-4.2 3.1 1.6 5.2L12 13.6 7.6 16.5l1.6-5.2L5 8.2h5.2z"/>'};
 const ico=k=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
 const FALLBACK="this.onerror=null;this.src='data:image/svg+xml,'+encodeURIComponent('<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 10&quot;><rect width=&quot;16&quot; height=&quot;10&quot; fill=&quot;%231b1b1e&quot;/><text x=&quot;8&quot; y=&quot;5.6&quot; font-size=&quot;1&quot; fill=&quot;%23777&quot; text-anchor=&quot;middle&quot;>PHOTO</text></svg>')";
 
@@ -19,7 +21,7 @@ async function home(){const token=++homeToken;main.innerHTML=`
 <section class="landing"><section class="hero"><div class="wrap"><div class="eyebrow">IM DRIVN</div>
 <h1>The high<br><span class="grey">performance</span><br>marketplace</h1><hr><p><em>Australia's premium marketplace for high performance cars.</em> Free to list. Always.</p></div></section>
 <div class="wrap home-paths"><div class="paths">
-<a class="path" href="#/buy">${ico('tag')}<span class="wide">IM BUYIN</span><span class="tag">Find your next machine.</span><span class="muted">Browse premium high performance cars available now.</span><span class="btn">Browse cars →</span></a>
+<a class="path" href="#/buyin">${ico('tag')}<span class="wide">IM BUYIN</span><span class="tag">Find your next machine.</span><span class="muted">Browse premium high performance cars available now.</span><span class="btn">Browse cars →</span></a>
 <a class="path" href="#/sell">${ico('up')}<span class="wide">IM SELLIN</span><span class="tag">List with confidence.</span><span class="muted">List free, or get a wholesale offer from dealers.</span><span class="btn">Sell your car →</span></a></div></div></section>
 <section class="wrap feats" id="how"><div class="eyebrow">Built for enthusiasts. DRIVN by performance.</div><div class="row4">
 ${[['shield','Verified vehicles','Every car is checked for quality and authenticity.'],['gauge','Serious buyers','Connect with genuine high performance buyers.'],['lock','Secure & safe','Safe transactions from start to finish.'],['head','Expert support','Real people, real support when you need it.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div></section>
@@ -72,7 +74,8 @@ let BUY=localStorage.getItem('imdrivn_buy');if(!BUY_MODES.includes(BUY))BUY='all
 function syncTabs(){document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.m===BUY));}
 function setMode(m){if(!MODES.includes(m))return;MODE=m;localStorage.setItem('imdrivn_mode',m);document.body.dataset.mode=m;}
 function setBuy(m){if(!BUY_MODES.includes(m))m='all';BUY=m;localStorage.setItem('imdrivn_buy',BUY);if(m!=='all')setMode(m);syncTabs();}
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{setBuy(b.dataset.m);const h=location.hash;if(h.startsWith('#/buy')||h.startsWith('#/saved')||h===''||h==='#/'||h.startsWith('#/about'))route();});
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{setBuy(b.dataset.m);const h=location.hash;if(h==='#/buy'||h.startsWith('#/buy?')||h.startsWith('#/saved')||h===''||h==='#/'||h.startsWith('#/about'))route();});
+document.addEventListener('click',e=>{const pick=e.target.closest('[data-pick]');if(pick)setBuy(pick.dataset.pick)});
 setMode(MODE);syncTabs();
 $('#sbtn').onclick=()=>{const p=$('#spanel');p.hidden=!p.hidden;$('#sbtn').setAttribute('aria-expanded',!p.hidden);if(!p.hidden)p.querySelector('input').focus()};
 $('#bell').onclick=()=>{location.hash='#/messages'};
@@ -271,6 +274,11 @@ function bindOffer(id,url){const el=$('#'+id);if(el)el.onclick=e=>{if((url||'#')
 function offerLink(id,url,label){const href=url||'#';const ext=href!=='#'&&!href.startsWith('#');return `<a class="btn" id="${id}" href="${esc(href)}"${ext?' target="_blank" rel="noopener"':''}>${label}</a>`}
 function inspectionCta(){return `<aside class="inspect"><p>Whether it's down the road or interstate, we can help.</p><div class="inspect-actions">${offerLink('book-inspect',INSPECTION_URL,'Book a pre-purchase inspection')}${offerLink('need-finance',FINANCE_URL,'Need finance?')}</div></aside>`}
 
+function buyChooser(){main.innerHTML=`<section class="chooser"><div class="eyebrow">IM BUYIN</div><h1>Pick your<br><span class="grey">lane.</span></h1><div class="chooser-paths">
+<a class="path pick-daily" href="#/buy" data-pick="daily">${ico('car')}<span class="wide">Daily</span><span class="tag">Every day machines.</span><span class="btn">Browse daily →</span></a>
+<a class="path pick-performance" href="#/buy" data-pick="performance">${ico('gauge')}<span class="wide">Performance</span><span class="tag">Hot metal, real pace.</span><span class="btn">Browse performance →</span></a>
+<a class="path pick-supercar" href="#/buy" data-pick="supercar">${ico('spark')}<span class="wide">Supercar</span><span class="tag">The top shelf.</span><span class="btn">Browse supercars →</span></a>
+</div><p class="view-all-row"><a class="view-all" href="#/buy" data-pick="all">View all</a></p></section>`;}
 function sell(){main.innerHTML=`<div class="wrap"><div class="eyebrow">IM SELLIN</div><h1 style="font-size:clamp(1.4rem,4vw,2.4rem)">How do you<br><span class="grey">want to sell?</span></h1><div class="paths" style="margin-top:var(--s-5)">
 <a class="path" href="#/list">${ico('tag')}<span class="wide" style="font-size:1.6rem">List free</span><span class="tag">100% free. No catch.</span><span class="muted">Post your ad to the feed and deal direct with buyers.</span><span class="btn">List your car free →</span></a>
 <a class="path" href="#/valuation">${ico('gauge')}<span class="wide" style="font-size:1.6rem">Wholesale</span><span class="tag">Sell fast to dealers.</span><span class="muted">Answer a few questions and verified dealers make you an offer.</span><span class="btn">Get a valuation →</span></a></div></div>`;}
@@ -399,11 +407,11 @@ toast('Signed in as '+who);
 if(Auth.needsHandle()&&(sessionStorage.getItem('imdrivn_next')||'')!=='valuation'){if(location.hash!=='#/join')location.hash='#/join';else join();return}}
 if(Auth.user&&(!Auth.needsHandle()||(sessionStorage.getItem('imdrivn_next')||'')==='valuation'))takeNext()}
 function route(){document.body.classList.remove('menu-open');closeMenu(false);closeSort(false);dropChat();if(garageAdd._key){document.removeEventListener('keydown',garageAdd._key);garageAdd._key=null}if(ValueFlow._key){document.removeEventListener('keydown',ValueFlow._key);ValueFlow._key=null}const {p,a,b,params}=hashParts();if(p==='buy'){const requested=params.get('sort');if(sortOk(requested)){SORT=requested;localStorage.setItem('imdrivn_sort',SORT)}}syncSortUi();const sortWrap=$('#sortwrap');if(sortWrap)sortWrap.hidden=p!=='buy';const modeTabs=document.querySelector('.tabs');if(modeTabs)modeTabs.hidden=!(p==='buy'||p==='car');io&&io.disconnect();feedToken++;homeToken++;viewToken++;
-const pages={'':home,buy:()=>buy(),saved:()=>buy(1),garage:()=>garage(a==='ads'),merch,msgs,messages:()=>a?chatThread(a):inbox(),car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join,u:()=>publicProfile(a),forum:()=>a==='t'&&b?forumThread(b):a?forumCategory(a):forumIndex()};document.body.classList.toggle('is-home',p===''||p==='about'||!Object.prototype.hasOwnProperty.call(pages,p||''));const run=pages[p||'']||home;
+const pages={'':home,buy:()=>buy(),buyin:buyChooser,saved:()=>buy(1),garage:()=>garage(a==='ads'),merch,msgs,messages:()=>a?chatThread(a):inbox(),car:()=>car(a),sell,list,valuation,how,about:()=>{home();$('#about').scrollIntoView()},join,u:()=>publicProfile(a),forum:()=>a==='t'&&b?forumThread(b):a?forumCategory(a):forumIndex()};document.body.classList.toggle('is-home',p===''||p==='about'||!Object.prototype.hasOwnProperty.call(pages,p||''));document.body.classList.toggle('is-all',(p==='buy'||p==='car')&&BUY==='all');const run=pages[p||'']||home;
 Promise.resolve(run()).catch(()=>{});
 if(p!=='about')scrollTo(0,0);main.focus({preventScroll:true});
 const section=p==='forum'?'forum':(p==='messages'||p==='msgs')?'messages':(p||'');
-document.querySelectorAll('.bnav a, .dnav a, .nav-account').forEach(x=>{const key=x.dataset.r||String(x.getAttribute('href')||'').replace(/^#\//,'');const on=(key===section&&!!section)||(key==='buy'&&p==='car');x.setAttribute('aria-current',on?'page':'false')});}
+document.querySelectorAll('.bnav a, .dnav a, .nav-account').forEach(x=>{const key=x.dataset.r||String(x.getAttribute('href')||'').replace(/^#\//,'');const on=(key===section&&!!section)||(key==='buy'&&(p==='car'||p==='buyin'));x.setAttribute('aria-current',on?'page':'false')});}
 addEventListener('hashchange',route);
 Auth.listeners.add(()=>{updateNav();watchInbox();if(location.hash.startsWith('#/join')||Auth.recovery)join()});
 if(Auth.oauthError){toast(Auth.oauthError,'error');Auth.oauthError=''}
