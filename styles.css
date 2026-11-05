@@ -347,8 +347,9 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .qs-actions{display:flex;gap:8px}
 .qs-actions .btn{flex:1}
 @media(min-width:640px){.qs-actions .btn{flex:0 0 auto}}
-#sbtn[hidden]{display:none}
-body.is-home #sbtn{display:none}
+#sbtn{display:none}
+body.is-buy #sbtn{display:grid}
+body.is-buy #sbtn[hidden]{display:none}
 #sbtn.is-on{color:var(--acc)}
 #sbtn.is-on svg{stroke:var(--acc)}
 /* feed */
