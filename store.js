@@ -1012,6 +1012,7 @@ const Chat = {
     const marked = await sb.from('messages').update({ read_at: when }).eq('conversation_id', conv.id).neq('sender_id', Auth.user.id).is('read_at', null);
     if (marked.error) throw new Error(chatErr(marked.error));
     await this.markRead(conv, when);
+    try { await Notes.markReadForConversation(conv.id); } catch (e) {}
   },
   async unreadCount() {
     if (!sb || !Auth.user) return 0;
@@ -1026,9 +1027,9 @@ const Notes = {
   async list() {
     if (!sb || !Auth.user) return [];
     const { data, error } = await sb.from('notifications')
-      .select('id,actor_id,thread_id,reply_id,thread_title,read_at,created_at,actor:profiles!notifications_actor_id_fkey(username),thread:forum_threads!notifications_thread_id_fkey(title,author_id)')
+      .select('id,kind,actor_id,thread_id,reply_id,conversation_id,message_id,thread_title,preview,read_at,created_at,actor:profiles!notifications_actor_id_fkey(username),thread:forum_threads!notifications_thread_id_fkey(title,author_id)')
       .order('created_at', { ascending: false })
-      .limit(30);
+      .limit(40);
     if (error) throw new Error(noteErr(error));
     const uid = Auth.user.id;
     return (data || []).map(row => {
@@ -1036,8 +1037,12 @@ const Notes = {
       const thread = Array.isArray(row.thread) ? row.thread[0] : row.thread;
       return {
         id: row.id,
+        kind: row.kind || 'reply',
         threadId: row.thread_id,
         replyId: row.reply_id,
+        conversationId: row.conversation_id,
+        messageId: row.message_id,
+        preview: row.preview || '',
         handle: actor && actor.username ? String(actor.username).replace(/^@/, '') : '',
         title: (thread && thread.title) || row.thread_title || '',
         yours: !!(thread && thread.author_id === uid),
@@ -1060,6 +1065,11 @@ const Notes = {
   async markReadForReply(replyId) {
     if (!sb || !Auth.user || !replyId) return;
     const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('reply_id', replyId).is('read_at', null);
+    if (error) throw new Error(noteErr(error));
+  },
+  async markReadForConversation(conversationId) {
+    if (!sb || !Auth.user || !conversationId) return;
+    const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('conversation_id', conversationId).eq('kind', 'message').is('read_at', null);
     if (error) throw new Error(noteErr(error));
   }
 };

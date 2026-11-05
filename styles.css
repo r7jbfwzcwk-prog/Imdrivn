@@ -545,7 +545,22 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .toast{position:fixed;z-index:40;left:50%;top:84px;transform:translateX(-50%);width:min(560px,calc(100% - 24px));padding:14px 16px;background:#141416;color:var(--c-text);border:1px solid var(--c-line2);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);font-size:.95rem;line-height:1.45;cursor:pointer}
 .toast-err{border-color:var(--c-err)}
 .toast-ok{border-color:var(--acc)}
+.bellwrap{position:relative}
 #bell{position:relative}
+.alertpanel{position:absolute;right:0;top:calc(100% + 8px);z-index:40;width:min(360px,calc(100vw - 16px));max-height:min(70vh,520px);display:flex;flex-direction:column;padding:8px;background:#101012;border:1px solid #d9a441;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55)}
+.alertpanel[hidden]{display:none}
+.alert-title{margin:4px 8px 8px;font-size:.72rem;font-weight:700;letter-spacing:.16em;color:#d9a441}
+#alertlist{overflow:auto;display:grid;gap:6px}
+.alertpanel .alert-row{display:flex;align-items:flex-start;place-items:start;gap:10px;width:100%;height:auto;min-height:0;text-align:left;padding:10px;border:1px solid #2c2c30;border-radius:12px;background:#141416;color:#f2f2f2;cursor:pointer}
+.alert-row.is-unread{border-color:#d9a441}
+.alert-row:hover,.alert-row:focus-visible{border-color:#d9a441;outline:none}
+.alert-copy{display:grid;gap:2px;flex:1;min-width:0}
+.alert-copy b{font-size:.68rem;letter-spacing:.12em;color:#d9a441}
+.alert-copy span{font-size:.88rem;line-height:1.35}
+.alertpanel .unread-mark{width:22px;height:22px}
+.alertpanel .unread-mark svg{width:13px;height:13px;stroke:#141416}
+.alertpanel .btn{margin-top:4px}
+.alertpanel .muted,.alertpanel .err{margin:6px 8px}
 .nav-badge{position:absolute;top:2px;right:0;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:var(--acc);color:#000;font-size:.62rem;font-weight:700;line-height:16px;text-align:center;pointer-events:none}
 .nav-badge[hidden]{display:none}
 #menu-msgs{justify-content:space-between}
