@@ -902,13 +902,21 @@ function chatErr(error) {
   return msg || 'Could not do that.';
 }
 function chatUnread(row, uid) {
-  if (!row || !row.last_message_at) return false;
+  if (!row || !uid) return false;
+  if (!row.last_message_at && !row.last_message) return false;
   const read = row.buyer_id === uid ? row.buyer_last_read : row.seller_last_read;
   if (!read) return true;
+  if (!row.last_message_at) return false;
   return Date.parse(row.last_message_at) > Date.parse(read);
 }
 const Chat = {
   unread: chatUnread,
+  async unreadIds() {
+    if (!sb || !Auth.user) return new Set();
+    const { data, error } = await sb.from('messages').select('conversation_id').is('read_at', null).neq('sender_id', Auth.user.id);
+    if (error) throw new Error(chatErr(error));
+    return new Set((data || []).map(row => row.conversation_id));
+  },
   async inbox() {
     if (!sb || !Auth.user) return [];
     const uid = Auth.user.id;
@@ -926,6 +934,8 @@ const Chat = {
     ]);
     const listingById = new Map((listings.data || []).map(l => [l.id, l]));
     const handleById = new Map((profiles.data || []).map(p => [p.id, p.username]));
+    let unreadIds = null;
+    try { unreadIds = await this.unreadIds(); } catch (e) { unreadIds = null; }
     return rows.map(row => {
       const listing = listingById.get(row.listing_id) || {};
       const other = row.buyer_id === uid ? row.seller_id : row.buyer_id;
@@ -937,7 +947,7 @@ const Chat = {
         seller_id: row.seller_id,
         last: row.last_message || '',
         when: whenLabel(row.last_message_at || row.created_at),
-        unread: chatUnread(row, uid),
+        unread: unreadIds ? unreadIds.has(row.id) : chatUnread(row, uid),
         handle: handleById.get(other) || 'member',
         heading: listing.heading || [listing.year, listing.make, listing.model].filter(Boolean).join(' ') || 'Listing',
         price: listing.price,
@@ -996,12 +1006,16 @@ const Chat = {
     if (error) throw new Error(chatErr(error));
     conv[col] = when;
   },
+  async markOpened(conv) {
+    if (!sb || !Auth.user || !conv) return;
+    const when = new Date().toISOString();
+    const marked = await sb.from('messages').update({ read_at: when }).eq('conversation_id', conv.id).neq('sender_id', Auth.user.id).is('read_at', null);
+    if (marked.error) throw new Error(chatErr(marked.error));
+    await this.markRead(conv, when);
+  },
   async unreadCount() {
     if (!sb || !Auth.user) return 0;
-    const uid = Auth.user.id;
-    const { data, error } = await sb.from('conversations').select('buyer_id,seller_id,last_message_at,buyer_last_read,seller_last_read').or('buyer_id.eq.' + uid + ',seller_id.eq.' + uid);
-    if (error) return 0;
-    return (data || []).filter(row => chatUnread(row, uid)).length;
+    try { return (await this.unreadIds()).size; } catch (e) { return 0; }
   }
 };
 

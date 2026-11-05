@@ -553,9 +553,10 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .inbox{display:grid;gap:10px}
 .note-list{display:grid;gap:8px;margin-bottom:14px}
 .note-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--c-line);border-radius:14px;background:var(--c-surface);color:var(--c-text);cursor:pointer}
-.note-row span{font-size:.92rem;line-height:1.35}
+.note-row > span{flex:1;min-width:0;font-size:.92rem;line-height:1.35}
+.note-row > .unread-mark,.inbox-row > .unread-mark{flex:none;width:28px;height:28px}
 .note-row time{flex:none;color:var(--c-muted);font-size:.75rem}
-.note-row.is-unread{border-color:var(--acc);box-shadow:0 0 14px var(--glow)}
+.note-row.is-unread{border-color:#d9a441;box-shadow:0 0 14px rgba(217,164,65,.28)}
 .note-row:hover,.note-row:focus-visible{border-color:var(--acc);outline:none}
 .fpost{scroll-margin-top:96px}
 .fpost.is-target{box-shadow:0 0 0 1px var(--acc),0 0 18px var(--glow)}
@@ -566,7 +567,9 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .inbox-top b{font-weight:600}
 .inbox-top time,.inbox-last{color:var(--c-muted);font-size:.82rem}
 .inbox-car,.inbox-last{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.unread-dot{width:10px;height:10px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--glow)}
+.unread-mark{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#d9a441;flex:none;box-shadow:0 0 0 3px rgba(217,164,65,.28),0 0 12px rgba(217,164,65,.45)}
+.unread-mark svg{width:16px;height:16px;fill:none;stroke:#141416;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.inbox-row.is-unread{border-color:#d9a441;background:#16140e}
 .thread{display:flex;flex-direction:column;min-height:calc(100dvh - 190px)}
 .thread-pin{display:flex;gap:12px;align-items:center;margin-top:var(--s-4);padding:10px;border:1px solid var(--acc-dim);border-radius:14px;background:#101012;text-decoration:none}
 .thread-pin img{width:84px;height:56px;object-fit:cover;border-radius:8px;background:#111;flex:none}
