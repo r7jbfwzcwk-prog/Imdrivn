@@ -183,10 +183,22 @@ body.is-home .path{border-color:rgba(217,164,65,.55)}
 body.is-home .path .btn{border-color:#d9a441;color:#d9a441}
 body.is-list{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glow:rgba(47,123,255,.22)}
 body.is-wholesale{--acc:#22c55e;--acc-dim:rgba(34,197,94,.55);--glow:rgba(34,197,94,.22)}
-.sell-list{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glow:rgba(47,123,255,.28)}
-.sell-whole{--acc:#22c55e;--acc-dim:rgba(34,197,94,.55);--glow:rgba(34,197,94,.28)}
-.sell-list,.sell-whole{border-color:var(--acc)}
-.sell-list .btn,.sell-whole .btn,.sell-list .btn:hover,.sell-whole .btn:hover{border-color:var(--acc);color:var(--acc);background:transparent}
+.sell-lanes{background:#000}
+.sell-intro{padding-bottom:8px}
+.sell-cols{display:grid;gap:3px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:760px){.sell-cols{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.sell-col{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;padding:28px 16px;background:#000}
+.sell-list{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glow:rgba(47,123,255,.55)}
+.sell-whole{--acc:#22c55e;--acc-dim:rgba(34,197,94,.55);--glow:rgba(34,197,94,.55)}
+.sell-col::before{content:"";position:absolute;inset:0;transition:background .4s ease,box-shadow .4s ease;pointer-events:none}
+.sell-list::before{background:rgba(47,123,255,.18)}
+.sell-whole::before{background:rgba(34,197,94,.18)}
+.sell-col:hover::before,.sell-col:focus-within::before,.sell-col:active::before,.sell-col.is-lit::before{background:#000;box-shadow:inset 0 0 0 2px var(--acc),inset 0 0 80px var(--glow)}
+@media(prefers-reduced-motion:reduce){.sell-col::before{transition:none}}
+.sell-col .path{position:relative;z-index:1;width:100%;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1.5px solid var(--acc);box-shadow:none;transform:none;transition:transform .35s ease,background .35s ease,box-shadow .35s ease,border-color .35s ease}
+.sell-col .path:hover,.sell-col .path:focus-visible,.sell-col .path:active,.sell-col:hover .path,.sell-col:focus-within .path,.sell-col.is-lit .path{transform:scale(1.04);background:#000;border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 0 28px var(--glow)}
+@media(prefers-reduced-motion:reduce){.sell-col .path:hover,.sell-col .path:focus-visible,.sell-col .path:active,.sell-col:hover .path{transform:none}}
+.sell-col .btn,.sell-col .btn:hover{border-color:var(--acc);color:var(--acc);background:transparent}
 @property --acc{syntax:'<color>';inherits:true;initial-value:#2f7bff}
 @property --acc-dim{syntax:'<color>';inherits:true;initial-value:transparent}
 @property --glow{syntax:'<color>';inherits:true;initial-value:transparent}
