@@ -63,8 +63,9 @@ const ValueFlow = (() => {
       im.src = url;
     });
   }
+  const RATINGS = ['Excellent','Good','Fair','Needs work'];
   function blank() {
-    return {make:'',model:'',year:'',variant:'',kms:'',rego:'',regoState:'',vin:'',suburb:'',state:'',postcode:'',overall:'',accident:'',service:'',finance:'',keys:'',mods:'',modsNote:'',photos:[],expected:'',name:'',email:'',phone:'',photosDropped:false};
+    return {make:'',model:'',year:'',variant:'',kms:'',rego:'',regoState:'',vin:'',suburb:'',state:'',postcode:'',overall:'',exterior:'',interior:'',accident:'',service:'',finance:'',keys:'',mods:'',modsNote:'',photos:[],expected:'',name:'',email:'',phone:'',photosDropped:false};
   }
   function loadDraft() {
     try {
@@ -86,10 +87,13 @@ const ValueFlow = (() => {
     const saved = loadDraft() || {};
     const draft = Object.assign(blank(), saved);
     if (!Array.isArray(draft.photos)) draft.photos = [];
+    if (!RATINGS.includes(draft.exterior) && RATINGS.includes(draft.overall)) draft.exterior = draft.overall;
+    if (!RATINGS.includes(draft.interior)) draft.interior = '';
+    if (!STATES.includes(draft.regoState)) draft.regoState = '';
     let i = Number.isInteger(saved.step) ? saved.step : 0;
     let busy = false, suggestOn = false;
     const steps = [
-      {id:'make', q:'What\'s the make?', hint:'Start typing. Pick a suggestion, or write your own.'},
+      {id:'make', q:'What\'s the make?', intro:'Alright, tell us what you\u2019ve got ..', hint:'Start typing. Pick a suggestion, or write your own.'},
       {id:'model', q:'Now the model?', hint:'Golf R, CX-5, 720S — whatever is on the back.'},
       {id:'year', q:'What year?', hint:'The year it was built.'},
       {id:'variant', q:'Variant or badge?', hint:'Optional. GT, SR5, Competition — skip it if it is just the base car.'},
@@ -97,10 +101,10 @@ const ValueFlow = (() => {
       {id:'rego', q:'Rego and VIN?', hint:'Optional. Rego plus the state on the plate, and the VIN if you have it.'},
       {id:'place', q:'Where\'s the car?', hint:'Suburb or postcode. Pick one from the list. No street address.'},
       {id:'condition', q:'How is it sitting?', hint:'Tap each one. Dealers price off this.'},
-      {id:'photos', q:'Add photos', hint:'Up to 8. First one is the cover. We resize them before they upload.'},
+      {id:'photos', q:'Add photos', hint:'Optional. Up to 8. We resize them before they upload.'},
       {id:'price', q:'What are you hoping to get?', hint:'Optional. A wholesale number, not the ad price. Leave it blank if you want the dealers to open.'},
       {id:'contact', q:'How do dealers reach you?', hint:'Name, email, and phone. We filled in what your account already has.'},
-      {id:'review', q:'Send this to dealers?', hint:'Check it, then submit. We will ask you to sign in if you are not already.'}
+      {id:'review', q:'Get me a price.', hint:'Check it, then submit. We will ask you to sign in if you are not already.'}
     ];
     if (i < 0 || i >= steps.length) i = 0;
 
@@ -151,7 +155,7 @@ const ValueFlow = (() => {
       let rows = null, items = [], active = -1;
       const close = () => { suggestOn = false; active = -1; list.hidden = true; list.innerHTML = ''; input.setAttribute('aria-expanded','false'); input.removeAttribute('aria-activedescendant'); };
       const paint = () => { list.querySelectorAll('button').forEach((btn, n) => btn.setAttribute('aria-selected', n === active)); if (active >= 0) input.setAttribute('aria-activedescendant', 'v-popt-' + active); const current = list.querySelector('[aria-selected="true"]'); if (current) current.scrollIntoView({block:'nearest'}); };
-      const choose = n => { const row = items[n]; if (!row) return; draft.suburb = row[0]; draft.state = row[1]; draft.postcode = row[2]; input.value = placeLabel(row); close(); input.focus(); };
+      const choose = n => { const row = items[n]; if (!row) return; draft.suburb = row[0]; draft.state = row[1]; draft.postcode = row[2]; input.value = placeLabel(row); close(); syncPlaceNext(); input.focus(); };
       const open = matches => {
         items = matches; active = matches.length ? 0 : -1; suggestOn = matches.length > 0;
         list.hidden = !suggestOn; input.setAttribute('aria-expanded', suggestOn ? 'true' : 'false');
@@ -169,7 +173,7 @@ const ValueFlow = (() => {
       };
       input.addEventListener('input', () => {
         const label = draft.suburb && draft.state && draft.postcode ? draft.suburb + ' ' + draft.state + ' ' + draft.postcode : '';
-        if (input.value.trim() !== label) { draft.suburb = ''; draft.state = ''; draft.postcode = ''; }
+        if (input.value.trim() !== label) { draft.suburb = ''; draft.state = ''; draft.postcode = ''; syncPlaceNext(); }
         refresh();
       });
       input.addEventListener('focus', refresh);
@@ -179,13 +183,19 @@ const ValueFlow = (() => {
         else if (e.key === 'Enter' && suggestOn && active >= 0) { e.preventDefault(); e.stopPropagation(); choose(active); }
         else if (e.key === 'Escape' && suggestOn) { e.preventDefault(); e.stopPropagation(); close(); }
       });
+      syncPlaceNext();
       loadSuburbs().then(data => { if (!input.isConnected) return; rows = data; input.disabled = false; input.placeholder = 'Paddington or 4064'; input.focus(); }).catch(() => { if (input.isConnected) setErr('Could not load the suburb list. Check your connection and try again.'); });
     }
-    function chipRow(group, label, options) {
-      return `<div class="vgroup"><p>${esc(label)}</p><div class="ask-states" role="group" aria-label="${esc(label)}">${options.map(opt => `<button type="button" data-group="${group}" data-value="${esc(opt[0])}" aria-pressed="${draft[group] === opt[0]}">${esc(opt[1])}</button>`).join('')}</div></div>`;
+    function syncPlaceNext() {
+      const ok = document.getElementById('ask-ok');
+      if (ok && steps[i] && steps[i].id === 'place') ok.disabled = !(draft.suburb && draft.state && draft.postcode);
+    }
+    function chipRow(group, label, options, caption) {
+      return `<div class="vgroup"><p>${esc(label)}</p><div class="ask-states" role="group" aria-label="${esc(label)}">${options.map(opt => `<button type="button" data-group="${group}" data-value="${esc(opt[0])}" aria-pressed="${draft[group] === opt[0]}">${esc(opt[1])}</button>`).join('')}</div>${caption ? `<p class="vcap">${esc(caption)}</p>` : ''}</div>`;
     }
     function mountCondition(body) {
-      body.innerHTML = `<div class="vcond">${chipRow('overall','Overall',[['Excellent','Excellent'],['Good','Good'],['Fair','Fair'],['Needs work','Needs work']])}${chipRow('accident','Accident history',[['no','No'],['yes','Yes']])}${chipRow('service','Service history',[['Full','Full'],['Partial','Partial'],['None','None']])}${chipRow('finance','Finance owing',[['no','No'],['yes','Yes']])}${chipRow('keys','Keys',[['1','1'],['2+','2+']])}${chipRow('mods','Mods',[['no','No'],['yes','Yes']])}<label class="ask-lab" id="v-mods-wrap" ${draft.mods === 'yes' ? '' : 'hidden'}>Mods note<input class="ask-input" id="v-mods-note" maxlength="160" aria-label="Mods note" value="${esc(draft.modsNote)}" placeholder="Exhaust, wheels, tune" autocomplete="off"></label></div>`;
+      const rating = [['Excellent','Excellent'],['Good','Good'],['Fair','Fair'],['Needs work','Needs work']];
+      body.innerHTML = `<div class="vcond">${chipRow('exterior','Exterior',rating)}${chipRow('interior','Interior',rating)}${chipRow('accident','Accident history',[['no','No'],['yes','Yes']])}${chipRow('service','Service history',[['Full','Full'],['Partial','Partial'],['None','None']])}${chipRow('finance','Finance owing',[['no','No'],['yes','Yes']],'It doesn\u2019t matter if there\u2019s finance owing.')}${chipRow('keys','Keys',[['1','1'],['2+','2+']])}${chipRow('mods','Mods',[['no','No'],['yes','Yes']])}<label class="ask-lab" id="v-mods-wrap" ${draft.mods === 'yes' ? '' : 'hidden'}>Mods note<input class="ask-input" id="v-mods-note" maxlength="160" aria-label="Mods note" value="${esc(draft.modsNote)}" placeholder="Exhaust, wheels, tune" autocomplete="off"></label></div>`;
       body.querySelectorAll('[data-group]').forEach(btn => {
         btn.onclick = () => {
           draft[btn.dataset.group] = btn.dataset.value;
@@ -200,7 +210,18 @@ const ValueFlow = (() => {
       body.innerHTML = `${note}<button type="button" class="ask-drop" id="v-drop" data-autofocus>Add photos</button><input class="ask-file" id="v-files" type="file" accept="image/*" multiple tabindex="-1" aria-hidden="true"><div class="ask-photos" id="v-photos"></div>`;
       const host = document.getElementById('v-photos');
       const input = document.getElementById('v-files');
-      const draw = () => { host.innerHTML = draft.photos.map((src, n) => `<div class="ask-photo shot${n === 0 ? ' is-cover' : ''}"><img src="${src}" alt="">${photoMark()}<button type="button" class="ask-x" data-remove="${n}" aria-label="Remove photo ${n + 1}">×</button></div>`).join(''); };
+      const draw = () => {
+        let count = document.getElementById('v-photo-count');
+        if (!count) {
+          count = document.createElement('p');
+          count.id = 'v-photo-count';
+          count.className = 'ask-photo-count';
+          count.setAttribute('aria-live', 'polite');
+          host.before(count);
+        }
+        count.textContent = draft.photos.length + '/' + PHOTO_MAX;
+        host.innerHTML = draft.photos.map((src, n) => `<div class="ask-photo shot"><img src="${src}" alt="">${photoMark()}<button type="button" class="ask-x" data-remove="${n}" aria-label="Remove photo ${n + 1}">×</button></div>`).join('');
+      };
       const add = async files => {
         const images = [...files].filter(f => /^image\//.test(f.type));
         const room = PHOTO_MAX - draft.photos.length;
@@ -219,15 +240,18 @@ const ValueFlow = (() => {
       draw();
     }
     function mountRego(body) {
-      body.innerHTML = `<div class="ask-stack"><label class="ask-lab">Rego<input class="ask-input" id="v-rego" data-autofocus maxlength="10" value="${esc(draft.rego)}" placeholder="ABC123" autocomplete="off" spellcheck="false"></label><div class="vgroup"><p>Plate state</p><div class="ask-states">${STATES.map(s => `<button type="button" data-rego-state="${s}" aria-pressed="${draft.regoState === s}">${s}</button>`).join('')}</div></div><label class="ask-lab">VIN<input class="ask-input" id="v-vin" maxlength="17" value="${esc(draft.vin)}" placeholder="17 characters" autocomplete="off" spellcheck="false"></label></div>`;
-      body.querySelectorAll('[data-rego-state]').forEach(btn => { btn.onclick = () => { draft.regoState = draft.regoState === btn.dataset.regoState ? '' : btn.dataset.regoState; body.querySelectorAll('[data-rego-state]').forEach(b => b.setAttribute('aria-pressed', b.dataset.regoState === draft.regoState)); }; });
+      const state = STATES.includes(draft.regoState) ? draft.regoState : '';
+      body.innerHTML = `<div class="ask-stack"><label class="ask-lab">Rego<input class="ask-input" id="v-rego" data-autofocus maxlength="10" value="${esc(draft.rego)}" placeholder="ABC123" autocomplete="off" spellcheck="false"></label><label class="ask-lab" for="v-rego-state">Plate state<select class="ask-select" id="v-rego-state" aria-label="Plate state"><option value=""></option>${STATES.map(s => `<option value="${s}"${state === s ? ' selected' : ''}>${s}</option>`).join('')}</select></label><label class="ask-lab">VIN<input class="ask-input" id="v-vin" maxlength="17" value="${esc(draft.vin)}" placeholder="17 characters" autocomplete="off" spellcheck="false"></label></div>`;
+      document.getElementById('v-rego-state').addEventListener('change', e => { draft.regoState = STATES.includes(e.target.value) ? e.target.value : ''; });
     }
     function reviewLine(label, value) { return `<div><span>${esc(label)}</span><b>${esc(value || '—')}</b></div>`; }
     function mountReview(body) {
       const place = [draft.suburb, draft.state, draft.postcode].filter(Boolean).join(' ');
-      const cond = [draft.overall, draft.accident === 'yes' ? 'Accident' : draft.accident === 'no' ? 'No accident' : '', draft.service && (draft.service + ' service'), draft.finance === 'yes' ? 'Finance owing' : draft.finance === 'no' ? 'No finance' : '', draft.keys && (draft.keys + ' keys'), draft.mods === 'yes' ? ('Mods' + (draft.modsNote ? ': ' + draft.modsNote : '')) : draft.mods === 'no' ? 'No mods' : ''].filter(Boolean).join(' · ');
       const money = draft.expected ? '$' + Number(draft.expected).toLocaleString('en-AU') : '';
-      body.innerHTML = `<div class="vreview">${reviewLine('Car', [draft.year, draft.make, draft.model, draft.variant].filter(Boolean).join(' '))}${reviewLine('Kms', draft.kms ? Number(draft.kms).toLocaleString('en-AU') + ' km' : '')}${reviewLine('Rego', [draft.rego, draft.regoState].filter(Boolean).join(' '))}${reviewLine('VIN', draft.vin)}${reviewLine('Location', place)}${reviewLine('Condition', cond)}${reviewLine('Photos', String(draft.photos.length))}${reviewLine('Hoping for', money)}${reviewLine('Contact', [draft.name, draft.email, draft.phone].filter(Boolean).join(' · '))}</div>`;
+      const accident = draft.accident === 'yes' ? 'Yes' : draft.accident === 'no' ? 'No' : '';
+      const finance = draft.finance === 'yes' ? 'Yes' : draft.finance === 'no' ? 'No' : '';
+      const mods = draft.mods === 'yes' ? ('Yes' + (draft.modsNote ? ': ' + draft.modsNote : '')) : draft.mods === 'no' ? 'No' : '';
+      body.innerHTML = `<div class="vreview">${reviewLine('Car', [draft.year, draft.make, draft.model, draft.variant].filter(Boolean).join(' '))}${reviewLine('Kms', draft.kms ? Number(draft.kms).toLocaleString('en-AU') + ' km' : '')}${reviewLine('Rego', [draft.rego, draft.regoState].filter(Boolean).join(' '))}${reviewLine('VIN', draft.vin)}${reviewLine('Location', place)}${reviewLine('Exterior', draft.exterior)}${reviewLine('Interior', draft.interior)}${reviewLine('Accident history', accident)}${reviewLine('Service history', draft.service)}${reviewLine('Finance owing', finance)}${reviewLine('Keys', draft.keys)}${reviewLine('Mods', mods)}${reviewLine('Photos', String(draft.photos.length))}${reviewLine('Hoping for', money)}${reviewLine('Contact', [draft.name, draft.email, draft.phone].filter(Boolean).join(' · '))}</div>`;
     }
 
     function read() {
@@ -240,6 +264,8 @@ const ValueFlow = (() => {
       if (step === 'kms' && val('v-kms') != null) draft.kms = val('v-kms');
       if (step === 'rego') {
         if (val('v-rego') != null) draft.rego = val('v-rego').replace(/\s+/g, '').toUpperCase().slice(0, 10);
+        const plate = document.getElementById('v-rego-state');
+        if (plate) draft.regoState = STATES.includes(plate.value) ? plate.value : '';
         if (val('v-vin') != null) draft.vin = val('v-vin').replace(/\s+/g, '').toUpperCase().slice(0, 17);
       }
       if (step === 'place') {
@@ -278,7 +304,7 @@ const ValueFlow = (() => {
       }
       if (step === 'place') return draft.suburb && draft.state && draft.postcode ? '' : 'Pick a suburb from the list. Street addresses do not count.';
       if (step === 'condition') {
-        if (!draft.overall || !draft.accident || !draft.service || !draft.finance || !draft.keys || !draft.mods) return 'Tap each row. Dealers need the full picture.';
+        if (!RATINGS.includes(draft.exterior) || !RATINGS.includes(draft.interior) || !draft.accident || !draft.service || !draft.finance || !draft.keys || !draft.mods) return 'Tap each row. Dealers need the full picture.';
         return '';
       }
       if (step === 'photos') return draft.photos.length <= PHOTO_MAX ? '' : 'Eight photos is the cap.';
@@ -308,7 +334,7 @@ const ValueFlow = (() => {
       bar.setAttribute('aria-valuetext', `Step ${i + 1} of ${steps.length}`);
       bar.firstElementChild.style.width = ((i + 1) / steps.length * 100) + '%';
       const stage = root.querySelector('.ask-stage');
-      stage.innerHTML = `<div class="ask-slide${dir > 0 ? ' from-right' : dir < 0 ? ' from-left' : ''}" role="group" aria-labelledby="ask-q"><p class="ask-count">Step ${i + 1} of ${steps.length}</p><h2 class="ask-q" id="ask-q">${step.q}</h2><p class="ask-hint" id="ask-hint">${step.hint}</p><div class="ask-body" id="ask-body"></div><p class="ask-err" id="ask-err" role="alert"></p><div class="ask-nav"><button type="button" class="btn" id="ask-back" ${i ? '' : 'hidden'}>Back</button><button type="button" class="btn solid" id="ask-ok">${i === steps.length - 1 ? 'Submit' : 'OK'}</button></div>${i === steps.length - 1 ? '' : '<p class="ask-key">Enter ↵</p>'}</div>`;
+      stage.innerHTML = `<div class="ask-slide${dir > 0 ? ' from-right' : dir < 0 ? ' from-left' : ''}" role="group" aria-labelledby="ask-q"><p class="ask-count">Step ${i + 1} of ${steps.length}</p>${step.intro ? `<p class="ask-intro">${esc(step.intro)}</p>` : ''}<h2 class="ask-q" id="ask-q">${step.q}</h2><p class="ask-hint" id="ask-hint">${step.hint}</p><div class="ask-body" id="ask-body"></div><p class="ask-err" id="ask-err" role="alert"></p><div class="ask-nav"><button type="button" class="btn" id="ask-back" ${i ? '' : 'hidden'}>Back</button><button type="button" class="btn solid" id="ask-ok">${i === steps.length - 1 ? 'Submit' : 'OK'}</button></div>${i === steps.length - 1 ? '' : '<p class="ask-key">Enter ↵</p>'}</div>`;
       const body = document.getElementById('ask-body');
       if (step.id === 'make') mountMake(body);
       else if (step.id === 'model') body.innerHTML = field('v-model', draft.model, 'e.g. Civic Type R');
@@ -345,7 +371,7 @@ const ValueFlow = (() => {
         await ListingStore.valuation(draft);
         clearDraft();
         if (ValueFlow._key) { document.removeEventListener('keydown', ValueFlow._key); ValueFlow._key = null; }
-        root.innerHTML = `<div class="wrap form"><div class="eyebrow">Wholesale</div><aside class="verify-card" role="status"><p>Got it. Our dealer network will review your car and come back with a wholesale offer, usually within 24 to 48 hours. An IM DRIVN team member may contact you to verify the details.</p></aside><a class="btn" href="#/">Back home</a></div>`;
+        root.innerHTML = `<div class="wrap form"><div class="eyebrow">Wholesale</div><aside class="verify-card" role="status"><p>Thanks for the submission. We have sent this to our extensive dealer network and will reach out directly with a price.</p></aside><a class="btn" href="#/">Back home</a></div>`;
       } catch (e) {
         busy = false;
         if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }

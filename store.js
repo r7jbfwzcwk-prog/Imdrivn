@@ -718,8 +718,14 @@ const ListingStore = {
     const paths = await uploadPaths(Auth.user.id, d.photos || [], 'valuations');
     const rawPrice = d.expected_price != null && d.expected_price !== '' ? d.expected_price : d.expected;
     const price = rawPrice === '' || rawPrice == null ? null : +rawPrice;
+    const ratings = ['Excellent', 'Good', 'Fair', 'Needs work'];
+    const exterior = ratings.includes(d.exterior) ? d.exterior : (ratings.includes(d.overall) ? d.overall : '');
+    const interior = ratings.includes(d.interior) ? d.interior : '';
+    if (!exterior || !interior) throw new Error('Tap exterior and interior.');
     const condition = {
-      overall: d.overall,
+      overall: exterior,
+      exterior,
+      interior,
       accident: d.accident === 'yes',
       service: d.service,
       finance: d.finance === 'yes',

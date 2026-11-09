@@ -494,7 +494,11 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .sec-pick .sec-supercars[aria-pressed=true]{border-color:#d9a441;background:#241c0d;box-shadow:0 0 0 1px #d9a441,0 0 28px rgba(217,164,65,.35)}
 .vcond{display:grid;gap:16px}
 .vcond p{margin:0 0 6px;color:var(--c-muted);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.vcond .vcap{margin:8px 0 0;color:var(--c-muted);font-size:.9rem;letter-spacing:0;text-transform:none;line-height:1.4}
 .vcond .ask-states{margin-top:0}
+.ask-intro{margin:0 0 12px;color:var(--c-text);font-size:1.15rem;line-height:1.4}
+.ask-select{width:100%;min-height:48px;margin-top:4px;padding:8px 36px 8px 0;border:0;border-bottom:2px solid var(--c-line2);border-radius:0;background-color:transparent;color:var(--c-text);font:600 1.2rem/1.3 var(--font-body);letter-spacing:0;text-transform:none;cursor:pointer;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--c-muted) 50%),linear-gradient(135deg,var(--c-muted) 50%,transparent 50%);background-position:calc(100% - 16px) 22px,calc(100% - 10px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+.ask-select:focus{outline:none;border-bottom-color:var(--acc)}
 .vreview{display:grid;gap:0}
 .vreview div{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid var(--c-line)}
 .vreview span{color:var(--c-muted)}
