@@ -515,7 +515,9 @@ function listingSpec(listing) {
 const VinOrders = {
   async create({ vin, email, listingId }) {
     if (!sb) throw new Error('Orders are offline right now.');
-    const cleanVin = String(vin || '').toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, 17);
+    const cleanVin = String(vin || '').trim().toUpperCase();
+    if (cleanVin.length < 17) throw new Error('VIN is too short — enter 17 characters (' + cleanVin.length + ' entered).');
+    if (cleanVin.length > 17) throw new Error('VIN is too long — enter 17 characters (' + cleanVin.length + ' entered).');
     if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(cleanVin)) throw new Error('VIN must be 17 characters and cannot include I, O, or Q.');
     const cleanEmail = String(email || '').trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) throw new Error('Add a valid email so we can send the report.');
