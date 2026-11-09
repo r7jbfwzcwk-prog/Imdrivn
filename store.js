@@ -1195,12 +1195,10 @@ const Forum = {
     sets.slice(1).forEach(set => { ids = ids.filter(id => set.has(id)); });
     if (!ids.length) return [];
     const who = 'profiles(' + publicProfileCols() + ')';
-    const { data, error } = await sb.from('forum_threads')
+    return pageAll(() => sb.from('forum_threads')
       .select('id, title, body, created_at, last_activity_at, reply_count, category_id, author_id, ' + who + ', forum_categories(slug, name)')
       .in('id', ids)
-      .order('last_activity_at', { ascending: false });
-    if (error) throw new Error(forumErr(error));
-    return data || [];
+      .order('last_activity_at', { ascending: false }));
   },
   async threads(categoryId) {
     await Presence.ready;
