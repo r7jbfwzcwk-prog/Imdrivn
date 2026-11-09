@@ -1170,10 +1170,15 @@ const Forum = {
     await Presence.ready;
     const pageAll = async (make) => {
       const rows = [];
-      for (let from = 0; from < 5000; from += 1000) {
+      let previousHead = '';
+      for (let from = 0; ; from += 1000) {
         const res = await make().range(from, from + 999);
         if (res.error) throw new Error(forumErr(res.error));
         const batch = res.data || [];
+        if (!batch.length) break;
+        const head = String(batch[0].id != null ? batch[0].id : batch[0].thread_id);
+        if (batch.length === 1000 && head === previousHead) throw new Error('Could not search the forum.');
+        previousHead = head;
         rows.push(...batch);
         if (batch.length < 1000) break;
       }
