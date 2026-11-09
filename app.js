@@ -112,7 +112,6 @@ menuBtn.onclick=()=>{closeAlerts();if(appMenu.hidden)openMenu();else closeMenu(f
 if($('#menu-close'))$('#menu-close').onclick=()=>closeMenu(true);
 if(menuBack)menuBack.onclick=()=>closeMenu(false);
 if($('#menu-search'))$('#menu-search').onclick=()=>{closeMenu(false);const btn=$('#sbtn');if(btn)btn.click()};
-if($('#menu-alerts'))$('#menu-alerts').onclick=()=>{closeMenu(false);toggleAlerts()};
 appMenu.addEventListener('click',e=>{if(e.target.closest('a'))closeMenu(false)});
 const myAdsLink=appMenu.querySelector('a[href="#/garage/ads"]');
 if(myAdsLink)myAdsLink.addEventListener('click',()=>{if(location.hash!=='#/garage/ads')return;closeMenu(false);scrollMyAds()});

@@ -71,12 +71,35 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
  .home-paths .path .muted{font-size:.72rem;line-height:1.25}
   .home-paths .path .btn{margin-top:4px;min-height:34px;padding:0 10px;font-size:.62rem}
 }
-@media(max-width:759px){
-  body.is-home .landing{min-height:calc(100svh - 57px - 64px);min-height:calc(100dvh - 57px - 64px);display:flex;flex-direction:column}
-  body.is-home .hero{flex:1 1 auto;min-height:0}
+@media(max-width:768px){
+  body.is-home .landing{position:relative;min-height:calc(100svh - 57px - 64px);min-height:calc(100dvh - 57px - 64px);display:flex;flex-direction:column;background-image:linear-gradient(180deg,rgba(0,0,0,.28) 0%,rgba(0,0,0,.08) 18%,transparent 34%),url(https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1800&q=70);background-position:center 46%;background-size:cover}
+  body.is-home .hero{flex:1 1 auto;min-height:0;position:static}
+  body.is-home .hero .wrap{position:static;width:auto;padding:0}
+  body.is-home .hero h1{position:absolute;left:7%;right:10%;top:16%;z-index:3;margin:0;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.55)}
+  body.is-home .hero h1 .grey{position:static;color:#fff}
+  body.is-home .hero p{position:absolute;left:16%;right:16%;top:35%;z-index:3;margin:0;color:#111;text-align:center;text-shadow:none}
   body.is-home .wrap.home-paths{margin-top:auto;padding:0 12px calc(10px + env(safe-area-inset-bottom))}
   body.is-home .home-paths .paths{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
   body.is-home .home-paths .path{min-height:64px;height:100%;justify-content:center}
+  body.is-lanes,body.is-sell{height:100dvh;max-height:100dvh;overflow:hidden;padding-bottom:64px;box-sizing:border-box}
+  body.is-lanes footer,body.is-sell footer{display:none}
+  body.is-lanes #main,body.is-sell #main,.lanes,.sell-lanes,.lanes-copy,.sell-copy{min-height:0;height:100%}
+  .chooser-paths,.sell-cols{height:100%;grid-template-columns:minmax(0,1fr);align-items:stretch}
+  .chooser-paths{grid-template-rows:repeat(3,minmax(0,1fr))}
+  .sell-cols{grid-template-rows:repeat(2,minmax(0,1fr))}
+  .lane-col,.sell-col{padding:6px 12px}
+  .lane-daily,.sell-list{padding-top:clamp(52px,9dvh,78px)}
+  .lane-performance{padding-bottom:clamp(40px,6dvh,52px)}
+  .lanes-head,.sell-intro{padding:8px 14px 0}
+  .lanes-head h1,.sell-intro h1{font-size:clamp(1rem,3.4dvh,1.35rem);line-height:1.05}
+  .lanes .path,.sell-col .path{min-height:0;height:100%;padding:clamp(6px,1.2dvh,12px) 10px;gap:clamp(2px,0.6dvh,6px);justify-content:center}
+  .lanes .path .ico,.sell-col .path .ico{width:clamp(18px,3dvh,28px);height:clamp(18px,3dvh,28px)}
+  .lanes .path .wide,.sell-col .path .wide{font-size:clamp(.78rem,2.5dvh,1.15rem) !important;margin-top:0}
+  .lanes .path .tag,.sell-col .path .tag{font-size:clamp(.68rem,1.8dvh,.9rem)}
+  .lanes .path .muted,.sell-col .path .muted{font-size:clamp(.62rem,1.6dvh,.8rem);line-height:1.25}
+  .lanes .path .btn,.sell-col .path .btn{min-height:44px;margin-top:clamp(4px,0.8dvh,8px);padding:0 10px;font-size:clamp(.58rem,1.5dvh,.68rem)}
+  .view-all-row{left:10px;right:10px;bottom:6px;padding:2px 6px}
+  .view-all{display:inline-flex;align-items:center;justify-content:center;min-height:44px;font-size:clamp(.68rem,1.8dvh,.85rem);padding:0 12px}
 }
 .path .wide,.path .tag,.path .muted{text-shadow:0 1px 8px rgba(0,0,0,.8)}
 .path .ico{filter:drop-shadow(0 2px 6px rgba(0,0,0,.75))}
@@ -216,6 +239,18 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
  .sell-list{padding-top:132px}
  .sell-col .path{min-height:365px}
 }
+@media(max-width:768px){
+  .lanes .path,.sell-col .path{min-height:0;height:100%;padding:clamp(6px,1.2dvh,12px) 10px;gap:clamp(2px,.6dvh,6px);justify-content:center}
+  .lanes .path .wide,.sell-col .path .wide{font-size:clamp(.78rem,2.5dvh,1.15rem) !important;margin-top:0}
+  .lanes .path .tag,.sell-col .path .tag{font-size:clamp(.68rem,1.8dvh,.9rem)}
+  .lanes .path .muted,.sell-col .path .muted{font-size:clamp(.62rem,1.6dvh,.8rem);line-height:1.25}
+  .lanes .path .btn,.sell-col .path .btn{min-height:44px;margin-top:clamp(4px,.8dvh,8px);padding:0 10px;font-size:clamp(.58rem,1.5dvh,.68rem)}
+  .lanes .path .ico,.sell-col .path .ico{width:clamp(18px,3dvh,28px);height:clamp(18px,3dvh,28px)}
+  .lane-col,.sell-col{padding:6px 12px}
+  .lane-daily,.sell-list{padding-top:clamp(52px,9dvh,78px)}
+  .lane-performance{padding-bottom:clamp(40px,6dvh,52px)}
+  .view-all{min-height:44px}
+}
 .sell-list{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glow:rgba(47,123,255,.55)}
 .sell-whole{--acc:#22c55e;--acc-dim:rgba(34,197,94,.55);--glow:rgba(34,197,94,.55)}
 .sell-col::before{content:"";position:absolute;inset:0;transition:background .4s ease,box-shadow .4s ease;pointer-events:none}
@@ -273,12 +308,17 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .appmenu{position:absolute;right:0;top:calc(100% + 8px);z-index:40;min-width:220px;max-width:calc(100vw - 24px);padding:6px;background:#101012;border:1px solid var(--acc);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55)}
 .appmenu a{display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:10px;text-decoration:none;font-size:.95rem}
 .menu-wide{display:none}
+.mbar{display:none}
 .menu-back{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.62)}
 .menu-back[hidden],.menu-wide[hidden],#menu-reports[hidden],.appmenu[hidden]{display:none}
 #my-ads{scroll-margin-top:96px}
 .appmenu a:hover,.appmenu a:focus-visible{background:#1b1b1e;color:var(--acc);outline:none}
 @media(max-width:768px){
-  .socials,body.is-buy #sbtn,.bellwrap{display:none}
+  .socials,body.is-buy #sbtn{display:none}
+  .mbar{display:grid;place-items:center;position:relative;width:44px;height:44px;color:#d9a441;text-decoration:none}
+  .ic #bell,.ic #menubtn,.mbar{width:44px;height:44px;color:#d9a441}
+  .top .ic #bell svg,.top .ic #menubtn svg,.top .mbar svg{stroke:#d9a441}
+  .bellwrap{display:flex;align-items:center}
   body.menu-open{overflow:hidden}
   body.menu-open .top{z-index:70;backdrop-filter:none;-webkit-backdrop-filter:none}
   .menu-wide{display:flex}
@@ -302,10 +342,9 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   #menu-msgs{order:9}
   a[href="#/garage"]{order:10}
   #menu-search{order:11}
-  #menu-alerts{order:12}
-  #menu-ig{order:13}
-  #menu-tt{order:14}
-  #menu-reports{order:15}
+  #menu-ig{order:12}
+  #menu-tt{order:13}
+  #menu-reports{order:14}
 }
 @media(min-width:769px){.menu-back{display:none}}
 .report-dialog{width:min(440px,calc(100vw - 32px));padding:18px;border:1px solid var(--c-line);border-radius:16px;background:#101012;color:var(--c-text)}
@@ -741,3 +780,16 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .news-source a{color:#d9a441}
 .news-share{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
 .thread-pin a{text-decoration:none;color:inherit}
+@media(max-width:768px){
+  body.is-lanes,body.is-sell{height:100dvh;max-height:100dvh;overflow:hidden;padding-bottom:64px;box-sizing:border-box}
+  body.is-lanes footer,body.is-sell footer{display:none}
+  body.is-lanes #main,body.is-sell #main{flex:1 1 auto;height:auto;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+  body.is-lanes .lanes,body.is-sell .sell-lanes,body.is-lanes .lanes-copy,body.is-sell .sell-copy{flex:1 1 auto;height:auto;min-height:0}
+  body.is-lanes .chooser-paths,body.is-sell .sell-cols{height:100%;min-height:0}
+  body.is-lanes .lane-col,body.is-sell .sell-col{min-height:0;height:auto;overflow:hidden;align-items:stretch}
+  body.is-lanes .lanes .path,body.is-sell .sell-col .path{min-height:0 !important;height:100%;max-height:100%;overflow:hidden;padding:clamp(4px,1dvh,10px) 10px}
+  body.is-lanes .lanes-head,body.is-sell .sell-intro{position:relative;padding:8px 14px 4px}
+  body.is-lanes .lane-daily,body.is-sell .sell-list{padding-top:8px}
+  body.is-lanes .lane-performance{padding-bottom:82px}
+  body.is-buy #sbtn{display:none !important}
+}
