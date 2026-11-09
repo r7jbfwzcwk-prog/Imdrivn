@@ -790,6 +790,8 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   body.is-lanes .lanes .path,body.is-sell .sell-col .path{min-height:0 !important;height:100%;max-height:100%;overflow:hidden;padding:clamp(4px,1dvh,10px) 10px}
   body.is-lanes .lanes-head,body.is-sell .sell-intro{position:relative;padding:8px 14px 4px}
   body.is-lanes .lane-daily,body.is-sell .sell-list{padding-top:8px}
-  body.is-lanes .lane-performance{padding-bottom:82px}
+  body.is-lanes .lane-col{padding:6px 12px}
+  body.is-lanes .chooser-paths{padding-bottom:56px;box-sizing:border-box}
+  body.is-lanes .view-all-row{position:fixed;left:12px;right:12px;bottom:calc(64px + 6px);z-index:5}
   body.is-buy #sbtn{display:none !important}
 }
