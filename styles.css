@@ -76,6 +76,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .landing{min-height:calc(100svh - 57px - 64px);min-height:calc(100dvh - 57px - 64px);display:flex;flex-direction:column}
   body.is-home .hero{flex:1 1 auto;min-height:0}
   body.is-home .hero h1{font-size:1.28rem}
+  body.is-home .hero h1 .grey{font-size:clamp(1.2rem,6.05vw,1.83rem);line-height:1.05;white-space:nowrap}
   body.is-home .hero .hero-lead{display:none}
   body.is-home .hero .wrap{position:relative;z-index:1;padding-top:46px}
   body.is-home .hero .wrap::before{content:"";position:absolute;z-index:0;left:50%;width:100vw;top:0;bottom:-22px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.62) calc(100% - 22px),rgba(0,0,0,0) 100%);pointer-events:none}
