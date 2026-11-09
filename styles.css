@@ -361,10 +361,10 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   .menu-scroll{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:auto}
   .appmenu[hidden]{display:none}
   .menu-head{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 4px 8px;color:#d9a441;font-weight:600;letter-spacing:.14em}
-  #menu-close{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#d9a441;cursor:pointer;appearance:none;-webkit-appearance:none}
+  #menu-close{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#d9a441;cursor:pointer;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}
   #menu-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
-  #menu-close:hover,#menu-close:active{transform:none;background:transparent;color:#d9a441;box-shadow:none}
-  #menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
+  #menu-close:hover,#menu-close:active,#menu-close:focus,#menu-close:focus-visible{transform:none;background:transparent;color:#d9a441;border:0;box-shadow:none;outline:none;outline-offset:0;-webkit-tap-highlight-color:transparent}
+  html.using-keyboard #menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
   .appmenu a,.appmenu button.menu-act{display:flex;align-items:center;justify-content:flex-start;width:100%;min-height:48px;padding:0 14px;border:0;border-bottom:1px solid rgba(217,164,65,.35);border-radius:0;background:transparent;color:#f2f2f2;font:600 .95rem/1.2 var(--font-body);letter-spacing:.08em;text-align:left;text-decoration:none;text-transform:uppercase;cursor:pointer}
   .menu-head,.menu-head span{text-transform:uppercase;letter-spacing:.14em}
   .appmenu a:hover,.appmenu a:focus-visible,.appmenu button.menu-act:hover,.appmenu button.menu-act:focus-visible{background:#14120c;color:#d9a441;outline:none}
@@ -482,6 +482,8 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
  .feed-tools .tab-tool svg{width:18px;height:18px;stroke:#fff;filter:drop-shadow(0 0 1px rgba(0,0,0,.85))}
  #sortbtn:not([hidden]),#feedsearch:not([hidden]),#sortbtn:not([hidden]):hover,#sortbtn:not([hidden]):active,#feedsearch:not([hidden]):hover,#feedsearch:not([hidden]):active,#sortbtn:not([hidden])[aria-expanded=true],#feedsearch:not([hidden])[aria-expanded=true],#feedsearch:not([hidden]).is-on{position:static;width:44px;height:44px;min-width:44px;min-height:44px;margin:0;padding:0;border:0;border-radius:22px;background:transparent;box-shadow:none;color:#fff;transform:none;filter:none}
  #sortbtn:not([hidden]):focus-visible,#feedsearch:not([hidden]):focus-visible{outline:2px solid #fff;outline-offset:2px;color:#fff}
+ body.is-all .feed-tools .tab-tool svg,body.is-all #sortbtn:not([hidden]) svg,body.is-all #feedsearch:not([hidden]) svg{stroke:#000;filter:none}
+ body.is-all #sortbtn:not([hidden]),body.is-all #feedsearch:not([hidden]),body.is-all #sortbtn:not([hidden]):hover,body.is-all #sortbtn:not([hidden]):active,body.is-all #feedsearch:not([hidden]):hover,body.is-all #feedsearch:not([hidden]):active,body.is-all #sortbtn:not([hidden])[aria-expanded=true],body.is-all #feedsearch:not([hidden])[aria-expanded=true],body.is-all #feedsearch:not([hidden]).is-on,body.is-all #sortbtn:not([hidden]):focus-visible,body.is-all #feedsearch:not([hidden]):focus-visible{color:#000}
  #sortbtn:not([hidden]) .tab-tool-label,#sortbtn:not([hidden]) .tab-tool-value,#feedsearch:not([hidden]) .tab-tool-label{display:none}
  body.is-buy .loader{margin-bottom:108px}
  #forumsearch:not([hidden]){position:fixed;z-index:32;right:14px;bottom:calc(64px + 12px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:999px;background:#000;color:var(--acc);box-shadow:0 8px 22px rgba(0,0,0,.55)}

@@ -117,8 +117,11 @@ $('#bell').onclick=e=>{e.stopPropagation();toggleAlerts()};
 $('#ig').href=INSTAGRAM_URL;$('#tt').href=TIKTOK_URL;const menuIg=$('#menu-ig'),menuTt=$('#menu-tt');if(menuIg)menuIg.href=INSTAGRAM_URL;if(menuTt)menuTt.href=TIKTOK_URL;
 const menuBtn=$('#menubtn'),appMenu=$('#appmenu'),menuBack=$('#menu-back');
 function menuItems(){return [...appMenu.querySelectorAll('a,button')].filter(el=>!el.hidden&&el.getClientRects().length).sort((a,b)=>{const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();return ra.top-rb.top||ra.left-rb.left})}
+let inputModality='keyboard';
+document.addEventListener('pointerdown',()=>{inputModality='pointer';document.documentElement.classList.remove('using-keyboard')},{capture:true});
+document.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;inputModality='keyboard';document.documentElement.classList.add('using-keyboard')},{capture:true});
 function closeMenu(focusBack){if(!appMenu)return;const wasOpen=!appMenu.hidden;appMenu.hidden=true;if(menuBack)menuBack.hidden=true;document.body.classList.remove('menu-open');if(menuBtn)menuBtn.setAttribute('aria-expanded','false');if(wasOpen&&focusBack&&menuBtn)menuBtn.focus()}
-function openMenu(){if(!appMenu)return;appMenu.hidden=false;if(menuBack)menuBack.hidden=false;document.body.classList.add('menu-open');if(menuBtn)menuBtn.setAttribute('aria-expanded','true');const search=$('#menu-search');if(search)search.hidden=!document.body.classList.contains('is-buy');const first=menuItems()[0];if(first)first.focus()}
+function openMenu(){if(!appMenu)return;appMenu.hidden=false;if(menuBack)menuBack.hidden=false;document.body.classList.add('menu-open');if(menuBtn)menuBtn.setAttribute('aria-expanded','true');const search=$('#menu-search');if(search)search.hidden=!document.body.classList.contains('is-buy');const first=menuItems().find(el=>el.id!=='menu-close');if(inputModality!=='pointer'&&first)first.focus({preventScroll:true})}
 menuBtn.onclick=()=>{closeAlerts();if(appMenu.hidden)openMenu();else closeMenu(false)};
 if($('#menu-close'))$('#menu-close').onclick=()=>closeMenu(true);
 if(menuBack)menuBack.onclick=()=>closeMenu(false);
