@@ -11,8 +11,13 @@ function fEl(tag, attrs, text) {
 function fHandleNode(row) {
   const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
   const name = profile && profile.username ? String(profile.username).replace(/^@/, '') : '';
-  if (!name) return fEl('span', { class: 'fhandle' }, '@driver');
-  return fEl('a', { class: 'fhandle', href: '#/u/' + encodeURIComponent(name) }, '@' + name);
+  const node = !name
+    ? fEl('span', { class: 'fhandle' }, '@driver')
+    : fEl('a', { class: 'fhandle', href: '#/u/' + encodeURIComponent(name) }, '@' + name);
+  const fresh = bestSeen(name, profile && profile.last_seen_at);
+  if (fresh.self) node.setAttribute('data-self-presence', '1');
+  if (Presence.online(fresh.stamp)) node.insertAdjacentHTML('beforeend', Presence.dot(fresh.stamp));
+  return node;
 }
 function fCount(rel) {
   if (!rel) return 0;

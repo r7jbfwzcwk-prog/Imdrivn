@@ -43,6 +43,65 @@ const sb = (window.supabase && window.supabase.createClient)
     })
   : null;
 
+const Presence = {
+  ONLINE_MS: 120000,
+  BEAT_MS: 60000,
+  NUDGE_MS: 30000,
+  column: false,
+  timer: 0,
+  lastNudge: 0,
+  selfSeen: '',
+  onSelf: null,
+  online(seen) {
+    const t = Date.parse(seen || '');
+    return Number.isFinite(t) && Date.now() - t < this.ONLINE_MS;
+  },
+  dot(seen) {
+    if (!this.online(seen)) return '';
+    const stamp = String(seen || '').replace(/[^0-9TZ:+.\-]/g, '');
+    return `<span class="online" data-seen="${stamp}" title="Online" aria-label="Online"></span>`;
+  },
+  async ping(force) {
+    if (!sb || !Auth.user || document.visibilityState === 'hidden') return;
+    const now = Date.now();
+    if (!force && now - this.lastNudge < this.NUDGE_MS) return;
+    this.lastNudge = now;
+    try {
+      const res = await sb.rpc('touch_presence');
+      if (res && res.error) return;
+      const stamp = res && typeof res.data === 'string' && res.data ? res.data : new Date().toISOString();
+      this.selfSeen = stamp;
+      if (Auth.profile) Auth.profile.last_seen_at = stamp;
+      if (this.onSelf) this.onSelf();
+    } catch (e) {}
+  },
+  nudge() { this.ping(false); },
+  start() {
+    if (!Auth.user || document.visibilityState === 'hidden') { this.stop(); return; }
+    if (this.timer) return;
+    this.ping(true);
+    this.timer = setInterval(() => { this.ping(true); }, this.BEAT_MS);
+  },
+  stop() {
+    if (this.timer) clearInterval(this.timer);
+    this.timer = 0;
+  }
+};
+Presence.ready = (async () => {
+  if (!sb) return false;
+  try {
+    const res = await sb.from('profiles').select('last_seen_at').limit(1);
+    Presence.column = !res.error;
+  } catch (e) { Presence.column = false; }
+  return Presence.column;
+})();
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') Presence.stop();
+  else Presence.start();
+});
+function ownProfileCols() {
+  return 'id,username,display_name,avatar_url,is_admin' + (Presence.column ? ',last_seen_at' : '');
+}
 const Auth = {
   user: null,
   profile: null,
@@ -55,8 +114,9 @@ const Auth = {
   emit() { this.listeners.forEach(fn => { try { fn(); } catch (e) {} }); },
   async sync() {
     if (!this.user) { this.profile = null; this.likes = new Set(); this.saves = new Set(); return; }
+    await Presence.ready;
     const [profile, likes, saves] = await Promise.all([
-      sb.from('profiles').select('id,username,display_name,avatar_url,is_admin').eq('id', this.user.id).maybeSingle(),
+      sb.from('profiles').select(ownProfileCols()).eq('id', this.user.id).maybeSingle(),
       sb.from('likes').select('listing_id').eq('user_id', this.user.id),
       sb.from('saves').select('listing_id').eq('user_id', this.user.id)
     ]);
@@ -147,10 +207,11 @@ const Auth = {
     const username = this.cleanHandle(raw);
     if (!this.handleOk(username)) throw new Error('Use 3–20 characters: letters, numbers, dots, and underscores.');
     const id = this.user.id;
-    let res = await sb.from('profiles').update({ username }).eq('id', id).select('id,username,display_name,avatar_url,is_admin').maybeSingle();
+    await Presence.ready;
+    let res = await sb.from('profiles').update({ username }).eq('id', id).select(ownProfileCols()).maybeSingle();
     if (res.error) throw new Error(handleError(res.error));
     if (!res.data) {
-      res = await sb.from('profiles').insert({ id, username }).select('id,username,display_name,avatar_url,is_admin').single();
+      res = await sb.from('profiles').insert({ id, username }).select(ownProfileCols()).single();
       if (res.error) throw new Error(handleError(res.error));
     }
     this.profile = res.data;
@@ -204,7 +265,10 @@ function storageMessage(error) {
   return msg || 'The photo upload failed. Try a smaller JPG.';
 }
 
-const LISTING_SELECT = 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,rego,vin,photos,status,created_at,profiles!listings_user_id_fkey(username,display_name),likes(count),saves(count)';
+function listingSelect() {
+  const who = Presence.column ? 'username,display_name,last_seen_at' : 'username,display_name';
+  return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,rego,vin,photos,status,created_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
+}
 
 function countOf(rel) {
   if (rel == null) return 0;
@@ -256,6 +320,7 @@ function mapListing(row) {
     photoPaths: Array.isArray(row.photos) ? row.photos.slice() : [],
     status: row.status,
     handle: (profile && profile.username) || 'you',
+    last_seen_at: (profile && profile.last_seen_at) || '',
     when: whenLabel(row.created_at),
     likeCount: countOf(row.likes),
     liked: Auth.likes.has(row.id),
@@ -517,7 +582,8 @@ const ListingStore = {
   async page({ mode, from, to, saved, filters, sort }) {
     if (!sb) return [];
     await Auth.ready;
-    let q = sb.from('listings').select(LISTING_SELECT).eq('status', 'active');
+    await Presence.ready;
+    let q = sb.from('listings').select(listingSelect()).eq('status', 'active');
     if (mode && mode !== 'all') q = q.eq('mode', mode);
     if (saved) {
       if (!Auth.user) return [];
@@ -544,7 +610,8 @@ const ListingStore = {
     if (!fresh && this.cache.has(id)) return this.cache.get(id);
     if (!sb || !/^[0-9a-f-]{36}$/i.test(id)) return null;
     await Auth.ready;
-    const { data, error } = await sb.from('listings').select(LISTING_SELECT).eq('id', id).maybeSingle();
+    await Presence.ready;
+    const { data, error } = await sb.from('listings').select(listingSelect()).eq('id', id).maybeSingle();
     if (error || !data) return null;
     return this.remember([mapListing(data)])[0];
   },
@@ -554,7 +621,8 @@ const ListingStore = {
   },
   async bySeller(userId, includeHidden) {
     if (!sb || !userId) return [];
-    let q = sb.from('listings').select(LISTING_SELECT).eq('user_id', userId).order('created_at', { ascending: false });
+    await Presence.ready;
+    let q = sb.from('listings').select(listingSelect()).eq('user_id', userId).order('created_at', { ascending: false });
     if (!includeHidden) q = q.eq('status', 'active');
     const { data, error } = await q;
     if (error) throw new Error(dbMessage(error));
@@ -607,7 +675,7 @@ const ListingStore = {
       throw new Error('Could not save your contact details, so the ad was not posted. ' + dbMessage(contact.error));
     }
     if (listing.name && Auth.profile && !String(Auth.profile.display_name || '').trim()) {
-      const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select('id,username,display_name,avatar_url,is_admin').maybeSingle();
+      const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select(ownProfileCols()).maybeSingle();
       if (!named.error && named.data) Auth.profile = named.data;
     }
     return this.get(inserted.data.id);
@@ -677,7 +745,7 @@ const ListingStore = {
     if (drop.length) await sb.storage.from('listing-photos').remove(drop);
     await saveListingContact(id, uid, email, mobile);
     if (listing.name && Auth.profile && !String(Auth.profile.display_name || '').trim()) {
-      const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select('id,username,display_name,avatar_url,is_admin').maybeSingle();
+      const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select(ownProfileCols()).maybeSingle();
       if (!named.error && named.data) Auth.profile = named.data;
     }
     this.cache.delete(id);
@@ -777,8 +845,10 @@ const Forum = {
     return data;
   },
   async threads(categoryId) {
+    await Presence.ready;
+    const who = Presence.column ? 'profiles(username,last_seen_at)' : 'profiles(username)';
     const { data, error } = await sb.from('forum_threads')
-      .select('id, title, created_at, last_activity_at, reply_count, author_id, profiles(username)')
+      .select('id, title, created_at, last_activity_at, reply_count, author_id, ' + who)
       .eq('category_id', categoryId)
       .order('last_activity_at', { ascending: false });
     if (error) throw new Error(forumErr(error));
@@ -786,8 +856,10 @@ const Forum = {
   },
   async thread(id) {
     if (!/^[0-9a-f-]{8,}$/i.test(String(id)) && !/^\d+$/.test(String(id))) return null;
+    await Presence.ready;
+    const who = Presence.column ? 'profiles(username,last_seen_at)' : 'profiles(username)';
     const thread = await sb.from('forum_threads')
-      .select('id, category_id, author_id, title, body, created_at, last_activity_at, reply_count, profiles(username), forum_categories(slug, name)')
+      .select('id, category_id, author_id, title, body, created_at, last_activity_at, reply_count, ' + who + ', forum_categories(slug, name)')
       .eq('id', id).maybeSingle();
     if (thread.error) {
       if (/invalid input syntax|22P02/i.test(thread.error.message || '')) return null;
@@ -795,7 +867,7 @@ const Forum = {
     }
     if (!thread.data) return null;
     const replies = await sb.from('forum_replies')
-      .select('id, thread_id, author_id, body, created_at, profiles(username)')
+      .select('id, thread_id, author_id, body, created_at, ' + who)
       .eq('thread_id', id).order('created_at', { ascending: true });
     if (replies.error) throw new Error(forumErr(replies.error));
     return { thread: thread.data, replies: replies.data || [] };
@@ -869,7 +941,9 @@ const Garage = {
     const name = Auth.cleanHandle(handle);
     if (!Auth.handleOk(name)) return null;
     const pattern = name.replace(/[\\%_]/g, ch => '\\' + ch);
-    const { data, error } = await sb.from('profiles').select('id,username,created_at').ilike('username', pattern).limit(5);
+    await Presence.ready;
+    const cols = 'id,username,created_at' + (Presence.column ? ',last_seen_at' : '');
+    const { data, error } = await sb.from('profiles').select(cols).ilike('username', pattern).limit(5);
     if (error) throw new Error(garageErr(error));
     return (data || []).find(row => String(row.username || '').toLowerCase() === name) || null;
   },
@@ -941,12 +1015,15 @@ const Chat = {
     const rows = (data || []).slice().sort((a, b) => Date.parse(b.last_message_at || b.created_at || 0) - Date.parse(a.last_message_at || a.created_at || 0));
     const listingIds = [...new Set(rows.map(r => r.listing_id).filter(Boolean))];
     const peopleIds = [...new Set(rows.flatMap(r => [r.buyer_id, r.seller_id]).filter(Boolean))];
+    await Presence.ready;
+    const peopleCols = Presence.column ? 'id,username,last_seen_at' : 'id,username';
     const [listings, profiles] = await Promise.all([
       listingIds.length ? sb.from('listings').select('id,heading,year,make,model,photos,price,mode').in('id', listingIds) : { data: [] },
-      peopleIds.length ? sb.from('profiles').select('id,username').in('id', peopleIds) : { data: [] }
+      peopleIds.length ? sb.from('profiles').select(peopleCols).in('id', peopleIds) : { data: [] }
     ]);
     const listingById = new Map((listings.data || []).map(l => [l.id, l]));
     const handleById = new Map((profiles.data || []).map(p => [p.id, p.username]));
+    const seenById = new Map((profiles.data || []).map(p => [p.id, p.last_seen_at || '']));
     let unreadIds = null;
     try { unreadIds = await this.unreadIds(); } catch (e) { unreadIds = null; }
     return rows.map(row => {
@@ -962,6 +1039,7 @@ const Chat = {
         when: whenLabel(row.last_message_at || row.created_at),
         unread: unreadIds ? unreadIds.has(row.id) : chatUnread(row, uid),
         handle: handleById.get(other) || 'member',
+        last_seen_at: seenById.get(other) || '',
         heading: listing.heading || [listing.year, listing.make, listing.model].filter(Boolean).join(' ') || 'Listing',
         price: listing.price,
         mode: listing.mode || '',
@@ -1009,6 +1087,7 @@ const Chat = {
       body: text
     }).select('id,conversation_id,sender_id,body,created_at').single();
     if (error) throw new Error(chatErr(error));
+    Presence.nudge();
     return data;
   },
   async markRead(conv, stamp) {
@@ -1039,8 +1118,9 @@ function noteErr(error) {
 const Notes = {
   async list() {
     if (!sb || !Auth.user) return [];
+    await Presence.ready;
     const { data, error } = await sb.from('notifications')
-      .select('id,kind,actor_id,thread_id,reply_id,conversation_id,message_id,thread_title,preview,read_at,created_at,actor:profiles!notifications_actor_id_fkey(username),thread:forum_threads!notifications_thread_id_fkey(title,author_id)')
+      .select('id,kind,actor_id,thread_id,reply_id,conversation_id,message_id,thread_title,preview,read_at,created_at,actor:profiles!notifications_actor_id_fkey(' + (Presence.column ? 'username,last_seen_at' : 'username') + '),thread:forum_threads!notifications_thread_id_fkey(title,author_id)')
       .order('created_at', { ascending: false })
       .limit(40);
     if (error) throw new Error(noteErr(error));
@@ -1057,6 +1137,7 @@ const Notes = {
         messageId: row.message_id,
         preview: row.preview || '',
         handle: actor && actor.username ? String(actor.username).replace(/^@/, '') : '',
+        last_seen_at: (actor && actor.last_seen_at) || '',
         title: (thread && thread.title) || row.thread_title || '',
         yours: !!(thread && thread.author_id === uid),
         read: !!row.read_at,
@@ -1108,8 +1189,9 @@ const Reports = {
   },
   async open() {
     if (!sb || !Auth.user) return [];
+    await Presence.ready;
     const { data, error } = await sb.from('ad_reports')
-      .select('id,listing_id,reason,details,status,created_at,reporter:profiles!ad_reports_reporter_id_fkey(username),listing:listings!ad_reports_listing_id_fkey(id,heading,year,make,model,user_id,status)')
+      .select('id,listing_id,reason,details,status,created_at,reporter:profiles!ad_reports_reporter_id_fkey(' + (Presence.column ? 'username,last_seen_at' : 'username') + '),listing:listings!ad_reports_listing_id_fkey(id,heading,year,make,model,user_id,status)')
       .eq('status', 'open')
       .order('created_at', { ascending: true });
     if (error) throw new Error(error.message || 'Could not load reports.');
@@ -1124,6 +1206,7 @@ const Reports = {
         details: row.details || '',
         when: whenLabel(row.created_at),
         reporter: reporter && reporter.username ? String(reporter.username).replace(/^@/, '') : '',
+        last_seen_at: (reporter && reporter.last_seen_at) || '',
         title: title || 'Listing',
         sellerId: listing && listing.user_id || '',
         status: row.status
