@@ -270,20 +270,20 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
 @media(max-width:768px){
   body.is-lanes .chooser-paths,body.is-sell .sell-cols{gap:0}
   body.is-lanes .lanes,body.is-sell .sell-lanes{background:transparent}
-  .lane-daily,.sell-list{background:color-mix(in srgb,#2f7bff 78%,#10203f)}
-  .lane-performance{background:color-mix(in srgb,#e5242b 76%,#2a0c0e)}
-  .lane-supercar{background:color-mix(in srgb,#d9a441 80%,#3a2a10)}
-  .sell-whole{background:color-mix(in srgb,#22c55e 74%,#0c2e18)}
+  .lane-daily,.sell-list{background:#183e80}
+  .lane-performance{background:#6f1216}
+  .lane-supercar{background:#6e5421}
+  .sell-whole{background:#115f2e}
   .lane-daily::before,.lane-daily:hover::before,.lane-daily:active::before,.lane-daily.is-lit::before,.lane-daily:focus-within::before,
   .lane-performance::before,.lane-performance:hover::before,.lane-performance:active::before,.lane-performance.is-lit::before,.lane-performance:focus-within::before,
   .lane-supercar::before,.lane-supercar:hover::before,.lane-supercar:active::before,.lane-supercar.is-lit::before,.lane-supercar:focus-within::before,
   .sell-list::before,.sell-list:hover::before,.sell-list:active::before,.sell-list.is-lit::before,.sell-list:focus-within::before,
   .sell-whole::before,.sell-whole:hover::before,.sell-whole:active::before,.sell-whole.is-lit::before,.sell-whole:focus-within::before{background:transparent;box-shadow:none}
   .lane-daily .path,.lane-daily .path:hover,.lane-daily .path:active,.lane-daily .path:focus-visible,.lane-daily:hover .path,.lane-daily:focus-within .path,.lane-daily.is-lit .path,.lane-daily:active .path,
-  .sell-list .path,.sell-list .path:hover,.sell-list .path:active,.sell-list .path:focus-visible,.sell-list:hover .path,.sell-list:focus-within .path,.sell-list.is-lit .path,.sell-list:active .path{background:color-mix(in srgb,#2f7bff 52%,#0a1428);border-color:rgba(255,255,255,.42);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
-  .lane-performance .path,.lane-performance .path:hover,.lane-performance .path:active,.lane-performance .path:focus-visible,.lane-performance:hover .path,.lane-performance:focus-within .path,.lane-performance.is-lit .path,.lane-performance:active .path{background:color-mix(in srgb,#e5242b 50%,#1a0809);border-color:rgba(255,255,255,.42);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
-  .lane-supercar .path,.lane-supercar .path:hover,.lane-supercar .path:active,.lane-supercar .path:focus-visible,.lane-supercar:hover .path,.lane-supercar:focus-within .path,.lane-supercar.is-lit .path,.lane-supercar:active .path{background:color-mix(in srgb,#d9a441 48%,#1c1408);border-color:rgba(255,255,255,.45);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
-  .sell-whole .path,.sell-whole .path:hover,.sell-whole .path:active,.sell-whole .path:focus-visible,.sell-whole:hover .path,.sell-whole:focus-within .path,.sell-whole.is-lit .path,.sell-whole:active .path{background:color-mix(in srgb,#22c55e 48%,#07140c);border-color:rgba(255,255,255,.42);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .sell-list .path,.sell-list .path:hover,.sell-list .path:active,.sell-list .path:focus-visible,.sell-list:hover .path,.sell-list:focus-within .path,.sell-list.is-lit .path,.sell-list:active .path{background:#112b58;border-color:rgba(255,255,255,.32);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .lane-performance .path,.lane-performance .path:hover,.lane-performance .path:active,.lane-performance .path:focus-visible,.lane-performance:hover .path,.lane-performance:focus-within .path,.lane-performance.is-lit .path,.lane-performance:active .path{background:#4a0d0f;border-color:rgba(255,255,255,.32);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .lane-supercar .path,.lane-supercar .path:hover,.lane-supercar .path:active,.lane-supercar .path:focus-visible,.lane-supercar:hover .path,.lane-supercar:focus-within .path,.lane-supercar.is-lit .path,.lane-supercar:active .path{background:#453414;border-color:rgba(255,255,255,.34);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .sell-whole .path,.sell-whole .path:hover,.sell-whole .path:active,.sell-whole .path:focus-visible,.sell-whole:hover .path,.sell-whole:focus-within .path,.sell-whole.is-lit .path,.sell-whole:active .path{background:#0c3d1e;border-color:rgba(255,255,255,.32);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
   body.is-lanes .lanes .path .wide,body.is-sell .sell-col .path .wide{background:none;-webkit-background-clip:border-box;background-clip:border-box;-webkit-text-fill-color:#fff;color:#fff;filter:none}
   body.is-lanes .lanes .path .tag,body.is-lanes .lanes .path .muted,body.is-lanes .lanes .path .ico,body.is-lanes .lanes .path .btn,
   body.is-sell .sell-col .path .tag,body.is-sell .sell-col .path .muted,body.is-sell .sell-col .path .ico,body.is-sell .sell-col .path .btn,body.is-sell .sell-col .sell-note{color:#fff;border-color:rgba(255,255,255,.75)}
