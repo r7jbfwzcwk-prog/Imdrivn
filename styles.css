@@ -268,17 +268,27 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
 .sell-col .path:hover,.sell-col .path:focus-visible,.sell-col .path:active,.sell-col:hover .path,.sell-col:focus-within .path,.sell-col.is-lit .path{transform:scale(1.04);background:#000;border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 0 28px var(--glow)}
 @media(prefers-reduced-motion:reduce){.sell-col .path:hover,.sell-col .path:focus-visible,.sell-col .path:active,.sell-col:hover .path{transform:none}}
 @media(max-width:768px){
-  .lane-daily::before,.lane-daily:hover::before,.lane-daily:active::before,.lane-daily.is-lit::before,.lane-daily:focus-within::before{background:rgba(47,123,255,.165);box-shadow:none}
-  .lane-performance::before,.lane-performance:hover::before,.lane-performance:active::before,.lane-performance.is-lit::before,.lane-performance:focus-within::before{background:rgba(229,36,43,.165);box-shadow:none}
-  .lane-supercar::before,.lane-supercar:hover::before,.lane-supercar:active::before,.lane-supercar.is-lit::before,.lane-supercar:focus-within::before{background:rgba(217,164,65,.165);box-shadow:none}
-  .sell-list::before,.sell-list:hover::before,.sell-list:active::before,.sell-list.is-lit::before,.sell-list:focus-within::before{background:rgba(47,123,255,.165);box-shadow:none}
-  .sell-whole::before,.sell-whole:hover::before,.sell-whole:active::before,.sell-whole.is-lit::before,.sell-whole:focus-within::before{background:rgba(34,197,94,.165);box-shadow:none}
-  .lanes .path:hover,.lanes .path:active,.lanes .path:focus-visible,.lane-col:hover .path,.lane-col:focus-within .path,.lane-col.is-lit .path,.lane-col:active .path,
-  .sell-col .path:hover,.sell-col .path:active,.sell-col .path:focus-visible,.sell-col:hover .path,.sell-col:focus-within .path,.sell-col.is-lit .path,.sell-col:active .path,
+  body.is-lanes .chooser-paths,body.is-sell .sell-cols{gap:0}
+  body.is-lanes .lanes,body.is-sell .sell-lanes{background:transparent}
+  .lane-daily,.sell-list{background:color-mix(in srgb,#2f7bff 78%,#10203f)}
+  .lane-performance{background:color-mix(in srgb,#e5242b 76%,#2a0c0e)}
+  .lane-supercar{background:color-mix(in srgb,#d9a441 80%,#3a2a10)}
+  .sell-whole{background:color-mix(in srgb,#22c55e 74%,#0c2e18)}
+  .lane-daily::before,.lane-daily:hover::before,.lane-daily:active::before,.lane-daily.is-lit::before,.lane-daily:focus-within::before,
+  .lane-performance::before,.lane-performance:hover::before,.lane-performance:active::before,.lane-performance.is-lit::before,.lane-performance:focus-within::before,
+  .lane-supercar::before,.lane-supercar:hover::before,.lane-supercar:active::before,.lane-supercar.is-lit::before,.lane-supercar:focus-within::before,
+  .sell-list::before,.sell-list:hover::before,.sell-list:active::before,.sell-list.is-lit::before,.sell-list:focus-within::before,
+  .sell-whole::before,.sell-whole:hover::before,.sell-whole:active::before,.sell-whole.is-lit::before,.sell-whole:focus-within::before{background:transparent;box-shadow:none}
+  .lane-daily .path,.lane-daily .path:hover,.lane-daily .path:active,.lane-daily .path:focus-visible,.lane-daily:hover .path,.lane-daily:focus-within .path,.lane-daily.is-lit .path,.lane-daily:active .path,
+  .sell-list .path,.sell-list .path:hover,.sell-list .path:active,.sell-list .path:focus-visible,.sell-list:hover .path,.sell-list:focus-within .path,.sell-list.is-lit .path,.sell-list:active .path{background:color-mix(in srgb,#2f7bff 52%,#0a1428);border-color:rgba(255,255,255,.42);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .lane-performance .path,.lane-performance .path:hover,.lane-performance .path:active,.lane-performance .path:focus-visible,.lane-performance:hover .path,.lane-performance:focus-within .path,.lane-performance.is-lit .path,.lane-performance:active .path{background:color-mix(in srgb,#e5242b 50%,#1a0809);border-color:rgba(255,255,255,.42);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .lane-supercar .path,.lane-supercar .path:hover,.lane-supercar .path:active,.lane-supercar .path:focus-visible,.lane-supercar:hover .path,.lane-supercar:focus-within .path,.lane-supercar.is-lit .path,.lane-supercar:active .path{background:color-mix(in srgb,#d9a441 48%,#1c1408);border-color:rgba(255,255,255,.45);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .sell-whole .path,.sell-whole .path:hover,.sell-whole .path:active,.sell-whole .path:focus-visible,.sell-whole:hover .path,.sell-whole:focus-within .path,.sell-whole.is-lit .path,.sell-whole:active .path{background:color-mix(in srgb,#22c55e 48%,#07140c);border-color:rgba(255,255,255,.42);transform:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  body.is-lanes .lanes .path .wide,body.is-sell .sell-col .path .wide{background:none;-webkit-background-clip:border-box;background-clip:border-box;-webkit-text-fill-color:#fff;color:#fff;filter:none}
+  body.is-lanes .lanes .path .tag,body.is-lanes .lanes .path .muted,body.is-lanes .lanes .path .ico,body.is-lanes .lanes .path .btn,
+  body.is-sell .sell-col .path .tag,body.is-sell .sell-col .path .muted,body.is-sell .sell-col .path .ico,body.is-sell .sell-col .path .btn,body.is-sell .sell-col .sell-note{color:#fff;border-color:rgba(255,255,255,.75)}
   body.is-home .home-paths .path:hover,body.is-home .home-paths .path:active{transform:none;box-shadow:none}
-  .lanes .path:hover,.lanes .path:active,.lane-col:hover .path,.lane-col:focus-within .path,.lane-col.is-lit .path,.lane-col:active .path,
-  .sell-col .path:hover,.sell-col .path:active,.sell-col:hover .path,.sell-col:focus-within .path,.sell-col.is-lit .path,.sell-col:active .path{background:rgba(0,0,0,.45)}
-  .lanes .path:focus-visible,.sell-col .path:focus-visible,body.is-home .home-paths .path:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+  .lanes .path:focus-visible,.sell-col .path:focus-visible,body.is-home .home-paths .path:focus-visible{outline:2px solid #fff;outline-offset:3px}
 }
 .sell-col .btn,.sell-col .btn:hover{border-color:var(--acc);color:var(--acc);background:transparent}
 @property --acc{syntax:'<color>';inherits:true;initial-value:#2f7bff}
@@ -351,10 +361,10 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   .menu-scroll{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:auto}
   .appmenu[hidden]{display:none}
   .menu-head{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 4px 8px;color:#d9a441;font-weight:600;letter-spacing:.14em}
-  #menu-close{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:#d9a441;cursor:pointer}
+  #menu-close{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#d9a441;cursor:pointer;appearance:none;-webkit-appearance:none}
   #menu-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
-  #menu-close:hover,#menu-close:active{transform:none;background:transparent;color:#d9a441}
-  #menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:2px}
+  #menu-close:hover,#menu-close:active{transform:none;background:transparent;color:#d9a441;box-shadow:none}
+  #menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
   .appmenu a,.appmenu button.menu-act{display:flex;align-items:center;justify-content:flex-start;width:100%;min-height:48px;padding:0 14px;border:0;border-bottom:1px solid rgba(217,164,65,.35);border-radius:0;background:transparent;color:#f2f2f2;font:600 .95rem/1.2 var(--font-body);letter-spacing:.08em;text-align:left;text-decoration:none;text-transform:uppercase;cursor:pointer}
   .menu-head,.menu-head span{text-transform:uppercase;letter-spacing:.14em}
   .appmenu a:hover,.appmenu a:focus-visible,.appmenu button.menu-act:hover,.appmenu button.menu-act:focus-visible{background:#14120c;color:#d9a441;outline:none}
@@ -861,7 +871,8 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   body.is-lanes .lanes-head,body.is-sell .sell-intro{position:relative;padding:8px 14px 4px}
   body.is-lanes .lane-daily,body.is-sell .sell-list{padding-top:8px}
   body.is-lanes .lane-col{padding:6px 12px}
-  body.is-lanes .chooser-paths{padding-bottom:56px;box-sizing:border-box}
+  body.is-lanes .chooser-paths,body.is-sell .sell-cols{gap:0;padding-bottom:0}
+  body.is-lanes .lane-supercar{padding-bottom:calc(52px + env(safe-area-inset-bottom))}
   body.is-lanes .view-all-row{position:fixed;left:12px;right:12px;bottom:calc(64px + 6px);z-index:5}
   body.is-buy #sbtn{display:none !important}
 }
