@@ -116,22 +116,16 @@ const ListFlow = (() => {
     const editing = !!(opts && opts.editing);
     const photoNeed = editing ? 'Add at least one photo before you update. The first one is the cover.' : 'Add at least one photo before you post. The first one is the cover.';
     let i = 0, busy = false, suggestOn = false, steps = [];
-    const POWER_NOTE = 'Electric/rotary';
     function boosted() { return draft.sec === 'performance' || draft.sec === 'supercars'; }
+    function clearHiddenPower() {
+      if (boosted()) return;
+      draft.cylinders = '';
+      draft.induction = '';
+    }
     function rebuildSteps() {
+      clearHiddenPower();
       steps = allSteps.filter(step => !step.boost || boosted());
       if (i >= steps.length) i = Math.max(0, steps.length - 1);
-    }
-    function notePower(on) {
-      const suffix = ' · ' + POWER_NOTE;
-      const text = draft.engine || '';
-      if (on) {
-        if (!text.trim()) draft.engine = POWER_NOTE;
-        else if (text !== POWER_NOTE && !text.endsWith(suffix) && !/electric|rotary/i.test(text)) draft.engine = text.trim() + suffix;
-        return;
-      }
-      if (text === POWER_NOTE) draft.engine = '';
-      else if (text.endsWith(suffix)) draft.engine = text.slice(0, -suffix.length).trim();
     }
     function mountPicks(body, spec) {
       const cur = spec.get();
@@ -172,7 +166,7 @@ const ListFlow = (() => {
           if (on) draft.sec = on.dataset.value;
           rebuildSteps();
         },
-        validate: () => ['daily','performance','supercars'].includes(draft.sec) ? '' : 'Pick a lane first — Daily, Performance, or Supercar.'
+        validate: () => ['daily','performance','supercars'].includes(draft.sec) ? '' : 'Pick a lane first. Daily, Performance, or Supercar.'
       },
       {
         question: "What's the make?",
@@ -216,14 +210,6 @@ const ListFlow = (() => {
         }
       },
       {
-        id: 'engine',
-        question: 'What engine you running?',
-        hint: 'Optional. 2JZ-GTE 3.0L, LS3, or leave it blank.',
-        mount(body) { body.innerHTML = field('ask-engine', {value: draft.engine, placeholder: '2JZ-GTE 3.0L', maxlength: 80, extra: 'spellcheck="false"'}); },
-        read() { const el = document.getElementById('ask-engine'); if (el) draft.engine = el.value.trim().slice(0, 80); },
-        validate: () => ''
-      },
-      {
         id: 'transmission',
         question: 'Auto or manual?',
         hint: 'Tap one. No typing.',
@@ -243,6 +229,7 @@ const ListFlow = (() => {
       },
       {
         id: 'cylinders',
+        boost: true,
         question: 'How many cylinders?',
         hint: 'Number only.',
         mount(body) { body.innerHTML = field('ask-cyl', {value: draft.cylinders, placeholder: '6', mode: 'numeric', maxlength: 2, extra: 'spellcheck="false"'}); },
@@ -257,6 +244,7 @@ const ListFlow = (() => {
       },
       {
         id: 'induction',
+        boost: true,
         question: 'What induction?',
         hint: 'N/A means naturally aspirated. Tap one.',
         mount(body) {
@@ -321,6 +309,7 @@ const ListFlow = (() => {
           body.innerHTML = `<div class="ask-stack">
             <label class="ask-lab">Registration${field('ask-rego', {value: draft.rego, placeholder: 'ABC123', maxlength: 12, extra: 'spellcheck="false" autocapitalize="characters"'})}</label>
             <label class="ask-lab">VIN${field('ask-vin', {value: draft.vin, placeholder: '17 characters', maxlength: 17, extra: 'spellcheck="false" autocapitalize="characters"'})}</label>
+            <p class="ask-private">Adding your VIN helps buyers request a VIN report through IM DRIVN to check for money owing and whether the vehicle is recorded as stolen or written off.</p>
           </div>`;
           document.getElementById('ask-vin').removeAttribute('data-autofocus');
         },
@@ -356,7 +345,7 @@ const ListFlow = (() => {
         },
         read() { const el = document.getElementById('ask-desc'); if (el) draft.desc = el.value.trim(); },
         validate() {
-          if (draft.desc.length < 12) return draft.desc ? 'Give it a proper sentence — buyers scroll past one-word captions.' : 'Write a sentence or two. Buyers can tell when it is empty.';
+          if (draft.desc.length < 12) return draft.desc ? 'Give it a proper sentence. Buyers scroll past one-word captions.' : 'Write a sentence or two. Buyers can tell when it is empty.';
           return '';
         }
       },
@@ -759,6 +748,7 @@ const ListFlow = (() => {
       if (msg) { setErr(msg); (step.invalid || (() => document.querySelector('.ask [data-autofocus]')?.focus()))(); return; }
       setErr('');
       if (i < steps.length - 1) { go(1); return; }
+      clearHiddenPower();
       busy = true;
       const btn = document.getElementById('ask-ok');
       if (btn) btn.disabled = true;

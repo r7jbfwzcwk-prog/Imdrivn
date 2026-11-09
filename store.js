@@ -278,14 +278,21 @@ function cylinderCount(value) {
   const n = +value;
   return n >= 1 && n <= 16 ? n : null;
 }
+function powerLane(listing) {
+  const sec = String((listing && (listing.sec || listing.mode)) || '').toLowerCase();
+  return sec === 'performance' || sec === 'supercars' || sec === 'supercar';
+}
 function listingSpec(listing) {
-  const induction = listing.induction === 'Turbo' || listing.induction === 'Supercharged' || listing.induction === 'N/A'
-    ? listing.induction
-    : (listing.supercharged === true ? 'Supercharged' : listing.turbo === true ? 'Turbo' : 'N/A');
   const rawTrans = String(listing.transmission || listing.trans || '').trim().toLowerCase();
   const transmission = rawTrans === 'manual' ? 'Manual' : (rawTrans === 'auto' || rawTrans === 'automatic' ? 'Auto' : null);
   const rego = String(listing.rego || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
   const vin = String(listing.vin || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 17);
+  if (!powerLane(listing)) {
+    return { cylinders: null, induction: 'N/A', turbo: false, supercharged: false, transmission, rego: rego || null, vin: vin || null };
+  }
+  const induction = listing.induction === 'Turbo' || listing.induction === 'Supercharged' || listing.induction === 'N/A'
+    ? listing.induction
+    : (listing.supercharged === true ? 'Supercharged' : listing.turbo === true ? 'Turbo' : 'N/A');
   return {
     cylinders: cylinderCount(listing.cylinders),
     induction,
@@ -565,7 +572,7 @@ const ListingStore = {
     if (!mobile) throw new Error('Use an Australian mobile, like 0412 345 678.');
     const spec = listingSpec(listing);
     if (!spec.transmission) throw new Error('Pick Auto or Manual.');
-    if (!spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
+    if (powerLane(listing) && !spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
     const paths = await uploadPaths(uid, listing.photos);
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
     const row = {
@@ -627,9 +634,9 @@ const ListingStore = {
     if (!mobile) throw new Error('Use an Australian mobile, like 0412 345 678.');
     const spec = listingSpec(listing);
     if (!spec.transmission) throw new Error('Pick Auto or Manual.');
-    if (!spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
+    if (powerLane(listing) && !spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
-    if (!['daily', 'performance', 'supercar'].includes(mode)) throw new Error('Pick a lane first — Daily, Performance, or Supercar.');
+    if (!['daily', 'performance', 'supercar'].includes(mode)) throw new Error('Pick a lane first. Daily, Performance, or Supercar.');
     const current = await sb.from('listings').select('id,photos,status').eq('id', id).eq('user_id', uid).maybeSingle();
     if (current.error) throw new Error(dbMessage(current.error));
     if (!current.data) throw new Error('You can only edit your own ad.');
