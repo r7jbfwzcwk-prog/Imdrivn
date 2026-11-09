@@ -416,6 +416,13 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
  .tab-tool{padding:7px;min-width:34px;min-height:34px}
  .tab-tool-label,.tab-tool-value{display:none}
 }
+@media(max-width:768px){
+ .top{backdrop-filter:none;-webkit-backdrop-filter:none}
+ #sortbtn:not([hidden]),#feedsearch:not([hidden]){position:fixed;z-index:32;bottom:calc(64px + 12px + env(safe-area-inset-bottom));width:44px;height:44px;min-width:44px;min-height:44px;margin:0;padding:0;border-radius:50%;background:#0a0a0b;box-shadow:0 6px 18px rgba(0,0,0,.55)}
+ #sortbtn:not([hidden]){left:14px}
+ #feedsearch:not([hidden]){right:14px}
+ #sortbtn:not([hidden]) .tab-tool-label,#sortbtn:not([hidden]) .tab-tool-value,#feedsearch:not([hidden]) .tab-tool-label{display:none}
+}
 #spanel{padding:12px 16px 16px;border-bottom:1px solid #1a1a1d;max-width:960px;margin:0 auto;background:#000;max-height:min(72dvh,720px);overflow:auto}
 #spanel[hidden]{display:none}
 .qs{display:grid;grid-template-columns:1fr;gap:10px;color-scheme:dark}
