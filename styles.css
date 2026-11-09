@@ -75,9 +75,9 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .landing{position:relative;min-height:calc(100svh - 57px - 64px);min-height:calc(100dvh - 57px - 64px);display:flex;flex-direction:column;background-image:linear-gradient(180deg,rgba(0,0,0,.28) 0%,rgba(0,0,0,.08) 18%,transparent 34%),url(https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1800&q=70);background-position:center 46%;background-size:cover}
   body.is-home .hero{flex:1 1 auto;min-height:0;position:static}
   body.is-home .hero .wrap{position:static;width:auto;padding:0}
-  body.is-home .hero h1{position:absolute;left:7%;right:10%;top:16%;z-index:3;margin:0;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.55)}
-  body.is-home .hero h1 .grey{position:static;color:#fff}
-  body.is-home .hero p{position:absolute;left:16%;right:16%;top:35%;z-index:3;margin:0;color:#111;text-align:center;text-shadow:none}
+  body.is-home .hero h1{position:absolute;left:4%;right:4%;top:31.5%;transform:translateY(-100%);z-index:3;margin:0;color:#fff;text-align:center;text-shadow:0 1px 10px rgba(0,0,0,.55);font-size:clamp(.68rem,3.15vw,.95rem);letter-spacing:.04em;line-height:1.25}
+  body.is-home .hero h1 .grey{position:static;color:#fff;display:inline}
+  body.is-home .hero p{position:absolute;left:8%;right:8%;top:33%;z-index:3;margin:0;color:#111;text-align:center;text-shadow:none}
   body.is-home .wrap.home-paths{margin-top:auto;padding:0 12px calc(10px + env(safe-area-inset-bottom))}
   body.is-home .home-paths .paths{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
   body.is-home .home-paths .path{min-height:64px;height:100%;justify-content:center}

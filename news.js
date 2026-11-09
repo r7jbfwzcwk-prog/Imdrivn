@@ -1,5 +1,5 @@
 /* News feed and article. Markdown is escaped first, then a small safe subset is marked up. */
-const NEWS_TITLE = 'IM DRIVN – The high performance marketplace';
+const NEWS_TITLE = "IM DRIVN – More than a Marketplace, It's a Community";
 const NEWS_DESC = "Australia's premium marketplace for high performance cars. Why pay to sell your car when you can list it here free!";
 
 function newsCatLabel(id) {
