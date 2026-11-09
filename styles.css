@@ -1,4 +1,5 @@
 /* ===== THEME — every colour, font, spacing, radius lives here ===== */
+@property --hdr-icon{syntax:"<color>";inherits:true;initial-value:#fff}
 :root{
  --font-head:"Michroma","Syncopate","Zen Dots",system-ui,sans-serif; --font-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
  --c-bg:#0a0a0b; --c-bg2:#111113; --c-surface:#141416; --c-surface2:#1b1b1e; --c-line:#2c2c30; --c-line2:#45454b;
@@ -316,9 +317,14 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .appmenu a:hover,.appmenu a:focus-visible{background:#1b1b1e;color:var(--acc);outline:none}
 @media(max-width:768px){
   .socials,body.is-buy #sbtn{display:none}
-  .mbar{display:grid;place-items:center;position:relative;width:44px;height:44px;color:#d9a441;text-decoration:none}
-  .ic #bell,.ic #menubtn,.mbar{width:44px;height:44px;color:#d9a441}
-  .top .ic #bell svg,.top .ic #menubtn svg,.top .mbar svg{stroke:#d9a441}
+  .mbar{display:grid;place-items:center;position:relative;width:44px;height:44px;color:var(--hdr-icon);text-decoration:none}
+  .ic #bell,.ic #menubtn,.mbar{width:44px;height:44px;color:var(--hdr-icon);transition:color .35s ease}
+  .top .ic #bell svg,.top .ic #menubtn svg,.top .mbar svg{stroke:var(--hdr-icon);transition:stroke .35s ease}
+  body{--hdr-icon:#fff;transition:--hdr-icon .35s ease}
+  body:has(#sortbtn:not([hidden]))[data-mode=daily]{--hdr-icon:#2f7bff}
+  body:has(#sortbtn:not([hidden]))[data-mode=performance]{--hdr-icon:#e5242b}
+  body:has(#sortbtn:not([hidden]))[data-mode=supercar]{--hdr-icon:#d9a441}
+  body:has(#sortbtn:not([hidden])).is-all{--hdr-icon:#c0c0c0}
   .bellwrap{display:flex;align-items:center}
   body.menu-open{overflow:hidden}
   body.menu-open .top{z-index:70;backdrop-filter:none;-webkit-backdrop-filter:none}
