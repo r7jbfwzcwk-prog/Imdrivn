@@ -76,6 +76,9 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .hero{flex:1 1 auto;min-height:0}
   body.is-home .hero h1{font-size:1.28rem}
   body.is-home .hero .hero-lead{display:none}
+  body.is-home .hero .wrap{position:relative;z-index:1;padding-top:13px}
+  body.is-home .hero .wrap::before{content:"";position:absolute;z-index:0;left:50%;width:100vw;top:0;bottom:-22px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.62) calc(100% - 22px),rgba(0,0,0,0) 100%);pointer-events:none}
+  body.is-home .hero .wrap>*{position:relative;z-index:1}
   body.is-home .wrap.home-paths{margin-top:auto;padding:0 12px calc(10px + env(safe-area-inset-bottom))}
   body.is-home .home-paths .paths{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
   body.is-home .home-paths .path{min-height:64px;height:100%;justify-content:center}
