@@ -1219,6 +1219,49 @@ const Reports = {
     if (error) throw new Error(error.message || 'Could not update that report.');
   }
 };
+function newsMissing(error) {
+  const msg = ((error && (error.message || error.details)) || '') + ' ' + ((error && error.code) || '');
+  return /PGRST205|42P01|schema cache|does not exist|news_articles/i.test(msg);
+}
+function newsImageUrl(path) {
+  const raw = String(path || '').trim();
+  if (!raw || /[\s"'<>\\]/.test(raw) || /^javascript:/i.test(raw) || raw.startsWith('data:')) return '';
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (!sb) return '';
+  const { data } = sb.storage.from('news-images').getPublicUrl(raw.replace(/^\/+/, ''));
+  const url = (data && data.publicUrl) || '';
+  return /[\s"'<>\\]/.test(url) ? '' : url;
+}
+const News = {
+  pageSize: 12,
+  cats: [['mods','Mods'],['manufacturer','Manufacturer'],['events','Events'],['reviews','Reviews'],['general','General']],
+  async list(category, from) {
+    if (!sb) return { rows: [], missing: true };
+    const start = Math.max(0, from || 0);
+    const end = start + this.pageSize - 1;
+    let q = sb.from('news_articles')
+      .select('id,slug,title,summary,cover_image_url,category,published_at')
+      .eq('status', 'published')
+      .lte('published_at', new Date().toISOString())
+      .order('published_at', { ascending: false });
+    if (category) q = q.eq('category', category);
+    const { data, error } = await q.range(start, end);
+    if (error) return newsMissing(error) ? { rows: [], missing: true } : { rows: [], failed: true };
+    return { rows: data || [] };
+  },
+  async get(slug) {
+    const clean = String(slug || '').trim();
+    if (!sb || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(clean)) return { row: null };
+    const { data, error } = await sb.from('news_articles')
+      .select('id,slug,title,summary,body,cover_image_url,image_urls,category,tags,source_name,source_url,author,status,published_at,instagram_post_url')
+      .eq('slug', clean)
+      .eq('status', 'published')
+      .lte('published_at', new Date().toISOString())
+      .maybeSingle();
+    if (error) return newsMissing(error) ? { row: null, missing: true } : { row: null, failed: true };
+    return { row: data || null };
+  }
+};
 function noteLine(note) {
   const who = '@' + (note.handle || 'driver');
   const title = note.title || 'a thread';
