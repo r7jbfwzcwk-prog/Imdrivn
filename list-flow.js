@@ -95,7 +95,7 @@ const ListFlow = (() => {
 
   function start(root, opts) {
     const seed = (opts && opts.draft) || {};
-    const draft = {sec:'', make:'', model:'', year:'', km:'', price:'', suburb:'', state:'', postcode:'', tagline:'', heading:'', desc:'', engine:'', cylinders:'', transmission:'', induction:'', rego:'', vin:'', photos:[], name:'', phone:'', email:''};
+    const draft = {sec:'', make:'', model:'', year:'', km:'', condition:'', price:'', suburb:'', state:'', postcode:'', tagline:'', heading:'', desc:'', engine:'', cylinders:'', transmission:'', induction:'', rego:'', vin:'', photos:[], name:'', phone:'', email:''};
     Object.keys(draft).forEach(key => { if (seed[key] !== undefined && seed[key] !== null) draft[key] = seed[key]; });
     draft.photos = Array.isArray(draft.photos) ? draft.photos.slice(0, PHOTO_MAX) : [];
     draft.year = draft.year == null ? '' : String(draft.year);
@@ -262,6 +262,24 @@ const ListFlow = (() => {
           draft.km = String(n);
           return '';
         }
+      },
+      {
+        id: 'condition',
+        question: "What's the condition?",
+        hint: 'Tap one. Be straight about it.',
+        mount(body) {
+          mountPicks(body, {
+            id: 'condition', choice: 'condition',
+            options: LISTING_CONDITIONS.map(v => [v, v]),
+            get: () => draft.condition,
+            set(v) { draft.condition = v; }
+          });
+        },
+        read() {
+          const on = document.querySelector('.ask [data-choice="condition"][aria-pressed="true"]');
+          if (on) draft.condition = on.dataset.value;
+        },
+        validate: () => LISTING_CONDITIONS.includes(draft.condition) ? '' : 'Tap a condition.'
       },
       {
         question: "What's your asking price?",
@@ -755,7 +773,7 @@ const ListFlow = (() => {
       if (!ask || !ask.isConnected || e.key !== 'Enter' || e.shiftKey || e.altKey || e.isComposing || e.repeat) return;
       if (!e.target.closest || !e.target.closest('.ask')) return;
       if (e.target.id === 'ask-rego') { e.preventDefault(); document.getElementById('ask-vin')?.focus(); return; }
-      if (e.target.closest('#ask-back') || e.target.closest('[data-choice="sec"]') || e.target.closest('[data-choice="trans"]') || e.target.closest('[data-choice="induct"]')) return;
+      if (e.target.closest('#ask-back') || e.target.closest('[data-choice="sec"]') || e.target.closest('[data-choice="trans"]') || e.target.closest('[data-choice="induct"]') || e.target.closest('[data-choice="condition"]')) return;
       if (e.target.closest('#ask-makes') || e.target.closest('#ask-models') || e.target.closest('#ask-places')) return;
       const stateBtn = e.target.closest('[data-choice="state"]');
       if (stateBtn) stateBtn.parentElement.querySelectorAll('[data-choice="state"]').forEach(b => b.setAttribute('aria-pressed', b === stateBtn));

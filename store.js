@@ -403,9 +403,14 @@ function storageMessage(error) {
   return msg || 'The photo upload failed. Try a smaller JPG.';
 }
 
+const LISTING_CONDITIONS = ["It's mint", 'Pretty good', 'Not bad', 'Average', 'Absolute shed'];
+function listingCondition(listing) {
+  const value = String((listing && listing.condition) || '').trim();
+  return LISTING_CONDITIONS.includes(value) ? value : '';
+}
 function listingSelect() {
   const who = Presence.column ? 'username,display_name,last_seen_at' : 'username,display_name';
-  return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,rego,vin,photos,status,created_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
+  return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,condition,rego,vin,photos,status,created_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
 }
 
 function countOf(rel) {
@@ -452,6 +457,7 @@ function mapListing(row) {
     induction: row.induction || (row.supercharged === true ? 'Supercharged' : row.turbo === true ? 'Turbo' : 'N/A'),
     transmission: row.transmission || '',
     trans: row.transmission || '',
+    condition: listingCondition(row),
     rego: row.rego || '',
     vin: row.vin || '',
     photos: (row.photos && row.photos.length ? row.photos.map(photoUrl) : ['data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7']),
@@ -777,7 +783,9 @@ const ListingStore = {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Add an email before you post.');
     if (!mobile) throw new Error('Use an Australian mobile, like 0412 345 678.');
     const spec = listingSpec(listing);
+    const condition = listingCondition(listing);
     if (!spec.transmission) throw new Error('Pick Auto or Manual.');
+    if (!condition) throw new Error('Pick a condition.');
     if (powerLane(listing) && !spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
     const paths = await uploadPaths(uid, listing.photos);
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
@@ -792,6 +800,7 @@ const ListingStore = {
       turbo: spec.turbo,
       supercharged: spec.supercharged,
       transmission: spec.transmission,
+      condition,
       rego: spec.rego,
       vin: spec.vin,
       photos: paths, status: 'active'
@@ -840,7 +849,9 @@ const ListingStore = {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Add an email before you update.');
     if (!mobile) throw new Error('Use an Australian mobile, like 0412 345 678.');
     const spec = listingSpec(listing);
+    const condition = listingCondition(listing);
     if (!spec.transmission) throw new Error('Pick Auto or Manual.');
+    if (!condition) throw new Error('Pick a condition.');
     if (powerLane(listing) && !spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
     if (!['daily', 'performance', 'supercar'].includes(mode)) throw new Error('Pick a lane first. Daily, Performance, or Supercar.');
@@ -867,6 +878,7 @@ const ListingStore = {
       turbo: spec.turbo,
       supercharged: spec.supercharged,
       transmission: spec.transmission,
+      condition,
       rego: spec.rego,
       vin: spec.vin,
       photos: next
