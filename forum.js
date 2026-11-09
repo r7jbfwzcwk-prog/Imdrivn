@@ -16,6 +16,7 @@ function fHandleNode(row) {
     : fEl('a', { class: 'fhandle', href: '#/u/' + encodeURIComponent(name) }, '@' + name);
   const fresh = bestSeen(name, profile && profile.last_seen_at);
   if (fresh.self) node.setAttribute('data-self-presence', '1');
+  if (profile && profile.member_verified === true) node.insertAdjacentHTML('beforeend', memberTick(true));
   if (Presence.online(fresh.stamp)) node.insertAdjacentHTML('beforeend', Presence.dot(fresh.stamp));
   return node;
 }
@@ -72,16 +73,94 @@ function fActions(authorId, onEdit, onDelete) {
   return row;
 }
 
+function fHighlight(text, words) {
+  const frag = document.createDocumentFragment();
+  const source = String(text || '');
+  const safe = (words || []).map(word => String(word).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).filter(Boolean);
+  if (!safe.length) { frag.append(source); return frag; }
+  const re = new RegExp(safe.join('|'), 'ig');
+  let last = 0;
+  source.replace(re, (match, index) => {
+    if (index > last) frag.append(source.slice(last, index));
+    const mark = document.createElement('mark');
+    mark.textContent = match;
+    frag.append(mark);
+    last = index + match.length;
+    return match;
+  });
+  if (last < source.length) frag.append(source.slice(last));
+  return frag;
+}
+function openForumSearch() {
+  const panel = document.getElementById('fspanel');
+  const button = document.getElementById('forumsearch');
+  if (!panel) return;
+  panel.hidden = false;
+  if (button) button.setAttribute('aria-expanded', 'true');
+  const field = panel.querySelector('input');
+  const current = hashParts().params.get('q') || '';
+  if (field && !field.value) field.value = current;
+  if (field) field.focus();
+}
+function closeForumSearch() {
+  const panel = document.getElementById('fspanel');
+  const button = document.getElementById('forumsearch');
+  if (panel) panel.hidden = true;
+  if (button) button.setAttribute('aria-expanded', 'false');
+}
+function forumQuery() {
+  return String(hashParts().params.get('q') || '').replace(/\s+/g, ' ').trim();
+}
 async function forumIndex() {
   const token = ++viewToken;
+  const query = forumQuery();
   main.innerHTML = '';
   const wrap = fEl('div', { class: 'wrap forum' });
-  wrap.append(fEl('div', { class: 'eyebrow' }, 'The crew'), fEl('h1', null, 'The forum'));
-  wrap.append(fEl('p', { class: 'muted' }, 'Ask the dumb question. Someone has already broken that part. No gatekeeping.'));
-  const list = fEl('div', { class: 'fcats' });
-  list.append(fEl('p', { class: 'muted' }, 'Loading the boards…'));
+  wrap.append(fEl('div', { class: 'eyebrow' }, 'The crew'), fEl('h1', null, query ? 'Forum search' : 'The forum'));
+  wrap.append(fEl('p', { class: 'muted' }, query ? '' : 'Ask the dumb question. Someone has already broken that part. No gatekeeping.'));
+  const list = fEl('div', { class: query ? 'fthreads' : 'fcats' });
+  list.append(fEl('p', { class: 'muted' }, query ? 'Searching…' : 'Loading the boards…'));
   wrap.append(list);
   main.append(wrap);
+  if (query) {
+    const words = query.split(' ').filter(Boolean);
+    const bar = fEl('p', { class: 'filt' });
+    bar.append('Search: ' + query + ' ');
+    const clear = fEl('button', { type: 'button' }, 'Clear');
+    clear.addEventListener('click', () => { closeForumSearch(); const field = document.querySelector('#fspanel input'); if (field) field.value = ''; location.hash = '#/forum'; });
+    bar.append(clear);
+    wrap.insertBefore(bar, list);
+    let rows = [];
+    try { rows = await Forum.search(query); } catch (e) {
+      if (token !== viewToken) return;
+      list.textContent = '';
+      list.append(fEl('p', { class: 'err' }, e.message || 'Could not search the forum.'));
+      return;
+    }
+    if (token !== viewToken) return;
+    list.textContent = '';
+    if (!rows.length) {
+      const empty = fEl('p', { class: 'fempty' }, 'No threads match.');
+      list.append(empty);
+      return;
+    }
+    rows.forEach(thread => {
+      const card = fEl('article', { class: 'fthread' });
+      const link = fEl('a', { class: 'fthread-title', href: '#/forum/t/' + encodeURIComponent(thread.id) });
+      const title = fEl('h2');
+      title.append(fHighlight(thread.title || '', words));
+      link.append(title);
+      const cat = Array.isArray(thread.forum_categories) ? thread.forum_categories[0] : thread.forum_categories;
+      const meta = fEl('div', { class: 'fmeta' });
+      if (cat && cat.slug) meta.append(fEl('a', { href: '#/forum/' + encodeURIComponent(cat.slug) }, cat.name || 'Board'));
+      meta.append(fEl('time', null, whenLabel(thread.last_activity_at || thread.created_at)));
+      const blurb = fEl('p');
+      blurb.append(fHighlight(String(thread.body || '').slice(0, 180), words));
+      card.append(link, meta, blurb);
+      list.append(card);
+    });
+    return;
+  }
   let cats = [];
   try { cats = await Forum.categories(); } catch (e) {
     if (token !== viewToken) return;

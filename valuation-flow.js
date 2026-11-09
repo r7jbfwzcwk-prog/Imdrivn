@@ -402,11 +402,13 @@ const ValueFlow = (() => {
       let changed = false;
       if (!draft.email && Auth.user.email) { draft.email = Auth.user.email; changed = true; }
       try {
-        const { data } = await sb.from('profiles').select('display_name,phone').eq('id', Auth.user.id).maybeSingle();
-        if (data) {
-          if (!draft.name && data.display_name) { draft.name = data.display_name; changed = true; }
-          if (!draft.phone && data.phone) { draft.phone = data.phone; changed = true; }
-        }
+        const { data } = await sb.from('profiles').select('display_name').eq('id', Auth.user.id).maybeSingle();
+        if (data && !draft.name && data.display_name) { draft.name = data.display_name; changed = true; }
+      } catch (e) {}
+      try {
+        const settings = await AccountSettings.get();
+        if (settings && !draft.phone && settings.phone) { draft.phone = settings.phone; changed = true; }
+        if (settings && !draft.email && settings.email) { draft.email = settings.email; changed = true; }
       } catch (e) {}
       if (changed && steps[i] && steps[i].id === 'contact' && document.querySelector('.vask')) render(0);
     }

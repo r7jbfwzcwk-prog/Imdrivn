@@ -237,8 +237,28 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') Presence.stop();
   else Presence.start();
 });
+let ownExtraCols = '';
+let ownExtraTask = null;
+function detectOwnExtras() {
+  if (!ownExtraTask) {
+    ownExtraTask = (async () => {
+      if (!sb) return '';
+      const found = [];
+      for (const col of ['full_name', 'state']) {
+        const res = await sb.from('profiles').select(col).limit(1);
+        if (!res.error) found.push(col);
+      }
+      ownExtraCols = found.length ? ',' + found.join(',') : '';
+      return ownExtraCols;
+    })();
+  }
+  return ownExtraTask;
+}
 function ownProfileCols() {
-  return 'id,username,display_name,avatar_url,is_admin' + (Presence.column ? ',last_seen_at' : '');
+  return 'id,username,display_name,avatar_url,is_admin,member_verified' + (Presence.column ? ',last_seen_at' : '') + ownExtraCols;
+}
+function publicProfileCols() {
+  return 'username,member_verified' + (Presence.column ? ',last_seen_at' : '');
 }
 const Auth = {
   user: null,
@@ -253,6 +273,7 @@ const Auth = {
   async sync() {
     if (!this.user) { this.profile = null; this.likes = new Set(); this.saves = new Set(); return; }
     await Presence.ready;
+    await detectOwnExtras();
     const [profile, likes, saves] = await Promise.all([
       sb.from('profiles').select(ownProfileCols()).eq('id', this.user.id).maybeSingle(),
       sb.from('likes').select('listing_id').eq('user_id', this.user.id),
@@ -273,7 +294,12 @@ const Auth = {
       if (event === 'PASSWORD_RECOVERY') this.recovery = true;
       if (event === 'SIGNED_OUT') { this.profile = null; this.likes = new Set(); this.saves = new Set(); this.recovery = false; }
       if (event === 'INITIAL_SESSION') return;
-      this.sync().then(() => this.emit());
+      this.sync().then(async () => {
+        if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && this.user) {
+          try { await AccountSettings.get(); } catch (e) {}
+        }
+        this.emit();
+      });
     });
     await this.sync();
   },
@@ -364,7 +390,144 @@ const Auth = {
     const { data } = await sb.auth.getUser();
     this.user = data.user || this.user;
     await this.sync();
+    if (this.user) { try { await AccountSettings.get(); } catch (e) {} }
     this.emit();
+  }
+};
+function accountRpcError(error) {
+  const code = String((error && (error.code || error.details)) || '');
+  const msg = (error && error.message) || '';
+  if (code === '42501' || /42501|sign in required/i.test(msg)) return new Error('Sign in to change your details.');
+  if (code === '22023' || /22023/.test(code) || /22023/.test(msg)) return new Error('Enter a valid phone number, like 0412 345 678 or +61 412 345 678.');
+  if (/rate limit|too many/i.test(msg)) return new Error(msg);
+  return new Error(msg || 'Could not update that.');
+}
+function accountSettingsObject(data) {
+  const row = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+  const missing = Array.isArray(row.missing) ? row.missing.filter(item => item === 'verified_email' || item === 'phone') : [];
+  return {
+    email: row.email || '',
+    email_confirmed: row.email_confirmed === true,
+    pending_email: row.pending_email || '',
+    phone: row.phone || '',
+    phone_provided: row.phone_provided === true,
+    member_verified: row.member_verified === true,
+    missing
+  };
+}
+const AccountSettings = {
+  async get() {
+    if (!sb || !Auth.user) throw new Error('Sign in to change your details.');
+    const { data, error } = await sb.rpc('get_my_account_settings');
+    if (error) throw accountRpcError(error);
+    const settings = accountSettingsObject(data);
+    if (Auth.profile) Auth.profile.member_verified = settings.member_verified;
+    return settings;
+  },
+  async setPhone(phone) {
+    if (!sb || !Auth.user) throw new Error('Sign in to change your details.');
+    const { data, error } = await sb.rpc('set_my_phone', { p_phone: phone });
+    if (error) throw accountRpcError(error);
+    const settings = accountSettingsObject(data);
+    if (Auth.profile) Auth.profile.member_verified = settings.member_verified;
+    try { await Auth.sync(); if (Auth.profile) Auth.profile.member_verified = settings.member_verified; } catch (e) {}
+    return settings;
+  },
+  async clearPhone() {
+    if (!sb || !Auth.user) throw new Error('Sign in to change your details.');
+    const { data, error } = await sb.rpc('clear_my_phone');
+    if (error) throw accountRpcError(error);
+    const settings = accountSettingsObject(data);
+    if (Auth.profile) Auth.profile.member_verified = settings.member_verified;
+    try { await Auth.sync(); if (Auth.profile) Auth.profile.member_verified = settings.member_verified; } catch (e) {}
+    return settings;
+  },
+  async changeEmail(email) {
+    if (!sb || !Auth.user) throw new Error('Sign in to change your details.');
+    const next = String(email || '').trim();
+    const { error } = await sb.auth.updateUser({ email: next }, { emailRedirectTo: location.origin + location.pathname });
+    if (error) throw new Error(authMessage(error));
+    await Auth.refreshUser();
+    return this.get();
+  },
+  async resend(kind) {
+    if (!sb || !Auth.user || !Auth.user.email) throw new Error('Sign in to change your details.');
+    const email = Auth.user.email;
+    const redirect = location.origin + location.pathname;
+    const args = kind === 'signup'
+      ? { type: 'signup', email, options: { emailRedirectTo: redirect } }
+      : { type: 'email_change', email };
+    const { error } = await sb.auth.resend(args);
+    if (error) throw new Error(authMessage(error));
+  }
+};
+const FINANCE_JOBS = ['Employed Full Time', 'Employed Part Time', 'Self Employed / ABN Holder', 'Casual (More than 6 months)', 'Casual (Less than 6 months)', 'Not Currently Working'];
+const FINANCE_STATES = ['QLD', 'NSW', 'VIC', 'SA', 'WA', 'NT', 'ACT', 'TAS'];
+function financeDigits(value) { return String(value || '').replace(/\D/g, ''); }
+function financeProblem(input) {
+  const name = String(input.fullName || '').trim();
+  const job = String(input.employment || '');
+  const state = String(input.state || '').trim().toUpperCase();
+  const mobile = String(input.mobile || '').trim();
+  const email = String(input.email || '').trim().toLowerCase();
+  if (name.length < 2 || name.length > 120) return { field: 'name', message: 'Enter your full name, between 2 and 120 characters.' };
+  if (!FINANCE_JOBS.includes(job)) return { field: 'employment', message: 'Choose the employment option that fits.' };
+  if (!FINANCE_STATES.includes(state)) return { field: 'state', message: 'Choose the state you live in.' };
+  if (!/^[+()\d\s-]+$/.test(mobile) || financeDigits(mobile).length < 8 || financeDigits(mobile).length > 15) return { field: 'mobile', message: 'Enter a mobile number with 8 to 15 digits.' };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { field: 'email', message: 'Enter a valid email address.' };
+  return null;
+}
+function financeRpcError(error) {
+  const code = String((error && error.code) || '');
+  const msg = (error && error.message) || '';
+  if (code === 'P0001' || /too many finance/i.test(msg)) {
+    const err = new Error('Too many finance enquiries. Please try again later.');
+    err.code = 'P0001';
+    return err;
+  }
+  if (code === '22023' || /22023/.test(msg)) {
+    const err = new Error(msg || 'Check that answer and try again.');
+    err.code = '22023';
+    const low = msg.toLowerCase();
+    if (/mobile|phone/.test(low)) err.field = 'mobile';
+    else if (/email/.test(low)) err.field = 'email';
+    else if (/state/.test(low)) err.field = 'state';
+    else if (/employ/.test(low)) err.field = 'employment';
+    else if (/name/.test(low)) err.field = 'name';
+    return err;
+  }
+  if (/listing/i.test(msg)) {
+    const err = new Error('That car could not be attached to the application.');
+    err.code = 'listing';
+    return err;
+  }
+  return new Error(msg || 'Could not save that application.');
+}
+const FinanceEnquiry = {
+  jobs: FINANCE_JOBS,
+  states: FINANCE_STATES,
+  async submit(input) {
+    if (!sb) throw new Error('Finance applications are offline right now.');
+    const problem = financeProblem(input);
+    if (problem) {
+      const err = new Error(problem.message);
+      err.code = '22023';
+      err.field = problem.field;
+      throw err;
+    }
+    const listing = input.listingId;
+    const listing_id = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(listing || '')) ? listing : null;
+    const { data, error } = await sb.rpc('submit_finance_enquiry', {
+      p_full_name: String(input.fullName || '').trim(),
+      p_employment_status: input.employment,
+      p_state: String(input.state || '').trim().toUpperCase(),
+      p_mobile: String(input.mobile || '').trim(),
+      p_email: String(input.email || '').trim().toLowerCase(),
+      p_listing_id: listing_id
+    });
+    if (error) throw financeRpcError(error);
+    if (!data || !data.id) throw new Error('Could not save that application.');
+    return data;
   }
 };
 Auth.ready = Auth.init();
@@ -409,7 +572,7 @@ function listingCondition(listing) {
   return LISTING_CONDITIONS.includes(value) ? value : '';
 }
 function listingSelect() {
-  const who = Presence.column ? 'username,display_name,last_seen_at' : 'username,display_name';
+  const who = 'username,display_name,member_verified' + (Presence.column ? ',last_seen_at' : '');
   return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,condition,rego,vin,photos,status,created_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
 }
 
@@ -464,6 +627,7 @@ function mapListing(row) {
     photoPaths: Array.isArray(row.photos) ? row.photos.slice() : [],
     status: row.status,
     handle: (profile && profile.username) || 'you',
+    memberVerified: !!(profile && profile.member_verified === true),
     last_seen_at: (profile && profile.last_seen_at) || '',
     when: whenLabel(row.created_at),
     likeCount: countOf(row.likes),
@@ -479,8 +643,9 @@ function applyListingSort(q, sort) {
   else if (sort === 'price-desc') q = q.order('price', { ascending: false });
   else if (sort === 'year-desc') q = q.order('year', { ascending: false });
   else if (sort === 'year-asc') q = q.order('year', { ascending: true });
-  else return q.order('created_at', { ascending: false });
-  return q.order('created_at', { ascending: false });
+  else q = q.order('created_at', { ascending: false });
+  if (sort && sort !== 'new') q = q.order('created_at', { ascending: false });
+  return q.order('id', { ascending: false });
 }
 function cylinderCount(value) {
   if (value == null || value === '' || value === 'electric') return null;
@@ -998,9 +1163,48 @@ const Forum = {
     if (error) throw new Error(forumErr(error));
     return data;
   },
+  async search(raw) {
+    if (!sb) throw new Error('Forum is offline right now.');
+    const words = String(raw || '').trim().split(/\s+/).map(word => word.replace(/[%_\\,()"']/g, '').trim()).filter(Boolean).slice(0, 6);
+    if (!words.length) return [];
+    await Presence.ready;
+    const pageAll = async (make) => {
+      const rows = [];
+      for (let from = 0; from < 5000; from += 1000) {
+        const res = await make().range(from, from + 999);
+        if (res.error) throw new Error(forumErr(res.error));
+        const batch = res.data || [];
+        rows.push(...batch);
+        if (batch.length < 1000) break;
+      }
+      return rows;
+    };
+    const sets = [];
+    for (const word of words) {
+      const pat = '%' + word + '%';
+      const quoted = '"' + pat.replace(/"/g, '') + '"';
+      const [threads, replies] = await Promise.all([
+        pageAll(() => sb.from('forum_threads').select('id').or('title.ilike.' + quoted + ',body.ilike.' + quoted)),
+        pageAll(() => sb.from('forum_replies').select('thread_id').ilike('body', pat))
+      ]);
+      const ids = new Set(threads.map(row => row.id));
+      replies.forEach(row => { if (row.thread_id != null) ids.add(row.thread_id); });
+      sets.push(ids);
+    }
+    let ids = [...sets[0]];
+    sets.slice(1).forEach(set => { ids = ids.filter(id => set.has(id)); });
+    if (!ids.length) return [];
+    const who = 'profiles(' + publicProfileCols() + ')';
+    const { data, error } = await sb.from('forum_threads')
+      .select('id, title, body, created_at, last_activity_at, reply_count, category_id, author_id, ' + who + ', forum_categories(slug, name)')
+      .in('id', ids)
+      .order('last_activity_at', { ascending: false });
+    if (error) throw new Error(forumErr(error));
+    return data || [];
+  },
   async threads(categoryId) {
     await Presence.ready;
-    const who = Presence.column ? 'profiles(username,last_seen_at)' : 'profiles(username)';
+    const who = 'profiles(' + publicProfileCols() + ')';
     const { data, error } = await sb.from('forum_threads')
       .select('id, title, created_at, last_activity_at, reply_count, author_id, ' + who)
       .eq('category_id', categoryId)
@@ -1011,7 +1215,7 @@ const Forum = {
   async thread(id) {
     if (!/^[0-9a-f-]{8,}$/i.test(String(id)) && !/^\d+$/.test(String(id))) return null;
     await Presence.ready;
-    const who = Presence.column ? 'profiles(username,last_seen_at)' : 'profiles(username)';
+    const who = 'profiles(' + publicProfileCols() + ')';
     const thread = await sb.from('forum_threads')
       .select('id, category_id, author_id, title, body, created_at, last_activity_at, reply_count, ' + who + ', forum_categories(slug, name)')
       .eq('id', id).maybeSingle();
@@ -1096,7 +1300,7 @@ const Garage = {
     if (!Auth.handleOk(name)) return null;
     const pattern = name.replace(/[\\%_]/g, ch => '\\' + ch);
     await Presence.ready;
-    const cols = 'id,username,created_at' + (Presence.column ? ',last_seen_at' : '');
+    const cols = 'id,username,created_at,member_verified' + (Presence.column ? ',last_seen_at' : '');
     const { data, error } = await sb.from('profiles').select(cols).ilike('username', pattern).limit(5);
     if (error) throw new Error(garageErr(error));
     return (data || []).find(row => String(row.username || '').toLowerCase() === name) || null;
@@ -1170,7 +1374,7 @@ const Chat = {
     const listingIds = [...new Set(rows.map(r => r.listing_id).filter(Boolean))];
     const peopleIds = [...new Set(rows.flatMap(r => [r.buyer_id, r.seller_id]).filter(Boolean))];
     await Presence.ready;
-    const peopleCols = Presence.column ? 'id,username,last_seen_at' : 'id,username';
+    const peopleCols = 'id,' + publicProfileCols();
     const [listings, profiles] = await Promise.all([
       listingIds.length ? sb.from('listings').select('id,heading,year,make,model,photos,price,mode').in('id', listingIds) : { data: [] },
       peopleIds.length ? sb.from('profiles').select(peopleCols).in('id', peopleIds) : { data: [] }
@@ -1178,6 +1382,7 @@ const Chat = {
     const listingById = new Map((listings.data || []).map(l => [l.id, l]));
     const handleById = new Map((profiles.data || []).map(p => [p.id, p.username]));
     const seenById = new Map((profiles.data || []).map(p => [p.id, p.last_seen_at || '']));
+    const verifiedById = new Map((profiles.data || []).map(p => [p.id, p.member_verified === true]));
     let unreadIds = null;
     try { unreadIds = await this.unreadIds(); } catch (e) { unreadIds = null; }
     return rows.map(row => {
@@ -1193,6 +1398,7 @@ const Chat = {
         when: whenLabel(row.last_message_at || row.created_at),
         unread: unreadIds ? unreadIds.has(row.id) : chatUnread(row, uid),
         handle: handleById.get(other) || 'member',
+        memberVerified: verifiedById.get(other) === true,
         last_seen_at: seenById.get(other) || '',
         heading: listing.heading || [listing.year, listing.make, listing.model].filter(Boolean).join(' ') || 'Listing',
         price: listing.price,
@@ -1274,7 +1480,7 @@ const Notes = {
     if (!sb || !Auth.user) return [];
     await Presence.ready;
     const { data, error } = await sb.from('notifications')
-      .select('id,kind,actor_id,thread_id,reply_id,conversation_id,message_id,thread_title,preview,read_at,created_at,actor:profiles!notifications_actor_id_fkey(' + (Presence.column ? 'username,last_seen_at' : 'username') + '),thread:forum_threads!notifications_thread_id_fkey(title,author_id)')
+      .select('id,kind,actor_id,thread_id,reply_id,conversation_id,message_id,thread_title,preview,read_at,created_at,actor:profiles!notifications_actor_id_fkey(' + publicProfileCols() + '),thread:forum_threads!notifications_thread_id_fkey(title,author_id)')
       .order('created_at', { ascending: false })
       .limit(40);
     if (error) throw new Error(noteErr(error));
@@ -1291,6 +1497,7 @@ const Notes = {
         messageId: row.message_id,
         preview: row.preview || '',
         handle: actor && actor.username ? String(actor.username).replace(/^@/, '') : '',
+        memberVerified: !!(actor && actor.member_verified === true),
         last_seen_at: (actor && actor.last_seen_at) || '',
         title: (thread && thread.title) || row.thread_title || '',
         yours: !!(thread && thread.author_id === uid),
@@ -1345,7 +1552,7 @@ const Reports = {
     if (!sb || !Auth.user) return [];
     await Presence.ready;
     const { data, error } = await sb.from('ad_reports')
-      .select('id,listing_id,reason,details,status,created_at,reporter:profiles!ad_reports_reporter_id_fkey(' + (Presence.column ? 'username,last_seen_at' : 'username') + '),listing:listings!ad_reports_listing_id_fkey(id,heading,year,make,model,user_id,status)')
+      .select('id,listing_id,reason,details,status,created_at,reporter:profiles!ad_reports_reporter_id_fkey(' + publicProfileCols() + '),listing:listings!ad_reports_listing_id_fkey(id,heading,year,make,model,user_id,status)')
       .eq('status', 'open')
       .order('created_at', { ascending: true });
     if (error) throw new Error(error.message || 'Could not load reports.');
@@ -1360,6 +1567,7 @@ const Reports = {
         details: row.details || '',
         when: whenLabel(row.created_at),
         reporter: reporter && reporter.username ? String(reporter.username).replace(/^@/, '') : '',
+        memberVerified: !!(reporter && reporter.member_verified === true),
         last_seen_at: (reporter && reporter.last_seen_at) || '',
         title: title || 'Listing',
         sellerId: listing && listing.user_id || '',
