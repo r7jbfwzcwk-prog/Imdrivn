@@ -126,35 +126,8 @@ if(e.key==='End'){e.preventDefault();items[items.length-1].focus()}});
 let F={q:'',make:'',model:'',year:'',yearTo:'',km:''},io,SAVED=false,homeToken=0,feedToken=0,viewToken=0,feedState=null;
 const blankSearch=()=>({q:'',make:'',model:'',year:'',yearTo:'',km:''});
 const searchOn=()=>Object.values(F).some(v=>String(v||'').trim());
-let searchCatalog={makes:[],models:{}};
-const searchExtras=new Map();
-function rememberSearchName(make, model){
-  const name=String(make||'').trim();
-  if(!name)return;
-  const key=fold(name);
-  if(!searchExtras.has(key))searchExtras.set(key,{name,models:new Set()});
-  const slot=searchExtras.get(key);
-  const known=(searchCatalog.makes||[]).find(m=>fold(m)===key);
-  if(known)slot.name=known;
-  const modelName=String(model||'').trim();
-  if(modelName)slot.models.add(modelName);
-}
-const byName=(a,b)=>a.localeCompare(b,'en',{sensitivity:'base'});
-function modelsFor(make){
-  const key=fold(make);
-  const canonical=(searchCatalog.makes||[]).find(m=>fold(m)===key)||make;
-  const listed=((searchCatalog.models||{})[canonical]||[]).slice();
-  const extra=searchExtras.get(key);
-  const seen=new Set(listed.map(fold));
-  if(extra)extra.models.forEach(model=>{if(!seen.has(fold(model))){seen.add(fold(model));listed.push(model)}});
-  return listed.sort(byName);
-}
-function makesFor(){
-  const names=(searchCatalog.makes||[]).slice();
-  const seen=new Set(names.map(fold));
-  searchExtras.forEach(slot=>{if(!seen.has(fold(slot.name))){seen.add(fold(slot.name));names.push(slot.name)}});
-  return names.sort(byName);
-}
+function modelsFor(make){return VehicleNames.models(make)}
+function makesFor(){return VehicleNames.makes()}
 function fillSearchYears(){
   ['year','yearTo'].forEach(name=>{
     const sel=$(`#qs [name="${name}"]`);
@@ -210,14 +183,8 @@ function searchBits(){
   return bits;
 }
 async function loadSearchCatalog(){
-  try{const res=await fetch('data/models.json?v=26');if(res.ok)searchCatalog=await res.json()}catch(e){}
+  try{await VehicleNames.ready()}catch(e){}
   paintSearch(searchDraft());
-  if(!sb)return;
-  try{
-    const {data}=await sb.from('listings').select('make,model').eq('status','active').limit(1000);
-    (data||[]).forEach(row=>rememberSearchName(row.make,row.model));
-    paintSearch(searchDraft());
-  }catch(e){}
 }
 function searchDraft(){
   const form=$('#qs');

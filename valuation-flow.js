@@ -84,6 +84,7 @@ const ValueFlow = (() => {
   function clearDraft() { try { localStorage.removeItem(KEY); } catch (e) {} }
 
   function start(root) {
+    if (typeof VehicleNames !== 'undefined') VehicleNames.ready().then(() => { const input = document.getElementById('v-make'); if (input) input.dispatchEvent(new Event('input')); }).catch(() => {});
     const saved = loadDraft() || {};
     const draft = Object.assign(blank(), saved);
     if (!Array.isArray(draft.photos)) draft.photos = [];
@@ -132,7 +133,9 @@ const ValueFlow = (() => {
       const refresh = () => {
         const q = input.value.trim().toLowerCase();
         if (!q) { close(); return; }
-        const matches = MAKES.filter(m => m.toLowerCase().includes(q)).sort((a, b) => a.toLowerCase().indexOf(q) - b.toLowerCase().indexOf(q) || a.localeCompare(b)).slice(0, 6);
+        const pool = MAKES.slice();
+        if (typeof VehicleNames !== 'undefined') VehicleNames.listingMakes().forEach(name => { if (!pool.some(m => m.toLowerCase() === name.toLowerCase())) pool.push(name); });
+        const matches = pool.filter(m => m.toLowerCase().includes(q)).sort((a, b) => a.toLowerCase().indexOf(q) - b.toLowerCase().indexOf(q) || a.localeCompare(b)).slice(0, 6);
         if (!matches.length) { close(); return; }
         open(matches);
       };

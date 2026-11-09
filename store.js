@@ -43,6 +43,144 @@ const sb = (window.supabase && window.supabase.createClient)
     })
   : null;
 
+/* Static make/model list, plus names already used on live listings. */
+const VehicleNames = (() => {
+  const acronyms = new Set(['BMW','HSV','FPV','GMC','MG','GWM','BYD','RAM','TVR','AMG','GT','GTI','GTR','WRX','STI','RS','SS','XR','SRT','SVR']);
+  const baseMakes = [];
+  const baseModels = {};
+  const extras = new Map();
+  let readyP = null;
+  const byName = (a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' });
+  function fold(s) {
+    return String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+  function harvest(name) {
+    String(name || '').split(/[\s/]+/).forEach(word => {
+      word.split('-').forEach(part => { if (/^[A-Z0-9]{2,5}$/.test(part)) acronyms.add(part); });
+    });
+  }
+  function knownMake(raw) {
+    const key = fold(raw);
+    if (!key) return '';
+    const base = baseMakes.find(m => fold(m) === key);
+    if (base) return base;
+    const extra = extras.get(key);
+    return extra ? extra.name : '';
+  }
+  function knownModel(make, raw) {
+    const mk = knownMake(make);
+    const key = fold(raw);
+    if (!mk || !key) return '';
+    const listed = (baseModels[mk] || []).find(m => fold(m) === key);
+    if (listed) return listed;
+    const extra = extras.get(fold(mk));
+    return extra && extra.models.has(key) ? extra.models.get(key) : '';
+  }
+  function junk(raw, known) {
+    const key = fold(raw).replace(/\s/g, '');
+    if (!key || key.length < 2) return true;
+    if (/^\d+$/.test(key) && !known) return true;
+    return false;
+  }
+  function display(raw) {
+    const cleaned = String(raw || '').trim().replace(/\s+/g, ' ');
+    if (!cleaned) return '';
+    const hit = knownMake(cleaned);
+    if (hit) return hit;
+    return cleaned.split(' ').map(word => word.split('-').map(part => {
+      const letters = part.replace(/[^A-Za-z0-9]/g, '');
+      const upper = letters.toUpperCase();
+      if (letters && acronyms.has(upper) && letters.length >= 2 && letters.length <= 5) return upper;
+      if (/^[A-Z0-9]{2,5}$/.test(part)) return part;
+      const lower = part.toLowerCase();
+      if (/^mc[a-z]/.test(lower) && lower.length > 3) return 'Mc' + lower.charAt(2).toUpperCase() + lower.slice(3);
+      return lower ? lower.charAt(0).toUpperCase() + lower.slice(1) : part;
+    }).join('-')).join(' ');
+  }
+  function remember(make, model) {
+    const mkRaw = String(make || '').trim();
+    if (junk(mkRaw, knownMake(mkRaw))) return;
+    const mk = knownMake(mkRaw) || display(mkRaw);
+    if (!mk || junk(mk, knownMake(mk))) return;
+    const key = fold(mk);
+    if (!extras.has(key)) extras.set(key, { name: mk, models: new Map() });
+    const slot = extras.get(key);
+    if (knownMake(mk)) slot.name = knownMake(mk);
+    const mdRaw = String(model || '').trim();
+    const already = knownModel(slot.name, mdRaw);
+    if (!mdRaw || junk(mdRaw, already)) return;
+    const md = already || display(mdRaw);
+    if (!md || junk(md, already)) return;
+    slot.models.set(fold(md), already || md);
+  }
+  function makes() {
+    const names = baseMakes.slice();
+    const seen = new Set(names.map(fold));
+    extras.forEach(slot => {
+      if (!seen.has(fold(slot.name))) { seen.add(fold(slot.name)); names.push(slot.name); }
+    });
+    return names.sort(byName);
+  }
+  function models(make) {
+    const mk = knownMake(make) || display(make);
+    const listed = (baseModels[mk] || []).slice();
+    const seen = new Set(listed.map(fold));
+    const extra = extras.get(fold(mk));
+    if (extra) extra.models.forEach(model => {
+      if (!seen.has(fold(model))) { seen.add(fold(model)); listed.push(model); }
+    });
+    return listed.sort(byName);
+  }
+  function listingMakes() {
+    const out = [];
+    extras.forEach(slot => { if (!baseMakes.some(m => fold(m) === fold(slot.name))) out.push(slot.name); });
+    return out.sort(byName);
+  }
+  async function ready() {
+    if (!readyP) {
+      readyP = (async () => {
+        try {
+          const res = await fetch('data/models.json?v=26');
+          if (res.ok) {
+            const data = await res.json();
+            (Array.isArray(data.makes) ? data.makes : []).forEach(name => {
+              harvest(name);
+              if (name && !baseMakes.some(m => fold(m) === fold(name))) baseMakes.push(name);
+            });
+            const groups = data.models && typeof data.models === 'object' ? data.models : {};
+            Object.keys(groups).forEach(make => {
+              harvest(make);
+              baseModels[make] = Array.isArray(groups[make]) ? groups[make].slice() : [];
+              baseModels[make].forEach(harvest);
+            });
+          }
+        } catch (e) {}
+        if (sb) {
+          try {
+            let from = 0;
+            for (let page = 0; page < 8; page++) {
+              const { data, error } = await sb.from('listings').select('make,model').eq('status', 'active').range(from, from + 999);
+              if (error || !data) break;
+              data.forEach(row => remember(row.make, row.model));
+              if (data.length < 1000) break;
+              from += 1000;
+            }
+          } catch (e) {}
+        }
+        return true;
+      })().catch(err => { readyP = null; throw err; });
+    }
+    return readyP;
+  }
+  return { ready, makes, models, remember, display, fold, listingMakes };
+})();
+function noteVehicleName(make, model) {
+  VehicleNames.remember(make, model);
+  if (typeof paintSearch === 'function') {
+    try { paintSearch(); } catch (e) {}
+  }
+}
+
 const Presence = {
   ONLINE_MS: 120000,
   BEAT_MS: 60000,
@@ -678,6 +816,7 @@ const ListingStore = {
       const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select(ownProfileCols()).maybeSingle();
       if (!named.error && named.data) Auth.profile = named.data;
     }
+    noteVehicleName(listing.make, listing.model);
     return this.get(inserted.data.id);
   },
   async contact(id) {
@@ -748,6 +887,7 @@ const ListingStore = {
       const named = await sb.from('profiles').update({ display_name: listing.name }).eq('id', uid).select(ownProfileCols()).maybeSingle();
       if (!named.error && named.data) Auth.profile = named.data;
     }
+    noteVehicleName(listing.make, listing.model);
     this.cache.delete(id);
     return this.get(id);
   },

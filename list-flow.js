@@ -19,20 +19,10 @@ const ListFlow = (() => {
     }
     return suburbLoad;
   }
-  let catalog = { makes: [], models: {} };
   let catalogLoad = null;
   function loadCatalog() {
     if (!catalogLoad) {
-      catalogLoad = fetch('data/models.json?v=26').then(res => {
-        if (!res.ok) throw new Error('load');
-        return res.json();
-      }).then(data => {
-        catalog = {
-          makes: Array.isArray(data.makes) ? data.makes : [],
-          models: data.models && typeof data.models === 'object' ? data.models : {}
-        };
-        return catalog;
-      }).catch(err => { catalogLoad = null; throw err; });
+      catalogLoad = (typeof VehicleNames !== 'undefined' ? VehicleNames.ready() : Promise.resolve()).catch(err => { catalogLoad = null; throw err; });
     }
     return catalogLoad;
   }
@@ -48,14 +38,13 @@ const ListFlow = (() => {
     }).join('-')).join(' ');
   }
   function namesFor(kind, make) {
-    if (kind === 'make') return catalog.makes || [];
-    const hit = (catalog.makes || []).find(m => foldName(m) === foldName(make));
-    return hit ? (catalog.models[hit] || []) : [];
+    if (typeof VehicleNames !== 'undefined') return kind === 'make' ? VehicleNames.makes() : VehicleNames.models(make);
+    return [];
   }
   function canonicalName(list, raw) {
     const key = foldName(raw);
     if (!key) return '';
-    return list.find(m => foldName(m) === key) || titleName(raw);
+    return list.find(m => foldName(m) === key) || (typeof VehicleNames !== 'undefined' && VehicleNames.display(raw)) || titleName(raw);
   }
   function rankNames(list, q) {
     return list.filter(m => foldName(m).includes(q)).sort((a, b) => {
@@ -544,7 +533,7 @@ const ListFlow = (() => {
         const raw = input.value.trim();
         const q = foldName(raw);
         if (!q) { close(); return; }
-        const options = opts.kind === 'make' ? (catalog.makes || []) : namesFor('model', draft.make);
+        const options = opts.kind === 'make' ? namesFor('make') : namesFor('model', draft.make);
         const exact = options.find(m => foldName(m) === q);
         const rows = rankNames(options, q).map(m => ({label: m, value: m}));
         if (!exact && foldName(raw).length >= opts.min) {
@@ -582,7 +571,7 @@ const ListFlow = (() => {
         if (input.value) refresh();
         input.focus();
       };
-      if ((catalog.makes || []).length) ready();
+      if (typeof VehicleNames !== 'undefined' && VehicleNames.makes().length) ready();
       else loadCatalog().then(ready).catch(() => { if (input.isConnected) { input.disabled = false; input.placeholder = opts.placeholder; setErr('Could not load the list. You can still type your own.'); input.focus(); } });
     }
 
