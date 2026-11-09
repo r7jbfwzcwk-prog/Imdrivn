@@ -107,6 +107,11 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
 .path:hover{border-color:var(--c-line2);transform:translateY(-3px)}
 .path .wide{font-size:clamp(1.8rem,5vw,2.6rem);max-width:100%;overflow-wrap:anywhere;background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 40%,#fff),var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent;margin:var(--s-3) 0 0;filter:drop-shadow(0 2px 8px rgba(0,0,0,.8))}
 .path .tag{font-style:italic;font-size:1.15rem}.path .btn{margin-top:var(--s-4)}
+.pick-supercar .tag-note::before{content:" "}
+@media(max-width:768px){
+  body.is-lanes .pick-supercar .tag-note{display:block;font-size:.86em;line-height:1.2}
+  body.is-lanes .pick-supercar .tag-note::before{content:none}
+}
 body.is-lanes{display:flex;flex-direction:column;min-height:100dvh}
 body.is-lanes #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
 body.is-lanes footer{border-top:1px solid #d9a441}
