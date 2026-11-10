@@ -947,10 +947,6 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .finance-cta,.ppsr-cta{flex-direction:column;align-items:center;height:auto;white-space:normal;gap:3px}
 .finance-cta-sub{font-size:.72rem}
 .pullnote{margin:8px 16px 0;text-align:center;color:var(--acc);font-size:.82rem}
-.feed-lane-label{margin:22px 16px 8px;padding-top:14px;border-top:1px solid currentColor}
-.feed-lane[data-mode=daily]>.feed-lane-label{color:#2f7bff}
-.feed-lane[data-mode=performance]>.feed-lane-label{color:#e5242b}
-.feed-lane[data-mode=supercar]>.feed-lane-label{color:#d9a441}
 .garage-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .garage-top h1{margin:0;min-width:0}
 .garage-edit{flex:0 0 auto;text-transform:none;letter-spacing:.01em;white-space:normal;text-align:center}
