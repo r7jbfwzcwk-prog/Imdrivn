@@ -255,6 +255,7 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .posted-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:var(--s-5)}
 .err{color:var(--c-err);font-size:.85rem}
 footer{border-top:1px solid var(--c-line);padding:var(--s-6) var(--s-4);text-align:center;color:var(--c-muted);font-size:.8rem}
+footer p{text-transform:none}
 
 /* ===== DRIVE MODES ===== */
 body[data-mode=daily]{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glow:rgba(47,123,255,.16)}
