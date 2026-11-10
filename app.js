@@ -101,7 +101,8 @@ function setBuy(m){if(!BUY_MODES.includes(m))m='all';BUY=m;localStorage.setItem(
 document.querySelectorAll('.tabs button[role=tab]').forEach(b=>b.onclick=()=>chooseLane(b.dataset.m));
 document.addEventListener('click',e=>{const pick=e.target.closest('[data-pick]');if(pick)setBuy(pick.dataset.pick)});
 setMode(MODE);syncTabs();
-function setSearchOpen(open){const panel=$('#spanel');if(!panel)return;panel.hidden=!open;document.querySelectorAll('#sbtn,#feedsearch').forEach(b=>b.setAttribute('aria-expanded',open?'true':'false'));if(open){const field=panel.querySelector('input');if(field)field.focus()}}
+function searchCloser(){return [...document.querySelectorAll('#feedsearch,#sbtn')].find(b=>b.getClientRects().length)||$('#feedsearch')||$('#sbtn')}
+function setSearchOpen(open){const panel=$('#spanel');if(!panel)return;const inside=panel.contains(document.activeElement);panel.hidden=!open;document.querySelectorAll('#sbtn,#feedsearch').forEach(b=>{b.setAttribute('aria-expanded',open?'true':'false');b.setAttribute('aria-label',open?'Close search':'Search')});if(open){const field=panel.querySelector('input');if(field)field.focus()}else if(inside){const back=searchCloser();if(back)back.focus()}}
 $('#sbtn').onclick=()=>setSearchOpen($('#spanel').hidden);
 $('#feedsearch').onclick=()=>setSearchOpen($('#spanel').hidden);
 const forumSearchBtn=$('#forumsearch');if(forumSearchBtn)forumSearchBtn.onclick=()=>{const panel=$('#fspanel');if(panel&&!panel.hidden)closeForumSearch();else openForumSearch()};
@@ -130,7 +131,7 @@ appMenu.addEventListener('click',e=>{if(e.target.closest('a'))closeMenu(false)})
 const myAdsLink=appMenu.querySelector('a[href="#/garage/ads"]');
 if(myAdsLink)myAdsLink.addEventListener('click',()=>{if(location.hash!=='#/garage/ads')return;closeMenu(false);scrollMyAds()});
 document.addEventListener('click',e=>{if(!(appMenu.hidden||e.target.closest('#appmenu')||e.target.closest('#menubtn')))closeMenu(false);const panel=$('#alertpanel');if(!panel||panel.hidden||e.target.closest('#alertpanel')||e.target.closest('#bell'))return;closeAlerts()});
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#sortsheet')&&!$('#sortsheet').hidden){e.preventDefault();closeSort(true);return}const panel=$('#alertpanel');if(panel&&!panel.hidden){e.preventDefault();closeAlerts();$('#bell').focus();return}if(!appMenu.hidden){e.preventDefault();closeMenu(true)}});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#sortsheet')&&!$('#sortsheet').hidden){e.preventDefault();closeSort(true);return}const panel=$('#alertpanel');if(panel&&!panel.hidden){e.preventDefault();closeAlerts();$('#bell').focus();return}if(!appMenu.hidden){e.preventDefault();closeMenu(true);return}const buySearch=$('#spanel');if(buySearch&&!buySearch.hidden){e.preventDefault();setSearchOpen(false);return}const forumSearch=$('#fspanel');if(forumSearch&&!forumSearch.hidden){e.preventDefault();closeForumSearch();const back=$('#forumsearch');if(back)back.focus()}});
 appMenu.addEventListener('keydown',e=>{const items=menuItems();const i=items.indexOf(document.activeElement);
 if(e.key==='ArrowDown'){e.preventDefault();items[(i+1)%items.length].focus()}
 if(e.key==='ArrowUp'){e.preventDefault();items[(i-1+items.length)%items.length].focus()}
