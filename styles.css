@@ -890,7 +890,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   body.is-lanes{height:100svh;height:100dvh;max-height:100dvh;min-height:0;overflow:hidden;padding-bottom:calc(64px + 10px + env(safe-area-inset-bottom));box-sizing:border-box}
   body.is-lanes #main,body.is-lanes .lanes,body.is-lanes .lanes-copy{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;height:auto;max-height:none;overflow:hidden}
   body.is-lanes .lanes-head{flex:0 0 auto;padding:2px 14px 0}
-  body.is-lanes .lanes-head h1{margin:0;font-size:clamp(.92rem,3.4dvh,1.25rem);line-height:1.02}
+  body.is-lanes .lanes-head h1{margin:0;padding:2px 0 8px;font-size:clamp(.84rem,2.8dvh,1.1rem);line-height:1.2}
   body.is-lanes .chooser-paths{flex:1 1 auto;min-height:0;height:auto;grid-template-rows:repeat(3,minmax(0,1fr));gap:0;overflow:hidden}
   body.is-lanes .lane-col,body.is-lanes .lane-daily,body.is-lanes .lane-performance,body.is-lanes .lane-supercar{height:auto;min-height:0;overflow:hidden;padding:clamp(3px,.6dvh,8px) 10px;align-items:stretch}
   body.is-lanes .lanes .path{height:100%;min-height:0;max-height:100%;overflow:hidden;padding:clamp(4px,1dvh,10px) 10px;gap:clamp(2px,.6dvh,6px);justify-content:center;align-items:center}
@@ -902,6 +902,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   body.is-lanes .view-all{min-height:44px;font-size:clamp(.68rem,1.8dvh,.85rem)}
 }
 @media(max-width:759px) and (max-height:520px){
+  body.is-lanes .lanes-head h1{padding:1px 0 2px}
   body.is-lanes .lane-col,body.is-lanes .lane-daily,body.is-lanes .lane-performance,body.is-lanes .lane-supercar{padding-top:0;padding-bottom:0}
   body.is-lanes .lanes .path{padding-top:1px;padding-bottom:1px}
 }
