@@ -364,7 +364,7 @@ async function list(){if(!await gate('list'))return;ListFlow.start(main,{async p
 
 function valuation(){ValueFlow.start(main);}
 
-function howMarkup(){const buyTips=[`1. Get a pre-purchase inspection. ${offerLink('how-inspect',INSPECTION_URL,'Book a pre-purchase inspection')}`,`2. Run a PPSR check for finance owing, write-offs, and stolen status. <button type="button" class="btn" id="how-vin">VIN CHECK</button>`,'3. Look at the car in person before you pay. Photos can lie.'];
+function howMarkup(){const buyTips=[`1. Get a pre-purchase inspection. ${offerLink('how-inspect',INSPECTION_URL,'Book a pre-purchase inspection')}`,`2. Run a PPSR check for finance owing, write-offs, and stolen status. <button type="button" class="btn" id="how-vin">VIN CHECK</button>`,'3. Never pay a deposit for a car you haven\'t seen or had inspected. If it\'s too good to be true, it is.'];
 return `<section class="wrap feats"><div class="eyebrow">How it works</div><h1 style="font-size:clamp(1.3rem,4vw,2.2rem)">Simple. <span class="grey">Free.</span> Fast.</h1><div class="row4">
 ${[['tag','1. Snap & list','Photos, price, done. Listing is 100% free.'],['gauge','2. Hit the feed','Your ad lands in a scroll-first feed buyers love.'],['head','3. Chat direct','Buyers message you. No middleman.'],['up','4. Or go wholesale','Want it gone? Dealers make an offer.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div><a class="btn solid" href="#/sell" style="margin-top:var(--s-5)">Sell your car →</a></section>
 <section class="wrap smart"><div class="eyebrow">Sellin smart</div><h2>Don't get gamed.</h2>
