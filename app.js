@@ -367,18 +367,20 @@ function valuation(){ValueFlow.start(main);}
 function howMarkup(){const buyTips=[`1. Get a pre-purchase inspection. ${offerLink('how-inspect',INSPECTION_URL,'Book a pre-purchase inspection')}`,`2. Run a PPSR check for finance owing, write-offs, and stolen status. <button type="button" class="btn" id="how-vin">VIN CHECK</button>`,'3. Never pay a deposit for a car you haven\'t seen or had inspected. If it\'s too good to be true, it is.'];
 return `<section class="wrap feats"><div class="eyebrow">How it works</div><h1 style="font-size:clamp(1.3rem,4vw,2.2rem)">Simple. <span class="grey">Free.</span> Fast.</h1><div class="row4">
 ${[['tag','1. Snap & list','Photos, price, done. Listing is 100% free.'],['gauge','2. Hit the feed','Your ad lands in a scroll-first feed buyers love.'],['head','3. Chat direct','Buyers message you. No middleman.'],['up','4. Or go wholesale','Want it gone? Dealers make an offer.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div><a class="btn solid" href="#/sell" style="margin-top:var(--s-5)">Sell your car →</a></section>
-<section class="wrap smart"><h2>Don't get gamed.</h2>
+<section class="wrap smart"><div class="rule-cols">
+<div class="rule-col"><h2>Don't get gamed.</h2>
 <p class="golden-kicker">3 Golden Rules if you're sellin</p>
 <div class="rule-row">
 <aside class="golden-rule" role="note"><p>1. The car doesn't go anywhere unless the money is in the bank.</p></aside>
 <aside class="golden-rule" role="note"><p>2. See their licence before a test drive, and ride along.</p></aside>
 <aside class="golden-rule" role="note"><p>3. Trust your gut. Sketchy message? Something doesn't feel right? Don't do it! Report it.</p></aside>
-</div>
-<div class="rule-split" aria-hidden="true"><img src="favicon.svg?v=147" alt="" width="30" height="30"></div>
-<h2>Don't be intellectually unemployed.</h2>
+</div></div>
+<div class="rule-split" aria-hidden="true"><img src="img/logo.svg" alt="" data-wordmark width="180" height="28"></div>
+<div class="rule-col"><h2>Don't be intellectually unemployed.</h2>
 <p class="golden-kicker buy-kicker">3 Golden Rules if you're buyin</p>
 <div class="rule-row">
 ${buyTips.map(t=>`<aside class="golden-rule buy-rule" role="note"><p>${t}</p></aside>`).join('')}
+</div></div>
 </div><dialog class="report-dialog" id="how-vin-dialog">${vinOrderForm('how-vin-order','')}</dialog></section>`}
 function bindHow(){bindOffer('how-inspect',INSPECTION_URL);const howVin=$('#how-vin'),howDlg=$('#how-vin-dialog');if(howVin&&howDlg){howVin.onclick=()=>{if(howDlg.showModal)howDlg.showModal();else howDlg.setAttribute('open','')};howDlg.addEventListener('click',e=>{if(e.target===howDlg&&howDlg.close)howDlg.close()});bindVinOrder(null,'how-vin-order')}}
 function aboutTabs(us){return `<div class="about-switch"><div class="about-tabs" role="tablist" aria-label="About DRIVN"><a role="tab" href="#/about" id="about-tab-works" aria-selected="${us?'false':'true'}" aria-controls="about-panel">HOW IT WORKS</a><a role="tab" href="#/about/us" id="about-tab-us" aria-selected="${us?'true':'false'}" aria-controls="about-panel">WHAT IT'S ABOUT</a></div></div>`}
