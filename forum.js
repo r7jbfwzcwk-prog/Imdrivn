@@ -120,7 +120,7 @@ async function forumIndex() {
   const query = forumQuery();
   main.innerHTML = '';
   const wrap = fEl('div', { class: 'wrap forum' });
-  wrap.append(fEl('div', { class: 'eyebrow' }, 'The crew'), fEl('h1', null, query ? 'Forum search' : 'The forum'));
+  wrap.append(fEl('div', { class: 'eyebrow' }, 'The Drivn Community'), fEl('h1', null, query ? 'Forum search' : 'The forum'));
   wrap.append(fEl('p', { class: 'muted' }, query ? '' : 'Ask the dumb question. Someone has already broken that part. No gatekeeping.'));
   const list = fEl('div', { class: query ? 'fthreads' : 'fcats' });
   list.append(fEl('p', { class: 'muted' }, query ? 'Searching…' : 'Loading the boards…'));
