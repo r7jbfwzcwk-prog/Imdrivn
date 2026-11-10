@@ -176,7 +176,7 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .smart{text-align:left;padding-top:var(--s-6);padding-bottom:var(--s-7)}
 .smart h2{font-size:clamp(1.3rem,3.5vw,2rem)}
 .golden-rule{margin:var(--s-5) 0;padding:22px 22px 22px 24px;border:1px solid #d9a441;border-left:6px solid #d9a441;border-radius:16px;background:linear-gradient(180deg,rgba(217,164,65,.22),#101012);box-shadow:0 0 32px rgba(217,164,65,.2)}
-.golden-kicker{margin:0 0 8px;color:#d9a441;font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase}
+.golden-kicker{margin:0 0 8px;color:#d9a441;font-size:clamp(13.8px,3.84vw,16px);font-weight:600;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
 .golden-rule p:last-child{margin:0;font-size:clamp(1.15rem,2.6vw,1.55rem);line-height:1.35;font-weight:600}
 .buy-kicker{color:#22c55e}
 .buy-rule{border-color:#22c55e;border-left-color:#22c55e;background:linear-gradient(180deg,rgba(34,197,94,.22),#101012);box-shadow:0 0 32px rgba(34,197,94,.2)}
