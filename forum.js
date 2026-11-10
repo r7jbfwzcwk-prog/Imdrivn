@@ -96,7 +96,7 @@ function openForumSearch() {
   const button = document.getElementById('forumsearch');
   if (!panel) return;
   panel.hidden = false;
-  if (button) { button.setAttribute('aria-expanded', 'true'); button.setAttribute('aria-label', 'Close search'); }
+  if (button) button.setAttribute('aria-expanded', 'true');
   const field = panel.querySelector('input');
   const current = hashParts().params.get('q') || '';
   if (field && !field.value) field.value = current;
@@ -107,7 +107,7 @@ function closeForumSearch() {
   const button = document.getElementById('forumsearch');
   const inside = panel && panel.contains(document.activeElement);
   if (panel) panel.hidden = true;
-  if (button) { button.setAttribute('aria-expanded', 'false'); button.setAttribute('aria-label', 'Search the forum'); if (inside) button.focus(); }
+  if (button) { button.setAttribute('aria-expanded', 'false'); if (inside) button.focus(); }
 }
 function forumQuery() {
   return String(hashParts().params.get('q') || '').replace(/\s+/g, ' ').trim();
