@@ -175,6 +175,15 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .feats{text-align:center}.feats .row4{display:grid;grid-template-columns:1fr 1fr;margin-top:var(--s-5)}
 .smart{text-align:left;padding-top:var(--s-6);padding-bottom:var(--s-7)}
 .smart h2{font-size:clamp(1.3rem,3.5vw,2rem)}
+.rule-row{display:grid;gap:24px;margin-top:16px}
+.rule-row .golden-rule{margin:0;height:100%}
+.rule-split{display:flex;justify-content:center;margin:28px 0 12px}
+.rule-split img{width:30px;height:30px;display:block;opacity:.8}
+@media(min-width:900px){
+ .rule-row{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+ .smart .rule-row:first-of-type{margin-bottom:48px}
+ .rule-split{display:none}
+}
 .golden-rule{margin:var(--s-5) 0;padding:22px 22px 22px 24px;border:1px solid #d9a441;border-left:6px solid #d9a441;border-radius:16px;background:linear-gradient(180deg,rgba(217,164,65,.22),#101012);box-shadow:0 0 32px rgba(217,164,65,.2)}
 .golden-kicker{margin:0 0 8px;color:#d9a441;font-size:clamp(13.8px,3.84vw,16px);font-weight:600;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
 .golden-rule p:last-child{margin:0;font-size:clamp(1.15rem,2.6vw,1.55rem);line-height:1.35;font-weight:600}
