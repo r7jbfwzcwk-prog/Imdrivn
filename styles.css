@@ -414,6 +414,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   a[href="#/forum"].menu-slot{order:4}
   a[href="#/news"].menu-slot{order:5}
   a[href="#/about"].menu-slot{order:6}
+  a.menu-partners{order:6}
   .menu-mark{order:6;display:block;align-self:center;width:min(180px,62%);height:auto;max-height:clamp(14px,3.2dvh,28px);margin-top:auto;margin-bottom:0;object-fit:contain;object-position:center;opacity:.34;pointer-events:none;user-select:none;flex:0 1 auto}
   a.nav-account.menu-wide{order:6;margin-top:auto}
   a[href="#/garage/ads"]{order:7}
@@ -439,6 +440,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   #appmenu.appmenu[hidden]{display:none}
   #appmenu .menu-scroll{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden}
   #appmenu a.menu-slot,#appmenu .menu-socials{display:none}
+  #appmenu a.menu-partners{display:flex;order:1}
   #appmenu .menu-head,#appmenu .menu-mark,#appmenu .menu-foot,#appmenu a.nav-account.menu-wide,#appmenu #menu-search{display:flex}
   #appmenu .menu-head{order:0;align-items:center;justify-content:space-between;flex:0 0 auto;height:48px;padding:0 4px;color:#d9a441;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
   #appmenu #menu-close{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;padding:0;border:0;border-radius:0;background:transparent;color:#d9a441;cursor:pointer}
@@ -1005,6 +1007,27 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .garage-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .garage-top h1{margin:0;min-width:0}
 .garage-edit{flex:0 0 auto;text-transform:none;letter-spacing:.01em;white-space:normal;text-align:center}
+.partners h1{font-size:clamp(1.6rem,4vw,2.4rem);color:#f2f2f2}
+.partners-lead{margin:0 0 22px;color:#c8c8cc;max-width:36rem}
+.partner-grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:700px){.partner-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.partner-card{display:flex;flex-direction:column;gap:8px;min-height:180px;padding:16px;border:1px solid #d9a441;border-radius:16px;background:#101012;box-shadow:0 0 24px rgba(217,164,65,.12)}
+.partner-card h2{margin:0;font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1.05rem;color:#f2f2f2}
+.partner-card p{margin:0;color:#c8c8cc;line-height:1.45}
+.partner-card .btn{margin-top:auto;align-self:flex-start;border-color:#d9a441;color:#d9a441}
+.partner-logo{width:72px;height:72px;border:1px solid rgba(217,164,65,.45);border-radius:12px;background:#000;object-fit:contain}
+.partner-card.is-open .partner-logo{background:repeating-linear-gradient(135deg,#14120c 0 8px,#101012 8px 16px)}
+.partner-card.is-open h2,.partner-card.is-open p{color:#d9a441}
+.partner-cta{margin-top:28px;padding:22px;border:1px solid #d9a441;border-radius:16px;background:linear-gradient(180deg,rgba(217,164,65,.22),#101012),#101012;box-shadow:0 0 32px rgba(217,164,65,.2)}
+.partner-cta h2{margin:0 0 14px;font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:clamp(1.15rem,2.4vw,1.45rem);color:#f2f2f2}
+.partner-cta .btn.solid{background:#d9a441;border-color:#d9a441;color:#111;text-transform:none;letter-spacing:.02em;white-space:normal;text-align:center;height:auto;min-height:48px;padding:12px 16px}
+.partner-form{display:grid;gap:12px;margin-top:16px}
+.partner-form label{display:grid;gap:6px;color:#d9a441;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.partner-form input,.partner-form textarea{width:100%;box-sizing:border-box;background:#0e0e10;color:#f2f2f2;border:1px solid #2c2c30;border-radius:12px;min-height:48px;padding:12px 14px;font:500 1rem/1.3 var(--font-body);letter-spacing:0;text-transform:none}
+.partner-form textarea{min-height:120px;resize:vertical}
+.partner-form .grey{color:#9a9aa2;letter-spacing:0;text-transform:none}
+.partner-ok{margin:14px 0 0;color:#f2f2f2;font-size:1.05rem}
+
 .account-tick{display:flex;align-items:flex-start;gap:8px;margin:0 0 14px}
 .account-details{width:min(680px,100%);box-sizing:border-box}
 .account-details form{display:grid;gap:16px;width:100%}

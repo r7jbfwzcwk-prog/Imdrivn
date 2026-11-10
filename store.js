@@ -530,6 +530,33 @@ const FinanceEnquiry = {
     return data;
   }
 };
+const PartnerEnquiry = {
+  async submit(input) {
+    if (!sb) throw new Error('Partner enquiries are offline right now.');
+    const business = String(input.business || '').trim();
+    const contact = String(input.contact || '').trim();
+    const phone = String(input.phone || '').trim();
+    const email = String(input.email || '').trim().toLowerCase();
+    const website = String(input.website || '').trim();
+    const message = String(input.message || '').trim();
+    if (business.length < 2) throw Object.assign(new Error('Add the business name.'), {field:'business'});
+    if (contact.length < 2) throw Object.assign(new Error('Add a contact name.'), {field:'contact'});
+    if (phone.replace(/\D/g, '').length < 8) throw Object.assign(new Error('Add a phone number.'), {field:'phone'});
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw Object.assign(new Error('Add a valid email.'), {field:'email'});
+    if (message.length < 8) throw Object.assign(new Error('Add a short message.'), {field:'message'});
+    const { data, error } = await sb.rpc('submit_partner_enquiry', {
+      p_business_name: business,
+      p_contact_name: contact,
+      p_phone: phone,
+      p_email: email,
+      p_website: website || null,
+      p_message: message
+    });
+    if (error) throw new Error(error.message || 'Could not send that enquiry.');
+    if (!data || !data.id) throw new Error('Could not send that enquiry.');
+    return data;
+  }
+};
 Auth.ready = Auth.init();
 Auth.authReturn = (/[?&]code=/.test(bootSearch) || /access_token/.test(bootHash)) && !Auth.recovery && !oauthErrorMessage;
 
