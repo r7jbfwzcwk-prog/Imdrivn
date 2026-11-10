@@ -107,6 +107,14 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   .view-all{display:inline-flex;align-items:center;justify-content:center;min-height:44px;font-size:clamp(.68rem,1.8dvh,.85rem);padding:0 12px}
 }
 @media(min-width:760px){.hero .eyebrow{display:none}}
+@media(min-width:769px){
+  body.is-home .hero h1{font-size:clamp(1.56rem,4.78vw,2.875rem)}
+  body.is-home .hero h1 .grey{font-size:clamp(1.84rem,5.62vw,3.46rem)}
+}
+@media(min-width:769px) and (max-height:740px){
+  body.is-home .hero h1{font-size:clamp(1.15rem,2.76vw,1.7rem)}
+  body.is-home .hero h1 .grey{font-size:clamp(1.35rem,3.24vw,2rem)}
+}
 .path .wide,.path .tag,.path .muted{text-shadow:0 1px 8px rgba(0,0,0,.8)}
 .path .ico{filter:drop-shadow(0 2px 6px rgba(0,0,0,.75))}
 .path .btn{text-shadow:0 1px 6px rgba(0,0,0,.85)}
@@ -375,12 +383,12 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   a[href="#/merch"].menu-slot{order:3}
   a[href="#/forum"].menu-slot{order:4}
   a[href="#/news"].menu-slot{order:5}
-  a.nav-account.menu-wide{order:6}
+  a.nav-account.menu-wide{order:6;margin-top:auto}
   a[href="#/garage/ads"]{order:7}
   a[href="#/saved"]{order:8}
   #menu-msgs{order:9}
   a[href="#/garage"]{order:10}
-  .menu-foot{order:20;display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;margin-top:0;padding:10px 4px calc(8px + env(safe-area-inset-bottom));background:#000}
+  .menu-foot{order:20;display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;margin-top:0;padding:24px 4px calc(8px + env(safe-area-inset-bottom));background:#000}
   .menu-foot .menu-act,#menu-ig,#menu-tt{flex:0 0 44px;width:44px;min-width:44px;min-height:44px;justify-content:center;padding:0;border:0;border-bottom:0;border-radius:12px;color:#f2f2f2}
   .menu-foot .menu-act svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7}
   .menu-foot .menu-act:focus-visible,#menu-ig:focus-visible,#menu-tt:focus-visible{outline:2px solid #d9a441;outline-offset:2px}
