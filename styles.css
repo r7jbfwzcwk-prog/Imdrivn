@@ -242,7 +242,7 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
 .sell-lanes{position:relative;flex:1 1 auto;display:flex;flex-direction:column;min-height:0;background:#000}
 .sell-copy{position:relative;flex:1;display:flex;flex-direction:column;min-height:0}
 .sell-intro{position:absolute;top:0;left:0;right:0;z-index:3;padding:18px 16px 0;pointer-events:none}
-.sell-intro h1{text-shadow:0 2px 14px rgba(0,0,0,.85);margin-bottom:0}
+.sell-intro h1{text-shadow:0 2px 14px rgba(0,0,0,.85);margin-bottom:0;font-size:clamp(1.4rem,4vw,2.4rem)}
 .sell-intro .eyebrow{text-shadow:0 1px 8px rgba(0,0,0,.85)}
 .sell-cols{flex:1 1 auto;display:grid;gap:3px;grid-template-columns:minmax(0,1fr);align-items:stretch;min-height:0}
 @media(min-width:760px){.sell-cols{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
@@ -880,6 +880,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   body.is-sell .sell-col .path{min-height:0 !important}
   body.is-lanes .lanes .path,body.is-sell .sell-col .path{height:100%;max-height:100%;overflow:hidden;padding:clamp(4px,1dvh,10px) 10px}
   body.is-lanes .lanes-head,body.is-sell .sell-intro{position:relative;padding:8px 14px 4px}
+  body.is-sell .sell-intro h1{margin:0;padding:2px 0 8px;font-size:clamp(.84rem,2.8dvh,1.1rem);line-height:1.2}
   body.is-lanes .lane-daily,body.is-sell .sell-list{padding-top:8px}
   body.is-lanes .lane-col{padding:6px 12px}
   body.is-lanes .chooser-paths,body.is-sell .sell-cols{gap:0;padding-bottom:0}
@@ -902,7 +903,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   body.is-lanes .view-all{min-height:44px;font-size:clamp(.68rem,1.8dvh,.85rem)}
 }
 @media(max-width:759px) and (max-height:520px){
-  body.is-lanes .lanes-head h1{padding:1px 0 2px}
+  body.is-lanes .lanes-head h1,body.is-sell .sell-intro h1{padding:1px 0 2px}
   body.is-lanes .lane-col,body.is-lanes .lane-daily,body.is-lanes .lane-performance,body.is-lanes .lane-supercar{padding-top:0;padding-bottom:0}
   body.is-lanes .lanes .path{padding-top:1px;padding-bottom:1px}
 }
