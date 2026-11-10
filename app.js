@@ -369,7 +369,10 @@ const buyTips=[`Get a pre-purchase inspection. ${offerLink('how-inspect',INSPECT
 return `<section class="wrap feats"><div class="eyebrow">How it works</div><h1 style="font-size:clamp(1.3rem,4vw,2.2rem)">Simple. <span class="grey">Free.</span> Fast.</h1><div class="row4">
 ${[['tag','1. Snap & list','Photos, price, done. Listing is 100% free.'],['gauge','2. Hit the feed','Your ad lands in a scroll-first feed buyers love.'],['head','3. Chat direct','Buyers message you. No middleman.'],['up','4. Or go wholesale','Want it gone? Dealers make an offer.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div><a class="btn solid" href="#/sell" style="margin-top:var(--s-5)">Sell your car →</a></section>
 <section class="wrap smart"><div class="eyebrow">Selling smart</div><h2>Don't get played.</h2>
-<aside class="golden-rule" role="note"><p class="golden-kicker">Golden rule</p><p>The car doesn't go anywhere unless the money is in the bank.</p></aside>
+<p class="golden-kicker">3 Golden Rules if you're selling</p>
+<aside class="golden-rule" role="note"><p>The car doesn't go anywhere unless the money is in the bank.</p></aside>
+<aside class="golden-rule" role="note"><p>See their licence before a test drive, and ride along.</p></aside>
+<aside class="golden-rule" role="note"><p>Trust your gut. Sketchy message? Something doesn't feel right? Don't do it! Report it.</p></aside>
 <h3>If you're selling</h3><ul class="smart-list">${sellTips.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
 <h3>If you're buying</h3><ul class="smart-list buyer">${buyTips.map(t=>`<li>${t}</li>`).join('')}</ul><dialog class="report-dialog" id="how-vin-dialog">${vinOrderForm('how-vin-order','')}</dialog></section>`}
 function bindHow(){bindOffer('how-inspect',INSPECTION_URL);const howVin=$('#how-vin'),howDlg=$('#how-vin-dialog');if(howVin&&howDlg){howVin.onclick=()=>{if(howDlg.showModal)howDlg.showModal();else howDlg.setAttribute('open','')};howDlg.addEventListener('click',e=>{if(e.target===howDlg&&howDlg.close)howDlg.close()});bindVinOrder(null,'how-vin-order')}}
