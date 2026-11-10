@@ -392,6 +392,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   a[href="#/merch"].menu-slot{order:3}
   a[href="#/forum"].menu-slot{order:4}
   a[href="#/news"].menu-slot{order:5}
+  a[href="#/about"].menu-slot{order:6}
   .menu-mark{order:6;display:block;align-self:center;width:min(180px,62%);height:auto;max-height:clamp(14px,3.2dvh,28px);margin-top:auto;margin-bottom:0;object-fit:contain;object-position:center;opacity:.34;pointer-events:none;user-select:none;flex:0 1 auto}
   a.nav-account.menu-wide{order:6;margin-top:auto}
   a[href="#/garage/ads"]{order:7}
