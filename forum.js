@@ -101,6 +101,7 @@ function openForumSearch() {
   const current = hashParts().params.get('q') || '';
   if (field && !field.value) field.value = current;
   if (field) field.focus();
+  if (typeof syncSearchLayout === 'function') syncSearchLayout();
 }
 function closeForumSearch() {
   const panel = document.getElementById('fspanel');
@@ -108,6 +109,7 @@ function closeForumSearch() {
   const inside = panel && panel.contains(document.activeElement);
   if (panel) panel.hidden = true;
   if (button) { button.setAttribute('aria-expanded', 'false'); if (inside) button.focus(); }
+  if (typeof syncSearchLayout === 'function') syncSearchLayout();
 }
 function forumQuery() {
   return String(hashParts().params.get('q') || '').replace(/\s+/g, ' ').trim();

@@ -497,8 +497,19 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
  body.is-buy .loader{margin-bottom:108px}
  #forumsearch:not([hidden]){position:fixed;z-index:32;right:14px;bottom:calc(64px + 12px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:999px;background:#000;color:var(--acc);box-shadow:0 8px 22px rgba(0,0,0,.55)}
 }
-#spanel{display:flex;flex-direction:column;padding:12px 16px 8px;border-bottom:1px solid #1a1a1d;max-width:960px;margin:0 auto;background:#000;max-height:min(68dvh,640px);overflow:hidden}
+#spanel{padding:12px 16px 16px;border-bottom:1px solid #1a1a1d;max-width:960px;margin:0 auto;background:#000;max-height:min(72dvh,720px);overflow:auto}
 #spanel[hidden]{display:none}
+@media(max-width:768px){
+  body.search-open{overflow:hidden}
+  body.search-open #spanel{display:flex;flex-direction:column;overflow:hidden;padding-bottom:8px}
+  body.search-open #spanel .qs{flex:1 1 auto;overflow:hidden;grid-template-rows:repeat(6,minmax(0,1fr));gap:clamp(2px,.7dvh,8px);align-content:stretch}
+  body.search-open .qs label,body.search-open #fspanel label{gap:1px;min-height:0;font-size:clamp(.55rem,1.5dvh,.68rem)}
+  body.search-open .qs input,body.search-open .qs select,body.search-open #fspanel input{min-height:0;height:clamp(32px,4.4dvh,44px);max-height:44px;font-size:16px;line-height:1.1;padding-top:0;padding-bottom:0}
+  body.search-open .qs-actions{gap:6px}
+  body.search-open .qs-actions .btn,body.search-open #fspanel .btn{min-height:clamp(32px,4.2dvh,40px);height:clamp(32px,4.2dvh,40px)}
+  body.search-open .search-hide{min-height:clamp(32px,4.2dvh,44px);flex-basis:clamp(32px,4.2dvh,44px)}
+  body.search-open #fspanel:not([hidden]){display:flex;flex-direction:column;overflow:hidden;gap:clamp(4px,1dvh,10px)}
+}
 .qs{display:grid;grid-template-columns:1fr;gap:10px;color-scheme:dark;min-height:0;overflow:auto}
 @media(min-width:640px){.qs{grid-template-columns:1fr 1fr}}
 @media(min-width:900px){.qs{grid-template-columns:repeat(3,1fr)}}
