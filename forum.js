@@ -100,7 +100,8 @@ function openForumSearch() {
   const field = panel.querySelector('input');
   const current = hashParts().params.get('q') || '';
   if (field && !field.value) field.value = current;
-  if (field) field.focus();
+  if (typeof focusSearch === 'function') focusSearch(panel);
+  else if (field && window.innerWidth > 768) field.focus();
   if (typeof syncSearchLayout === 'function') syncSearchLayout();
 }
 function closeForumSearch() {
