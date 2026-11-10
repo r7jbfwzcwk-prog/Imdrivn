@@ -178,6 +178,10 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .golden-rule{margin:var(--s-5) 0;padding:22px 22px 22px 24px;border:1px solid #d9a441;border-left:6px solid #d9a441;border-radius:16px;background:linear-gradient(180deg,rgba(217,164,65,.22),#101012);box-shadow:0 0 32px rgba(217,164,65,.2)}
 .golden-kicker{margin:0 0 8px;color:#d9a441;font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase}
 .golden-rule p:last-child{margin:0;font-size:clamp(1.15rem,2.6vw,1.55rem);line-height:1.35;font-weight:600}
+.buy-kicker{color:#22c55e}
+.buy-rule{border-color:#22c55e;border-left-color:#22c55e;background:linear-gradient(180deg,rgba(34,197,94,.22),#101012);box-shadow:0 0 32px rgba(34,197,94,.2)}
+.golden-rule .btn{display:inline-flex;min-height:40px;margin-top:10px;padding:0 14px;font-size:.65rem;font-weight:600;letter-spacing:.14em;line-height:1;vertical-align:middle}
+.buy-rule .btn{border-color:#22c55e;color:#22c55e;background:#000}
 .smart h3{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1rem;margin:var(--s-5) 0 var(--s-3)}
 .smart-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
 @media(min-width:760px){.smart-list{grid-template-columns:1fr 1fr}}
