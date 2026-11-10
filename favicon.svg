@@ -6,6 +6,7 @@
 <stop offset="1" stop-color="#9a6824"/>
 </linearGradient>
 </defs>
+<rect width="64" height="64" fill="#000"/>
 <g fill="url(#gold)" transform="translate(32 32) scale(1.08) translate(-32 -32) translate(2.875 -0.9688) translate(33 33) skewX(-13) translate(-32 -32)">
 <path d="M8 16h11v32H8z"/>
 <path fill-rule="evenodd" d="M23 16h12.5c9.2 0 16 6.4 16 16s-6.8 16-16 16H23V16zm10.2 8.4v15.2c4.4 0 7.4-2.8 7.4-7.6s-3-7.6-7.4-7.6z"/>
