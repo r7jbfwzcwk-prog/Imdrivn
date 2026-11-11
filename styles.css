@@ -622,7 +622,18 @@ input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-sea
 .feed{max-width:440px;margin:0 auto;padding:14px 12px;display:grid;gap:14px}
 @media(min-width:900px){.feed{max-width:900px;grid-template-columns:1fr 1fr;gap:18px;padding:22px}}
 .feed-title{font-size:1rem;text-align:center;margin-top:16px;color:var(--acc)}.filt{max-width:440px;margin:12px auto 0;padding:0 12px;font-size:.8rem;color:var(--c-muted)}.filt button{background:none;border:0;color:var(--acc);cursor:pointer;text-decoration:underline}
-.post{position:relative;background:#050506;border:1px solid var(--acc-dim);border-radius:var(--r-card);overflow:hidden;box-shadow:0 0 18px var(--glow);transition:border-radius var(--ease),box-shadow var(--ease)}
+.post .boost-bolt{position:absolute;top:8px;right:8px;z-index:4;display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid #2a2a2e;border-radius:6px;background:#000;cursor:pointer}
+.post .boost-bolt svg{width:18px;height:18px;fill:#f5c518}
+.boost-dialog{width:min(420px,calc(100vw - 32px));padding:56px 18px 18px;border:1px solid #d9a441;border-radius:16px;background:linear-gradient(180deg,rgba(217,164,65,.22),#101012),#101012;color:#f2f2f2;box-shadow:0 0 32px rgba(217,164,65,.2)}
+.boost-dialog::backdrop{background:rgba(0,0,0,.75)}
+.boost-dialog h2{margin:0 0 8px;font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1.2rem}
+.boost-dialog .btn.solid{background:#d9a441;border-color:#d9a441;color:#111}
+.boost-dialog .ppsr-x{position:absolute;top:8px;right:8px;display:grid;place-items:center;width:40px;height:40px;min-width:40px;min-height:40px;padding:0;border:1px solid #d9a441;border-radius:10px;background:#101012;color:#d9a441;font:600 1.35rem/1 var(--font-body);letter-spacing:0;text-transform:none;cursor:pointer}
+.membership h1{color:#f2f2f2}
+.membership-lead{max-width:40rem;color:#e4e4e8}
+.member-card,.member-switch{margin:0 0 18px;padding:16px;border:1px solid #d9a441;border-radius:16px;background:#101012}
+.member-card h2,.member-switch p{margin:0 0 8px;font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0}
+.member-card .btn.solid{background:#d9a441;border-color:#d9a441;color:#111}
 .post .car{position:relative;display:block}.post .car img{width:100%;aspect-ratio:16/7.5;object-fit:cover;background:#111}
 .shot{position:relative;display:block;container-type:inline-size}
 .wm{position:absolute;right:8px;bottom:8px;z-index:2;width:auto;max-width:none;min-width:0;margin:0;padding:0;border:0;background:transparent;color:#fff;font-family:var(--font-body);font-style:normal;font-weight:600;font-size:11px;font-size:2.55cqw;letter-spacing:.06em;line-height:1;text-transform:uppercase;text-decoration:none;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.75);pointer-events:none;opacity:.66}

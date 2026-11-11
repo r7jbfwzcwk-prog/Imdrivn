@@ -43,6 +43,39 @@ const sb = (window.supabase && window.supabase.createClient)
     })
   : null;
 
+const SiteSettings = {
+  enabled: false,
+  ready: null,
+  async load() {
+    this.enabled = false;
+    if (!sb) return false;
+    const { data, error } = await sb.from('site_settings').select('value').eq('key', 'membership_enabled').maybeSingle();
+    if (!error && data) this.enabled = data.value === true;
+    return this.enabled;
+  },
+  async setEnabled(on) {
+    const { data, error } = await sb.rpc('set_membership_enabled', { p_enabled: !!on });
+    if (error) throw new Error(error.message || 'Could not update that switch.');
+    this.enabled = data === true;
+    return this.enabled;
+  }
+};
+SiteSettings.ready = SiteSettings.load();
+
+function memberActive() {
+  const status = Auth.profile && Auth.profile.membership_status;
+  return status === 'active' || status === 'trialing';
+}
+async function assertCanPost(action) {
+  await SiteSettings.ready;
+  if (!SiteSettings.enabled) return;
+  await Auth.ready;
+  if (memberActive()) return;
+  const err = new Error('An active membership is required to ' + action + '.');
+  err.code = 'membership';
+  throw err;
+}
+
 /* Static make/model list, plus names already used on live listings. */
 const VehicleNames = (() => {
   const acronyms = new Set(['BMW','HSV','FPV','GMC','MG','GWM','BYD','RAM','TVR','AMG','GT','GTI','GTR','WRX','STI','RS','SS','XR','SRT','SVR']);
@@ -255,7 +288,7 @@ function detectOwnExtras() {
   return ownExtraTask;
 }
 function ownProfileCols() {
-  return 'id,username,display_name,avatar_url,is_admin,member_verified' + (Presence.column ? ',last_seen_at' : '') + ownExtraCols;
+  return 'id,username,display_name,avatar_url,is_admin,member_verified,membership_status,current_period_end,stripe_customer_id,stripe_subscription_id' + (Presence.column ? ',last_seen_at' : '') + ownExtraCols;
 }
 function publicProfileCols() {
   return 'username,member_verified' + (Presence.column ? ',last_seen_at' : '');
@@ -600,7 +633,7 @@ function listingCondition(listing) {
 }
 function listingSelect() {
   const who = 'username,display_name,member_verified' + (Presence.column ? ',last_seen_at' : '');
-  return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,condition,rego,vin,photos,status,created_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
+  return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,condition,rego,vin,photos,status,created_at,bumped_at,sort_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
 }
 
 function countOf(rel) {
@@ -656,13 +689,15 @@ function mapListing(row) {
     handle: (profile && profile.username) || 'you',
     memberVerified: !!(profile && profile.member_verified === true),
     last_seen_at: (profile && profile.last_seen_at) || '',
-    when: whenLabel(row.created_at),
+    when: whenLabel(row.sort_at || row.bumped_at || row.created_at),
     likeCount: countOf(row.likes),
     liked: Auth.likes.has(row.id),
     saved: Auth.saves.has(row.id),
     likes: countOf(row.likes),
     user_id: row.user_id,
-    created_at: row.created_at
+    created_at: row.created_at,
+    bumped_at: row.bumped_at || null,
+    sort_at: row.sort_at || row.created_at
   };
 }
 function applyListingSort(q, sort) {
@@ -670,7 +705,7 @@ function applyListingSort(q, sort) {
   else if (sort === 'price-desc') q = q.order('price', { ascending: false });
   else if (sort === 'year-desc') q = q.order('year', { ascending: false });
   else if (sort === 'year-asc') q = q.order('year', { ascending: true });
-  else q = q.order('created_at', { ascending: false });
+  else q = q.order('sort_at', { ascending: false });
   if (sort && sort !== 'new') q = q.order('created_at', { ascending: false });
   return q.order('id', { ascending: false });
 }
@@ -970,6 +1005,7 @@ const ListingStore = {
     if (!sb) throw new Error('Accounts are offline right now. Try again in a moment.');
     await Auth.ready;
     if (!Auth.user) throw new Error('Sign in before you post.');
+    await assertCanPost('list a car');
     const uid = Auth.user.id;
     if (!listing.photos || !listing.photos.length) throw new Error('Add at least one photo before you post. The first one is the cover.');
     const email = String(listing.email || '').trim();
@@ -1261,6 +1297,7 @@ const Forum = {
     return { thread: thread.data, replies: replies.data || [] };
   },
   async createThread(categoryId, title, body) {
+    await assertCanPost('post on the forum');
     const { data, error } = await sb.from('forum_threads')
       .insert({ category_id: categoryId, author_id: Auth.user.id, title, body })
       .select('id').single();
@@ -1276,6 +1313,7 @@ const Forum = {
     if (error) throw new Error(forumErr(error));
   },
   async reply(threadId, body) {
+    await assertCanPost('post on the forum');
     const { data, error } = await sb.from('forum_replies').insert({ thread_id: threadId, author_id: Auth.user.id, body }).select('id').single();
     if (error) throw new Error(forumErr(error));
     return data;
