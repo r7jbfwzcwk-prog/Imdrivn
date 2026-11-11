@@ -1,6 +1,6 @@
 /* News feed and article. Markdown is escaped first, then a small safe subset is marked up. */
 const NEWS_TITLE = "IM DRIVN – More than a Marketplace … It's a Community";
-const NEWS_DESC = "Australia's premium marketplace for high performance cars. Built by car people, for car people. Join the crew today.";
+const NEWS_DESC = "Australia's premium marketplace for high performance cars. From first cars to supercars, there's a place for you. Join the crew today.";
 
 function newsCatLabel(id) {
   const hit = News.cats.find(row => row[0] === id);

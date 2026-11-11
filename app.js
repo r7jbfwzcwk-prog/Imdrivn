@@ -25,7 +25,7 @@ const FALLBACK="this.onerror=null;this.src='data:image/svg+xml,'+encodeURICompon
 async function home(){const token=++homeToken;main.innerHTML=`
 <section class="landing"><section class="hero"><div class="wrap"><div class="eyebrow">IM DRIVN</div>
 <!-- ORIGINAL HEADLINE: The High Performance Marketplace -->
-<h1>More than a Marketplace …<br><span class="grey">It's a Community.</span></h1><hr><p><em class="hero-lead">Australia's premium marketplace for high performance cars.</em><span class="hero-free">Built by car people, for car people. Join the crew today.</span><span class="hero-free-desk">Built by car people, for car people. Join the crew today.</span></p></div></section>
+<h1>More than a Marketplace …<br><span class="grey">It's a Community.</span></h1><hr><p><em class="hero-lead">Australia's premium marketplace for high performance cars.</em><span class="hero-free">From first cars to supercars, there's a place for you. Join the crew today.</span><span class="hero-free-desk">From first cars to supercars, there's a place for you. Join the crew today.</span></p></div></section>
 <div class="wrap home-paths"><div class="paths">
 <a class="path" href="#/buyin">${ico('tag')}<span class="wide">IM BUYIN</span><span class="tag">Find your next machine.</span><span class="muted">Browse cars available now on IM DRIVN.</span><span class="btn">Browse cars →</span></a>
 <a class="path" href="#/sell">${ico('up')}<span class="wide">IM SELLIN</span><span class="tag">List with confidence.</span><span class="muted">List free or get a wholesale offer from dealers.</span><span class="btn">Sell your car →</span></a></div></div></section>
