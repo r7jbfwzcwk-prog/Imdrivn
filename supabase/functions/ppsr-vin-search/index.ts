@@ -1,11 +1,11 @@
 // PPSR Discovery serial search (VIN) via the approved relay.
-// The relay swaps __PPSR_USERNAME__ / __PPSR_PASSWORD__ for the real login.
+// The relay swaps {{PPSR_USERNAME}} / {{PPSR_PASSWORD}} for the real login.
 // Required env: PPSR_RELAY_URL, RELAY_SECRET.
 // Optional env: PPSR_TARGET (defaults to Discovery).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SEARCH_PATH = "/disc/2022/11/CollateralRegistrationSearch.svc/soap11";
-const SOAP_ACTION = "http://schemas.ppsr.gov.au/2022/11/services/CollateralRegistrationSearch/SearchBySerialNumber";
+const SOAP_ACTION = "http://schemas.ppsr.gov.au/2022/11/services/CollateralRegistrationSearchService2022/SearchBySerialNumber";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return json({ ok: true });
@@ -79,39 +79,14 @@ async function searchVin(vin: string) {
   const target = Deno.env.get("PPSR_TARGET") || "Discovery";
   const endpoint = base.endsWith("/soap11") ? base : base + SEARCH_PATH;
   const messageId = crypto.randomUUID();
-  const envelope = `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:svc="http://schemas.ppsr.gov.au/2022/11/services" xmlns:data="http://schemas.ppsr.gov.au/2022/11/data" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
-  <soap:Header>
-    <wsse:Security soap:mustUnderstand="1">
-      <wsse:UsernameToken>
-        <wsse:Username>__PPSR_USERNAME__</wsse:Username>
-        <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">__PPSR_PASSWORD__</wsse:Password>
-      </wsse:UsernameToken>
-    </wsse:Security>
-    <svc:TargetEnvironment>${xml(target)}</svc:TargetEnvironment>
-  </soap:Header>
-  <soap:Body>
-    <svc:SearchBySerialNumberRequestMessage>
-      <svc:SearchBySerialNumberRequest>
-        <data:CustomersRequestMessageId>${xml(messageId)}</data:CustomersRequestMessageId>
-        <data:SearchCriteria>
-          <data:IncludeArchived>false</data:IncludeArchived>
-          <data:IncludeCurrent>true</data:IncludeCurrent>
-          <data:IncludeExpired>false</data:IncludeExpired>
-          <data:IncludeRemoved>false</data:IncludeRemoved>
-          <data:SerialNumber>${xml(vin)}</data:SerialNumber>
-          <data:SerialNumberType>VIN</data:SerialNumberType>
-        </data:SearchCriteria>
-      </svc:SearchBySerialNumberRequest>
-    </svc:SearchBySerialNumberRequestMessage>
-  </soap:Body>
-</soap:Envelope>`;
+  const created = new Date().toISOString();
+  const envelope = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><TargetEnvironment xmlns="http://schemas.ppsr.gov.au/2022/11/services">${xml(target)}</TargetEnvironment><wsse:Security s:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"><wsse:UsernameToken wsu:Id="UsernameToken-1"><wsse:Username>{{PPSR_USERNAME}}</wsse:Username><wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">{{PPSR_PASSWORD}}</wsse:Password><wsu:Created>${created}</wsu:Created></wsse:UsernameToken></wsse:Security></s:Header><s:Body><SearchBySerialNumberRequestMessage xmlns="http://schemas.ppsr.gov.au/2022/11/services"><SearchBySerialNumberRequest xmlns:d="http://schemas.ppsr.gov.au/2016/05/data" xmlns:a="http://schemas.ppsr.gov.au/2011/04/data" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><d:CustomersRequestMessageId>${xml(messageId)}</d:CustomersRequestMessageId><d:CustomersUserDefinedFields i:nil="true"/><d:SearchCriteria><a:IncludeArchived>false</a:IncludeArchived><a:IncludeCurrent>true</a:IncludeCurrent><a:IncludeExpired>false</a:IncludeExpired><a:IncludeRemoved>false</a:IncludeRemoved><a:SerialNumber>${xml(vin)}</a:SerialNumber><a:SerialNumberType>VIN</a:SerialNumberType></d:SearchCriteria></SearchBySerialNumberRequest></SearchBySerialNumberRequestMessage></s:Body></s:Envelope>`;
   const res = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "text/xml; charset=utf-8",
       SOAPAction: '"' + SOAP_ACTION + '"',
-      "X-Relay-Secret": secret
+      Authorization: "Bearer " + secret
     },
     body: envelope
   });
