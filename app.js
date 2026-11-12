@@ -38,8 +38,7 @@ let rows=[];try{rows=await ListingStore.page({mode:BUY,from:0,to:2})}catch(e){ro
 if(token!==homeToken||!$('#fresh'))return;
 const fresh=(rows.length?rows:demosFor(false,false)).slice(0,3);
 $('#fresh').innerHTML=fresh.map(l=>post(l)).join('')||'<p class="muted">Nothing in this mode yet.</p>';}
-const about=()=>`<section class="about" id="about"><div class="img" role="img" aria-label="Taillight of a dark car"></div><div class="txt"><div class="eyebrow">About IM DRIVN</div>
-<h2>More than a marketplace.<br>It's a community.</h2><p class="muted">IM DRIVN connects Australia's car community. From daily drivers, 4x4s and performance weapons to top-end supercars, you can find it all on IM DRIVN. Buy, sell and get advice, all in one place. Everyone is welcome here!</p><a class="btn" href="#/how">Learn more</a></div><div class="water" aria-hidden="true">IM DRIVN</div></section>`;
+const about=()=>`<section class="about" id="about"><div class="img" role="img" aria-label="Taillight of a dark car"></div><div class="txt"><h2>More than a marketplace.<br>It's a community.</h2><p class="muted">IM DRIVN connects Australia's car community. From daily drivers, 4x4s and performance weapons to top-end supercars, you can find it all on IM DRIVN. Buy, sell and get advice, all in one place. Everyone is welcome here!</p><a class="btn" href="#/how">Learn more</a></div><div class="water" aria-hidden="true">IM DRIVN</div></section>`;
 
 const SV={heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',send:'<path d="M4 7h16v10H4z"/><path d="m4 8 8 5 8-5"/>',mark:'<path d="M6 3h12v18l-6-4-6 4z"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',
 check:'<circle cx="12" cy="12" r="9" class="fillc"/><path d="m8 12 3 3 5-6" stroke="#000"/>'};
