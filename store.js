@@ -1595,7 +1595,7 @@ const Chat = {
     return data;
   },
   async messages(id) {
-    const { data, error } = await sb.from('messages').select('id,conversation_id,sender_id,body,created_at').eq('conversation_id', id).order('created_at', { ascending: true });
+    const { data, error } = await sb.from('messages').select('id,conversation_id,sender_id,body,created_at,read_at').eq('conversation_id', id).order('created_at', { ascending: true });
     if (error) throw new Error(chatErr(error));
     return data || [];
   },
@@ -1607,7 +1607,7 @@ const Chat = {
       conversation_id: id,
       sender_id: Auth.user.id,
       body: text
-    }).select('id,conversation_id,sender_id,body,created_at').single();
+    }).select('id,conversation_id,sender_id,body,created_at,read_at').single();
     if (error) throw new Error(chatErr(error));
     Presence.nudge();
     return data;
