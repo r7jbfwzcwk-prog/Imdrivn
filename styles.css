@@ -544,7 +544,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
  .bar{flex-wrap:nowrap}
  .bar-end{display:flex;align-items:center;flex:0 1 auto;min-width:0;margin-left:12px}
  .dnav{--nav-gap:12px;--nav-pad-x:14px;display:flex;flex:0 1 auto;align-items:center;justify-content:flex-end;gap:var(--nav-gap);margin-left:auto}
- .dnav a{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;white-space:nowrap;text-decoration:none;font-size:19px;font-weight:600;letter-spacing:.06em;line-height:1.1;color:#f2f2f2;background:transparent;border:1.5px solid transparent;border-radius:8px;padding:7px 14px;min-height:36px;transition:color .2s ease,border-color .2s ease,background-color .2s ease}
+ .dnav a{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;white-space:nowrap;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.06em;line-height:1.1;color:#f2f2f2;background:transparent;border:1.5px solid transparent;border-radius:8px;padding:7px 14px;min-height:36px;transition:color .2s ease,border-color .2s ease,background-color .2s ease}
  .dnav a + a::before{content:"";position:absolute;left:calc(var(--nav-gap) / -2 - 1.5px);top:22%;bottom:22%;width:1px;background:#d9a441;pointer-events:none}
  .dnav a:hover,.dnav a:focus-visible{border-color:#d9a441;color:#d9a441;outline:none}
  .dnav a[aria-current=page],.dnav a[aria-current=page]:hover,.dnav a[aria-current=page]:focus-visible{background:rgba(217,164,65,.24);border-color:#d9a441;color:#fff}
@@ -557,17 +557,17 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 }
 @media(min-width:900px) and (max-width:1279px){
  .dnav{--nav-gap:6px;--nav-pad-x:6px}
- .dnav a{padding-left:6px;padding-right:6px;font-size:17px}
+ .dnav a{padding-left:6px;padding-right:6px}
  .bar-end{margin-left:8px}
  .socials a,.bar-end .ic button{width:32px;height:36px}
 }
 @media(min-width:900px) and (max-width:1099px){
  .dnav{--nav-gap:6px;--nav-pad-x:2px}
- .dnav a{padding:7px 2px;font-size:15px}
+ .dnav a{padding:7px 2px}
 }
 @media(min-width:1280px){
  .dnav{--nav-gap:8px;--nav-pad-x:4px}
- .dnav a{padding-left:4px;padding-right:4px;font-size:19px}
+ .dnav a{padding-left:4px;padding-right:4px}
 }
 @media(min-width:900px){
  .dnav a:first-child{padding-left:calc(var(--nav-pad-x) + var(--nav-gap) / 2)}
