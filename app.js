@@ -565,7 +565,7 @@ const PARTNERS = [
 function partnersPage(){
   const spots = PARTNERS.concat([0,1,2].map(()=>({placeholder:true}))).slice(0,3);
   const cards = spots.map(p=>{
-    const logo = p.placeholder ? '<div class="partner-logo" aria-hidden="true"></div>' : (p.logo?`<img class="partner-logo" src="${esc(p.logo)}" alt="">`:'');
+    const logo = p.placeholder ? '<div class="partner-logo" aria-hidden="true"></div>' : (p.logo?`<span class="partner-logo"><img src="${esc(p.logo)}" alt=""></span>`:'');
     const link = !p.placeholder && p.url ? `<a class="btn" href="${esc(p.url)}" target="_blank" rel="noopener">Visit website</a>` : '';
     const title = p.placeholder ? 'Partner spot available' : (p.name||'');
     const sub = p.placeholder ? 'Coming soon' : (p.description||'');
