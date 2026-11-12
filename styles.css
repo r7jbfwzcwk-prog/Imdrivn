@@ -553,6 +553,20 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
  .nav-account:hover,.nav-account:focus-visible{color:#d9a441}
  .nav-account[aria-current=page]{color:#d9a441}
  .socials{margin-left:8px}
+ header a.logo{flex:0 0 auto;margin-right:20px}
+}
+@media(min-width:900px) and (max-width:1279px){
+ .dnav{--nav-gap:6px}
+ .dnav a{padding-left:8px;padding-right:8px}
+ .bar-end{margin-left:8px}
+ .socials a,.bar-end .ic button{width:32px;height:36px}
+}
+@media(min-width:900px) and (max-width:1099px){
+ .dnav{--nav-gap:4px}
+ .dnav a{padding:7px 6px}
+}
+@media(min-width:1280px){
+ .dnav a{padding-left:12px;padding-right:12px}
 }
 @media(min-width:1024px) and (max-width:1099px){
  .bar{padding-left:8px;padding-right:8px}
@@ -561,9 +575,10 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 }
 @media(min-width:900px) and (max-width:1023px){
  .bar{padding-left:8px;padding-right:8px}
- .dnav{--nav-gap:8px}
- .dnav a{padding:7px 8px}
- .socials a,.bar-end .ic button{width:34px}
+ .dnav{--nav-gap:2px}
+ .dnav a{padding:7px 4px;letter-spacing:.02em}
+ .socials a,.bar-end .ic button{width:30px;height:36px}
+ .bar-end{margin-left:6px}
 }
 .modebar{display:flex;align-items:stretch;justify-content:center;gap:6px;max-width:960px;margin:0 auto;padding:0 10px;border-bottom:1px solid #1a1a1d}
 .feed-tools{display:contents}
