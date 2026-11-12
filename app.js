@@ -15,6 +15,7 @@ shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2
 lock:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/>',head:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="5" rx="1"/><rect x="17" y="14" width="4" height="5" rx="1"/><path d="M19 19c0 1.5-2 2-5 2"/>',
 bag:'<path d="M6 8h12l-1 12H7z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/>',
 car:'<path d="M3 14h18"/><path d="M5 14 7 9h10l2 5"/><circle cx="7.5" cy="16.5" r="1.4"/><circle cx="16.5" cy="16.5" r="1.4"/>',
+offroad:'<path d="M3 17.2h18"/><path d="M6 17.2 7.6 11h8.8L18 17.2"/><path d="M9.2 11 10.3 8h3.4l1.1 3"/><circle cx="8.2" cy="17.2" r="1.8"/><circle cx="15.8" cy="17.2" r="1.8"/>',
 cart:'<path d="M3 5h2.2L7 14h11.2l1.5-6.5H7"/><circle cx="9" cy="18.2" r="1.4"/><circle cx="16.4" cy="18.2" r="1.4"/>',
 spark:'<path d="m12 3 1.8 5.2H19l-4.2 3.1 1.6 5.2L12 13.6 7.6 16.5l1.6-5.2L5 8.2h5.2z"/>',
 trophy:'<path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H5.4A2.4 2.4 0 0 0 8 9.6"/><path d="M16 6h2.6A2.4 2.4 0 0 1 16 9.6"/><path d="M12 14v2"/><path d="M9.2 20h5.6l-.7-4h-4.2z"/>',
@@ -56,8 +57,8 @@ function vinCheckHref(listing, base){const url=base==null?VIN_CHECK_URL:base;if(
 async function requestVin(listingOrId){await Auth.ready;let l=listingOrId&&typeof listingOrId==='object'?listingOrId:null;const id=l?l.id:listingOrId;if(!Auth.user||Auth.needsHandle()){sessionStorage.setItem('imdrivn_next','vin:'+id);if(location.hash!=='#/join')location.hash='#/join';else join();return}if(!l){l=ListingStore.cache.get(id);if(!l){try{l=await ListingStore.get(id)}catch(e){l=null}}}if(!l||l.demo||!l.user_id){toast('That car has no seller to ask.','error');return}if(l.user_id===Auth.user.id){toast("That's your own ad.",'error');return}let fresh=true;try{fresh=await VinAsk.claim(l.id)}catch(e){toast(e.message||'Could not send that.','error');return}try{const conv=await Chat.open(l);if(fresh)await Chat.send(conv.id,vinRequestText(l));toast(fresh?'Asked the seller for the rego or VIN.':"You've already asked the seller for the rego or VIN.");const dest='#/messages/'+conv.id;if(location.hash===dest)route();else location.hash=dest}catch(e){if(fresh){try{await VinAsk.release(l.id)}catch(err){}}toast(e.message||'Could not send that.','error')}}
 function boostBadges(l){const perf=l.sec==='performance'||l.sec==='supercars';if(!perf)return '';const bits=[];if(l.turbo===true)bits.push('Turbo');if(l.supercharged===true)bits.push('Supercharged');const shown=bits.filter(b=>{const s=String(b).trim().toLowerCase();return s&&s!=='na'&&s!=='n/a'&&s!=='-'&&s!=='—'&&s!=='–'});if(!shown.length)return '';return `<span class="boosts">${shown.map(b=>`<span class="boost">${b}</span>`).join('')}</span>`}
 function powerLine(l){const text=[cylLabel(l.cylinders),String(l.engine||'').trim()].filter(Boolean).join(' · ');if(!text)return '';return `<div class="power"><span class="power-spec">${esc(text)}</span></div>`}
-function laneOf(l){const raw=String((l&&(l.mode||l.sec))||'').toLowerCase();if(raw==='supercar'||raw==='supercars')return 'supercar';if(raw==='performance')return 'performance';return 'daily'}
-function laneGroups(rows, owner){const lanes=[['daily','Daily','cart'],['performance','Performance','gauge'],['supercar','Supercar','trophy']];return lanes.map(([key,label,icon])=>{const items=rows.filter(l=>laneOf(l)===key);if(!items.length)return '';return `<section class="lane-group" data-mode="${key}"><h3 class="lane-label">${ico(icon)}<span>${label}</span></h3><div class="feed">${items.map(l=>post(l,owner===true)).join('')}</div></section>`}).join('')}
+function laneOf(l){const raw=String((l&&(l.mode||l.sec))||'').toLowerCase();if(raw==='supercar'||raw==='supercars')return 'supercar';if(raw==='performance')return 'performance';if(raw==='4x4')return '4x4';return 'daily'}
+function laneGroups(rows, owner){const lanes=[['daily','Daily','cart'],['4x4','4x4 Off-road','offroad'],['performance','Performance','gauge'],['supercar','Supercar','trophy']];return lanes.map(([key,label,icon])=>{const items=rows.filter(l=>laneOf(l)===key);if(!items.length)return '';return `<section class="lane-group" data-mode="${key}"><h3 class="lane-label">${ico(icon)}<span>${label}</span></h3><div class="feed">${items.map(l=>post(l,owner===true)).join('')}</div></section>`}).join('')}
 const NEW_WINDOW=72*60*60*1000;
 function listingPublishedAt(l){const raw=l&&(l.sort_at||l.bumped_at||l.created_at);if(raw==null||raw==='')return NaN;const t=typeof raw==='number'?raw:Date.parse(raw);return Number.isFinite(t)?t:NaN}
 function isNewListing(l,now){const t=listingPublishedAt(l);if(!Number.isFinite(t))return false;const n=now==null?Date.now():now;const age=n-t;return age>=0&&age<=NEW_WINDOW}
@@ -93,7 +94,7 @@ const k=b.dataset.act;o[k]=!o[k];localStorage.setItem('imdrivn_social',JSON.stri
 if(k==='like'){const n=b.querySelector('span');n.textContent=+n.textContent+(o[k]?1:-1)}});
 
 /* ===== MODES (like a drive-mode selector) ===== */
-const MODES=['daily','performance','supercar'],BUY_MODES=['all',...MODES],m2s=m=>m==='supercar'?'supercars':m;
+const MODES=['daily','4x4','performance','supercar'],BUY_MODES=['all',...MODES],m2s=m=>m==='supercar'?'supercars':m;
 let MODE=localStorage.getItem('imdrivn_mode');if(!MODES.includes(MODE))MODE='daily';
 let BUY=localStorage.getItem('imdrivn_buy');if(!BUY_MODES.includes(BUY))BUY='all';
 function syncTabs(){document.querySelectorAll('.tabs button[role=tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.m===BUY));}
@@ -250,7 +251,7 @@ $('#qs').onsubmit=e=>{e.preventDefault();readSearch(e.target);setSearchOpen(fals
 $('#qs').onreset=()=>{F=blankSearch();setTimeout(()=>{paintSearch();feedSnap=null;feedReturn=false;const next=buyHash();location.hash===next?route():location.hash=next})};
 loadSearchCatalog();
 function askSignIn(message,next){sessionStorage.setItem('imdrivn_next',next);main.innerHTML=`<div class="wrap form auth"><div class="eyebrow">Account</div><h1>Sign in</h1><p class="muted">${esc(message)}</p><a class="btn solid" href="#/join">Sign in</a></div>`}
-const LANE_CYCLE=['daily','performance','supercar'];
+const LANE_CYCLE=['daily','4x4','performance','supercar'];
 let feedSnap=null,feedReturn=false,pendingRestore=false,lastRoute='',pullLock=false,pullGesture=null,laneWatch=0;
 function filtersKey(){return JSON.stringify(F)}
 function laneSequence(origin){if(origin==='all'||LANE_CYCLE.indexOf(origin)<0)return ['all'];return [origin].concat(LANE_CYCLE.filter(function(l){return l!==origin}))}
@@ -326,6 +327,7 @@ function bindReport(listing){const btn=$('#report-ad');const dialog=$('#report-d
 
 function buyChooser(){main.innerHTML=`<section class="lanes"><div class="lanes-copy"><div class="lanes-head"><h1>Pick your<br><span class="grey">lane.</span></h1></div><div class="chooser-paths">
 <div class="lane-col lane-daily"><a class="path pick-daily" href="#/buy" data-pick="daily">${ico('cart')}<span class="wide">Daily</span><span class="tag">Turn key, no drama.</span><span class="btn">Browse daily →</span></a></div>
+<div class="lane-col lane-4x4"><a class="path pick-4x4" href="#/buy" data-pick="4x4">${ico('offroad')}<span class="wide">4x4<br>Off-road</span><span class="tag">Built for the bush, the beach and beyond.</span><span class="btn">Browse 4x4 →</span></a></div>
 <div class="lane-col lane-performance"><a class="path pick-performance" href="#/buy" data-pick="performance">${ico('gauge')}<span class="wide">Performance</span><span class="tag">100% Power, 0% Chill.</span><span class="btn">Browse performance →</span></a></div>
 <div class="lane-col lane-supercar"><a class="path pick-supercar" href="#/buy" data-pick="supercar">${ico('trophy')}<span class="wide">Supercar</span><span class="tag">The top shelf.</span><span class="btn">Browse supercars →</span></a></div>
 </div><p class="view-all-row"><a class="view-all" href="#/buy" data-pick="all">View all</a></p></div></section>`;
