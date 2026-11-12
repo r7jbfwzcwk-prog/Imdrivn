@@ -1067,11 +1067,17 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .partners-lead{margin:0 0 22px;color:#c8c8cc;max-width:36rem}
 .partner-grid{display:grid;grid-template-columns:1fr;gap:14px}
 @media(min-width:700px){.partner-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.partner-card{display:flex;flex-direction:column;gap:8px;min-height:180px;padding:16px;border:1px solid #d9a441;border-radius:16px;background:#101012;box-shadow:0 0 24px rgba(217,164,65,.12)}
-.partner-card h2{margin:0;font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1.05rem;color:#f2f2f2}
-.partner-card p{margin:0;color:#c8c8cc;line-height:1.45}
-.partner-card .btn{margin-top:auto;align-self:flex-start;border-color:#d9a441;color:#d9a441}
-.partner-logo{width:72px;height:72px;border:1px solid rgba(217,164,65,.45);border-radius:12px;background:#000;object-fit:contain}
+.partner-card{display:flex;flex-direction:row;align-items:center;gap:16px;min-height:0;padding:16px;border:1px solid #d9a441;border-radius:16px;background:#101012;box-shadow:0 0 24px rgba(217,164,65,.12)}
+.partner-copy{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.partner-card h2{margin:0;font-family:var(--font-body);font-style:normal;font-weight:700;text-transform:none;letter-spacing:0;font-size:23px;line-height:1.2;color:#f2f2f2}
+.partner-card p{margin:0;color:#c8c8cc;font-size:18px;line-height:1.35}
+.partner-card .btn{margin-top:8px;align-self:flex-start;border-color:#d9a441;color:#d9a441}
+.partner-logo{flex:0 0 150px;width:150px;height:150px;margin:0;border:1px solid rgba(217,164,65,.45);border-radius:12px;background:#000;object-fit:contain;align-self:center}
+@media(min-width:700px){
+  .partner-card h2{font-size:22px}
+  .partner-card p{font-size:17px}
+  .partner-logo{flex-basis:140px;width:140px;height:140px}
+}
 .partner-card.is-open .partner-logo{background:repeating-linear-gradient(135deg,#14120c 0 8px,#101012 8px 16px)}
 .partner-card.is-open h2,.partner-card.is-open p{color:#d9a441}
 .partner-cta{margin-top:28px;padding:22px;border:1px solid #d9a441;border-radius:16px;background:linear-gradient(180deg,rgba(217,164,65,.22),#101012),#101012;box-shadow:0 0 32px rgba(217,164,65,.2)}
