@@ -324,11 +324,13 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
 @media(max-width:768px){
   body.is-lanes .chooser-paths,body.is-sell .sell-cols{gap:0}
   body.is-lanes .lanes,body.is-sell .sell-lanes{background:transparent}
-  .lane-daily,.sell-list{background:#183e80}
-  .lane-4x4{background:#145c32}
-  .lane-performance{background:#6f1216}
-  .lane-supercar{background:#6e5421}
-  .sell-whole{background:#115f2e}
+  .lane-daily,.sell-list{background:#000}
+  .lane-4x4{background:#000}
+  .lane-performance{background:#000}
+  .lane-supercar{background:#000}
+  .sell-whole{background:#000}
+  body.is-sell .sell-list{padding-bottom:clamp(1px,.18dvh,3px)}
+  body.is-sell .sell-whole{padding-top:clamp(1px,.18dvh,3px)}
   .lane-daily::before,.lane-daily:hover::before,.lane-daily:active::before,.lane-daily.is-lit::before,.lane-daily:focus-within::before,
   .lane-4x4::before,.lane-4x4:hover::before,.lane-4x4:active::before,.lane-4x4.is-lit::before,.lane-4x4:focus-within::before,
   .lane-performance::before,.lane-performance:hover::before,.lane-performance:active::before,.lane-performance.is-lit::before,.lane-performance:focus-within::before,
