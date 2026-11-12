@@ -310,6 +310,7 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
   .lanes .path .tag,.sell-col .path .tag{font-size:clamp(.68rem,1.8dvh,.9rem)}
   .lanes .path .muted,.sell-col .path .muted{font-size:clamp(.62rem,1.6dvh,.8rem);line-height:1.25}
   .lanes .path .btn,.sell-col .path .btn{min-height:44px;margin-top:clamp(4px,.8dvh,8px);padding:0 10px;font-size:clamp(.58rem,1.5dvh,.68rem)}
+  body.is-lanes .lanes .path>.btn{display:none}
   .lanes .path .ico{width:clamp(21.6px,3.6dvh,33.6px);height:clamp(21.6px,3.6dvh,33.6px)}
   .sell-col .path .ico{width:clamp(18px,3dvh,28px);height:clamp(18px,3dvh,28px)}
   .lane-col,.sell-col{padding:6px 12px}
@@ -1150,16 +1151,13 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   body.is-lanes .lanes-head h1{margin:0;padding:0 0 2px;font-size:clamp(.78rem,2.3dvh,1rem);line-height:1.12}
   body.is-lanes .chooser-paths{flex:1 1 auto;min-height:0;height:auto;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(4,minmax(0,1fr));gap:0;overflow:hidden}
   body.is-lanes .lane-col,body.is-lanes .lane-daily,body.is-lanes .lane-4x4,body.is-lanes .lane-performance,body.is-lanes .lane-supercar{height:auto;min-height:0;overflow:hidden;padding:clamp(1px,.18dvh,3px) 2px;align-items:stretch}
-  body.is-lanes .lanes .path{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;height:100%;min-height:0;max-height:100%;overflow:hidden;padding:0 7px 0 8px;gap:8px;text-align:center}
+  body.is-lanes .lanes .path{display:flex;flex-direction:row;align-items:center;justify-content:center;height:100%;min-height:0;max-height:100%;overflow:hidden;padding:0 8px;gap:8px;text-align:center}
   body.is-lanes .lane-copy{container-type:inline-size;display:flex;flex:1 1 auto;align-self:stretch;flex-direction:column;align-items:center;justify-content:center;width:auto;max-width:none;min-width:0;margin:0;padding:0;gap:clamp(4px,.6dvh,7px);text-align:center}
   body.is-lanes .lanes .path .ico{width:clamp(25.92px,3.744dvh,40.32px);height:clamp(25.92px,3.744dvh,40.32px);margin:0}
   body.is-lanes .lanes .path .wide{font-size:clamp(.5rem,8.2cqw,1.22rem) !important;line-height:1.12;margin:0;text-align:center;max-width:100%;white-space:nowrap}
   body.is-lanes .lane-4x4 .path .wide{line-height:1.12}
   body.is-lanes .lanes .path .tag{font-size:clamp(.72rem,1.7dvh,.92rem);line-height:1.2;margin:0;text-align:center;max-width:100%}
-  body.is-lanes .lanes .path .btn{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;align-self:center;flex:0 0 auto;width:auto;height:calc(100% - 14px);aspect-ratio:1;min-height:0;max-width:none;margin:0;padding:4px;box-sizing:border-box;white-space:normal;border:1px solid var(--acc);border-radius:6px;background:transparent;color:var(--acc);font-size:clamp(.68rem,1.7dvh,.86rem);letter-spacing:.1em;line-height:1}
-  body.is-lanes .lanes .path .btn-long{display:none}
-  body.is-lanes .lanes .path .btn-short{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
-  body.is-lanes .lanes .path .btn-arr{width:46%;height:auto;display:block;fill:currentColor;stroke:none}
+  body.is-lanes .lanes .path>.btn,body.is-lanes .lanes .path .btn-long,body.is-lanes .lanes .path .btn-short{display:none}
   body.is-lanes .view-all-row{display:block;position:relative;flex:0 0 auto;left:auto;right:auto;bottom:auto;width:auto;margin:2px 2px 4px;padding:0;background:transparent;grid-template-columns:none}
   body.is-lanes .view-all{grid-column:auto;width:100%;margin:0;min-height:46px;height:46px;padding:0 18px;font-size:.92rem;line-height:1}
 }
