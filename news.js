@@ -1,4 +1,6 @@
-/* News feed and article. Markdown is escaped first, then a small safe subset is marked up. */
+/* News feed and article. Markdown is escaped first, then a small safe subset is marked up.
+   image_urls is a text[] of https URLs or news-images paths. A JSON string may add
+   an optional caption and credit: {"url":"...","caption":"...","credit":"..."}. */
 const NEWS_TITLE = "IM DRIVN – More than a Marketplace … It's a Community";
 const NEWS_DESC = "Australia's premium marketplace for high performance cars. From first cars to supercars, there's a place for you. Join the crew today.";
 
@@ -16,10 +18,28 @@ function newsHttp(url) {
   if (!/^https?:\/\//i.test(raw) || /[\s"'<>\\]/.test(raw)) return '';
   return raw;
 }
-function newsCover(url) {
+function newsCover(url, alt, lazy) {
   const src = newsImageUrl(url);
   if (!src) return '<div class="news-ph"><img src="img/logo.svg" alt=""></div>';
-  return `<img src="${esc(src)}" alt="">`;
+  return `<img src="${esc(src)}" alt="${esc(alt || '')}"${lazy ? ' loading="lazy"' : ''}>`;
+}
+function newsZoom(href, altEscaped, capEscaped, lazy) {
+  const label = altEscaped ? '' : ' aria-label="Enlarge photo"';
+  const cap = capEscaped ? ` data-cap="${capEscaped}"` : '';
+  const load = lazy === false ? '' : ' loading="lazy"';
+  return `<button type="button" class="news-zoom"${label} data-full="${esc(href)}" data-alt="${altEscaped}"${cap}><img src="${esc(href)}" alt="${altEscaped}"${load}></button>`;
+}
+function newsFigure(href, altRaw, captionRaw) {
+  const alt = esc(altRaw || '');
+  const capRaw = String(captionRaw || '').trim();
+  const cap = capRaw ? esc(capRaw) : '';
+  const caption = cap ? `<figcaption class="news-cap">${newsInline(cap)}</figcaption>` : '';
+  return `<figure class="news-figure">${newsZoom(href, alt, cap)}${caption}</figure>`;
+}
+function newsHero(url) {
+  const src = newsImageUrl(url);
+  if (!src) return `<div class="news-hero">${newsCover(url)}</div>`;
+  return `<div class="news-hero">${newsZoom(src, '', '', false)}</div>`;
 }
 function newsInline(escaped) {
   return escaped
@@ -27,7 +47,7 @@ function newsInline(escaped) {
     .replace(/\[([^\]]+)\]\((javascript:[^\n]*)\)/gi, '$1')
     .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (m, alt, url) => {
       const href = newsHttp(url.replace(/&amp;/g, '&'));
-      return href ? `<img src="${esc(href)}" alt="${alt}" loading="lazy">` : '';
+      return href ? newsZoom(href, alt, '') : '';
     })
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, text, url) => {
       const href = newsHttp(url.replace(/&amp;/g, '&'));
@@ -36,6 +56,27 @@ function newsInline(escaped) {
     .replace(/`([^`\n]+)`/g, '<code>$1</code>')
     .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[\s(])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+}
+function newsBlockStart(line) {
+  return /^(?:#{1,3}\s|[-*]\s|\d+\.\s|>\s?|```)/.test(line);
+}
+function newsAloneImage(text) {
+  const m = /^!\[([^\]]*)\]\(([^)\s]+)\)$/.exec(String(text || '').trim());
+  return m ? { alt: m[1], url: m[2] } : null;
+}
+function newsAloneCaption(text) {
+  const m = /^\*([^*\n]+)\*$/.exec(String(text || '').trim());
+  return m ? m[1].trim() : '';
+}
+function newsPeekCaption(lines, index) {
+  let j = index;
+  while (j < lines.length && !lines[j].trim()) j += 1;
+  if (j >= lines.length) return null;
+  const caption = newsAloneCaption(lines[j]);
+  if (!caption) return null;
+  const after = j + 1;
+  if (after < lines.length && lines[after].trim() && !newsBlockStart(lines[after])) return null;
+  return { caption, next: after };
 }
 function newsMarkdown(src) {
   const lines = String(src || '').replace(/\r\n/g, '\n').split('\n');
@@ -89,11 +130,26 @@ function newsMarkdown(src) {
     }
     const para = [line];
     i += 1;
-    while (i < lines.length && lines[i].trim() && !/^(?:#{1,3}\s|[-*]\s|\d+\.\s|>\s?|```)/.test(lines[i])) {
+    while (i < lines.length && lines[i].trim() && !newsBlockStart(lines[i])) {
       para.push(lines[i]);
       i += 1;
     }
-    out.push('<p>' + inline(para.join(' ')) + '</p>');
+    const flat = para.join(' ').trim();
+    const shot = para.length === 1 ? newsAloneImage(para[0]) : null;
+    const joined = !shot && /^!\[([^\]]*)\]\(([^)\s]+)\)\s+\*([^*\n]+)\*$/.exec(flat);
+    if (shot || joined) {
+      const alt = shot ? shot.alt : joined[1];
+      const url = shot ? shot.url : joined[2];
+      let caption = shot ? '' : joined[3].trim();
+      if (shot) {
+        const peeked = newsPeekCaption(lines, i);
+        if (peeked) { caption = peeked.caption; i = peeked.next; }
+      }
+      const href = newsHttp(url);
+      if (href) out.push(newsFigure(href, alt, caption));
+      continue;
+    }
+    out.push('<p>' + inline(flat) + '</p>');
   }
   return out.join('');
 }
@@ -106,7 +162,56 @@ function newsMeta(name) {
   }
   return el;
 }
+function closeNewsLightbox() {
+  const dlg = document.getElementById('news-lightbox');
+  if (dlg && dlg.open && dlg.close) dlg.close();
+}
+function newsLightbox() {
+  let dlg = document.getElementById('news-lightbox');
+  if (dlg) return dlg;
+  dlg = document.createElement('dialog');
+  dlg.id = 'news-lightbox';
+  dlg.className = 'news-lightbox';
+  dlg.innerHTML = '<button type="button" class="news-lightbox-x" aria-label="Close">×</button><figure><img alt=""><figcaption class="news-cap" hidden></figcaption></figure>';
+  document.body.appendChild(dlg);
+  const shut = () => { if (dlg.open && dlg.close) dlg.close(); };
+  dlg.querySelector('.news-lightbox-x').onclick = shut;
+  dlg.addEventListener('click', e => {
+    const box = dlg.getBoundingClientRect();
+    const inside = e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom;
+    if (!inside || e.target === dlg) shut();
+  });
+  dlg.addEventListener('close', () => {
+    const img = dlg.querySelector('img');
+    if (img) img.removeAttribute('src');
+  });
+  return dlg;
+}
+function openNewsLightbox(src, alt, cap) {
+  const safe = newsHttp(src);
+  if (!safe) return;
+  const dlg = newsLightbox();
+  const img = dlg.querySelector('img');
+  const fig = dlg.querySelector('figcaption');
+  img.src = safe;
+  img.alt = alt || 'Enlarged photo';
+  fig.textContent = cap || '';
+  fig.hidden = !cap;
+  if (dlg.showModal) dlg.showModal();
+  else dlg.setAttribute('open', '');
+}
+function bindNewsZoom(root) {
+  if (!root || root.dataset.newsZoom) return;
+  root.dataset.newsZoom = '1';
+  root.addEventListener('click', e => {
+    const btn = e.target.closest && e.target.closest('.news-zoom');
+    if (!btn || !root.contains(btn)) return;
+    e.preventDefault();
+    openNewsLightbox(btn.getAttribute('data-full'), btn.getAttribute('data-alt') || '', btn.getAttribute('data-cap') || '');
+  });
+}
 function resetNewsMeta() {
+  closeNewsLightbox();
   document.title = NEWS_TITLE;
   const desc = document.querySelector('meta[name="description"]');
   if (desc) desc.setAttribute('content', NEWS_DESC);
@@ -140,8 +245,43 @@ function newsLink(slug) {
   return location.origin + location.pathname + location.search + '#/news/' + encodeURIComponent(slug);
 }
 function newsCard(row) {
-  const date = newsDate(row.published_at);
-  return `<article class="news-card"><a href="#/news/${encodeURIComponent(row.slug)}"><div class="news-cover">${newsCover(row.cover_image_url)}</div><div class="news-card-copy"><span class="news-chip">${esc(newsCatLabel(row.category))}</span><h2>${esc(row.title || 'Untitled')}</h2>${row.summary ? `<p>${esc(row.summary)}</p>` : ''}${date ? `<time datetime="${esc(row.published_at)}">${esc(date)}</time>` : ''}</div></a></article>`;
+  const title = row.title || 'Untitled';
+  const src = newsImageUrl(row.cover_image_url);
+  const label = src ? '' : ` aria-label="${esc(title)}"`;
+  return `<article class="news-card"><a href="#/news/${encodeURIComponent(row.slug)}"${label}><div class="news-cover">${newsCover(row.cover_image_url, src ? title : '', true)}</div></a></article>`;
+}
+function newsGalleryEntry(entry) {
+  let url = '';
+  let caption = '';
+  let credit = '';
+  if (entry && typeof entry === 'object') {
+    url = entry.url || entry.src || entry.image || '';
+    caption = entry.caption || entry.alt || '';
+    credit = entry.credit || '';
+  } else {
+    const raw = String(entry || '').trim();
+    if (raw.charAt(0) === '{') {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') return newsGalleryEntry(parsed);
+      } catch (e) {}
+    }
+    url = raw;
+  }
+  const src = newsImageUrl(typeof url === 'string' ? url : '');
+  if (!src) return null;
+  return { src, caption: String(caption || '').trim(), credit: String(credit || '').trim() };
+}
+function newsGallery(row) {
+  const cover = newsImageUrl(row.cover_image_url);
+  const items = (Array.isArray(row.image_urls) ? row.image_urls : []).map(newsGalleryEntry).filter(item => item && item.src && item.src !== cover);
+  if (!items.length) return '';
+  return `<div class="news-gallery">${items.map(item => {
+    const capRaw = [item.caption, item.credit].filter(Boolean).join(' · ');
+    const alt = item.caption || 'Photo';
+    const cap = capRaw ? `<figcaption class="news-cap">${esc(capRaw)}</figcaption>` : '';
+    return `<figure class="news-figure">${newsZoom(item.src, esc(alt), esc(capRaw))}${cap}</figure>`;
+  }).join('')}</div>`;
 }
 function newsFilters(active) {
   const chips = [['','All']].concat(News.cats.filter(row => row[0] !== 'general'));
@@ -217,9 +357,9 @@ async function newsArticle(raw) {
     : (sourceName ? `<p class="news-source">Source: ${esc(sourceName)}</p>` : '');
   const insta = newsHttp(row.instagram_post_url);
   const instaLink = insta ? `<p class="news-source"><a href="${esc(insta)}" target="_blank" rel="noopener">As seen on our Insta</a></p>` : '';
-  const extras = (Array.isArray(row.image_urls) ? row.image_urls : []).map(newsImageUrl).filter(src => src && src !== newsImageUrl(row.cover_image_url));
-  const gallery = extras.length ? `<div class="news-gallery">${extras.map(src => `<img src="${esc(src)}" alt="" loading="lazy">`).join('')}</div>` : '';
-  main.innerHTML = `<div class="wrap news news-story"><a class="eyebrow" href="#/news">← News</a><div class="news-hero">${newsCover(row.cover_image_url)}</div><span class="news-chip">${esc(newsCatLabel(row.category))}</span><h1>${esc(row.title || 'Untitled')}</h1><p class="news-by">${[author, date].filter(Boolean).map(esc).join(' · ')}</p><div class="news-body">${newsMarkdown(row.body || '')}</div>${gallery}${source}${instaLink}<div class="news-share"><button type="button" class="btn" id="news-copy">Copy link</button><button type="button" class="btn" id="news-native">Share</button></div></div>`;
+  const gallery = newsGallery(row);
+  main.innerHTML = `<div class="wrap news news-story"><a class="eyebrow" href="#/news">← News</a>${newsHero(row.cover_image_url)}<span class="news-chip">${esc(newsCatLabel(row.category))}</span><h1>${esc(row.title || 'Untitled')}</h1><p class="news-by">${[author, date].filter(Boolean).map(esc).join(' · ')}</p><div class="news-body">${newsMarkdown(row.body || '')}</div>${gallery}${source}${instaLink}<div class="news-share"><button type="button" class="btn" id="news-copy">Copy link</button><button type="button" class="btn" id="news-native">Share</button></div></div>`;
+  bindNewsZoom(main);
   const link = newsLink(row.slug);
   const copy = document.getElementById('news-copy');
   const native = document.getElementById('news-native');
