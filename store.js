@@ -654,8 +654,31 @@ function handleError(error) {
   if ((error && error.code === '23505') || /duplicate key|unique constraint/i.test(msg)) return "That handle's taken, try another";
   return dbMessage(error);
 }
+const Ban = {
+  when(iso) {
+    const d = new Date(iso);
+    if (!iso || Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('en-AU', { timeZone: 'Australia/Sydney', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  },
+  message(row) {
+    if (!row || !row.banned) return '';
+    if (row.indefinite || !row.until) return 'Your account is banned indefinitely. You can still browse.';
+    return 'Your account is banned until ' + this.when(row.until) + '. You can still browse.';
+  },
+  async current() {
+    if (!sb || !Auth.user) return { banned: false };
+    const { data, error } = await sb.rpc('my_ban');
+    if (error || !data) return { banned: false };
+    return data;
+  },
+  async assert() {
+    const row = await this.current();
+    if (row && row.banned) throw new Error(this.message(row));
+  }
+};
 function dbMessage(error) {
   const msg = error.message || 'Something went wrong.';
+  if (/banned/i.test(msg)) return msg;
   if (/cannot be changed once set/i.test(msg)) return 'Handle cannot be changed once set.';
   if (error.code === '23505' || /duplicate|unique/i.test(msg)) return "That handle's taken, try another";
   if (/row-level security/i.test(msg)) return 'You need to be signed in to do that.';
@@ -1048,6 +1071,7 @@ const ListingStore = {
     if (!sb) throw new Error('Accounts are offline right now. Try again in a moment.');
     await Auth.ready;
     if (!Auth.user) throw new Error('Sign in before you post.');
+    await Ban.assert();
     await assertCanPost('list a car');
     const uid = Auth.user.id;
     if (!listing.photos || !listing.photos.length) throw new Error('Add at least one photo before you post. The first one is the cover.');
@@ -1112,6 +1136,7 @@ const ListingStore = {
     if (!sb) throw new Error('Accounts are offline right now. Try again in a moment.');
     await Auth.ready;
     if (!Auth.user) throw new Error('Sign in to update your ad.');
+    await Ban.assert();
     const uid = Auth.user.id;
     const blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     const incoming = (listing.photos || []).filter(src => src && src !== blank);
@@ -1178,6 +1203,7 @@ const ListingStore = {
   },
   async markSold(id) {
     if (!sb || !Auth.user) throw new Error('Sign in to update your ad.');
+    await Ban.assert();
     const { data, error } = await sb.from('listings').update({ status: 'sold' }).eq('id', id).eq('user_id', Auth.user.id).select('id,status').maybeSingle();
     if (error) throw new Error(dbMessage(error));
     if (!data) throw new Error('Could not mark that sold. You can only do this on your own ad.');
@@ -1189,6 +1215,7 @@ const ListingStore = {
     if (!sb || !Auth.user) throw new Error('Sign in to save cars to your account.');
     const table = kind === 'save' ? 'saves' : 'likes';
     const set = kind === 'save' ? Auth.saves : Auth.likes;
+    if (on && table === 'likes') await Ban.assert();
     if (on) {
       const { error } = await sb.from(table).insert({ user_id: Auth.user.id, listing_id: id });
       if (error && error.code !== '23505') throw new Error(dbMessage(error));
@@ -1248,6 +1275,7 @@ const ListingStore = {
 
 function forumErr(error) {
   const msg = (error && error.message) || '';
+  if (/banned/i.test(msg)) return msg;
   if (/row-level security|permission/i.test(msg)) return 'Sign in with a handle to post.';
   if (/title/i.test(msg) && /check|140/i.test(msg)) return 'Title needs to be between 3 and 140 characters.';
   return dbMessage(error);
@@ -1340,6 +1368,7 @@ const Forum = {
     return { thread: thread.data, replies: replies.data || [] };
   },
   async createThread(categoryId, title, body) {
+    await Ban.assert();
     await assertCanPost('post on the forum');
     const { data, error } = await sb.from('forum_threads')
       .insert({ category_id: categoryId, author_id: Auth.user.id, title, body })
@@ -1348,6 +1377,7 @@ const Forum = {
     return data;
   },
   async updateThread(id, title, body) {
+    await Ban.assert();
     const { error } = await sb.from('forum_threads').update({ title, body }).eq('id', id).eq('author_id', Auth.user.id);
     if (error) throw new Error(forumErr(error));
   },
@@ -1356,12 +1386,14 @@ const Forum = {
     if (error) throw new Error(forumErr(error));
   },
   async reply(threadId, body) {
+    await Ban.assert();
     await assertCanPost('post on the forum');
     const { data, error } = await sb.from('forum_replies').insert({ thread_id: threadId, author_id: Auth.user.id, body }).select('id').single();
     if (error) throw new Error(forumErr(error));
     return data;
   },
   async updateReply(id, body) {
+    await Ban.assert();
     const { error } = await sb.from('forum_replies').update({ body }).eq('id', id).eq('author_id', Auth.user.id);
     if (error) throw new Error(forumErr(error));
   },
@@ -1452,6 +1484,7 @@ const Garage = {
 
 function chatErr(error) {
   const msg = (error && error.message) || '';
+  if (/banned/i.test(msg)) return msg;
   if (/row-level security|permission/i.test(msg)) return 'You need to be signed in to do that.';
   if (/jwt|session/i.test(msg)) return 'Your session expired. Sign in again.';
   if (/2000|body/i.test(msg) && /check|length/i.test(msg)) return 'Keep the message between 1 and 2000 characters.';
@@ -1524,6 +1557,7 @@ const Chat = {
     const found = await sb.from('conversations').select('id').eq('listing_id', listing.id).eq('buyer_id', uid).maybeSingle();
     if (found.error) throw new Error(chatErr(found.error));
     if (found.data) return found.data;
+    await Ban.assert();
     const inserted = await sb.from('conversations').insert({
       listing_id: listing.id,
       buyer_id: uid,
@@ -1550,6 +1584,7 @@ const Chat = {
     return data || [];
   },
   async send(id, body) {
+    await Ban.assert();
     const text = String(body || '').trim();
     if (!text || text.length > 2000) throw new Error('Keep the message between 1 and 2000 characters.');
     const { data, error } = await sb.from('messages').insert({
@@ -1726,6 +1761,9 @@ const AdminMod = {
   restoreThread(id) { return this.call('admin_restore_forum_thread', { p_id: id }); },
   sendMessage(userId, body) { return this.call('admin_send_message', { p_user_id: userId, p_body: body }); },
   searchUsers(query) { return this.call('admin_search_users', { p_query: query }); },
+  banStatus(userId) { return this.call('admin_ban_status', { p_user_id: userId }); },
+  banUser(userId, length, reason) { return this.call('admin_ban_user', { p_user_id: userId, p_length: length, p_reason: reason || '' }); },
+  unbanUser(userId) { return this.call('admin_unban_user', { p_user_id: userId }); },
   async removed() {
     const [ads, threads, posts] = await Promise.all([
       sb.from('listings').select('id,heading,make,model,year,removal_reason,removed_at').eq('status', 'removed').order('removed_at', { ascending: false }).limit(40),
