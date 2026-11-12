@@ -1776,7 +1776,14 @@ const AdminMod = {
   restorePost(id) { return this.call('admin_restore_forum_post', { p_id: id }); },
   removeThread(id, reason) { return this.call('admin_remove_forum_thread', { p_id: id, p_reason: reason || '' }); },
   restoreThread(id) { return this.call('admin_restore_forum_thread', { p_id: id }); },
-  sendMessage(userId, body) { return this.call('admin_send_message', { p_user_id: userId, p_body: body }); },
+  sendMessage(userId, body, reportId) {
+    const args = { p_user_id: userId, p_body: body };
+    if (reportId) args.p_report_id = reportId;
+    return this.call('admin_send_message', args);
+  },
+  reportQueue(status) { return this.call('admin_report_queue', { p_status: status || 'open' }); },
+  reportDetail(kind, id) { return this.call('admin_report_detail', { p_kind: kind, p_id: id }); },
+  reviewContact(id) { return this.call('admin_review_contact_report', { p_id: id }); },
   searchUsers(query) { return this.call('admin_search_users', { p_query: query }); },
   banStatus(userId) { return this.call('admin_ban_status', { p_user_id: userId }); },
   banUser(userId, length, reason) { return this.call('admin_ban_user', { p_user_id: userId, p_length: length, p_reason: reason || '' }); },
