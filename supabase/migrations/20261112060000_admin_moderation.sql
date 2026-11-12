@@ -27,7 +27,14 @@ create policy "read threads"
   on public.forum_threads
   for select
   to public
-  using (removed_at is null or public.is_admin());
+  using (removed_at is null);
+
+drop policy if exists "admin read removed threads" on public.forum_threads;
+create policy "admin read removed threads"
+  on public.forum_threads
+  for select
+  to authenticated
+  using (public.is_admin());
 
 drop policy if exists "read replies" on public.forum_replies;
 create policy "read replies"
@@ -35,16 +42,20 @@ create policy "read replies"
   for select
   to public
   using (
-    public.is_admin()
-    or (
-      removed_at is null
-      and exists (
-        select 1 from public.forum_threads t
-        where t.id = forum_replies.thread_id
-          and t.removed_at is null
-      )
+    removed_at is null
+    and exists (
+      select 1 from public.forum_threads t
+      where t.id = forum_replies.thread_id
+        and t.removed_at is null
     )
   );
+
+drop policy if exists "admin read replies" on public.forum_replies;
+create policy "admin read replies"
+  on public.forum_replies
+  for select
+  to authenticated
+  using (public.is_admin());
 
 alter table public.notifications drop constraint if exists notifications_kind_check;
 alter table public.notifications
