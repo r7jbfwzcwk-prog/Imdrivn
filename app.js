@@ -15,7 +15,7 @@ shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2
 lock:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/>',head:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="5" rx="1"/><rect x="17" y="14" width="4" height="5" rx="1"/><path d="M19 19c0 1.5-2 2-5 2"/>',
 bag:'<path d="M6 8h12l-1 12H7z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/>',
 car:'<path d="M3 14h18"/><path d="M5 14 7 9h10l2 5"/><circle cx="7.5" cy="16.5" r="1.4"/><circle cx="16.5" cy="16.5" r="1.4"/>',
-offroad:'<path d="M3 17.2h18"/><path d="M6 17.2 7.6 11h8.8L18 17.2"/><path d="M9.2 11 10.3 8h3.4l1.1 3"/><circle cx="8.2" cy="17.2" r="1.8"/><circle cx="15.8" cy="17.2" r="1.8"/>',
+offroad:'<path stroke-linecap="round" stroke-linejoin="round" d="M3 18.4 8.4 8.6 12 13.4 16.2 6.2 21 18.4"/><path stroke-linecap="round" d="M3 18.4h18"/>',
 cart:'<path d="M3 5h2.2L7 14h11.2l1.5-6.5H7"/><circle cx="9" cy="18.2" r="1.4"/><circle cx="16.4" cy="18.2" r="1.4"/>',
 spark:'<path d="m12 3 1.8 5.2H19l-4.2 3.1 1.6 5.2L12 13.6 7.6 16.5l1.6-5.2L5 8.2h5.2z"/>',
 trophy:'<path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H5.4A2.4 2.4 0 0 0 8 9.6"/><path d="M16 6h2.6A2.4 2.4 0 0 1 16 9.6"/><path d="M12 14v2"/><path d="M9.2 20h5.6l-.7-4h-4.2z"/>',
