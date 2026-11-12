@@ -712,12 +712,14 @@ input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-sea
 .offer-stack{display:grid;gap:12px;margin-top:var(--s-5)}
 .offer-row{display:grid;gap:12px}
 @media(min-width:760px){
-  .offer-row{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto auto;align-items:stretch}
-  .offer-row>.inspect{display:grid;grid-template-rows:subgrid;grid-row:span 3;height:auto}
+  .offer-row{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto auto;align-items:stretch;column-gap:12px;row-gap:2px}
+  .offer-row>.inspect{display:grid;grid-template-rows:subgrid;grid-row:span 3;height:auto;padding:8px 16px}
+  .offer-row>.inspect>p{margin-bottom:4px}
+  .offer-row .inspect-note{margin-top:2px}
   .offer-row .inspect-offer{display:contents}
   .offer-row .finance-cta-sub{display:none}
   .offer-row .finance-desk-note{display:block}
-  .offer-row .btn{align-self:stretch}
+  .offer-row .btn{align-self:stretch;margin-top:0}
 }
 .report-link{display:inline-flex;align-items:center;gap:8px;margin-top:36px;padding:0;border:0;background:none;color:#9a9aa2;font-size:.8rem;letter-spacing:.02em;cursor:pointer}
 .report-link .report-ico{width:16px;height:16px;stroke:#e07a3a;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
