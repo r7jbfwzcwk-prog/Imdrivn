@@ -1097,8 +1097,6 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .contact-us .partner-form[hidden]{display:none !important}
 .contact-ok{margin:14px 0 0;color:#f2f2f2;font-size:1.05rem}
 .contact-ok[hidden]{display:none !important}
-.contact-ig{margin:22px 0 0}
-.contact-ig a{color:#d9a441;font-weight:600}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 
 .account-tick{display:flex;align-items:flex-start;gap:8px;margin:0 0 14px}
