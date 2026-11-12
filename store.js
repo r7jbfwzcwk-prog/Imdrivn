@@ -1038,7 +1038,7 @@ const ListingStore = {
   async bySeller(userId, includeHidden) {
     if (!sb || !userId) return [];
     await Presence.ready;
-    let q = sb.from('listings').select(listingSelect()).eq('user_id', userId).order('created_at', { ascending: false });
+    let q = sb.from('listings').select(listingSelect()).eq('user_id', userId).order('sort_at', { ascending: false }).order('created_at', { ascending: false });
     if (!includeHidden) q = q.eq('status', 'active');
     const { data, error } = await q;
     if (error) throw new Error(dbMessage(error));

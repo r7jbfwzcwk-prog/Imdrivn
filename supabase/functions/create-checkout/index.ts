@@ -1,5 +1,5 @@
 // Stripe Checkout. Membership is a $5 AUD/month subscription.
-// Boost is a one-off $5 AUD payment. No charge is created when membership is off.
+// Boost is a one-off $5 AUD payment for any signed-in owner, even while membership is off.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const PROMO_END = Date.parse("2026-12-31T23:59:59+10:00");
@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     const anon = Deno.env.get("SUPABASE_ANON_KEY") || "";
     const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
-    if (!stripeKey) return json({ error: "Checkout is not ready yet." }, 503);
+    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
     const auth = req.headers.get("Authorization") || "";
     const userClient = createClient(url, anon, { global: { headers: { Authorization: auth } } });
     const { data: userData, error: userErr } = await userClient.auth.getUser();
@@ -28,7 +28,14 @@ Deno.serve(async (req) => {
     const setting = await admin.from("site_settings").select("value").eq("key", "membership_enabled").maybeSingle();
     const enabled = setting.data?.value === true;
     const body = await req.json().catch(() => ({}));
-    const kind = body.kind === "boost" ? "boost" : "membership";
+    const kind = body.kind === "boost" ? "boost" : body.kind === "boost-status" ? "boost-status" : "membership";
+    if (kind === "boost-status") {
+      const missing: string[] = [];
+      if (!stripeKey) missing.push("STRIPE_SECRET_KEY");
+      if (!webhookSecret) missing.push("STRIPE_WEBHOOK_SECRET");
+      return json({ ready: missing.length === 0, missing });
+    }
+    if (!stripeKey) return json({ error: "Checkout is not ready yet.", missing: ["STRIPE_SECRET_KEY"] }, 503);
     const origin = String(body.origin || req.headers.get("origin") || "").replace(/\/$/, "");
     if (!origin) return json({ error: "Missing site address." }, 400);
 
@@ -67,10 +74,6 @@ Deno.serve(async (req) => {
     if (!listing.data || listing.data.user_id !== user.id || listing.data.status !== "active") {
       return json({ error: "You can only boost your own live ad." }, 403);
     }
-    if (!enabled) return json({ error: "Paid boosts are not open." }, 403);
-    const profile = await admin.from("profiles").select("membership_status").eq("id", user.id).maybeSingle();
-    const status = profile.data?.membership_status;
-    if (status !== "active" && status !== "trialing") return json({ error: "An active membership is required." }, 403);
     const session = await stripe(stripeKey, form({
       mode: "payment",
       "line_items[0][quantity]": "1",
