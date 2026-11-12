@@ -1203,6 +1203,19 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .contact-us h1{font-size:clamp(1.6rem,4vw,2.4rem);color:#f2f2f2}
 .contact-lead{margin:0;color:#c8c8cc;max-width:36rem;line-height:1.5}
 .contact-us .btn.solid{background:#d9a441;border-color:#d9a441;color:#111}
+.terms-page{max-width:760px}
+.terms-page h1{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:clamp(1.6rem,4vw,2.3rem);color:#f2f2f2;line-height:1.2}
+.terms-page h2{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1.25rem;color:#d9a441;line-height:1.3;margin:28px 0 10px;scroll-margin-top:96px}
+.terms-page p,.terms-page li{color:#e4e4e8;line-height:1.6}
+.terms-page a{color:#d9a441}
+.terms-page a:hover,.terms-page a:focus-visible{color:#fff}
+.terms-updated{margin:8px 0 0;color:#9a9aa2}
+.terms-toc{margin:18px 0 8px;padding:14px 16px;border:1px solid #d9a441;border-radius:14px;background:#101012}
+.terms-toc p{margin:0 0 8px;color:#d9a441;font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.terms-toc ol{margin:0;padding-left:1.2rem}
+.terms-toc li{margin:4px 0}
+.terms-page ul{margin:8px 0 0;padding-left:1.2rem}
+.terms-page li{margin:6px 0}
 .contact-us .partner-form[hidden]{display:none !important}
 .contact-ok{margin:14px 0 0;color:#f2f2f2;font-size:1.05rem}
 .contact-ok[hidden]{display:none !important}
