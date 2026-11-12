@@ -392,27 +392,43 @@ ${buyTips.map(t=>`<aside class="golden-rule buy-rule" role="note"><p>${t}</p></a
 </div><dialog class="report-dialog" id="how-vin-dialog"><div class="ppsr-head"><p class="ppsr-title">IM DRIVN - VIN Check</p><button type="button" class="ppsr-x" id="how-vin-x" aria-label="Close" autofocus>×</button></div>${vinOrderForm('how-vin-order','')}</dialog></section>`}
 function bindHow(){bindOffer('how-inspect',INSPECTION_URL)}
 function termsPage(){const toCode=hashParts().a==='code-of-conduct';
-main.innerHTML=`<section class="wrap terms-page"><p class="eyebrow">IM DRIVN</p><h1>Terms and Conditions</h1><p class="terms-updated">Last updated 12 November 2026</p>
-<nav class="terms-toc" aria-label="On this page"><p>On this page</p><ol><li><a href="#/terms">Terms and Conditions</a></li><li><a href="#/terms/code-of-conduct">Code of Conduct</a></li></ol></nav>
-<h2 id="terms">Terms and Conditions</h2>
-<p>IM DRIVN is operated by Aus Auto Haus Pty Ltd (ABN 18 692 096 727), trading as IM DRIVN. These terms are governed by the laws of Queensland, Australia.</p>
-<p>Creating an account means you agree to these terms and to the <a href="#/terms/code-of-conduct">Code of Conduct</a> on this page.</p>
-<h2>The platform</h2>
-<p>IM DRIVN is a platform for people to list vehicles, browse them, and message each other. IM DRIVN is not a party to the sale of a vehicle. Buyers and sellers deal with each other.</p>
-<p>You are responsible for the accuracy of your listings. That includes the description, price, photos, kilometres, location, and any rego or VIN you choose to add.</p>
-<p>Members can delete their own ads.</p>
+main.innerHTML=`<section class="wrap terms-page"><!-- Draft pending lawyer review. -->
+<p class="eyebrow">IM DRIVN</p><h1>User Agreement and Terms &amp; Conditions</h1><p class="terms-updated">Last updated 12 November 2026</p>
+<nav class="terms-toc" aria-label="On this page"><p>On this page</p><ol><li><a href="#/terms">User Agreement and Terms &amp; Conditions</a></li><li><a href="#/terms/code-of-conduct">Community Rules &amp; Guidelines</a></li></ol></nav>
+<h2 id="terms">Who we are</h2>
+<p>IM DRIVN is operated by Aus Auto Haus Pty Ltd (ABN 18 692 096 727), trading as IM DRIVN. Creating an account means you agree to this user agreement and to the <a href="#/terms/code-of-conduct">Community Rules &amp; Guidelines</a>.</p>
+<h2>A venue, not a dealer</h2>
+<p>IM DRIVN is only a venue. People use it to list vehicles, look at them, and talk to each other. We are not a party to any sale. We do not inspect, verify, own, or guarantee any vehicle, listing, user, or payment between users.</p>
+<p>You are responsible for what you post. That includes the price, photos, kilometres, description, location, and any rego or VIN you choose to add. Members can delete their own ads.</p>
+<p>If you are buying, do your own checks before you pay anyone. That means a PPSR check, an inspection, a test drive, and meeting in a safe way. Do not treat a listing, a message, or another member's word as a promise from us.</p>
 <h2>Boost</h2>
-<p>A boost puts your ad back at the top of the feeds. You get one free boost every 7 days. Extra boosts are $5.</p>
+<p>A boost puts your ad back at the top of the feeds. You get one free boost every 7 days. Extra boosts are $5. Once a boost has been supplied, it is not refundable, except where the Australian Consumer Law says otherwise.</p>
 <h2>PPSR VIN reports</h2>
-<p>A PPSR VIN report costs $10. The report is emailed to you.</p>
-<h2>Removing content, and bans</h2>
+<p>A PPSR VIN report costs $10 and is emailed to you. It is a search of the register, not a promise from us about the car. Once the report has been supplied, the fee is not refundable, except where the Australian Consumer Law says otherwise.</p>
+<h2>Partners</h2>
+<p>Inspections, finance, transport, and other offers from partners are supplied by those businesses, not by IM DRIVN. We do not control how a partner does the work, and we are not responsible for their service, their price, or the result.</p>
+<h2>Your content</h2>
+<p>You keep ownership of the text, photos, and other material you put on IM DRIVN. You give Aus Auto Haus Pty Ltd a non-exclusive, royalty-free licence to host, display, and share that material on the site and in messages, for as long as it needs to run the service. You must have the right to post it.</p>
+<h2>Accounts, suspension and bans</h2>
 <p>The admin may remove content. The admin may also suspend or ban an account for 1 day, 3 days, 7 days, 1 month, or indefinitely.</p>
 <p>A banned person can still sign in and browse. They cannot post, list, message, or like.</p>
+<h2>Disputes between users</h2>
+<p>Deals, deposits, handovers, and arguments about a car are between the people involved. You release Aus Auto Haus Pty Ltd, its directors, staff, and partners from claims that come out of a dispute with another user.</p>
+<p>We are not liable for scams, fraud, or anyone being ripped off. We are not liable for stolen or encumbered vehicles, cars that are misdescribed, faulty, or lemons, failed deals, deposits, transport, finance, or inspections done by partners.</p>
+<h2>Liability</h2>
+<p>Nothing in these terms excludes rights under the Australian Consumer Law that cannot be excluded.</p>
+<p>To the maximum extent the law allows, we exclude indirect and consequential loss. Where the law lets us limit the rest, our liability to you is capped at the amount you paid IM DRIVN in the previous 12 months, or at supplying the service again, whichever we choose.</p>
+<h2>Indemnity</h2>
+<p>You indemnify and hold harmless Aus Auto Haus Pty Ltd, its directors, staff, and partners against claims, losses, and costs that come from your listings, posts, or messages, from your dealings with other users, or from you breaking these terms or the law.</p>
+<h2>Changes</h2>
+<p>We may update these terms by publishing a new version on this page. The date at the top is the date of the version you are reading. If you keep using IM DRIVN after that, you are using it on the updated terms.</p>
+<h2>Governing law</h2>
+<p>These terms are governed by the laws of Queensland, Australia.</p>
 <h2>Privacy and contact</h2>
 <p>We use the details you give us to run your account. That includes your email, your handle, and a phone number if you add one. Those details are used for your account, your listings, messages, and alerts.</p>
 <p>Questions about these terms go through <a href="#/about/contact">Contact us</a>.</p>
-<h2 id="code-of-conduct">Code of Conduct</h2>
-<p>This applies to language and behaviour on the forum, on listings, in messages, and in comments.</p>
+<h2 id="code-of-conduct">Community Rules &amp; Guidelines</h2>
+<p>These rules cover language and behaviour on the forum, on listings, in messages, and in comments.</p>
 <ul>
 <li>Respect other people. Harassment, hate speech, threats, discrimination, and bullying are not allowed.</li>
 <li>Swear words are filtered and replaced with a duck emoji. Abusive language is not allowed.</li>
@@ -438,7 +454,7 @@ function authScreen(mode){mode=mode||'in';const title=mode==='up'?'Join IM DRIVN
 main.innerHTML=`<div class="wrap form auth"><div class="eyebrow">Account</div><h1>${title}</h1><p class="muted">${mode==='forgot'?'We will email you a link to set a new password.':esc(authLead())}</p>
 <form class="panel" id="auth-form">${mode==='forgot'?'':''}<label>Email<input name="email" type="email" required autocomplete="email" inputmode="email"></label>
 ${mode==='forgot'?'':`<label>Password<input name="password" type="password" required minlength="6" autocomplete="${mode==='up'?'new-password':'current-password'}"></label>`}
-${mode==='up'?'<p class="muted">I agree to the <a href="#/terms">Terms</a>.</p>':''}<p class="err" id="auth-err" role="alert"></p>
+${mode==='up'?`<fieldset class="terms-ticks"><label><input type="checkbox" name="agree-rules"> I agree to the <a href="#/terms/code-of-conduct">IM DRIVN Community Rules &amp; Guidelines</a></label><label><input type="checkbox" name="agree-terms"> I agree to the <a href="#/terms">IM DRIVN User Agreement and Terms &amp; Conditions</a></label></fieldset>`:''}<p class="err" id="auth-err" role="alert"></p>
 <div class="auth-row"><button class="btn solid" type="submit">${mode==='up'?'Create account':mode==='forgot'?'Send link':'Sign in'}</button>
 ${mode==='in'?'<button class="auth-link" type="button" id="forgot">Forgot password</button>':''}</div></form>
 ${mode==='forgot'?'':`<div class="auth-or">or</div><div class="auth-oauth"><button class="btn" type="button" id="google">Continue with Google</button><button class="btn" type="button" id="apple">Continue with Apple</button></div>`}
@@ -450,9 +466,9 @@ const google=$('#google');if(google)google.onclick=()=>oauth('google');
 const apple=$('#apple');if(apple)apple.onclick=()=>oauth('apple');
 $('#auth-form').onsubmit=async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));const btn=e.target.querySelector('[type=submit]');btn.disabled=true;showAuthErr('');
 try{if(mode==='forgot'){await Auth.forgot(data.email);showAuthErr('');e.target.insertAdjacentHTML('beforeend','<p class="muted" role="status">Check your email for the reset link.</p>')}
-else if(mode==='up'){if((data.password||'').length<6)throw new Error('Password needs at least 6 characters.');const res=await Auth.signUp(data.email,data.password);if(!res.confirmed){showAuthErr('');e.target.insertAdjacentHTML('beforeend','<p class="muted" role="status">Check your email to confirm your account, then sign in.</p>')}else afterAuth()}
+else if(mode==='up'){const rules=e.target.querySelector('[name=agree-rules]');const terms=e.target.querySelector('[name=agree-terms]');if(!rules||!terms||!rules.checked||!terms.checked)throw new Error('Tick both boxes to create an account.');if((data.password||'').length<6)throw new Error('Password needs at least 6 characters.');const res=await Auth.signUp(data.email,data.password);if(!res.confirmed){showAuthErr('');e.target.insertAdjacentHTML('beforeend','<p class="muted" role="status">Check your email to confirm your account, then sign in.</p>')}else afterAuth()}
 else{await Auth.signIn(data.email,data.password);afterAuth()}}catch(err){showAuthErr(err.message||'Could not do that.')}finally{if(btn.isConnected)btn.disabled=false}};}
-async function oauth(provider){showAuthErr('');try{await Auth.oauth(provider)}catch(err){showAuthErr(err.message||'Could not start that sign-in.')}}
+async function oauth(provider){const rules=document.querySelector('[name=agree-rules]');const terms=document.querySelector('[name=agree-terms]');if(rules&&terms&&(!rules.checked||!terms.checked)){showAuthErr('Tick both boxes to create an account.');return}showAuthErr('');try{await Auth.oauth(provider)}catch(err){showAuthErr(err.message||'Could not start that sign-in.')}}
 function recoveryScreen(){main.innerHTML=`<div class="wrap form auth"><div class="eyebrow">Account</div><h1>Set a new password</h1><form class="panel" id="auth-form"><label>New password<input name="password" type="password" required minlength="6" autocomplete="new-password"></label><label>Confirm<input name="confirm" type="password" required minlength="6" autocomplete="new-password"></label><p class="err" id="auth-err" role="alert"></p><button class="btn solid" type="submit">Update password</button></form></div>`;
 $('#auth-form').onsubmit=async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));if(data.password!==data.confirm){showAuthErr('Those passwords do not match.');return}if(data.password.length<6){showAuthErr('Password needs at least 6 characters.');return}
 const btn=e.target.querySelector('[type=submit]');btn.disabled=true;try{await Auth.updatePassword(data.password);afterAuth()}catch(err){showAuthErr(err.message||'Could not update that.');btn.disabled=false}};}
