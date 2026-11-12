@@ -1097,9 +1097,8 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .gcar img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:14px;border:1px solid var(--acc-dim);background:#111}
 .gcar b{font-weight:600}
 .garage-actions{display:flex;align-items:center;gap:12px;margin:1em 0}
-.garage-sub{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:1em 0 calc(1em + 1.6px)}
-.garage-handle{margin:0;min-width:0}
-.garage-sub>.btn{flex:0 0 auto}
+.garage-handle{margin:1em 0 calc(1em + 1.6px)}
+.garage-messages{margin:24px 0 0}
 .garage-handle .handle{font-size:24px;font-weight:400;color:#c8c8cc}
 .garage-handle .online{width:12px;height:12px}
 .gdel{align-self:flex-start;font-size:.8rem;margin-top:-8px}
