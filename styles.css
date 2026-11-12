@@ -1074,7 +1074,10 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .profile-garage{font-size:clamp(1.15rem,3vw,1.6rem);margin:var(--s-6) 0 var(--s-3)}
 .profile-listings{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1.05rem;margin:var(--s-6) 0 var(--s-3)}
 .joined{margin:2px 0 var(--s-4);color:var(--c-muted)}
-.seller-line{margin:6px 0 14px}
+.seller-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 14px}
+.seller-line .handle{min-width:0}
+.seller-msg{display:none}
+@media(max-width:768px){.seller-msg{display:inline-flex;flex:0 0 auto;margin-left:auto;min-height:32px;padding:0 10px;border-color:var(--acc);color:var(--acc);background:transparent;font-size:11px;letter-spacing:.06em;line-height:1;white-space:nowrap}}
 .g-preview img{width:min(100%,420px);aspect-ratio:16/10;object-fit:cover;border-radius:14px;margin-top:12px;border:1px solid var(--c-line)}
 .news{--acc:#d9a441;--acc-dim:rgba(217,164,65,.55);--glow:rgba(217,164,65,.22)}
 .news h1{font-size:clamp(1.4rem,5vw,2.2rem)}
