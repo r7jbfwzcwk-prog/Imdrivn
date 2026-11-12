@@ -1049,7 +1049,9 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .contact-us h1{font-size:clamp(1.6rem,4vw,2.4rem);color:#f2f2f2}
 .contact-lead{margin:0;color:#c8c8cc;max-width:36rem;line-height:1.5}
 .contact-us .btn.solid{background:#d9a441;border-color:#d9a441;color:#111}
+.contact-us .partner-form[hidden]{display:none !important}
 .contact-ok{margin:14px 0 0;color:#f2f2f2;font-size:1.05rem}
+.contact-ok[hidden]{display:none !important}
 .contact-ig{margin:22px 0 0}
 .contact-ig a{color:#d9a441;font-weight:600}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
