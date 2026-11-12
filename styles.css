@@ -703,6 +703,10 @@ input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-sea
 .report-link:hover .report-ico,.report-link:focus-visible .report-ico{stroke:#e5242b}
 .inspect{display:flex;flex-direction:column;min-width:0;margin:0;padding:16px;background:#000;border:1px solid var(--c-line);border-radius:12px}
 .inspect p{margin:0 0 12px;color:var(--c-muted);font-size:.85rem;line-height:1.4}
+.inspect-offer{display:flex;flex-direction:column;align-items:center;width:fit-content;max-width:100%}
+.inspect .inspect-offer{width:100%;margin-top:auto}
+.inspect .inspect-offer .btn{margin-top:0}
+.inspect-note{display:block;margin:6px 0 0;font-size:.72rem;font-weight:500;letter-spacing:0;text-transform:none;line-height:1.3;text-align:center;color:var(--c-muted)}
 .inspect .btn{width:100%;margin-top:auto;min-height:52px;border-color:#d9a441;color:#d9a441;letter-spacing:.08em;line-height:1.25;padding:12px 14px;text-align:center;white-space:normal}
 .inspect .btn + .btn{margin-top:8px}
 .vin-order{display:grid;gap:8px}
