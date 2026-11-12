@@ -590,6 +590,32 @@ const PartnerEnquiry = {
     return data;
   }
 };
+const CONTACT_TOPICS = ['General', 'Sellin', 'Buyin', 'Report a listing', 'Partnerships', 'Other'];
+const ContactMessage = {
+  async submit(input) {
+    if (!sb) throw new Error('Contact is offline right now.');
+    const name = String(input.name || '').trim();
+    const email = String(input.email || '').trim().toLowerCase();
+    const topic = String(input.topic || '').trim();
+    const message = String(input.message || '').trim();
+    const company = String(input.company || '').trim();
+    if (company) return { saved: true, email_queued: false };
+    if (name.length < 2 || name.length > 80) throw new Error('Add your name.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Add a valid email.');
+    if (!CONTACT_TOPICS.includes(topic)) throw new Error('Choose a topic.');
+    if (message.length < 8 || message.length > 2000) throw new Error('Add a short message.');
+    const { data, error } = await sb.rpc('submit_contact_message', {
+      p_name: name,
+      p_email: email,
+      p_topic: topic,
+      p_message: message,
+      p_company: company
+    });
+    if (error) throw new Error(error.message || 'Could not send that message.');
+    if (!data || !data.saved) throw new Error('Could not send that message.');
+    return data;
+  }
+};
 Auth.ready = Auth.init();
 Auth.authReturn = (/[?&]code=/.test(bootSearch) || /access_token/.test(bootHash)) && !Auth.recovery && !oauthErrorMessage;
 
