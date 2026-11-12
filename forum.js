@@ -51,26 +51,39 @@ function fMeta(row, whenIso) {
   return meta;
 }
 function fActions(authorId, onEdit, onDelete) {
-  if (!fMine(authorId)) return null;
+  if (!fMine(authorId) && !(typeof canSeeReports === 'function' && canSeeReports())) return null;
   const row = fEl('div', { class: 'factions' });
-  const edit = fEl('button', { class: 'auth-link', type: 'button' }, 'Edit');
-  const del = fEl('button', { class: 'auth-link', type: 'button' }, 'Delete');
-  edit.addEventListener('click', onEdit);
-  del.addEventListener('click', () => {
-    if (row.querySelector('.fconfirm')) return;
-    const box = fEl('div', { class: 'fconfirm' });
-    box.append(fEl('p', null, 'Delete this? It is gone for good.'));
-    const actions = fEl('div', { class: 'auth-row' });
-    const yes = fEl('button', { class: 'btn solid', type: 'button' }, 'Delete');
-    const no = fEl('button', { class: 'btn', type: 'button' }, 'Never mind');
-    no.addEventListener('click', () => box.remove());
-    yes.addEventListener('click', async () => { yes.disabled = true; try { await onDelete(); } catch (e) { yes.disabled = false; fError(box, e); } });
-    actions.append(yes, no);
-    box.append(actions);
-    row.append(box);
-  });
-  row.append(edit, del);
+  if (fMine(authorId)) {
+    const edit = fEl('button', { class: 'auth-link', type: 'button' }, 'Edit');
+    const del = fEl('button', { class: 'auth-link', type: 'button' }, 'Delete');
+    edit.addEventListener('click', onEdit);
+    del.addEventListener('click', () => {
+      if (row.querySelector('.fconfirm')) return;
+      const box = fEl('div', { class: 'fconfirm' });
+      box.append(fEl('p', null, 'Delete this? It is gone for good.'));
+      const actions = fEl('div', { class: 'auth-row' });
+      const yes = fEl('button', { class: 'btn solid', type: 'button' }, 'Delete');
+      const no = fEl('button', { class: 'btn', type: 'button' }, 'Never mind');
+      no.addEventListener('click', () => box.remove());
+      yes.addEventListener('click', async () => { yes.disabled = true; try { await onDelete(); } catch (e) { yes.disabled = false; fError(box, e); } });
+      actions.append(yes, no);
+      box.append(actions);
+      row.append(box);
+    });
+    row.append(edit, del);
+  }
   return row;
+}
+function fAdminRemove(row, isThread, after) {
+  if (!(typeof canSeeReports === 'function' && canSeeReports())) return null;
+  const button = fEl('button', { class: 'btn admin-del', type: 'button' }, 'Remove');
+  button.addEventListener('click', () => askRemove(isThread ? 'Remove this thread?' : 'Remove this reply?', async reason => {
+    if (isThread) await AdminMod.removeThread(row.id, reason);
+    else await AdminMod.removePost(row.id, reason);
+    toast('Removed.');
+    after();
+  }));
+  return button;
 }
 
 function fHighlight(text, words) {
@@ -330,8 +343,10 @@ function fPost(row, isThread, afterDelete) {
     if (isThread) await Forum.deleteThread(row.id);
     else await Forum.deleteReply(row.id);
     afterDelete();
-  });
-  if (actions) article.append(actions);
+  }) || fEl('div', { class: 'factions' });
+  const adminBtn = fAdminRemove(row, isThread, afterDelete);
+  if (adminBtn) actions.append(adminBtn);
+  if (actions.childNodes.length) article.append(actions);
   return article;
 }
 

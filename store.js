@@ -1646,7 +1646,7 @@ const Reports = {
     if (!sb || !Auth.user) return [];
     await Presence.ready;
     const { data, error } = await sb.from('ad_reports')
-      .select('id,listing_id,reason,details,status,created_at,reporter:profiles!ad_reports_reporter_id_fkey(' + publicProfileCols() + '),listing:listings!ad_reports_listing_id_fkey(id,heading,year,make,model,user_id,status)')
+      .select('id,listing_id,reporter_id,reason,details,status,created_at,reporter:profiles!ad_reports_reporter_id_fkey(' + publicProfileCols() + '),listing:listings!ad_reports_listing_id_fkey(id,heading,year,make,model,user_id,status)')
       .eq('status', 'open')
       .order('created_at', { ascending: true });
     if (error) throw new Error(error.message || 'Could not load reports.');
@@ -1665,6 +1665,7 @@ const Reports = {
         last_seen_at: (reporter && reporter.last_seen_at) || '',
         title: title || 'Listing',
         sellerId: listing && listing.user_id || '',
+        reporterId: row.reporter_id || (reporter && reporter.id) || '',
         status: row.status
       };
     });
@@ -1673,6 +1674,38 @@ const Reports = {
     if (!sb || !Auth.user) throw new Error('Sign in to review reports.');
     const { error } = await sb.from('ad_reports').update({ status: 'reviewed' }).eq('id', id).eq('status', 'open');
     if (error) throw new Error(error.message || 'Could not update that report.');
+  }
+};
+const AdminMod = {
+  async call(name, args) {
+    if (!sb) throw new Error('Admin tools are offline right now.');
+    const { data, error } = await sb.rpc(name, args || {});
+    if (error) throw new Error(error.message || 'That admin action failed.');
+    return data;
+  },
+  removeListing(id, reason) { return this.call('admin_remove_listing', { p_id: id, p_reason: reason || '' }); },
+  restoreListing(id) { return this.call('admin_restore_listing', { p_id: id }); },
+  removePost(id, reason) { return this.call('admin_remove_forum_post', { p_id: id, p_reason: reason || '' }); },
+  restorePost(id) { return this.call('admin_restore_forum_post', { p_id: id }); },
+  removeThread(id, reason) { return this.call('admin_remove_forum_thread', { p_id: id, p_reason: reason || '' }); },
+  restoreThread(id) { return this.call('admin_restore_forum_thread', { p_id: id }); },
+  sendMessage(userId, body) { return this.call('admin_send_message', { p_user_id: userId, p_body: body }); },
+  searchUsers(query) { return this.call('admin_search_users', { p_query: query }); },
+  async removed() {
+    const [ads, threads, posts] = await Promise.all([
+      sb.from('listings').select('id,heading,make,model,year,removal_reason,removed_at').eq('status', 'removed').order('removed_at', { ascending: false }).limit(40),
+      sb.from('forum_threads').select('id,title,removal_reason,removed_at').not('removed_at', 'is', null).order('removed_at', { ascending: false }).limit(40),
+      sb.from('forum_replies').select('id,body,thread_id,removal_reason,removed_at').not('removed_at', 'is', null).order('removed_at', { ascending: false }).limit(40)
+    ]);
+    if (ads.error) throw new Error(ads.error.message || 'Could not load removed ads.');
+    if (threads.error) throw new Error(threads.error.message || 'Could not load removed threads.');
+    if (posts.error) throw new Error(posts.error.message || 'Could not load removed posts.');
+    return { ads: ads.data || [], threads: threads.data || [], posts: posts.data || [] };
+  },
+  async contacts() {
+    const { data, error } = await sb.from('contact_messages').select('id,name,email,topic,message,user_id,created_at').order('created_at', { ascending: false }).limit(40);
+    if (error) throw new Error(error.message || 'Could not load contact messages.');
+    return data || [];
   }
 };
 function newsMissing(error) {

@@ -494,6 +494,10 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .report-row{display:grid;gap:12px;padding:14px;border:1px solid var(--c-line);border-radius:14px;background:#101012}
 .report-reason{margin:0 0 6px;font-weight:600}
 .report-row p{margin:0 0 6px}
+.admin-badge{display:inline-flex;align-items:center;margin-left:6px;padding:1px 7px;border:1px solid #d9a441;border-radius:999px;color:#d9a441;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle}
+.admin-del,.sold-btn.admin-del{border-color:#e5242b;color:#e5242b}
+.admin-tabs{margin:14px 0 18px}
+.admin-panel h2{margin:18px 0 8px;font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1rem}
 @media(min-width:760px){.report-row{grid-template-columns:1fr auto;align-items:center}}
 .merch{--acc:#d9a441;--acc-dim:rgba(217,164,65,.55);--glow:rgba(217,164,65,.22)}
 .merch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:var(--s-5) 0}
