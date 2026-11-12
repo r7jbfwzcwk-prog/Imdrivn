@@ -560,7 +560,8 @@ async function openBillingPortal(){const {data,error}=await sb.functions.invoke(
 document.addEventListener('click',e=>{const portal=e.target.closest('#member-portal');if(portal){e.preventDefault();openBillingPortal()}});
 const PARTNERS = [
   {name:'Pro Wires Auto & Marine', description:'Auto Electrics', logo:'assets/partners/pro-wires.webp'},
-  {name:"Kay's Fabrication & Tuning", description:'Mobile Automotive Fabrication & Diesel Remapping', logo:'assets/partners/kays.webp?v=2'}
+  {name:"Kay's Fabrication & Tuning", description:'Mobile Automotive Fabrication & Diesel Remapping', logo:'assets/partners/kays.webp?v=2'},
+  {name:'Greenlane Panel & Paint', description:'Panel & Paint Repairs', logo:'assets/partners/greenlane.webp?v=1'}
 ];
 function partnersPage(){
   const spots = PARTNERS.concat([0,1,2].map(()=>({placeholder:true}))).slice(0,3);
