@@ -24,6 +24,18 @@ Deno.serve(async (req) => {
           p_session_id: obj.id
         });
       }
+      if (obj.mode === "payment" && obj.metadata?.kind === "vin" && obj.payment_status === "paid" && obj.metadata.order_id) {
+        await admin.from("vin_check_orders").update({ status: "paid", updated_at: new Date().toISOString() }).eq("id", obj.metadata.order_id).eq("status", "pending_payment");
+        const fn = (Deno.env.get("SUPABASE_URL") || "") + "/functions/v1/ppsr-vin-search";
+        await fetch(fn, {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""),
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ orderId: obj.metadata.order_id })
+        });
+      }
       if (obj.mode === "subscription") {
         await saveMembership(admin, obj.metadata?.user_id || obj.client_reference_id, {
           stripe_customer_id: obj.customer,

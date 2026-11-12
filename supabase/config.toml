@@ -6,3 +6,6 @@ verify_jwt = true
 
 [functions.stripe-webhook]
 verify_jwt = false
+
+[functions.ppsr-vin-search]
+verify_jwt = true

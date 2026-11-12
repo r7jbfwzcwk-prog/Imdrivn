@@ -765,6 +765,26 @@ body.is-sell .bnav .plus{border-color:transparent;background:linear-gradient(rgb
 .vin-live{color:var(--c-err);min-height:1.35em}
 .inspect .vin-note{margin:0;font-size:.75rem;line-height:1.35}
 .vin-order .err{margin:0}
+.vin-flow{max-width:880px}
+.vin-flow h1{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:-.02em;color:#f2f2f2;font-size:clamp(1.6rem,4vw,2.2rem)}
+.vin-kicker{margin:0 0 16px;color:#d9a441;letter-spacing:.08em}
+.vin-panel{display:grid;gap:12px;padding:18px;border:1px solid #d9a441;border-radius:16px;background:#101012}
+.vin-panel .meta{display:block;color:#9a9aa2;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
+.vin-split{display:grid;gap:14px}
+@media(min-width:860px){.vin-split{grid-template-columns:1.1fr .9fr}}
+.vin-block{padding:18px;border:1px solid #2c2c30;border-radius:16px;background:#0e0e10}
+.vin-block h2,.vin-block h3{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;color:#d9a441;font-size:1rem;margin:0 0 10px}
+.vin-block h3{margin-top:16px;font-size:.85rem}
+.vin-block p{margin:0 0 10px;color:#e4e4e8}
+.vin-regs{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.vin-regs li{display:grid;gap:2px;padding:10px 0;border-top:1px solid #2c2c30}
+.vin-regs span{color:#c8c8cc;font-size:.9rem}
+.vin-dl{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin:0}
+.vin-dl div{display:grid;gap:2px}
+.vin-dl dt{color:#9a9aa2;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
+.vin-dl dd{margin:0;color:#f2f2f2}
+.vin-official{color:#d9a441 !important}
+.vin-flow select{width:100%;min-height:44px;padding:0 12px;border:1px solid var(--c-line);border-radius:10px;background:#0e0e10;color:var(--c-text);font:500 1rem/1.2 var(--font-body)}
 .inspect .btn:hover{border-color:#d9a441;background:rgba(217,164,65,.08)}
 .s-daily .inspect .btn,.s-daily .inspect .btn:hover{border-color:#2f7bff;color:#2f7bff}
 .s-daily .inspect .btn:hover{background:rgba(47,123,255,.08)}

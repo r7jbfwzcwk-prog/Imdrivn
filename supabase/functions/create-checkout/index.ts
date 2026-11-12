@@ -28,8 +28,8 @@ Deno.serve(async (req) => {
     const setting = await admin.from("site_settings").select("value").eq("key", "membership_enabled").maybeSingle();
     const enabled = setting.data?.value === true;
     const body = await req.json().catch(() => ({}));
-    const kind = body.kind === "boost" ? "boost" : body.kind === "boost-status" ? "boost-status" : "membership";
-    if (kind === "boost-status") {
+    const kind = body.kind === "boost" ? "boost" : body.kind === "boost-status" ? "boost-status" : body.kind === "vin" ? "vin" : body.kind === "vin-status" ? "vin-status" : "membership";
+    if (kind === "boost-status" || kind === "vin-status") {
       const missing: string[] = [];
       if (!stripeKey) missing.push("STRIPE_SECRET_KEY");
       if (!webhookSecret) missing.push("STRIPE_WEBHOOK_SECRET");
@@ -67,6 +67,42 @@ Deno.serve(async (req) => {
         ...trial
       }));
       return json({ url: session.url });
+    }
+
+    if (kind === "vin") {
+      const vin = String(body.vin || "").trim().toUpperCase();
+      if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return json({ error: "VIN must be 17 characters and cannot include I, O, or Q." }, 400);
+      const email = String(body.email || user.email || "").trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "Add a valid email so we can send the report." }, 400);
+      const states = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
+      const plate = String(body.state || "").trim().toUpperCase();
+      const rego = String(body.rego || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+      const listingId = /^[0-9a-f-]{36}$/i.test(String(body.listingId || "")) ? String(body.listingId) : null;
+      const created = await admin.from("vin_check_orders").insert({
+        vin,
+        email,
+        user_id: user.id,
+        listing_id: listingId,
+        rego: rego || null,
+        plate_state: states.includes(plate) ? plate : null,
+        status: "pending_payment"
+      }).select("id").single();
+      if (created.error || !created.data) return json({ error: created.error?.message || "Could not start that order." }, 500);
+      const orderId = created.data.id as string;
+      const session = await stripe(stripeKey, form({
+        mode: "payment",
+        "line_items[0][quantity]": "1",
+        "line_items[0][price_data][currency]": "aud",
+        "line_items[0][price_data][unit_amount]": "1000",
+        "line_items[0][price_data][product_data][name]": "IM DRIVN VIN report",
+        success_url: origin + "/#/vin/r/" + orderId,
+        cancel_url: origin + "/#/vin",
+        client_reference_id: user.id,
+        "metadata[user_id]": user.id,
+        "metadata[kind]": "vin",
+        "metadata[order_id]": orderId
+      }));
+      return json({ url: session.url, orderId });
     }
 
     const listingId = String(body.listingId || "");

@@ -806,22 +806,32 @@ function listingSpec(listing) {
   };
 }
 const VinOrders = {
-  async create({ vin, email, listingId }) {
+  draftKey: 'imdrivn_vin_draft',
+  saveDraft(draft) { try { sessionStorage.setItem(this.draftKey, JSON.stringify(draft || {})); } catch (e) {} },
+  readDraft() { try { return JSON.parse(sessionStorage.getItem(this.draftKey) || 'null'); } catch (e) { return null; } },
+  async payStatus() {
+    if (!sb) return { ready: false };
+    const { data, error } = await sb.functions.invoke('create-checkout', { body: { kind: 'vin-status' } });
+    if (error || !data) return { ready: false, missing: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'] };
+    return data;
+  },
+  async pay(body) {
     if (!sb) throw new Error('Orders are offline right now.');
-    const cleanVin = String(vin || '').trim().toUpperCase();
-    if (cleanVin.length < 17) throw new Error('VIN is too short — enter 17 characters (' + cleanVin.length + ' entered).');
-    if (cleanVin.length > 17) throw new Error('VIN is too long — enter 17 characters (' + cleanVin.length + ' entered).');
-    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(cleanVin)) throw new Error('VIN must be 17 characters and cannot include I, O, or Q.');
-    const cleanEmail = String(email || '').trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) throw new Error('Add a valid email so we can send the report.');
-    const listing_id = /^[0-9a-f-]{36}$/i.test(String(listingId || '')) ? listingId : null;
-    const { error } = await sb.from('vin_check_orders').insert({
-      vin: cleanVin,
-      email: cleanEmail,
-      listing_id,
-      user_id: Auth.user ? Auth.user.id : null
-    });
-    if (error) throw new Error(error.message || 'Could not start that order.');
+    const { data, error } = await sb.functions.invoke('create-checkout', { body: Object.assign({ kind: 'vin', origin: location.origin }, body) });
+    if (error || !data || !data.url) throw new Error((data && data.error) || 'Checkout is not ready yet.');
+    return data;
+  },
+  async freeSearch(body) {
+    if (!sb) throw new Error('Orders are offline right now.');
+    const { data, error } = await sb.functions.invoke('ppsr-vin-search', { body: body || {} });
+    if (error || !data || !data.orderId) throw new Error((data && (data.error || data.message)) || 'Could not run that search.');
+    return data;
+  },
+  async get(id) {
+    if (!sb || !/^[0-9a-f-]{36}$/i.test(String(id || ''))) return null;
+    const { data, error } = await sb.from('vin_check_orders').select('id,vin,rego,plate_state,email,status,search_number,error,result,created_at').eq('id', id).maybeSingle();
+    if (error) throw new Error(error.message || 'Could not load that report.');
+    return data;
   }
 };
 const VinAsk = {
