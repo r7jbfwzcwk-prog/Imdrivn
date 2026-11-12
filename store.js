@@ -1595,7 +1595,7 @@ const Chat = {
     return data;
   },
   async messages(id) {
-    const { data, error } = await sb.from('messages').select('id,conversation_id,sender_id,body,created_at').eq('conversation_id', id).order('created_at', { ascending: true });
+    const { data, error } = await sb.from('messages').select('id,conversation_id,sender_id,body,created_at,read_at').eq('conversation_id', id).order('created_at', { ascending: true });
     if (error) throw new Error(chatErr(error));
     return data || [];
   },
@@ -1607,7 +1607,7 @@ const Chat = {
       conversation_id: id,
       sender_id: Auth.user.id,
       body: text
-    }).select('id,conversation_id,sender_id,body,created_at').single();
+    }).select('id,conversation_id,sender_id,body,created_at,read_at').single();
     if (error) throw new Error(chatErr(error));
     Presence.nudge();
     return data;
@@ -1643,6 +1643,7 @@ const Notes = {
     await Presence.ready;
     const { data, error } = await sb.from('notifications')
       .select('id,kind,actor_id,thread_id,reply_id,conversation_id,message_id,thread_title,preview,read_at,created_at,actor:profiles!notifications_actor_id_fkey(' + publicProfileCols() + '),thread:forum_threads!notifications_thread_id_fkey(title,author_id)')
+      .is('read_at', null)
       .order('created_at', { ascending: false })
       .limit(40);
     if (error) throw new Error(noteErr(error));
@@ -1676,17 +1677,17 @@ const Notes = {
   },
   async markRead(id) {
     if (!sb || !Auth.user || !id) return;
-    const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', id).is('read_at', null);
+    const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', id).eq('user_id', Auth.user.id).is('read_at', null);
     if (error) throw new Error(noteErr(error));
   },
   async markReadForReply(replyId) {
     if (!sb || !Auth.user || !replyId) return;
-    const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('reply_id', replyId).is('read_at', null);
+    const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('reply_id', replyId).eq('user_id', Auth.user.id).is('read_at', null);
     if (error) throw new Error(noteErr(error));
   },
   async markReadForConversation(conversationId) {
     if (!sb || !Auth.user || !conversationId) return;
-    const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('conversation_id', conversationId).eq('kind', 'message').is('read_at', null);
+    const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).eq('conversation_id', conversationId).eq('kind', 'message').eq('user_id', Auth.user.id).is('read_at', null);
     if (error) throw new Error(noteErr(error));
   }
 };
