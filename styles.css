@@ -1007,6 +1007,12 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .alert-copy{display:grid;gap:2px;flex:1;min-width:0}
 .alert-copy b{font-size:.68rem;letter-spacing:.12em;color:#d9a441}
 .alert-copy span{font-size:.88rem;line-height:1.35}
+@media(max-width:768px){
+  .top:has(.alertpanel:not([hidden])) .ic,.top:has(.alertpanel:not([hidden])) .bellwrap{position:static}
+  .alertpanel:not([hidden]){position:absolute;left:12px;right:12px;top:calc(100% + 8px);width:calc(100vw - 24px);max-width:calc(100vw - 24px);box-sizing:border-box}
+  .alertpanel .alert-row{max-width:100%;min-width:0}
+  .alert-copy span{white-space:normal;overflow-wrap:anywhere}
+}
 .alertpanel .unread-mark{width:22px;height:22px}
 .alertpanel .unread-mark svg{width:13px;height:13px;stroke:#141416}
 .alertpanel .btn{margin-top:4px}
