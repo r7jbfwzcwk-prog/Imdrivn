@@ -1034,7 +1034,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   body.is-lanes .chooser-paths{flex:1 1 auto;min-height:0;height:auto;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(4,minmax(0,1fr));gap:0;overflow:hidden}
   body.is-lanes .lane-col,body.is-lanes .lane-daily,body.is-lanes .lane-4x4,body.is-lanes .lane-performance,body.is-lanes .lane-supercar{height:auto;min-height:0;overflow:hidden;padding:clamp(1px,.18dvh,3px) 10px;align-items:stretch}
   body.is-lanes .lanes .path{height:100%;min-height:0;max-height:100%;overflow:hidden;padding:clamp(2px,.55dvh,8px) 8px;gap:0;justify-content:center;align-items:center}
-  body.is-lanes .lane-4x4 .path{padding-top:clamp(0px,.12dvh,2px);padding-bottom:clamp(0px,.12dvh,2px)}
+  body.is-lanes .lane-4x4 .path{padding-top:0;padding-bottom:0}
   body.is-lanes .lanes .path .ico{width:clamp(14px,2dvh,24px);height:clamp(14px,2dvh,24px);margin:0 0 clamp(4px,calc(3.2dvh - 14px),14px)}
   body.is-lanes .lanes .path .wide{font-size:clamp(.66rem,1.9dvh,1.05rem) !important;line-height:1.02;margin:0 0 clamp(6px,calc(5.5dvh - 28px),24px)}
   body.is-lanes .lane-4x4 .path .wide{line-height:1.18}
