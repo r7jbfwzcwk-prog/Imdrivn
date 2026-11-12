@@ -1,6 +1,6 @@
 const INSTAGRAM_URL='https://instagram.com/imdrivn';
 const TIKTOK_URL='https://tiktok.com/@imdrivn';
-const INSPECTION_URL='#';
+const INSPECTION_URL='https://app.carinspect.com.au/inspections/servicing-area';
 const FINANCE_URL='#';
 const VIN_CHECK_URL='#';
 const PAYMENT_URL='#';
