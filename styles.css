@@ -604,7 +604,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 #spanel[hidden]{display:none}
 @media(max-width:768px){
   body.search-open{overflow:hidden}
-  body.search-open #spanel{display:flex;flex-direction:column;overflow:hidden;padding-bottom:8px}
+  body.search-open #spanel:not([hidden]){display:flex;flex-direction:column;overflow:hidden;padding-bottom:8px}
   body.search-open #spanel .qs{flex:1 1 auto;overflow:hidden;grid-template-rows:repeat(6,minmax(0,1fr));gap:clamp(2px,.7dvh,8px);align-content:stretch}
   body.search-open .qs label,body.search-open #fspanel label{gap:1px;min-height:0;font-size:clamp(.55rem,1.5dvh,.68rem)}
   body.search-open .qs input,body.search-open .qs select,body.search-open #fspanel input{min-height:0;height:clamp(32px,4.4dvh,44px);max-height:44px;font-size:16px;line-height:1.1;padding-top:0;padding-bottom:0}

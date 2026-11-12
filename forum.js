@@ -86,9 +86,12 @@ function fAdminRemove(row, isThread, after) {
   return button;
 }
 
+function duckText(text) {
+  return String(text || '').replace(/\b(?:motherfuckers?|fuck(?:ers?|ing|ed|s)?|shit(?:ty|ting|s)?|bullshit|bitch(?:es)?|bastards?|cunts?|assholes?|dickheads?|wankers?|twats?|pricks?|bollocks|piss(?:ed|ing|es)?)\b/gi, '🦆');
+}
 function fHighlight(text, words) {
   const frag = document.createDocumentFragment();
-  const source = String(text || '');
+  const source = duckText(text);
   const safe = (words || []).map(word => String(word).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).filter(Boolean);
   if (!safe.length) { frag.append(source); return frag; }
   const re = new RegExp(safe.join('|'), 'ig');
