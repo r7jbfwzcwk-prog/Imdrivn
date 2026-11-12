@@ -260,7 +260,7 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .verify-card p{margin:0;color:var(--c-text);font-size:1.02rem;line-height:1.5}
 .posted-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:var(--s-5)}
 .err{color:var(--c-err);font-size:.85rem}
-footer{border-top:1px solid var(--c-line);padding:var(--s-6) var(--s-4);text-align:center;color:var(--c-muted);font-size:.8rem}
+footer{border-top:1px solid #d9a441;padding:var(--s-6) var(--s-4);text-align:center;color:var(--c-muted);font-size:.8rem}
 footer p{text-transform:none}
 
 /* ===== DRIVE MODES ===== */
@@ -342,6 +342,7 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
 @property --glow{syntax:'<color>';inherits:true;initial-value:transparent}
 body{transition:--acc var(--ease) ease,--acc-dim var(--ease) ease,--glow var(--ease) ease}
 :focus-visible{outline-color:var(--acc)}
+#main:focus,#main:focus-visible{outline:none}
 .btn.solid{background:var(--acc);border-color:var(--acc);color:#000}.btn:hover{border-color:var(--acc)}
 .path:hover{border-color:var(--acc-dim);box-shadow:0 0 24px var(--glow)}.path .ico,.feat .ico{color:var(--acc);transition:color var(--ease)}
 /* header */
