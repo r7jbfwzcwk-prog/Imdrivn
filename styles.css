@@ -152,6 +152,10 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .lane-supercar::before{background:rgba(217,164,65,.18)}
 .lane-col:hover::before,.lane-col:focus-within::before,.lane-col:active::before,.lane-col.is-lit::before{background:#000;box-shadow:inset 0 0 0 2px var(--acc),inset 0 0 80px var(--glow)}
 @media(min-width:760px){.lane-col{padding-top:120px}}
+@media(min-width:769px){
+  body.is-lanes .lanes-head{position:relative;flex:0 0 auto;background:#000;z-index:1}
+  body.is-lanes .lane-col{padding-top:22px}
+}
 @media(prefers-reduced-motion:reduce){.lane-col::before{transition:none}}
 .lane-copy{display:contents}
 .btn-short{display:none}
