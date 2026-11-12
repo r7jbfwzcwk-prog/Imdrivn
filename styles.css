@@ -1283,4 +1283,5 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   .fq-card{margin-top:4vh}
   .fq-choice{flex-basis:calc(50% - 10px)}
   .garage-edit{min-height:44px}
+  #sign-out{min-height:39px;padding:0 26px;font-size:.59rem}
 }
