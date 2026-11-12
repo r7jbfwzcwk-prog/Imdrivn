@@ -267,8 +267,9 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .err{color:var(--c-err);font-size:.85rem}
 footer{border-top:1px solid #d9a441;padding:var(--s-6) var(--s-4);text-align:center;color:var(--c-muted);font-size:.8rem}
 footer p{text-transform:none}
-.footer-legal{display:flex;justify-content:space-between;align-items:center;gap:16px;max-width:var(--maxw);margin:14px auto 0;text-align:left}
-.footer-legal a{color:var(--c-muted);font-size:12px;line-height:1.2;letter-spacing:.01em;text-decoration:none;text-transform:none}
+.footer-legal{--nav-gap:16px;display:flex;justify-content:center;align-items:center;gap:var(--nav-gap);margin:14px auto 0;text-align:center}
+.footer-legal a{position:relative;color:var(--c-muted);font-size:12px;line-height:1.2;letter-spacing:.01em;text-decoration:none;text-transform:none}
+.footer-legal a + a::before{content:"";position:absolute;left:calc(var(--nav-gap) / -2);top:22%;bottom:22%;width:1px;background:#d9a441;pointer-events:none}
 .footer-legal a:hover,.footer-legal a:focus-visible{color:#d9a441}
 
 /* ===== DRIVE MODES ===== */
