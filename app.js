@@ -133,7 +133,7 @@ async function openAlert(n){try{await Notes.markRead(n.id)}catch(e){}refreshUnre
 async function toggleAlerts(){const panel=$('#alertpanel');if(!panel)return;if(!panel.hidden){closeAlerts();return}closeMenu(false);panel.hidden=false;$('#bell').setAttribute('aria-expanded','true');await renderAlerts()}
 $('#bell').onclick=e=>{e.stopPropagation();toggleAlerts()};
 if($('#alert-close'))$('#alert-close').onclick=e=>{e.stopPropagation();closeAlerts()};
-function sheetX(id,label){return `<button type="button" class="sheet-x" id="${id}" aria-label="${label}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`}
+function sheetX(id,label){return `<button type="button" class="menu-close" id="${id}" aria-label="${label}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></button>`}
 function cameFromSite(){try{if(sessionStorage.getItem('imdrivn_inapp')==='1')return true}catch(e){}try{return !!(document.referrer&&new URL(document.referrer).origin===location.origin&&history.length>1)}catch(e){return false}}
 function closeMessages(){if(!cameFromSite()){if(location.hash!=='#/'&&location.hash!=='#')location.hash='#/';return}const here=location.href;const timer=setTimeout(()=>{if(location.href===here&&location.hash!=='#/'&&location.hash!=='#')location.hash='#/'},500);const done=()=>{clearTimeout(timer);removeEventListener('hashchange',done)};addEventListener('hashchange',done);history.back()}
 function bindMsgsClose(){const btn=$('#msgs-close');if(btn)btn.onclick=e=>{e.preventDefault();closeMessages()}}

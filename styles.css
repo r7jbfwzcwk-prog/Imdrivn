@@ -420,10 +420,10 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   .menu-scroll{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden}
   .appmenu[hidden]{display:none}
   .menu-head{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;min-height:0;height:clamp(40px,6.2dvh,48px);padding:0 4px;color:#d9a441;font-weight:600;letter-spacing:.14em}
-  #menu-close{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:100%;min-height:0;max-height:44px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#d9a441;cursor:pointer;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}
-  #menu-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
-  #menu-close:hover,#menu-close:active,#menu-close:focus,#menu-close:focus-visible{transform:none;background:transparent;color:#d9a441;border:0;box-shadow:none;outline:none;outline-offset:0;-webkit-tap-highlight-color:transparent}
-  html.using-keyboard #menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
+  #menu-close,.ic .menu-close,.menu-close{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:100%;min-height:0;max-height:44px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#d9a441;cursor:pointer;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}
+  #menu-close svg,.top .menu-close svg,.menu-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  #menu-close:hover,#menu-close:active,#menu-close:focus,#menu-close:focus-visible,.ic .menu-close:hover,.ic .menu-close:active,.ic .menu-close:focus,.ic .menu-close:focus-visible,.menu-close:hover,.menu-close:active,.menu-close:focus,.menu-close:focus-visible{transform:none;background:transparent;color:#d9a441;border:0;box-shadow:none;outline:none;outline-offset:0;-webkit-tap-highlight-color:transparent}
+  html.using-keyboard #menu-close:focus-visible,html.using-keyboard .menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
   .appmenu a,.appmenu button.menu-act{display:flex;align-items:center;justify-content:flex-start;width:100%;flex:0 1 auto;min-height:0;height:clamp(34px,5.8dvh,48px);padding:0 14px;border:0;border-bottom:1px solid rgba(217,164,65,.35);border-radius:0;background:transparent;color:#f2f2f2;font:600 clamp(.74rem,2.15dvh,.95rem)/1.15 var(--font-body);letter-spacing:.08em;text-align:left;text-decoration:none;text-transform:uppercase;cursor:pointer}
   .menu-head,.menu-head span{text-transform:uppercase;letter-spacing:.14em}
   .appmenu a:hover,.appmenu a:focus-visible,.appmenu button.menu-act:hover,.appmenu button.menu-act:focus-visible{background:#14120c;color:#d9a441;outline:none}
@@ -1005,16 +1005,13 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .alertpanel{position:absolute;right:0;top:calc(100% + 8px);z-index:40;width:min(360px,calc(100vw - 16px));max-height:min(70vh,520px);display:flex;flex-direction:column;padding:8px;background:#101012;border:1px solid #d9a441;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55)}
 .alertpanel[hidden]{display:none}
 .alert-title{margin:4px 8px 8px;font-size:.72rem;font-weight:700;letter-spacing:.16em;color:#d9a441}
-.sheet-x,#alert-close{display:none}
+#alert-close,#msgs-close{display:none}
 .sheet-bar,.sheet-copy{display:contents}
 @media(max-width:768px){
-  .sheet-x,#alert-close{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#d9a441;line-height:0;cursor:pointer;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}
-  .sheet-x svg,#alert-close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
-  .sheet-x:hover,.sheet-x:active,.sheet-x:focus,#alert-close:hover,#alert-close:active,#alert-close:focus{background:transparent;border:0;box-shadow:none;outline:none;color:#d9a441}
-  html.using-keyboard .sheet-x:focus-visible{outline:2px solid #d9a441;outline-offset:2px}
+  #alert-close,#msgs-close{display:inline-flex;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px}
   .sheet-bar{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
   .sheet-copy{min-width:0;flex:1 1 auto}
-  .alertpanel .sheet-x{position:absolute;top:0;right:0;z-index:2}
+  .alertpanel #alert-close{position:absolute;top:0;right:0;z-index:2}
   .alertpanel .alert-title{display:flex;align-items:center;min-height:44px;margin:0 48px 8px 8px}
 }
 #alertlist{overflow:auto;display:grid;gap:6px}
