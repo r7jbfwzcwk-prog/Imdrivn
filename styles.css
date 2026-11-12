@@ -619,7 +619,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .qs-wide,.qs-actions{grid-column:1 / -1}
 .qs label{display:grid;gap:4px;color:var(--c-muted);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
 .qs input,.qs select{width:100%;min-height:44px;padding:0 12px;border:1px solid var(--c-line);border-radius:12px;background:#0e0e10;color:var(--c-text);font:500 .95rem/1.2 var(--font-body);letter-spacing:0;text-transform:none}
-.qs select{padding-right:32px;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--c-muted) 50%),linear-gradient(135deg,var(--c-muted) 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 13px) 19px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.qs select{padding-right:44px;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--c-muted) 50%),linear-gradient(135deg,var(--c-muted) 50%,transparent 50%);background-position:calc(100% - 21px) 50%,calc(100% - 16px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
 .qs select:disabled{opacity:.45}
 .qs input:focus,.qs select:focus{border-color:var(--acc);outline:none}
 .qs-actions{display:flex;gap:8px}
@@ -640,9 +640,9 @@ body.is-forum #forumsearch{display:grid}
 body.is-buy #sbtn{display:grid}
 body.is-buy #sbtn[hidden]{display:none}
 #sbtn.is-on{color:var(--acc)}
-.kw-wrap{position:relative;display:block}
-.kw-wrap input{padding-right:44px}
-.kw-x{position:absolute;top:0;right:0;bottom:0;display:grid;place-items:center;width:44px;min-height:44px;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#f2f2f2;cursor:pointer;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}
+.kw-wrap{position:relative;display:block;align-self:start;line-height:0}
+.kw-wrap input{display:block;padding-right:44px}
+.kw-x{position:absolute;top:0;right:0;bottom:0;display:grid;place-items:center;width:44px;height:auto;min-height:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;line-height:0;color:#f2f2f2;cursor:pointer;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}
 .kw-x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .kw-x:hover,.kw-x:active,.kw-x:focus{background:transparent;border:0;box-shadow:none;outline:none;color:#f2f2f2}
 .search-hide{display:flex;align-items:center;justify-content:center;flex:0 0 44px;width:100%;min-height:44px;margin:2px 0 0;padding:0;border:0;border-radius:0;background:#000;box-shadow:none;color:var(--acc);cursor:pointer;-webkit-tap-highlight-color:transparent}
