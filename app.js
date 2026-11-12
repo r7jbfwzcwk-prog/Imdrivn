@@ -559,13 +559,13 @@ async function runBoost(id){await Auth.ready;if(!Auth.user){sessionStorage.setIt
 async function openBillingPortal(){const {data,error}=await sb.functions.invoke('create-portal',{body:{origin:location.origin}});if(error||!data||!data.url){toast((data&&data.error)||'Billing portal is not ready yet.','error');return}location.assign(data.url)}
 document.addEventListener('click',e=>{const portal=e.target.closest('#member-portal');if(portal){e.preventDefault();openBillingPortal()}});
 const PARTNERS = [
-  // Add a partner: {name:'', description:'', url:'', logo:''}
+  {name:'Pro Wires Auto & Marine', description:'Auto Electrics', logo:'assets/partners/pro-wires.webp'}
 ];
 function partnersPage(){
-  const spots = PARTNERS.length ? PARTNERS : [0,1,2].map(()=>({placeholder:true}));
+  const spots = PARTNERS.concat([0,1,2].map(()=>({placeholder:true}))).slice(0,3);
   const cards = spots.map(p=>p.placeholder
     ? `<article class="partner-card is-open"><div class="partner-logo" aria-hidden="true"></div><h2>Partner spot available</h2><p>Coming soon</p></article>`
-    : `<article class="partner-card">${p.logo?`<img class="partner-logo" src="${esc(p.logo)}" alt="">`:''}<h2>${esc(p.name||'')}</h2><p>${esc(p.description||'')}</p>${p.url?`<a class="btn" href="${esc(p.url)}" target="_blank" rel="noopener">Visit website</a>`:''}</article>`).join('');
+    : `<article class="partner-card">${p.logo?`<img class="partner-logo" src="${esc(p.logo)}" alt="${esc(p.name||'')}">`:''}<h2>${esc(p.name||'')}</h2><p>${esc(p.description||'')}</p>${p.url?`<a class="btn" href="${esc(p.url)}" target="_blank" rel="noopener">Visit website</a>`:''}</article>`).join('');
   main.innerHTML=`<section class="wrap partners"><p class="eyebrow">IM DRIVN</p><h1>Our partners</h1><p class="partners-lead">The businesses we trust to keep the community driving.</p><div class="partner-grid">${cards}</div><aside class="partner-cta"><h2>Want to become an IM DRIVN Partner?</h2><button type="button" class="btn solid" id="partner-open">Contact us to become an IM DRIVN Partner</button><form class="partner-form" id="partner-form" hidden novalidate><label>Business name<input name="business" required autocomplete="organization"></label><label>Contact name<input name="contact" required autocomplete="name"></label><label>Phone<input name="phone" type="tel" required autocomplete="tel" inputmode="tel"></label><label>Email<input name="email" type="email" required autocomplete="email" inputmode="email"></label><label>Website <span class="grey">(optional)</span><input name="website" type="url" inputmode="url" autocomplete="url"></label><label>Message<textarea name="message" required maxlength="2000"></textarea></label><p class="err" id="partner-err" role="alert"></p><div class="auth-row"><button class="btn solid" type="submit" id="partner-send">Send enquiry</button></div></form><p class="partner-ok" id="partner-ok" hidden role="status">Thanks. We will be in touch.</p></aside></section>`;
   const open=$('#partner-open'),form=$('#partner-form'),err=$('#partner-err'),ok=$('#partner-ok');
   if(open&&form)open.onclick=()=>{open.hidden=true;form.hidden=false};
