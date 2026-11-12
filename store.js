@@ -614,6 +614,23 @@ const ContactMessage = {
     if (error) throw new Error(error.message || 'Could not send that message.');
     if (!data || !data.saved) throw new Error('Could not send that message.');
     return data;
+  },
+  async mine() {
+    if (!sb || !Auth.user) return [];
+    const { data, error } = await sb.from('contact_messages')
+      .select('id,topic,message,created_at')
+      .eq('user_id', Auth.user.id)
+      .order('created_at', { ascending: false });
+    if (error) throw new Error(error.message || 'Could not load your messages.');
+    return (data || []).map(row => ({
+      id: row.id,
+      kind: 'contact',
+      title: row.topic || 'Contact us',
+      body: row.message || '',
+      at: row.created_at || '',
+      when: whenLabel(row.created_at),
+      replies: []
+    }));
   }
 };
 Auth.ready = Auth.init();
@@ -1674,6 +1691,24 @@ const Reports = {
     if (!sb || !Auth.user) throw new Error('Sign in to review reports.');
     const { error } = await sb.from('ad_reports').update({ status: 'reviewed' }).eq('id', id).eq('status', 'open');
     if (error) throw new Error(error.message || 'Could not update that report.');
+  },
+  async mine() {
+    if (!sb || !Auth.user) return [];
+    const { data, error } = await sb.from('ad_reports')
+      .select('id,listing_id,reason,details,created_at')
+      .eq('reporter_id', Auth.user.id)
+      .order('created_at', { ascending: false });
+    if (error) throw new Error(error.message || 'Could not load your reports.');
+    return (data || []).map(row => ({
+      id: row.id,
+      kind: 'report',
+      title: row.reason || 'Report',
+      body: row.details || '',
+      listingId: row.listing_id || '',
+      at: row.created_at || '',
+      when: whenLabel(row.created_at),
+      replies: []
+    }));
   }
 };
 const AdminMod = {
