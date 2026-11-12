@@ -559,18 +559,21 @@ async function runBoost(id){await Auth.ready;if(!Auth.user){sessionStorage.setIt
 async function openBillingPortal(){const {data,error}=await sb.functions.invoke('create-portal',{body:{origin:location.origin}});if(error||!data||!data.url){toast((data&&data.error)||'Billing portal is not ready yet.','error');return}location.assign(data.url)}
 document.addEventListener('click',e=>{const portal=e.target.closest('#member-portal');if(portal){e.preventDefault();openBillingPortal()}});
 const PARTNERS = [
-  {name:'Pro Wires Auto & Marine', description:'Auto Electrics', logo:'assets/partners/pro-wires.webp'},
-  {name:"Kay's Fabrication & Tuning", description:'Mobile Automotive Fabrication & Diesel Remapping', logo:'assets/partners/kays.webp?v=2'},
-  {name:'Greenlane Panel & Paint', description:'Panel & Paint Repairs', logo:'assets/partners/greenlane.webp?v=1'}
+  {name:'Pro Wires Auto & Marine', nameHtml:'Pro Wires<br>Auto&nbsp;&amp;&nbsp;Marine', description:'Auto Electrics', location:'Gold Coast, QLD', logo:'assets/partners/pro-wires.webp'},
+  {name:"Kay's Fabrication & Tuning", description:'Mobile Automotive Fabrication & Diesel Remapping', location:'Gold Coast, QLD', logo:'assets/partners/kays.webp?v=2'},
+  {name:'Greenlane Panel & Paint', description:'Panel & Paint Repairs', location:'Gold Coast, QLD', logo:'assets/partners/greenlane.webp?v=1'},
+  {name:'Trims By Bec', description:'Custom Automotive Upholstery', location:'Queanbeyan, NSW', logo:'assets/partners/trims.webp?v=1'}
 ];
+function partnerPin(){return '<svg class="partner-pin" viewBox="0 0 11 14" width="11" height="14" aria-hidden="true"><path fill="#d9a441" d="M5.5 0a5.4 5.4 0 0 0-5.5 5.4C0 9.1 5.5 14 5.5 14S11 9.1 11 5.4A5.4 5.4 0 0 0 5.5 0z"/><circle cx="5.5" cy="5.2" r="1.55" fill="#101012"/></svg>'}
 function partnersPage(){
-  const spots = PARTNERS.concat([0,1,2].map(()=>({placeholder:true}))).slice(0,3);
+  const spots = PARTNERS;
   const cards = spots.map(p=>{
     const logo = p.placeholder ? '<div class="partner-logo" aria-hidden="true"></div>' : (p.logo?`<span class="partner-logo"><img src="${esc(p.logo)}" alt=""></span>`:'');
     const link = !p.placeholder && p.url ? `<a class="btn" href="${esc(p.url)}" target="_blank" rel="noopener">Visit website</a>` : '';
-    const title = p.placeholder ? 'Partner spot available' : (p.name||'');
+    const title = p.placeholder ? 'Partner spot available' : (p.nameHtml||esc(p.name||''));
     const sub = p.placeholder ? 'Coming soon' : (p.description||'');
-    return `<article class="partner-card${p.placeholder?' is-open':''}"><div class="partner-copy"><h2>${esc(title)}</h2><p>${esc(sub)}</p>${link}</div>${logo}</article>`;
+    const loc = !p.placeholder && p.location ? `<p class="partner-loc">${partnerPin()}<span>${esc(p.location)}</span></p>` : '';
+    return `<article class="partner-card${p.placeholder?' is-open':''}"><div class="partner-copy"><h2>${title}</h2><p>${esc(sub)}</p>${link}${loc}</div>${logo}</article>`;
   }).join('');
   main.innerHTML=`<section class="wrap partners"><p class="eyebrow">IM DRIVN</p><h1>Our partners</h1><p class="partners-lead">The businesses we trust to keep the community driving.</p><div class="partner-grid">${cards}</div><aside class="partner-cta"><h2>Want to become an IM DRIVN Partner?</h2><button type="button" class="btn solid" id="partner-open">Contact us to become an IM DRIVN Partner</button><form class="partner-form" id="partner-form" hidden novalidate><label>Business name<input name="business" required autocomplete="organization"></label><label>Contact name<input name="contact" required autocomplete="name"></label><label>Phone<input name="phone" type="tel" required autocomplete="tel" inputmode="tel"></label><label>Email<input name="email" type="email" required autocomplete="email" inputmode="email"></label><label>Website <span class="grey">(optional)</span><input name="website" type="url" inputmode="url" autocomplete="url"></label><label>Message<textarea name="message" required maxlength="2000"></textarea></label><p class="err" id="partner-err" role="alert"></p><div class="auth-row"><button class="btn solid" type="submit" id="partner-send">Send enquiry</button></div></form><p class="partner-ok" id="partner-ok" hidden role="status">Thanks. We will be in touch.</p></aside></section>`;
   const open=$('#partner-open'),form=$('#partner-form'),err=$('#partner-err'),ok=$('#partner-ok');

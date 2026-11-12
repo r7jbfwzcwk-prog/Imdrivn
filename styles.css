@@ -1075,10 +1075,13 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .partners-lead{margin:0 0 22px;color:#c8c8cc;max-width:36rem}
 .partner-grid{display:grid;grid-template-columns:1fr;gap:14px}
 @media(min-width:700px){.partner-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.partner-card{display:flex;flex-direction:row;align-items:center;gap:16px;min-height:0;padding:16px;border:1px solid #d9a441;border-radius:16px;background:#101012;box-shadow:0 0 24px rgba(217,164,65,.12)}
-.partner-copy{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.partner-card{display:flex;flex-direction:row;align-items:stretch;gap:16px;min-height:0;padding:16px;border:1px solid #d9a441;border-radius:16px;background:#101012;box-shadow:0 0 24px rgba(217,164,65,.12)}
+.partner-copy{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;justify-content:flex-start;gap:6px}
+.partner-loc{display:flex;align-items:center;gap:5px;margin-top:auto;padding-top:12px;color:#d9a441;font-size:12.5px;line-height:1.2;letter-spacing:0}
+.partner-pin{width:11px;height:14px;flex:none;display:block}
 .partner-card h2{margin:0;font-family:var(--font-body);font-style:normal;font-weight:700;text-transform:none;letter-spacing:0;font-size:23px;line-height:1.2;color:#f2f2f2}
 .partner-card p{margin:0;color:#c8c8cc;font-size:18px;line-height:1.35}
+.partner-card p.partner-loc{display:flex;align-items:center;gap:5px;margin-top:auto;padding-top:12px;color:#d9a441;font-size:12.5px;line-height:1.2;letter-spacing:0}
 .partner-card .btn{margin-top:8px;align-self:flex-start;border-color:#d9a441;color:#d9a441}
 .partner-logo{flex:0 0 150px;width:150px;height:150px;margin:0;padding:0;border:1px solid rgba(217,164,65,.45);border-radius:12px;background:#000;align-self:center;overflow:hidden;display:block}
 .partner-logo img{display:block;width:100%;height:100%;margin:0;padding:0;border:0;object-fit:cover;object-position:center}
