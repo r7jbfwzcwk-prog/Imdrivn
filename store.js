@@ -1201,6 +1201,12 @@ const ListingStore = {
     this.cache.delete(id);
     return this.get(id);
   },
+  async deleteOwn(id) {
+    if (!sb || !Auth.user) throw new Error('Sign in to delete an ad.');
+    const { error } = await sb.rpc('delete_own_listing', { p_id: id });
+    if (error) throw new Error(dbMessage(error));
+    this.cache.delete(id);
+  },
   async markSold(id) {
     if (!sb || !Auth.user) throw new Error('Sign in to update your ad.');
     await Ban.assert();
