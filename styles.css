@@ -571,7 +571,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .modebar[hidden]{display:none}
 .tabs{display:flex;align-items:stretch;justify-content:space-around;flex:1 1 auto;min-width:0;margin:0;border-bottom:0}
 .tabs[hidden]{display:none}
-.tabs button{background:none;border:0;padding:12px 4px 10px;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:#8a8a90;cursor:pointer;position:relative;white-space:nowrap;transition:color var(--ease)}
+.tabs button{background:none;border:0;padding:12px 4px 10px;font-size:11.5px;letter-spacing:.8448px;text-transform:uppercase;color:#8a8a90;cursor:pointer;position:relative;white-space:nowrap;transition:color var(--ease)}
 .tabs button::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--acc);transform:scaleX(0);transition:transform var(--ease) ease,background var(--ease)}
 .tabs button[aria-selected=true]{color:var(--acc)}.tabs button[aria-selected=true]::after{transform:scaleX(1)}
 .tabs button[data-m=all][aria-selected=true]{color:#c0c0c0}
