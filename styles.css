@@ -1033,7 +1033,11 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
   .alertpanel .alert-title{display:flex;align-items:center;min-height:44px;margin:0 48px 8px 8px}
 }
 #alertlist{overflow:auto;display:grid;gap:6px}
-.alertpanel .alert-row{display:flex;align-items:flex-start;place-items:start;gap:10px;width:100%;height:auto;min-height:0;text-align:left;padding:10px;border:1px solid #2c2c30;border-radius:12px;background:#141416;color:#f2f2f2;cursor:pointer}
+.alertpanel .alert-row{display:flex;align-items:flex-start;place-items:start;gap:0;width:100%;height:auto;min-height:0;text-align:left;padding:0;border:1px solid #2c2c30;border-radius:12px;background:#141416;color:#f2f2f2;cursor:pointer}
+.alertpanel button.alert-open{display:flex;align-items:flex-start;gap:10px;flex:1 1 auto;width:auto;height:auto;min-width:0;min-height:0;margin:0;padding:10px 4px 10px 10px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit}
+.alertpanel button.alert-clear{flex:0 0 32px;width:32px;height:32px;min-width:32px;min-height:32px;margin:6px 4px 0 0;padding:0;border:0;border-radius:8px;background:transparent;color:#9a9aa2;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.alertpanel button.alert-clear svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+.alertpanel button.alert-clear:hover,.alertpanel button.alert-clear:focus-visible{color:#f2f2f2;outline:none}
 .alert-row.is-unread{border-color:#d9a441}
 .alert-row:hover,.alert-row:focus-visible{border-color:#d9a441;outline:none}
 .alert-copy{display:grid;gap:2px;flex:1;min-width:0}
