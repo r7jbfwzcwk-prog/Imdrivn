@@ -564,7 +564,8 @@ const PARTNERS = [
   {name:'Greenlane Panel & Paint', description:'Panel & Paint Repairs', location:'Gold Coast, QLD', logo:'assets/partners/greenlane.webp?v=1'},
   {name:'Trims By Bec', description:'Custom Automotive Upholstery', location:'Queanbeyan, NSW', logo:'assets/partners/trims.webp?v=1'},
   {name:'Branigans Tyres', description:'Tyres', location:'Gold Coast, QLD', logo:'assets/partners/branigans.webp?v=1'},
-  {name:'A21 Transport', description:'Transport', location:'', logo:'assets/partners/a21.webp?v=1'}
+  {name:'A21 Transport', description:'Transport', location:'', logo:'assets/partners/a21.webp?v=1'},
+  {name:'CarInspect', description:'Pre-Purchase Car Inspections', location:'Australia Wide', logo:'assets/partners/carinspect.webp?v=1'}
 ];
 function partnerPin(){return '<svg class="partner-pin" viewBox="0 0 11 14" width="11" height="14" aria-hidden="true"><path fill="#d9a441" d="M5.5 0a5.4 5.4 0 0 0-5.5 5.4C0 9.1 5.5 14 5.5 14S11 9.1 11 5.4A5.4 5.4 0 0 0 5.5 0z"/><circle cx="5.5" cy="5.2" r="1.55" fill="#101012"/></svg>'}
 function partnersPage(){
