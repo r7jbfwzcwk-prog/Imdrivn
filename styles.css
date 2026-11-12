@@ -1293,7 +1293,10 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .account-details input[readonly]{color:var(--c-text);background:#141416}
 .account-details .auth-row{display:flex;flex-wrap:wrap;gap:10px}
 .account-details .auth-row .btn{flex:1 1 140px}
-.finance-quiz{position:fixed;inset:0;z-index:80;background:#000;color:#fff;overflow:auto;padding:32px 18px 48px}
+.finance-quiz{position:fixed;inset:0;z-index:80;background:#000;color:#fff;overflow:auto;padding:64px 18px 48px}
+.finance-quiz .menu-close{position:absolute;top:10px;right:12px;z-index:2;display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;max-height:44px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#d9a441;cursor:pointer;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}
+.finance-quiz .menu-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.finance-quiz .menu-close:hover,.finance-quiz .menu-close:active,.finance-quiz .menu-close:focus,.finance-quiz .menu-close:focus-visible{transform:none;background:transparent;color:#d9a441;border:0;box-shadow:none;outline:none}
 .fq-card{width:min(640px,100%);margin:8vh auto 0}
 .fq-progress{margin:0 0 12px;color:#d9a441;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase}
 .fq-q{margin:0 0 22px;color:#fff;font-family:var(--font-body);font-style:normal;font-weight:600;font-size:clamp(1.45rem,4.5vw,2.1rem);letter-spacing:0;text-transform:none;line-height:1.25}
