@@ -267,6 +267,9 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .err{color:var(--c-err);font-size:.85rem}
 footer{border-top:1px solid #d9a441;padding:var(--s-6) var(--s-4);text-align:center;color:var(--c-muted);font-size:.8rem}
 footer p{text-transform:none}
+.footer-legal{display:flex;justify-content:space-between;align-items:center;gap:16px;max-width:var(--maxw);margin:14px auto 0;text-align:left}
+.footer-legal a{color:var(--c-muted);font-size:12px;line-height:1.2;letter-spacing:.01em;text-decoration:none;text-transform:none}
+.footer-legal a:hover,.footer-legal a:focus-visible{color:#d9a441}
 
 /* ===== DRIVE MODES ===== */
 body.lane-on[data-mode=daily]{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glow:rgba(47,123,255,.16)}
