@@ -126,6 +126,14 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .feats{position:relative;padding-top:88px}
   body.is-home .feats .eyebrow{position:absolute;left:0;right:0;bottom:calc(100% + 14px);margin:0;text-align:center;z-index:3}
 }
+@media(min-width:769px) and (max-width:1219px){
+  body.is-home .hero .wrap{width:100%;max-width:100%}
+  body.is-home .hero h1{width:auto;max-width:100%}
+  body.is-home .hero .hero-lead{white-space:normal}
+  body.is-home .feats .row4{min-width:0}
+  body.is-home .feat{min-width:0}
+  body.is-home .feat h3,body.is-home .feat p{max-width:100%;white-space:normal;overflow:visible}
+}
 .path .wide,.path .tag,.path .muted{text-shadow:0 1px 8px rgba(0,0,0,.8)}
 .path .ico{filter:drop-shadow(0 2px 6px rgba(0,0,0,.75))}
 .path .btn{text-shadow:0 1px 6px rgba(0,0,0,.85)}
@@ -481,9 +489,11 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   #appmenu .menu-search-label{color:inherit;line-height:1}
   #appmenu .menu-foot .menu-act svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;flex:none}
 }
-html.is-tablet #appmenu.appmenu{padding-bottom:calc(64px + 12px + env(safe-area-inset-bottom))}
-html.is-tablet #appmenu .menu-foot{justify-content:flex-end;width:100%;padding:0;margin-bottom:0}
-html.is-tablet #appmenu #menu-search{flex-direction:row-reverse;justify-content:flex-start;width:100%;padding:0;text-align:right}
+@media(min-width:769px) and (max-width:1219px){
+  #appmenu.appmenu{padding-bottom:calc(64px + 12px + env(safe-area-inset-bottom))}
+  #appmenu .menu-foot{justify-content:flex-end;width:100%;padding:0;margin-bottom:0}
+  #appmenu #menu-search{flex-direction:row-reverse;justify-content:flex-start;width:100%;padding:0;text-align:right}
+}
 .report-dialog{width:min(440px,calc(100vw - 32px));padding:18px;border:1px solid var(--c-line);border-radius:16px;background:#101012;color:var(--c-text)}
 .report-dialog::backdrop{background:rgba(0,0,0,.62)}
 .report-dialog h2{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1.15rem;margin:0 0 14px}
