@@ -382,11 +382,12 @@ main.innerHTML=`<div class="wrap form posted"><div class="eyebrow">IM SELLIN</di
 <aside class="verify-card" role="note"><p>Heads up: a member of the IM DRIVN team may contact you to verify you're a real person and not sitting in a call centre somewhere. That's how we keep our marketplace safer. Your ad will be live shortly.</p></aside>
 <div class="posted-actions"><a class="btn solid" href="#/car/${esc(l.id)}">See your ad</a><a class="btn" href="#/buy">Back to the feed</a></div></div>`;
 main.focus({preventScroll:true})}
-async function list(){await SiteSettings.ready;if(SiteSettings.enabled&&!memberActive()){location.hash='#/membership';return}if(!await gate('list'))return;ListFlow.start(main,{async publish(d){
-  const saved=await ListingStore.create({sec:d.sec,make:d.make.trim(),model:d.model.trim(),year:+d.year,km:+d.km,condition:d.condition,price:+d.price,suburb:d.suburb.trim(),state:d.state,postcode:d.postcode,heading:d.heading.trim(),desc:d.desc.trim(),engine:(d.engine||'').trim(),cylinders:d.cylinders,transmission:d.transmission,induction:d.induction,rego:d.rego,vin:d.vin,photos:d.photos.slice(),name:d.name.trim(),phone:d.phone.trim(),email:d.email.trim()});
-  setMode(saved.mode||(saved.sec==='supercars'?'supercar':saved.sec));
-  posted(saved);
-}});}
+function burnoutLane(sec){const lane=sec==='supercars'?'supercar':String(sec||'');return ['daily','4x4','performance','supercar'].includes(lane)?lane:'daily'}
+let burnoutLoad;
+function loadBurnout(){if(window.playBurnout)return Promise.resolve();if(!burnoutLoad)burnoutLoad=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/burnout/burnout.js?v=1';s.onload=()=>resolve();s.onerror=()=>reject(new Error('burnout'));document.head.appendChild(s)});return burnoutLoad}
+function finishPost(saved,sec){const go=()=>{if(hashParts().p!=='list')return;setMode(saved.mode||(saved.sec==='supercars'?'supercar':saved.sec));posted(saved)};const btn=document.getElementById('ask-ok');loadBurnout().then(()=>{if(btn&&btn.isConnected&&window.playBurnout)playBurnout(burnoutLane(saved.mode||sec),btn,go);else go()}).catch(go)}
+async function publishNewAd(d){const saved=await ListingStore.create({sec:d.sec,make:d.make.trim(),model:d.model.trim(),year:+d.year,km:+d.km,condition:d.condition,price:+d.price,suburb:d.suburb.trim(),state:d.state,postcode:d.postcode,heading:d.heading.trim(),desc:d.desc.trim(),engine:(d.engine||'').trim(),cylinders:d.cylinders,transmission:d.transmission,induction:d.induction,rego:d.rego,vin:d.vin,photos:d.photos.slice(),name:d.name.trim(),phone:d.phone.trim(),email:d.email.trim()});finishPost(saved,d.sec);return saved}
+async function list(){await SiteSettings.ready;if(SiteSettings.enabled&&!memberActive()){location.hash='#/membership';return}if(!await gate('list'))return;ListFlow.start(main,{publish:publishNewAd});}
 
 function valuation(){ValueFlow.start(main);}
 
