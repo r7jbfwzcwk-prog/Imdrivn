@@ -79,6 +79,7 @@ ${canMessage(l)?`<button data-act="msg" data-id="${l.id}" aria-label="Message se
 ${canSeeReports()&&!demo&&ownerList!==true?`<div class="owner-acts"><button type="button" class="sold-btn admin-del" data-act="adel" data-id="${esc(l.id)}">Delete ad</button></div>`:''}
 ${ownerList===true&&liveAd(l)?`<div class="owner-acts"><button type="button" class="sold-btn" data-act="sold" data-id="${esc(l.id)}">Sold</button></div><div class="owner-acts"><button type="button" class="sold-btn admin-del" data-act="drop" data-id="${esc(l.id)}">Delete ad</button><button type="button" class="sold-btn" data-act="edit" data-id="${esc(l.id)}">Edit</button></div>`:''}
 </div></article>`;}
+function likePop(btn,on){const icon=btn.querySelector('.i');if(!icon)return;icon.classList.remove('like-pop','like-shrink');if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;void icon.offsetWidth;icon.classList.add(on?'like-pop':'like-shrink');icon.addEventListener('animationend',()=>icon.classList.remove('like-pop','like-shrink'),{once:true});if(!on)return;const heart=icon.getBoundingClientRect();const host=btn.getBoundingClientRect();const burst=document.createElement('span');burst.className='like-burst';burst.setAttribute('aria-hidden','true');burst.style.left=(heart.left-host.left+heart.width/2)+'px';burst.style.top=(heart.top-host.top+heart.height/2)+'px';const n=8+Math.floor(Math.random()*5);const red='#e5242b',gold='#d9a441';for(let i=0;i<n;i++){const bit=document.createElement('span');const mini=i%3===0;bit.className='like-bit'+(mini?' is-heart':'');const ang=(Math.PI*2*i)/n+(Math.random()-.5)*.4;const dist=16+Math.random()*14;bit.style.setProperty('--dx',(Math.cos(ang)*dist).toFixed(1)+'px');bit.style.setProperty('--dy',(Math.sin(ang)*dist).toFixed(1)+'px');const colour=i%2?gold:red;if(mini)bit.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="'+colour+'" d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';else bit.style.background=colour;burst.appendChild(bit)}btn.appendChild(burst);setTimeout(()=>{if(burst.isConnected)burst.remove()},700)}
 document.addEventListener('click',async e=>{const bolt=e.target.closest('[data-boost]');if(bolt){e.preventDefault();e.stopPropagation();runBoost(bolt.getAttribute('data-boost'));return}const b=e.target.closest('[data-act]');if(!b||b.closest('.ask-preview'))return;
 if(b.dataset.act==='msg'){messageSeller(b.dataset.id);return}
 if(b.dataset.act==='sold'){if(b.closest('#mine'))markSold(b);return}
@@ -89,11 +90,11 @@ const demo=b.dataset.demo==='1';
 if(!demo){if(!Auth.user){sessionStorage.setItem('imdrivn_next',(location.hash||'#/buy').replace(/^#\//,''));location.hash='#/join';return}
 const on=b.getAttribute('aria-pressed')==='true';
 try{await ListingStore.react(b.dataset.act==='save'?'save':'like',b.dataset.id,!on);b.setAttribute('aria-pressed',String(!on));
-if(b.dataset.act==='like'){const n=b.querySelector('span');n.textContent=+n.textContent+(!on?1:-1)}}catch(err){alert(err.message||'Could not update that.')}
+if(b.dataset.act==='like'){const n=b.querySelector('span');n.textContent=+n.textContent+(!on?1:-1);likePop(b,!on)}}catch(err){alert(err.message||'Could not update that.')}
 return}
 const s=st(),o=s[b.dataset.id]||(s[b.dataset.id]={});
 const k=b.dataset.act;o[k]=!o[k];localStorage.setItem('imdrivn_social',JSON.stringify(s));b.setAttribute('aria-pressed',o[k]);
-if(k==='like'){const n=b.querySelector('span');n.textContent=+n.textContent+(o[k]?1:-1)}});
+if(k==='like'){const n=b.querySelector('span');n.textContent=+n.textContent+(o[k]?1:-1);likePop(b,!!o[k])}});
 
 /* ===== MODES (like a drive-mode selector) ===== */
 const MODES=['daily','4x4','performance','supercar'],BUY_MODES=['all',...MODES],m2s=m=>m==='supercar'?'supercars':m;
