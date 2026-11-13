@@ -128,8 +128,11 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
 }
 @media(min-width:769px) and (max-width:1219px){
   body.is-home .hero .wrap{width:100%;max-width:100%}
-  body.is-home .hero h1{width:auto;max-width:100%}
-  body.is-home .hero h1 .hero-line{display:block;max-width:100%;white-space:nowrap;font-size:clamp(1.4rem,3.5vw,2.75rem)}
+  body.is-home .hero h1{width:auto;max-width:100%;font-size:clamp(1.4rem,3.5vw,2.75rem);line-height:1.2;margin-bottom:calc(clamp(1.4rem,3.5vw,2.75rem) * .2609)}
+  body.is-home .hero h1 .hero-line{white-space:nowrap}
+  body.is-home .hero h1 .grey{font-size:1.2035em;line-height:1.2}
+  body.is-home .hero hr{margin:calc(clamp(1.4rem,3.5vw,2.75rem) * .3478) 0;margin-left:0}
+  body.is-home .hero p{font-size:calc(clamp(1.4rem,3.5vw,2.75rem) * .3913);line-height:1.35;text-align:left}
   body.is-home .hero .hero-lead{white-space:normal}
   body.is-home .feats .row4{min-width:0}
   body.is-home .feat{min-width:0}
