@@ -62,7 +62,7 @@ const NEW_WINDOW=72*60*60*1000;
 function listingPublishedAt(l){const raw=l&&l.created_at;if(raw==null||raw==='')return NaN;const t=typeof raw==='number'?raw:Date.parse(raw);return Number.isFinite(t)?t:NaN}
 function isNewListing(l,now){const t=listingPublishedAt(l);if(!Number.isFinite(t))return false;const n=now==null?Date.now():now;const age=n-t;return age>=0&&age<=NEW_WINDOW}
 function newMark(l){if(l&&l.status==='sold')return '';if(!isNewListing(l))return '';return `<span class="new" data-new-until="${listingPublishedAt(l)+NEW_WINDOW}">NEW</span>`}
-function topCrown(){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16.6 7.1 7.4 12 12.4 16.9 7.4 20 16.6H4zM3 17.8h18V20H3v-2.2z"/></svg>'}
+function topCrown(){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.2 17.2h17.6V21H3.2z"/><path d="M3.4 17.2 6.2 8.6 8.8 14.2 12 5.6 15.2 14.2 17.8 8.6 20.6 17.2z"/><circle cx="6.2" cy="7.3" r="1.9"/><circle cx="12" cy="4.3" r="2.15"/><circle cx="17.8" cy="7.3" r="1.9"/></svg>'}
 function isTopAd(l){const until=Date.parse(l&&l.top_until);return Number.isFinite(until)&&until>Date.now()}
 function topBadge(l){if(!isTopAd(l))return '';return `<span class="top-badge">${topCrown()}TOP</span>`}
 let newBadgeTimer=0,newBadgeFrame=0;
@@ -72,7 +72,7 @@ if(document.body){new MutationObserver(queueNewBadges).observe(document.body,{ch
 function post(l,ownerList){const demo=!!l.demo,S=demo?(st()[l.id]||{}):{like:!!l.liked,save:!!l.saved},lk=demo?(l.likes||0)+(S.like?1:0):(l.likeCount||0),title=l.heading||(l.year+' '+l.make+' '+l.model),sold=l.status==='sold';
 return`<article class="post s-${l.sec}${sold?' is-sold':''}" data-mode="${laneOf(l)}"><a class="car shot" href="#/car/${l.id}"><img src="${esc(l.photos[0])}" alt="${esc(title)}" loading="lazy" onerror="${FALLBACK}">${photoMark()}
 ${newMark(l)}<span class="ago">${esc(l.when||(l.ago?l.ago+'h ago':'Just now'))}</span>${topBadge(l)}${demo?'<span class="dm">Demo</span>':''}${sold?'<span class="sold-badge">SOLD</span>':l.status&&l.status!=='active'?`<span class="dm">${esc(l.status)}</span>`:''}</a>
-${ownerList===true&&liveAd(l)&&!demo?`<button type="button" class="top-crown" data-top="${esc(l.id)}" aria-label="Top Ad"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16.6 7.1 7.4 12 12.4 16.9 7.4 20 16.6H4zM3 17.8h18V20H3v-2.2z"/></svg></button><button type="button" class="boost-bolt" data-boost="${esc(l.id)}" aria-label="Boost this car"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg></button>`:''}
+${ownerList===true&&liveAd(l)&&!demo?`<button type="button" class="top-crown" data-top="${esc(l.id)}" aria-label="Top Ad">${topCrown()}</button><button type="button" class="boost-bolt" data-boost="${esc(l.id)}" aria-label="Boost this car"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg></button>`:''}
 <div class="b"><a href="#/car/${l.id}" class="ttl">${esc(title)}</a><div class="price">${aud(l.price)}</div>
 ${powerLine(l)}
 <div class="row"><span class="loc">${sv('pin')}${esc([l.suburb, l.state].filter(Boolean).join(' '))}</span>${atHandle(l.handle, true, l.last_seen_at, l.memberVerified===true)}</div>

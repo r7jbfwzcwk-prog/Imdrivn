@@ -693,9 +693,9 @@ input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-sea
 .post{position:relative}.post .boost-bolt{position:absolute;top:8px;right:8px;z-index:4;display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid #f5c518;border-radius:6px;background:#000;cursor:pointer}
 .post .boost-bolt svg{width:18px;height:18px;fill:#f5c518}
 .post .top-crown{position:absolute;top:8px;right:50px;z-index:4;display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid #f5c518;border-radius:6px;background:#000;cursor:pointer}
-.post .top-crown svg{width:18px;height:18px;fill:#d9a441}
+.post .top-crown svg{width:18px;height:18px;fill:#f5c518}
 .top-badge{position:absolute;left:10px;bottom:10px;z-index:3;display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border:1px solid #d9a441;border-radius:3px;background:rgba(0,0,0,.72);color:#d9a441;font-size:.58rem;font-weight:600;letter-spacing:.12em;line-height:1;pointer-events:none}
-.top-badge svg{width:11px;height:11px;fill:#d9a441}
+.top-badge svg{width:12px;height:12px;fill:#f5c518}
 .top-dialog .top-options{display:grid;gap:8px;margin-top:12px}
 .top-dialog .top-remain{margin:0;color:#d9a441}
 .boost-dialog{width:min(420px,calc(100vw - 32px));padding:56px 18px 18px;border:1px solid #d9a441;border-radius:16px;background:linear-gradient(180deg,rgba(217,164,65,.22),#101012),#101012;color:#f2f2f2;box-shadow:0 0 32px rgba(217,164,65,.2)}
