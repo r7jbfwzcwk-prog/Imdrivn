@@ -126,14 +126,6 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .feats{position:relative;padding-top:88px}
   body.is-home .feats .eyebrow{position:absolute;left:0;right:0;bottom:calc(100% + 14px);margin:0;text-align:center;z-index:3}
 }
-@media(min-width:769px) and (max-width:1219px){
-  body.is-home .hero .wrap{width:100%;max-width:100%}
-  body.is-home .hero h1{width:auto;max-width:100%}
-  body.is-home .hero .hero-lead{white-space:normal}
-  body.is-home .feats .row4{min-width:0}
-  body.is-home .feat{min-width:0}
-  body.is-home .feat h3,body.is-home .feat p{max-width:100%;white-space:normal;overflow:visible}
-}
 .path .wide,.path .tag,.path .muted{text-shadow:0 1px 8px rgba(0,0,0,.8)}
 .path .ico{filter:drop-shadow(0 2px 6px rgba(0,0,0,.75))}
 .path .btn{text-shadow:0 1px 6px rgba(0,0,0,.85)}
