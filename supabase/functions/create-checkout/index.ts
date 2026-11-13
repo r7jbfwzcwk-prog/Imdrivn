@@ -1,5 +1,6 @@
 // Stripe Checkout. Membership is a $5 AUD/month subscription.
 // Boost is a one-off $5 AUD payment for any signed-in owner, even while membership is off.
+// Top Ad is a one-off pin: 3 days $3, 5 days $5, 7 days $6 AUD.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const PROMO_END = Date.parse("2026-12-31T23:59:59+10:00");
@@ -28,8 +29,8 @@ Deno.serve(async (req) => {
     const setting = await admin.from("site_settings").select("value").eq("key", "membership_enabled").maybeSingle();
     const enabled = setting.data?.value === true;
     const body = await req.json().catch(() => ({}));
-    const kind = body.kind === "boost" ? "boost" : body.kind === "boost-status" ? "boost-status" : body.kind === "vin" ? "vin" : body.kind === "vin-status" ? "vin-status" : "membership";
-    if (kind === "boost-status" || kind === "vin-status") {
+    const kind = body.kind === "boost" ? "boost" : body.kind === "boost-status" ? "boost-status" : body.kind === "top" ? "top" : body.kind === "top-status" ? "top-status" : body.kind === "vin" ? "vin" : body.kind === "vin-status" ? "vin-status" : "membership";
+    if (kind === "boost-status" || kind === "vin-status" || kind === "top-status") {
       const missing: string[] = [];
       if (!stripeKey) missing.push("STRIPE_SECRET_KEY");
       if (!webhookSecret) missing.push("STRIPE_WEBHOOK_SECRET");
@@ -103,6 +104,32 @@ Deno.serve(async (req) => {
         "metadata[order_id]": orderId
       }));
       return json({ url: session.url, orderId });
+    }
+
+    if (kind === "top") {
+      const days = Number(body.days);
+      const amount = days === 3 ? 300 : days === 5 ? 500 : days === 7 ? 600 : 0;
+      if (!amount) return json({ error: "Pick 3, 5, or 7 days." }, 400);
+      const listingId = String(body.listingId || "");
+      const listing = await admin.from("listings").select("id,user_id,status").eq("id", listingId).maybeSingle();
+      if (!listing.data || listing.data.user_id !== user.id || listing.data.status !== "active") {
+        return json({ error: "You can only pin your own live ad." }, 403);
+      }
+      const session = await stripe(stripeKey, form({
+        mode: "payment",
+        "line_items[0][quantity]": "1",
+        "line_items[0][price_data][currency]": "aud",
+        "line_items[0][price_data][unit_amount]": String(amount),
+        "line_items[0][price_data][product_data][name]": "IM DRIVN Top Ad (" + days + " days)",
+        success_url: origin + "/#/garage/ads?top=1",
+        cancel_url: origin + "/#/garage/ads",
+        client_reference_id: user.id,
+        "metadata[user_id]": user.id,
+        "metadata[kind]": "top",
+        "metadata[listing_id]": listingId,
+        "metadata[days]": String(days)
+      }));
+      return json({ url: session.url });
     }
 
     const listingId = String(body.listingId || "");

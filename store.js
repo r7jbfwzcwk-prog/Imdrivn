@@ -699,7 +699,7 @@ function listingCondition(listing) {
 }
 function listingSelect() {
   const who = 'username,display_name,member_verified' + (Presence.column ? ',last_seen_at' : '');
-  return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,condition,rego,vin,photos,status,created_at,bumped_at,sort_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
+  return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,condition,rego,vin,photos,status,created_at,bumped_at,sort_at,top_until,top_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
 }
 
 function countOf(rel) {
@@ -763,8 +763,30 @@ function mapListing(row) {
     user_id: row.user_id,
     created_at: row.created_at,
     bumped_at: row.bumped_at || null,
-    sort_at: row.sort_at || row.created_at
+    sort_at: row.sort_at || row.created_at,
+    top_until: row.top_until || null,
+    top_at: row.top_at || null
   };
+}
+function sortTops(rows) {
+  const now = Date.now();
+  return (rows || []).filter(l => {
+    const until = Date.parse(l && l.top_until);
+    return Number.isFinite(until) && until > now;
+  }).sort((a, b) => (Date.parse(b.top_at || 0) - Date.parse(a.top_at || 0)) || String(b.id).localeCompare(String(a.id)));
+}
+function applyListingFilters(q, filters) {
+  const f = filters || {};
+  if (f.make) q = q.ilike('make', f.make);
+  if (f.model) q = q.ilike('model', f.model);
+  if (f.year) q = q.gte('year', +f.year);
+  if (f.yearTo) q = q.lte('year', +f.yearTo);
+  if (f.km) q = q.lt('kms', +f.km);
+  String(f.q || '').trim().split(/\s+/).filter(Boolean).forEach(word => {
+    const clause = keywordOr(word);
+    if (clause) q = q.or(clause);
+  });
+  return q;
 }
 function applyListingSort(q, sort) {
   if (sort === 'price-asc') q = q.order('price', { ascending: true });
@@ -1040,20 +1062,23 @@ const ListingStore = {
       if (!ids.length) return [];
       q = q.in('id', ids);
     }
-    const f = filters || {};
-    if (f.make) q = q.ilike('make', f.make);
-    if (f.model) q = q.ilike('model', f.model);
-    if (f.year) q = q.gte('year', +f.year);
-    if (f.yearTo) q = q.lte('year', +f.yearTo);
-    if (f.km) q = q.lt('kms', +f.km);
-    String(f.q || '').trim().split(/\s+/).filter(Boolean).forEach(word => {
-      const clause = keywordOr(word);
-      if (clause) q = q.or(clause);
-    });
+    q = applyListingFilters(q, filters);
     q = applyListingSort(q, saved ? 'new' : sort);
     const { data, error } = await q.range(from, to);
     if (error) throw new Error(dbMessage(error));
     return this.remember((data || []).map(mapListing));
+  },
+  async tops({ mode, filters }) {
+    if (!sb) return [];
+    await Auth.ready;
+    await Presence.ready;
+    let q = sb.from('listings').select(listingSelect()).eq('status', 'active').gt('top_until', new Date().toISOString());
+    if (mode && mode !== 'all') q = q.eq('mode', mode);
+    q = applyListingFilters(q, filters);
+    q = q.order('top_at', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).limit(100);
+    const { data, error } = await q;
+    if (error) throw new Error(dbMessage(error));
+    return this.remember(sortTops((data || []).map(mapListing)));
   },
   async get(id, fresh) {
     if (!fresh && this.cache.has(id)) return this.cache.get(id);

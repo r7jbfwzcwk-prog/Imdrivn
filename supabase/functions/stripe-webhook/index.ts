@@ -1,4 +1,4 @@
-// Verifies Stripe signatures, then records membership or applies a paid boost.
+// Verifies Stripe signatures, then records membership, a paid boost, or a Top Ad.
 // Dashboard events to subscribe: checkout.session.completed,
 // customer.subscription.created, customer.subscription.updated,
 // customer.subscription.deleted, invoice.paid, invoice.payment_failed.
@@ -23,6 +23,22 @@ Deno.serve(async (req) => {
           p_user_id: obj.metadata.user_id || obj.client_reference_id,
           p_session_id: obj.id
         });
+      }
+      if (obj.mode === "payment" && obj.metadata?.kind === "top" && obj.payment_status === "paid") {
+        const days = Number(obj.metadata.days);
+        const expected = days === 3 ? 300 : days === 5 ? 500 : days === 7 ? 600 : 0;
+        const paid = Number(obj.amount_total);
+        const currency = String(obj.currency || "").toLowerCase();
+        if (!expected || paid !== expected || currency !== "aud") {
+          throw new Error("Top Ad payment does not match.");
+        }
+        const applied = await admin.rpc("apply_paid_top", {
+          p_listing_id: obj.metadata.listing_id,
+          p_user_id: obj.metadata.user_id || obj.client_reference_id,
+          p_session_id: obj.id,
+          p_days: days
+        });
+        if (applied.error) throw new Error(applied.error.message || "Could not pin that ad.");
       }
       if (obj.mode === "payment" && obj.metadata?.kind === "vin" && obj.payment_status === "paid" && obj.metadata.order_id) {
         await admin.from("vin_check_orders").update({ status: "paid", updated_at: new Date().toISOString() }).eq("id", obj.metadata.order_id).eq("status", "pending_payment");
