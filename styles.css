@@ -1182,6 +1182,8 @@ body:has(.wrap.auth) footer{display:none}
 .auth-signin .btn.solid{align-self:stretch;box-sizing:border-box;width:calc(100% + 26px);margin-left:-13px;margin-right:-13px}
 @media(min-width:769px){
  .auth.is-signin .auth-signin .btn.solid{align-self:center;width:calc(100% - 14px);margin-left:0;margin-right:0}
+ .auth.is-signin .auth-oauth{gap:14px}
+ .auth.is-signin>.muted:last-child{margin-top:12px}
 }
 .auth .btn{min-height:44px;height:44px;padding-top:0;padding-bottom:0}
 .auth-link{background:none;border:0;padding:0;color:var(--acc);cursor:pointer;font:inherit}
