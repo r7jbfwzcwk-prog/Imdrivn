@@ -257,6 +257,8 @@
     inner.appendChild(label);
     buttonEl.innerHTML = '';
     buttonEl.appendChild(inner);
+    buttonEl.classList.add('is-live');
+    buttonEl.classList.remove('is-out');
     buttonEl.setAttribute('aria-label', "You're live!");
     var tickLen = 24;
     try { tickLen = path.getTotalLength() || 24; } catch (e) {}
@@ -406,6 +408,24 @@
     function layout() {
       var vw = window.innerWidth;
       var vh = window.innerHeight;
+      var road = document.getElementById('post-road');
+      var roadBox = road && road.getBoundingClientRect ? road.getBoundingClientRect() : null;
+      if (roadBox && roadBox.width > 40 && roadBox.height > 40) {
+        var fitW = roadBox.width * 0.78;
+        var fitH = roadBox.height * 0.86;
+        displayWidth = Math.min(fitW, fitH * meta.srcW / meta.srcH);
+        displayScale = displayWidth / meta.srcW;
+        FX = displayWidth / PREVIEW_CAR_W;
+        ORIGIN = { x: meta.origin.x * displayScale, y: meta.origin.y * displayScale };
+        REAR = { x: meta.rear.cx * displayScale, y: meta.rear.cy * displayScale, r: meta.rear.r * displayScale };
+        FRONT = { x: meta.front.cx * displayScale, y: meta.front.cy * displayScale, r: meta.front.r * displayScale };
+        WHEEL_R = REAR.r;
+        midX = roadBox.left + roadBox.width / 2;
+        var roadY = roadBox.top + roadBox.height * 0.84;
+        startX = -displayWidth * 0.95;
+        endX = vw + displayWidth * 0.8;
+        CAR_TOP = roadY - ORIGIN.y;
+      } else {
       displayWidth = Math.min(Math.max(260, vw * 0.72), 420);
       displayScale = displayWidth / meta.srcW;
       FX = displayWidth / PREVIEW_CAR_W;
@@ -419,6 +439,7 @@
       startX = -displayWidth * 0.95;
       endX = vw + displayWidth * 0.8;
       CAR_TOP = roadY - ORIGIN.y;
+      }
       carEl.style.width = displayWidth + 'px';
       carEl.style.height = (meta.srcH * displayScale) + 'px';
       carEl.style.top = CAR_TOP + 'px';
@@ -814,14 +835,39 @@
         wheels.farFront.blur.src = imgs[5].src;
         wheels.farFront.hot.src = imgs[6].src;
       }
-      morph = morphButton(buttonEl);
+      var deferLive = !!(buttonEl && buttonEl.dataset && buttonEl.dataset.revDefer === '1');
+      if (deferLive) buttonEl.classList.add('is-out');
+      else morph = morphButton(buttonEl);
       layout();
       window.addEventListener('resize', onResize);
       window.addEventListener('scroll', onResize, true);
       startTime = performance.now();
+      var liveHeld = 0;
+      function drawScene(t) {
+        var tt = Math.max(0, Math.min(t, DURATION - 1));
+        applyCar(tt);
+        drawSkids(tt);
+        drawPuffs(bctx, 'back', tt);
+        fctx.clearRect(0, 0, cssW, cssH);
+        drawPuffs(fctx, 'front', tt);
+        drawSparks(tt);
+      }
       function tick(now) {
         if (finished) return;
         var t = now - startTime;
+        if (deferLive) {
+          drawScene(t);
+          if (t >= DURATION && !liveHeld) {
+            morph = morphButton(buttonEl);
+            applyButton(buttonEl, morph.tick, morph.tickLen, DURATION, false);
+            liveHeld = now + 700;
+          } else if (liveHeld) {
+            applyButton(buttonEl, morph.tick, morph.tickLen, DURATION, false);
+            if (now >= liveHeld) { finish(true); return; }
+          }
+          raf = requestAnimationFrame(tick);
+          return;
+        }
         renderAt(t);
         if (t >= DURATION) {
           finish(true);
@@ -847,6 +893,84 @@
     return session.cancel;
   }
 
+  function mountParked(lane, host) {
+    if (!host || typeof document === 'undefined') return;
+    var key = resolveLane(lane);
+    var meta = LANES[key];
+    var old = host.querySelector('.post-park');
+    if (old) old.remove();
+    var car = el('div', { className: 'post-park' });
+    var wheels = {
+      rear: makeWheelGroup('near rear'),
+      front: makeWheelGroup('near front')
+    };
+    if (meta.awd) {
+      wheels.farRear = makeWheelGroup('far rear');
+      wheels.farFront = makeWheelGroup('far front');
+      car.appendChild(wheels.farRear.el);
+      car.appendChild(wheels.farFront.el);
+    }
+    car.appendChild(wheels.rear.el);
+    car.appendChild(wheels.front.el);
+    var bodyImg = el('img', { className: 'imdrivn-body', alt: '' });
+    car.appendChild(bodyImg);
+    host.appendChild(car);
+    var base = assetBase() + key + '/';
+    var imgs = {};
+    function place() {
+      var boxW = host.clientWidth || 320;
+      var boxH = host.clientHeight || 180;
+      var w = boxW * 0.78;
+      var h = meta.srcH * (w / meta.srcW);
+      var maxH = boxH * 0.88;
+      if (h > maxH) { h = maxH; w = h * meta.srcW / meta.srcH; }
+      var scale = w / meta.srcW;
+      car.style.width = w + 'px';
+      car.style.height = h + 'px';
+      car.style.left = ((boxW - w) / 2) + 'px';
+      var roadY = boxH * 0.84;
+      car.style.top = (roadY - meta.origin.y * scale) + 'px';
+      bodyImg.style.width = w + 'px';
+      bodyImg.style.height = h + 'px';
+      placeNearWheel(wheels.rear, meta.rear, scale);
+      placeNearWheel(wheels.front, meta.front, scale);
+      if (meta.awd) {
+        placeFarWheel(wheels.farRear, meta.farRear, meta.rear, scale);
+        placeFarWheel(wheels.farFront, meta.farFront, meta.front, scale);
+      }
+      setWheelLook(wheels.rear, 0, 0);
+      setWheelLook(wheels.front, 0, 0);
+      if (meta.awd) {
+        setWheelLook(wheels.farRear, 0, 0);
+        setWheelLook(wheels.farFront, 0, 0);
+      }
+    }
+    Promise.all([
+      loadImg(base + 'body.webp'),
+      loadImg(base + 'wheel-rear.webp'),
+      loadImg(base + 'wheel-front.webp')
+    ]).then(function (loaded) {
+      if (!car.isConnected) return;
+      bodyImg.src = loaded[0].src;
+      wheels.rear.sharp.src = loaded[1].src;
+      wheels.front.sharp.src = loaded[2].src;
+      if (meta.awd) {
+        wheels.farRear.sharp.src = loaded[1].src;
+        wheels.farFront.sharp.src = loaded[2].src;
+      }
+      imgs.ready = true;
+      place();
+    }).catch(function () {});
+    host._postPlace = place;
+    if (typeof ResizeObserver !== 'undefined') {
+      var ro = new ResizeObserver(function () { if (imgs.ready) place(); });
+      ro.observe(host);
+      car._ro = ro;
+    }
+    return car;
+  }
+
+  playBurnout.mountParked = mountParked;
   playBurnout.setAssetBase = setAssetBase;
   playBurnout.LANES = ['daily', '4x4', 'performance', 'supercar'];
   playBurnout.cancel = function () {

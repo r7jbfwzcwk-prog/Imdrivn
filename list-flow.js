@@ -113,7 +113,7 @@ const ListFlow = (() => {
     }
     function rebuildSteps() {
       clearHiddenPower();
-      steps = allSteps.filter(step => !step.boost || boosted());
+      steps = allSteps.filter(step => (!step.boost || boosted()) && !(editing && step.id === 'post'));
       if (i >= steps.length) i = Math.max(0, steps.length - 1);
     }
     function mountPicks(body, spec) {
@@ -423,6 +423,14 @@ const ListFlow = (() => {
           };
           body.innerHTML = `<div class="feed ask-preview">${post(listing)}</div>`;
         }
+      },
+      {
+        id: 'post',
+        question: 'Ready to go live?',
+        hint: 'Last step · Your ad is ready to post',
+        focusOk: true,
+        validate: () => draft.photos.length ? '' : photoNeed,
+        mount() {}
       }
     ];
 
@@ -746,16 +754,18 @@ const ListFlow = (() => {
         if (crossed >= 0) hapticPulse(crossed >= 4 ? 12 : 10);
       } catch (e) {}
     }
-    function revButton(){ return !editing && i === steps.length - 1; }
+    function revButton(){ return !editing && steps[i] && steps[i].id === 'post'; }
+    function postLaneName(sec){ return {daily:'DAILY','4x4':'4X4',performance:'PERFORMANCE',supercars:'SUPERCAR'}[sec] || 'DAILY'; }
     function revMarkup(){
-      return `<svg class="rev-dial" viewBox="0 0 64 40" aria-hidden="true"><rect x="1" y="1" width="62" height="38" rx="5" fill="#0a0a0b"/><path d="M10 32A22 22 0 1 1 54 32" fill="none" stroke="#3a3018" stroke-width="4" stroke-linecap="round"/><path d="M10 32A22 22 0 1 1 54 32" fill="none" stroke="#d9a441" stroke-width="3" stroke-linecap="round"/><path d="M46 16.5A22 22 0 0 1 54 32" fill="none" stroke="#e5242b" stroke-width="3" stroke-linecap="round"/><line class="rev-needle" x1="32" y1="32" x2="32" y2="12" stroke="#f4f4f6" stroke-width="1.7" stroke-linecap="round"/><circle cx="32" cy="32" r="2.2" fill="#d9a441"/></svg><span class="rev-label">HOLD TO POST</span>`;
+      return `<svg class="rev-dial" viewBox="0 0 120 88" aria-hidden="true"><circle cx="60" cy="58" r="40" fill="#14120c"/><path d="M22 70 A 42 42 0 1 1 98 70" fill="none" stroke="#3a3220" stroke-width="8" stroke-linecap="round"/><path d="M22 70 A 42 42 0 1 1 98 70" fill="none" stroke="#d9a441" stroke-width="5" stroke-linecap="round"/><path d="M78 34 A 42 42 0 0 1 98 70" fill="none" stroke="#e5242b" stroke-width="5" stroke-linecap="round"/><line class="rev-needle" x1="60" y1="58" x2="60" y2="22" stroke="#f7f7f8" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="58" r="4.5" fill="#d9a441"/><circle cx="60" cy="58" r="2" fill="#1a1408"/></svg><span class="rev-label">Hold here to post</span>`;
     }
     function paintRev(rpm){
       const btn = document.getElementById('ask-ok');
       if (!btn) return;
       const needle = btn.querySelector('.rev-needle');
-      const angle = -120 + (Math.max(0, Math.min(8000, rpm)) / 8000) * 240;
-      if (needle) needle.setAttribute('transform', 'rotate(' + angle.toFixed(2) + ' 32 32)');
+      const t = Math.max(0, Math.min(REV_AT, rpm)) / REV_AT;
+      const angle = -108 + t * 216;
+      if (needle) needle.setAttribute('transform', 'rotate(' + angle.toFixed(2) + ' 60 58)');
       btn.dataset.rpm = String(Math.round(rpm));
       btn.classList.toggle('is-revving', rpm > 4200 && revState === 'hold');
     }
@@ -821,15 +831,19 @@ const ListFlow = (() => {
       stopRevLoop();
       revRpm = REV_AT;
       paintRev(REV_AT);
-      hapticPulse([40, 30, 60]);
+      hapticPulse([50, 40, 90]);
       const btn = document.getElementById('ask-ok');
       if (btn) { btn.classList.remove('is-revving'); btn.disabled = true; }
+      const road = document.getElementById('post-road');
       busy = true;
       clearHiddenPower();
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       try {
         if (!reduced && btn) {
+          btn.classList.add('is-out');
+          if (road) road.classList.add('is-burning');
           btn.dataset.revCommit = '1';
+          btn.dataset.revDefer = '1';
           try {
             await loadBurnout();
             if (window.playBurnout) {
@@ -850,7 +864,9 @@ const ListFlow = (() => {
         if (btn) {
           btn.disabled = false;
           btn.dataset.revCommit = '';
-          btn.classList.remove('is-revving');
+          btn.classList.remove('is-revving', 'is-out', 'is-live');
+          const road = document.getElementById('post-road');
+          if (road) road.classList.remove('is-burning');
           if (typeof btn._revCancel === 'function') { try { btn._revCancel(false); } catch (err) {} }
           const overlay = document.getElementById('imdrivn-burnout-overlay');
           if (overlay) overlay.remove();
@@ -877,6 +893,19 @@ const ListFlow = (() => {
       btn.onpointerleave = () => { if (revState === 'hold') releaseHold(); };
       btn.onclick = e => { e.preventDefault(); };
     }
+    function postScreen(dir){
+      const lane = burnoutLane(draft.sec);
+      return `<div class="ask-slide post-slide${dir > 0 ? ' from-right' : dir < 0 ? ' from-left' : ''}" role="group" aria-labelledby="ask-q"><div class="post-live">
+        <button type="button" class="post-back" id="ask-back">Back</button>
+        <p class="post-brand">IM DRIVN</p>
+        <h2 class="post-title" id="ask-q">Ready to go live?</h2>
+        <p class="post-sub">Last step · Your ad is ready to post</p>
+        <div class="post-road" id="post-road" data-lane="${esc(lane)}"></div>
+        <button type="button" class="btn solid rev-post post-go" id="ask-ok" aria-label="Post ad (hold or tap)">${revMarkup()}</button>
+        <p class="post-lane">${esc(postLaneName(draft.sec))}</p>
+        <p class="ask-err" id="ask-err" role="alert"></p>
+      </div></div>`;
+    }
     function render(dir) {
       const step = steps[i];
       const bar = root.querySelector('.ask-bar');
@@ -885,6 +914,19 @@ const ListFlow = (() => {
       bar.setAttribute('aria-valuetext', `Step ${i + 1} of ${steps.length}`);
       bar.firstElementChild.style.width = ((i + 1) / steps.length * 100) + '%';
       const stage = root.querySelector('.ask-stage');
+      if (step.id === 'post') {
+        stage.innerHTML = postScreen(dir);
+        const road = document.getElementById('post-road');
+        loadBurnout().then(() => { if (road && road.isConnected && window.playBurnout && playBurnout.mountParked) playBurnout.mountParked(burnoutLane(draft.sec), road); }).catch(() => {});
+        stopRevLoop();
+        if (revState !== 'posting') revState = 'idle';
+        const okBtn = document.getElementById('ask-ok');
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) { wireRev(okBtn); }
+        else okBtn.onclick = () => { ok(); };
+        document.getElementById('ask-back').onclick = () => { back(); };
+        okBtn.focus({preventScroll: true});
+        return;
+      }
       stage.innerHTML = `<div class="ask-slide${dir > 0 ? ' from-right' : dir < 0 ? ' from-left' : ''}" role="group" aria-labelledby="ask-q">
         <p class="ask-count">Step ${i + 1} of ${steps.length}</p>
         <h2 class="ask-q" id="ask-q">${step.question}</h2>
@@ -974,8 +1016,8 @@ const ListFlow = (() => {
     document.addEventListener('keyup', onKeyUp);
 
     rebuildSteps();
-    if (opts && opts.startAt === 'photos') {
-      const at = steps.findIndex(step => step.id === 'photos');
+    if (opts && (opts.startAt === 'photos' || opts.startAt === 'post')) {
+      const at = steps.findIndex(step => step.id === opts.startAt);
       if (at >= 0) i = at;
     }
     root.innerHTML = `<div class="ask">
