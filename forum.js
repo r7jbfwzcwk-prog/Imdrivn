@@ -422,6 +422,7 @@ function fPost(row, isThread, afterDelete) {
   const adminBtn = fAdminRemove(row, isThread, afterDelete);
   if (adminBtn) actions.append(adminBtn);
   if (actions.childNodes.length) article.append(actions);
+  if (row.edited_at) article.append(fEl('p', { class: 'fedited' }, 'Edited'));
   return article;
 }
 
@@ -450,10 +451,15 @@ function fEdit(article, row, isThread, body, title) {
     try {
       if (isThread) await Forum.updateThread(row.id, nextTitle, nextBody);
       else await Forum.updateReply(row.id, nextBody);
+      const changed = nextBody !== String(row.body || '') || (isThread && nextTitle !== String(row.title || ''));
       if (title) title.textContent = nextTitle;
       body.textContent = nextBody;
       row.title = nextTitle;
       row.body = nextBody;
+      if (changed) {
+        row.edited_at = new Date().toISOString();
+        if (!article.querySelector('.fedited')) article.append(fEl('p', { class: 'fedited' }, 'Edited'));
+      }
       form.remove();
     } catch (e) { err.textContent = e.message || 'Could not save that.'; save.disabled = false; }
   });

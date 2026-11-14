@@ -1505,7 +1505,7 @@ const Forum = {
     await Presence.ready;
     const who = 'profiles(' + publicProfileCols() + ')';
     const thread = await sb.from('forum_threads')
-      .select('id, category_id, author_id, title, body, photo_path, created_at, last_activity_at, reply_count, ' + who + ', forum_categories(slug, name)')
+      .select('id, category_id, author_id, title, body, photo_path, edited_at, created_at, last_activity_at, reply_count, ' + who + ', forum_categories(slug, name)')
       .eq('id', id).maybeSingle();
     if (thread.error) {
       if (/invalid input syntax|22P02/i.test(thread.error.message || '')) return null;
@@ -1513,7 +1513,7 @@ const Forum = {
     }
     if (!thread.data) return null;
     const replies = await sb.from('forum_replies')
-      .select('id, thread_id, author_id, body, photo_path, created_at, ' + who)
+      .select('id, thread_id, author_id, body, photo_path, edited_at, created_at, ' + who)
       .eq('thread_id', id).order('created_at', { ascending: true });
     if (replies.error) throw new Error(forumErr(replies.error));
     return { thread: thread.data, replies: replies.data || [] };

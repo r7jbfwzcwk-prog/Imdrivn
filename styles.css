@@ -1278,6 +1278,9 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 .fpost h1{font-size:clamp(1.35rem,4vw,1.8rem);margin-top:8px}
 .fcats,.fthreads,.freplies{display:grid;gap:10px;margin-top:var(--s-4)}
 .fcat,.fthread,.fpost{display:block;text-decoration:none;border:1px solid var(--c-line);border-radius:14px;background:var(--c-surface);padding:14px 16px}
+.fpost{position:relative}
+.fpost:has(.fedited){padding-bottom:32px}
+.fedited{position:absolute;right:16px;bottom:12px;margin:0;color:var(--c-muted);font-size:.68rem;line-height:1;pointer-events:none}
 .fcat:hover,.fthread:hover{border-color:var(--acc)}
 .fcat-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
 .fcat p,.fthread p{margin:6px 0 0;color:var(--c-muted)}
