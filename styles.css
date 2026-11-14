@@ -1250,6 +1250,7 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 .handle-input{font-size:1.4rem;font-weight:600;text-transform:lowercase}
 .handle-warn{margin:0 0 var(--s-4);padding:12px 14px;border:1px solid var(--acc);border-radius:12px;background:var(--c-surface);color:var(--c-text)}
 .wrap.form.auth.is-handle{justify-content:flex-start}
+.auth.is-handle .eyebrow{margin-top:8px}
 .auth.is-handle h1{margin-bottom:0}
 .auth.is-handle #auth-form{margin-top:60px;margin-bottom:0}
 .auth.is-handle .handle-warn{margin:24px 0 0}
