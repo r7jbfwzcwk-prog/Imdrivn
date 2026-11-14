@@ -74,7 +74,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   .home-paths .path .btn{margin-top:4px;min-height:34px;padding:0 10px;font-size:.62rem}
 }
 @media(max-width:768px){
-  body.is-home .landing{min-height:calc(100svh - 57px - 64px);min-height:calc(100dvh - 57px - 64px);display:flex;flex-direction:column}
+  body.is-home .landing{min-height:calc(100svh - 57px - 64px);min-height:calc(100dvh - 57px - 64px);display:flex;flex-direction:column;background-attachment:scroll}
   body.is-home .hero{flex:1 1 auto;min-height:0}
   body.is-home .hero h1{font-size:1.28rem}
   body.is-home .hero h1 .grey{font-size:clamp(1.2rem,6.05vw,1.83rem);line-height:1.05;white-space:nowrap}
@@ -766,7 +766,7 @@ body.is-buy #sbtn[hidden]{display:none}
 html.using-keyboard .search-hide:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 html.using-keyboard .kw-x:focus-visible{outline:2px solid #d9a441;outline-offset:-4px}
 input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration,input[type=search]::-webkit-search-results-button{display:none;-webkit-appearance:none;appearance:none}
-@media(max-width:768px){html{touch-action:pan-y}body{overflow-x:hidden;max-width:100%}body input,body select,body textarea,.qs input,.qs select,.fspanel input,.auth input,.vin-order input,.ask-input,.ask-select,.report-dialog select,.report-dialog textarea{font-size:16px}.bar{max-width:100%;min-width:0;box-sizing:border-box}header a.logo{flex:1 1 auto;min-width:0;overflow:hidden}header a.logo img{height:22px;max-width:100%;width:auto}.modebar{max-width:100%;min-width:0;box-sizing:border-box}.tabs{min-width:0}.tabs button{min-width:0}}
+@media(max-width:768px){html{touch-action:pan-y;overflow-x:clip}body{overflow-x:clip;max-width:100%}body input,body select,body textarea,.qs input,.qs select,.fspanel input,.auth input,.vin-order input,.ask-input,.ask-select,.report-dialog select,.report-dialog textarea{font-size:16px}.bar{max-width:100%;min-width:0;box-sizing:border-box}header a.logo{flex:1 1 auto;min-width:0;overflow:hidden}header a.logo img{height:22px;max-width:100%;width:auto}.modebar{max-width:100%;min-width:0;box-sizing:border-box}.tabs{min-width:0}.tabs button{min-width:0}}
 #sbtn.is-on svg{stroke:var(--acc)}
 /* feed */
 .feed{max-width:440px;margin:0 auto;padding:14px 12px;display:grid;gap:14px}
