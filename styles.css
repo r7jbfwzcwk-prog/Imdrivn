@@ -970,8 +970,8 @@ body:has(.post-live) .ask-stage,body:has(.post-live) .post-slide{flex:1 1 auto;m
 .post-brand{margin:28px 0 6px;color:#d9a441;font-size:.72rem;font-weight:600;letter-spacing:.28em;text-transform:uppercase}
 .post-title{margin:0;color:#fff;font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:-.03em;font-size:clamp(1.7rem,4.4vw,2.6rem);line-height:1.1}
 .post-sub{margin:6px 0 0;color:#9a9aa2;font-size:.95rem}
-.post-road{position:relative;flex:1 1 auto;width:100%;min-height:140px;margin:12px 0 10px;border-radius:16px;background:linear-gradient(180deg,#16161a 0%,#0c0c0e 100%);overflow:hidden}
-.post-road::after{content:"";position:absolute;left:8%;right:8%;bottom:16%;height:2px;border-radius:2px;background:rgba(255,255,255,.2);pointer-events:none}
+.post-road{position:relative;flex:1 1 auto;width:100%;min-height:140px;margin:12px 0 calc(var(--tach) * 4 / 260);border-radius:16px;background:linear-gradient(180deg,#16161a 0%,#0c0c0e 100%);overflow:hidden}
+.post-road::after{content:"";position:absolute;left:8%;right:8%;bottom:0;height:2px;border-radius:2px;background:rgba(255,255,255,.2);pointer-events:none}
 .post-park{position:absolute;pointer-events:none}
 .post-park img{position:absolute;display:block;max-width:none;pointer-events:none;user-select:none}
 .post-park .imdrivn-wheel{position:absolute;overflow:visible}

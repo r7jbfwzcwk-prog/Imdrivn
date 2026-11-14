@@ -438,7 +438,8 @@
         FRONT = { x: meta.front.cx * displayScale, y: meta.front.cy * displayScale, r: meta.front.r * displayScale };
         WHEEL_R = REAR.r;
         midX = roadBox.left + roadBox.width / 2;
-        var roadY = roadBox.top + roadBox.height * 0.84;
+        var lineBottom = parseFloat(window.getComputedStyle(road, '::after').bottom) || 0;
+        var roadY = roadBox.bottom - lineBottom;
         startX = -displayWidth * 0.95;
         endX = vw + displayWidth * 0.8;
         CAR_TOP = roadY - ORIGIN.y;
