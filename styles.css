@@ -299,6 +299,16 @@ body.is-all{--acc:#c0c0c0;--acc-dim:rgba(192,192,192,.55);--glow:rgba(192,192,19
 body.is-home{--acc:#d9a441;--acc-dim:rgba(217,164,65,.6);--glow:rgba(217,164,65,.22)}
 body.is-home .path{border-color:rgba(217,164,65,.55)}
 body.is-home .path .btn{border-color:#d9a441;color:#d9a441}
+body.is-home .path .btn.cta-roll{box-sizing:border-box;transition:background-color .42s cubic-bezier(.22,.7,.2,1),color .42s cubic-bezier(.22,.7,.2,1),border-color .42s cubic-bezier(.22,.7,.2,1)}
+body.is-home .path .btn.cta-roll.is-flip{background:var(--cta-bg);color:var(--cta-ink);border-color:var(--cta-ink);text-shadow:none}
+.cta-view{display:block;height:1em;overflow:hidden;width:100%;line-height:1}
+.cta-track{display:flex;flex-direction:column;transition:transform .42s cubic-bezier(.22,.7,.2,1);will-change:transform}
+.cta-roll.is-flip .cta-track{transform:translate3d(0,-50%,0)}
+.cta-line{display:flex;align-items:center;justify-content:center;flex:0 0 1em;height:1em;white-space:nowrap}
+@media(prefers-reduced-motion:reduce){
+  .cta-track,.cta-roll{transition:none}
+  .cta-roll.is-flip .cta-track{transform:none}
+}
 body.is-list{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glow:rgba(47,123,255,.22)}
 body.is-wholesale{--acc:#22c55e;--acc-dim:rgba(34,197,94,.55);--glow:rgba(34,197,94,.22)}
 body.is-sell{display:flex;flex-direction:column;min-height:100dvh}
