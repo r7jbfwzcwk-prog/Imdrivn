@@ -115,62 +115,33 @@ const ValueFlow = (() => {
     }
     function persist() { saveDraft(draft, i); }
 
-    function foldName(s) {
-      return String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/\s+/g, ' ').trim();
-    }
-    function titleName(raw) {
-      return String(raw || '').trim().replace(/\s+/g, ' ').split(' ').map(word => word.split('-').map(part => {
-        if (!part) return part;
-        const lower = part.toLowerCase();
-        if (/^mc[a-z]/.test(lower) && lower.length > 3) return 'Mc' + lower.charAt(2).toUpperCase() + lower.slice(3);
-        return lower.charAt(0).toUpperCase() + lower.slice(1);
-      }).join('-')).join(' ');
-    }
-    function namesFor(kind) {
-      if (typeof VehicleNames !== 'undefined') {
-        const listed = kind === 'make' ? VehicleNames.makes() : VehicleNames.models(draft.make);
-        if (listed && listed.length) return listed;
-      }
-      return kind === 'make' ? MAKES.slice() : [];
-    }
-    function canonicalName(list, raw) {
-      const key = foldName(raw);
-      if (!key) return '';
-      return list.find(m => foldName(m) === key) || (typeof VehicleNames !== 'undefined' && VehicleNames.display(raw)) || titleName(raw);
-    }
-    function mountName(body, opts) {
-      body.innerHTML = `<div class="ask-combo">${field(opts.id, opts.value, opts.placeholder)}<ul class="ask-list" id="${opts.listId}" role="listbox" hidden></ul></div>`;
-      const input = document.getElementById(opts.id);
-      const list = document.getElementById(opts.listId);
-      let items = [], active = -1, justChose = false;
+    function mountMake(body) {
+      body.innerHTML = `<div class="ask-combo">${field('v-make', draft.make, 'e.g. Porsche')}<ul class="ask-list" id="v-makes" role="listbox" hidden></ul></div>`;
+      const input = document.getElementById('v-make');
+      const list = document.getElementById('v-makes');
+      let items = [], active = -1;
       const close = () => { suggestOn = false; active = -1; list.hidden = true; list.innerHTML = ''; input.setAttribute('aria-expanded','false'); input.removeAttribute('aria-activedescendant'); };
-      const open = rows => {
-        items = rows; active = rows.length ? 0 : -1; suggestOn = rows.length > 0;
+      const paint = () => { list.querySelectorAll('button').forEach((btn, n) => btn.setAttribute('aria-selected', n === active)); if (active >= 0) input.setAttribute('aria-activedescendant', 'v-opt-' + active); };
+      const choose = n => { input.value = items[n]; draft.make = items[n]; close(); input.focus(); };
+      const open = matches => {
+        items = matches; active = matches.length ? 0 : -1; suggestOn = matches.length > 0;
         list.hidden = !suggestOn; input.setAttribute('aria-expanded', suggestOn ? 'true' : 'false');
-        list.innerHTML = rows.map((row, n) => `<li role="presentation"><button type="button" role="option" id="${opts.listId}-opt-${n}" class="${row.custom ? 'is-custom' : ''}" aria-selected="${n === active}">${esc(row.label)}</button></li>`).join('');
-        if (active >= 0) input.setAttribute('aria-activedescendant', opts.listId + '-opt-' + active);
+        list.innerHTML = matches.map((m, n) => `<li role="presentation"><button type="button" role="option" id="v-opt-${n}" aria-selected="${n === active}">${esc(m)}</button></li>`).join('');
+        if (active >= 0) input.setAttribute('aria-activedescendant', 'v-opt-' + active);
         list.querySelectorAll('button').forEach((btn, n) => { btn.onmousedown = ev => ev.preventDefault(); btn.onclick = () => choose(n); });
       };
-      const paint = () => { list.querySelectorAll('button').forEach((btn, n) => btn.setAttribute('aria-selected', n === active)); if (active >= 0) input.setAttribute('aria-activedescendant', opts.listId + '-opt-' + active); const current = list.querySelector('[aria-selected="true"]'); if (current) current.scrollIntoView({block:'nearest'}); };
-      const choose = n => { const row = items[n]; if (!row) return; input.value = row.value; justChose = true; close(); input.focus(); };
       const refresh = () => {
-        const raw = input.value.trim();
-        const q = foldName(raw);
-        const options = namesFor(opts.kind);
-        if (!q) {
-          if (opts.kind === 'model' && options.length) open(options.map(m => ({label: m, value: m})));
-          else close();
-          return;
-        }
-        const exact = options.find(m => foldName(m) === q);
-        const rows = options.filter(m => foldName(m).includes(q)).sort((a, b) => (foldName(a).startsWith(q) ? 0 : 1) - (foldName(b).startsWith(q) ? 0 : 1) || a.localeCompare(b, 'en', {sensitivity:'base'})).slice(0, 8).map(m => ({label: m, value: m}));
-        if (!exact && q.length >= opts.min) rows.push({label: 'Use "' + canonicalName(options, raw) + '"', value: canonicalName(options, raw), custom: true});
-        if (!rows.length) { close(); return; }
-        open(rows);
+        const q = input.value.trim().toLowerCase();
+        if (!q) { close(); return; }
+        const pool = MAKES.slice();
+        if (typeof VehicleNames !== 'undefined') VehicleNames.listingMakes().forEach(name => { if (!pool.some(m => m.toLowerCase() === name.toLowerCase())) pool.push(name); });
+        const matches = pool.filter(m => m.toLowerCase().includes(q)).sort((a, b) => a.toLowerCase().indexOf(q) - b.toLowerCase().indexOf(q) || a.localeCompare(b)).slice(0, 6);
+        if (!matches.length) { close(); return; }
+        open(matches);
       };
-      input.setAttribute('role','combobox'); input.setAttribute('aria-autocomplete','list'); input.setAttribute('aria-expanded','false'); input.setAttribute('aria-controls', opts.listId);
-      input.addEventListener('input', () => { justChose = false; refresh(); });
-      input.addEventListener('focus', () => { if (justChose) { justChose = false; return; } refresh(); });
+      input.setAttribute('role','combobox'); input.setAttribute('aria-autocomplete','list'); input.setAttribute('aria-expanded','false'); input.setAttribute('aria-controls','v-makes');
+      input.addEventListener('input', () => { draft.make = input.value; refresh(); });
+      input.addEventListener('focus', refresh);
       input.addEventListener('blur', () => setTimeout(close, 150));
       input.addEventListener('keydown', e => {
         if (!suggestOn) return;
@@ -178,6 +149,45 @@ const ValueFlow = (() => {
         else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); e.stopPropagation(); choose(active); }
         else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }
       });
+    }
+    function mountModel(body) {
+      body.innerHTML = `<div class="ask-combo">${field('v-model', draft.model, 'e.g. Civic')}<ul class="ask-list" id="v-models" role="listbox" hidden></ul></div>`;
+      const input = document.getElementById('v-model');
+      const list = document.getElementById('v-models');
+      let items = [], active = -1;
+      const close = () => { suggestOn = false; active = -1; list.hidden = true; list.innerHTML = ''; input.setAttribute('aria-expanded','false'); input.removeAttribute('aria-activedescendant'); };
+      const paint = () => { list.querySelectorAll('button').forEach((btn, n) => btn.setAttribute('aria-selected', n === active)); if (active >= 0) input.setAttribute('aria-activedescendant', 'v-mopt-' + active); const current = list.querySelector('[aria-selected="true"]'); if (current) current.scrollIntoView({block:'nearest'}); };
+      const choose = n => { input.value = items[n]; draft.model = items[n]; close(); input.focus(); };
+      const open = matches => {
+        items = matches; active = matches.length ? 0 : -1; suggestOn = matches.length > 0;
+        list.hidden = !suggestOn; input.setAttribute('aria-expanded', suggestOn ? 'true' : 'false');
+        list.innerHTML = matches.map((m, n) => `<li role="presentation"><button type="button" role="option" id="v-mopt-${n}" aria-selected="${n === active}">${esc(m)}</button></li>`).join('');
+        if (active >= 0) input.setAttribute('aria-activedescendant', 'v-mopt-' + active);
+        list.querySelectorAll('button').forEach((btn, n) => { btn.onmousedown = ev => ev.preventDefault(); btn.onclick = () => choose(n); });
+      };
+      const refresh = () => {
+        const q = input.value.trim().toLowerCase();
+        const pool = typeof VehicleNames !== 'undefined' ? VehicleNames.models(draft.make) : [];
+        const matches = (q ? pool.filter(m => m.toLowerCase().includes(q)) : pool.slice()).sort((a, b) => {
+          if (!q) return a.localeCompare(b);
+          return a.toLowerCase().indexOf(q) - b.toLowerCase().indexOf(q) || a.localeCompare(b);
+        }).slice(0, q ? 8 : pool.length);
+        if (!matches.length) { close(); return; }
+        open(matches);
+      };
+      input.setAttribute('role','combobox'); input.setAttribute('aria-autocomplete','list'); input.setAttribute('aria-expanded','false'); input.setAttribute('aria-controls','v-models');
+      input.addEventListener('input', () => { draft.model = input.value; refresh(); });
+      input.addEventListener('focus', refresh);
+      input.addEventListener('blur', () => setTimeout(close, 150));
+      input.addEventListener('keydown', e => {
+        if (!suggestOn) return;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); e.stopPropagation(); active = e.key === 'ArrowDown' ? (active + 1) % items.length : (active - 1 + items.length) % items.length; paint(); }
+        else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); e.stopPropagation(); choose(active); }
+        else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }
+      });
+      const show = () => { if (input.isConnected) refresh(); };
+      if (typeof VehicleNames !== 'undefined' && VehicleNames.models(draft.make).length) show();
+      else if (typeof VehicleNames !== 'undefined') VehicleNames.ready().then(show).catch(() => {});
     }
     function mountPlace(body) {
       const picked = draft.suburb && draft.state && draft.postcode ? draft.suburb + ' ' + draft.state + ' ' + draft.postcode : '';
@@ -289,18 +299,8 @@ const ValueFlow = (() => {
     function read() {
       const step = steps[i].id;
       const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : null; };
-      if (step === 'make' && val('v-make') != null) {
-        const next = canonicalName(namesFor('make'), val('v-make'));
-        if (foldName(next) !== foldName(draft.make)) draft.model = '';
-        draft.make = next;
-        const el = document.getElementById('v-make');
-        if (el) el.value = next;
-      }
-      if (step === 'model' && val('v-model') != null) {
-        draft.model = canonicalName(namesFor('model'), val('v-model'));
-        const el = document.getElementById('v-model');
-        if (el) el.value = draft.model;
-      }
+      if (step === 'make' && val('v-make') != null) draft.make = val('v-make');
+      if (step === 'model' && val('v-model') != null) draft.model = val('v-model');
       if (step === 'year' && val('v-year') != null) draft.year = digits(val('v-year')).slice(0, 4);
       if (step === 'variant' && val('v-variant') != null) draft.variant = val('v-variant').slice(0, 40);
       if (step === 'kms' && val('v-kms') != null) draft.kms = val('v-kms');
@@ -378,8 +378,8 @@ const ValueFlow = (() => {
       const stage = root.querySelector('.ask-stage');
       stage.innerHTML = `<div class="ask-slide${dir > 0 ? ' from-right' : dir < 0 ? ' from-left' : ''}" role="group" aria-labelledby="ask-q"><p class="ask-count">Step ${i + 1} of ${steps.length}</p>${step.intro ? `<p class="ask-intro">${esc(step.intro)}</p>` : ''}<h2 class="ask-q" id="ask-q">${step.q}</h2><p class="ask-hint" id="ask-hint">${step.hint}</p><div class="ask-body" id="ask-body"></div><p class="ask-err" id="ask-err" role="alert"></p><div class="ask-nav"><button type="button" class="btn" id="ask-back" ${i ? '' : 'hidden'}>Back</button><button type="button" class="btn solid" id="ask-ok">${i === steps.length - 1 ? 'Submit' : 'OK'}</button></div>${i === steps.length - 1 ? '' : '<p class="ask-key">Enter ↵</p>'}</div>`;
       const body = document.getElementById('ask-body');
-      if (step.id === 'make') mountName(body, {id:'v-make', listId:'v-makes', kind:'make', value: draft.make, placeholder:'e.g. Porsche', min:2});
-      else if (step.id === 'model') mountName(body, {id:'v-model', listId:'v-models', kind:'model', value: draft.model, placeholder:'e.g. Civic', min:1});
+      if (step.id === 'make') mountMake(body);
+      else if (step.id === 'model') mountModel(body);
       else if (step.id === 'year') body.innerHTML = field('v-year', draft.year, '2019', 'numeric');
       else if (step.id === 'variant') body.innerHTML = field('v-variant', draft.variant, 'GT, SR5, or leave blank');
       else if (step.id === 'kms') body.innerHTML = `<div class="ask-affix">${field('v-kms', draft.kms, '45000', 'numeric')}<span class="ask-suffix">km</span></div>`;
