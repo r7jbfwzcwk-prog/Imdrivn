@@ -1167,7 +1167,7 @@ body:has(.wrap.auth) footer{display:none}
 @media(min-width:900px){body:has(.wrap.auth) main{padding-bottom:calc(76px + env(safe-area-inset-bottom))}}
 @media(min-width:769px){
  body:has(.auth.is-signin) .auth-head,body:has(.auth.is-join) .auth-head{width:100%;max-width:460px;margin-left:auto;margin-right:auto;padding-left:16px;padding-right:16px;padding-bottom:0;box-sizing:border-box}
- body:has(.auth.is-signin) .wrap.form.auth{justify-content:flex-start;padding-top:20px}
+ body:has(.auth.is-signin) .wrap.form.auth{justify-content:flex-start;padding-top:10px}
  body:has(.auth.is-join) .wrap.form.auth{justify-content:flex-start}
  body:has(.auth.is-join) .auth-head .eyebrow{display:none}
  body:has(.auth.is-join) .auth-head{padding-top:4px}
@@ -1203,7 +1203,7 @@ body:has(.wrap.auth) footer{display:none}
  .auth.is-signin .auth-signin .btn.solid,.auth.is-join .auth-create .btn.solid{align-self:center;width:calc(100% - 14px);margin-left:0;margin-right:0}
  .auth.is-signin #auth-err{margin:0}
  .auth.is-signin #auth-err:empty{display:none}
- .auth.is-signin .auth-signin{gap:14px;margin-top:6px}
+ .auth.is-signin .auth-signin{gap:9px;margin-top:1px}
  .auth.is-signin .panel{padding-bottom:14px}
  .auth.is-signin .auth-oauth,.auth.is-join .auth-oauth{gap:14px}
  .auth.is-signin .auth-or,.auth.is-join .auth-or{margin-top:calc(22px - (1lh - 1px) / 2);margin-bottom:calc(22px - (1lh - 1px) / 2)}
