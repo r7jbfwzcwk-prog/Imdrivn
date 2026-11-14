@@ -1566,3 +1566,17 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   .garage-actions .btn{flex:1 1 calc((100% - 12px) / 2);width:calc((100% - 12px) / 2);max-width:calc((100% - 12px) / 2);height:var(--tap);min-height:var(--tap)}
   .garage-actions .garage-edit{flex:1 1 calc((100% - 12px) / 2);width:calc((100% - 12px) / 2);max-width:calc((100% - 12px) / 2);height:var(--tap);min-height:var(--tap);padding:0 28px;font-size:.63rem}
 }
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,input:-webkit-autofill:active,textarea:-webkit-autofill,textarea:-webkit-autofill:hover,textarea:-webkit-autofill:focus,textarea:-webkit-autofill:active,select:-webkit-autofill,select:-webkit-autofill:hover,select:-webkit-autofill:focus,select:-webkit-autofill:active{
+  -webkit-box-shadow:0 0 0 1000px #0a0a0b inset !important;
+  box-shadow:0 0 0 1000px #0a0a0b inset !important;
+  -webkit-text-fill-color:#f2f2f2 !important;
+  caret-color:var(--acc);
+  transition:background-color 9999s ease-out 0s;
+}
+input:autofill,input:autofill:hover,input:autofill:focus,input:autofill:active,textarea:autofill,textarea:autofill:hover,textarea:autofill:focus,textarea:autofill:active,select:autofill,select:autofill:hover,select:autofill:focus,select:autofill:active{
+  -webkit-box-shadow:0 0 0 1000px #0a0a0b inset !important;
+  box-shadow:0 0 0 1000px #0a0a0b inset !important;
+  -webkit-text-fill-color:#f2f2f2 !important;
+  caret-color:var(--acc);
+  transition:background-color 9999s ease-out 0s;
+}
