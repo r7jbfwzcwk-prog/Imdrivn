@@ -629,6 +629,9 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .tabs button[data-m=all][aria-selected=true]{color:#c0c0c0}
 .tabs button[data-m=all][aria-selected=true]::after{background:#c0c0c0}
 #lane-ripples{position:fixed;inset:0;z-index:36;overflow:visible;pointer-events:none}
+#lane-ripples .lane-ink{position:fixed;overflow:hidden;pointer-events:none}
+#lane-ripples .lane-ripple{position:absolute;border-radius:50%;pointer-events:none;transform:scale(0);opacity:1;animation:lane-ripple .55s ease-out forwards}
+@keyframes lane-ripple{to{transform:scale(1);opacity:0}}
 #lane-ripples.is-fading{animation:lane-flood-out .32s ease forwards}
 .flood-fill,.flood-edge{position:fixed;border-radius:50%;pointer-events:none;transform:scale(0);animation:flood-grow .7s cubic-bezier(.16,.74,.2,1) forwards}
 .flood-fill{opacity:1}
@@ -640,8 +643,10 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 @keyframes lane-flash{from{opacity:.9}to{opacity:0}}
 .tabs button,.lanes .path,.view-all{-webkit-tap-highlight-color:transparent}
 @media(prefers-reduced-motion:reduce){
+  #lane-ripples .lane-ripple{left:0 !important;top:0 !important;width:100% !important;height:100% !important;border-radius:0;transform:none !important;animation:lane-ripple-fade .16s ease-out forwards}
   .flood-fill,.flood-edge{left:0 !important;top:0 !important;width:100% !important;height:100% !important;border:0;border-radius:0;transform:none !important;animation:lane-flash .22s ease-out forwards}
 }
+@keyframes lane-ripple-fade{from{opacity:.55}to{opacity:0}}
 .tab-tool{display:inline-flex;align-items:center;justify-content:center;align-self:center;gap:6px;flex:0 0 auto;margin:7px 0;padding:6px 12px;border:1px solid var(--acc-dim);border-radius:999px;background:transparent;color:var(--acc);font-size:.62rem;font-weight:600;letter-spacing:.08em;line-height:1;text-transform:uppercase;white-space:nowrap;cursor:pointer;transition:color .2s ease,border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
 .tab-tool[hidden]{display:none}
 .modebar .tab-tool svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
