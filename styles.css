@@ -1190,7 +1190,7 @@ body:has(.wrap.auth) footer{display:none}
  .auth.is-signin .auth-signin .btn.solid,.auth.is-join .auth-create .btn.solid{align-self:center;width:calc(100% - 14px);margin-left:0;margin-right:0}
  .auth.is-signin #auth-err{margin:0}
  .auth.is-signin #auth-err:empty{display:none}
- .auth.is-signin .auth-signin{gap:14px;margin-top:12px}
+ .auth.is-signin .auth-signin{gap:14px;margin-top:6px}
  .auth.is-signin .panel{padding-bottom:14px}
  .auth.is-signin .auth-oauth,.auth.is-join .auth-oauth{gap:14px}
  .auth.is-signin .auth-or,.auth.is-join .auth-or{margin-top:calc(22px - (1lh - 1px) / 2);margin-bottom:calc(22px - (1lh - 1px) / 2)}
