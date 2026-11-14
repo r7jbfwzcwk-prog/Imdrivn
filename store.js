@@ -1331,7 +1331,7 @@ const ListingStore = {
   async valuation(d) {
     if (!sb) throw new Error('Accounts are offline right now. Try again in a moment.');
     await Auth.ready;
-    if (!Auth.user) throw new Error('Sign in so dealers know who the offer is for.');
+    if (!Auth.user) throw new Error('Sign in to get a wholesale price on your vehicle');
     const paths = await uploadPaths(Auth.user.id, d.photos || [], 'valuations');
     const rawPrice = d.expected_price != null && d.expected_price !== '' ? d.expected_price : d.expected;
     const price = rawPrice === '' || rawPrice == null ? null : +rawPrice;

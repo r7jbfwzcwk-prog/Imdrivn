@@ -1185,7 +1185,8 @@ body:has(.wrap.auth) footer{display:none}
 .auth-head .auth-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .auth-head .auth-close:hover,.auth-head .auth-close:active,.auth-head .auth-close:focus,.auth-head .auth-close:focus-visible{background:transparent;color:#d9a441;border:0;box-shadow:none;outline:none}
 html.using-keyboard .auth-head .auth-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
-.auth-head .muted{margin:2px 0 0;line-height:1.35}
+.auth-head .muted,.auth-head .auth-note{margin:2px 0 0;line-height:1.35}
+.auth-head .auth-note{color:#d9a441}
 .wrap.form.auth{flex:1 1 auto;min-height:0;width:100%;max-width:460px;margin:0 auto;padding:4px 16px 2px;display:flex;flex-direction:column;justify-content:center;align-items:stretch;box-sizing:border-box}
 .auth .panel,.auth>.muted,.auth-or,.auth-oauth{width:100%;max-width:100%;align-self:stretch;box-sizing:border-box}
 .auth>.muted{margin:0;line-height:1.35}
