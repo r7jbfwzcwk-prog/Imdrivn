@@ -530,12 +530,13 @@ function closeLiveRoom() {
   const fit = window.__liveFit;
   if (fit) {
     window.removeEventListener('resize', fit);
-    if (window.visualViewport) {
-      window.visualViewport.removeEventListener('resize', fit);
-      window.visualViewport.removeEventListener('scroll', fit);
-    }
+    if (window.visualViewport) window.visualViewport.removeEventListener('resize', fit);
     window.__liveFit = null;
   }
+  liveFitKey = '';
+  liveFitFrame = 0;
+  liveScrollOnce = false;
+  document.documentElement.style.removeProperty('--live-h');
   document.body.classList.remove('is-livechat');
 }
 function liveBoardCard() {
@@ -635,48 +636,47 @@ function keyboardViewport() {
   const vv = window.visualViewport;
   return { height: vv ? vv.height : window.innerHeight, offsetTop: vv ? vv.offsetTop : 0 };
 }
+let liveFitFrame = 0;
+let liveFitKey = '';
+let liveScrollOnce = false;
+function resetLiveScroll() {
+  if (liveScrollOnce || !window.scrollY) return;
+  liveScrollOnce = true;
+  window.scrollTo(0, 0);
+}
 function fitLive() {
   const root = document.querySelector('.livechat');
-  if (!root) return;
+  if (!root || !document.body.classList.contains('is-livechat')) return;
+  const viewH = Math.round(keyboardViewport().height);
   const header = document.querySelector('.top');
-  const box = keyboardViewport();
-  const viewH = box.height;
-  const viewTop = box.offsetTop;
-  const keyboard = Math.max(0, window.innerHeight - viewH - viewTop);
-  const open = keyboard > 40 || document.body.classList.contains('kb-open');
+  const headerH = header ? header.offsetHeight : 0;
   const nav = document.querySelector('.bnav');
-  const navBox = !open && nav && getComputedStyle(nav).display !== 'none' ? nav.getBoundingClientRect() : null;
-  const reserve = navBox && navBox.height > 20 ? Math.max(0, window.innerHeight - navBox.top) : 0;
-  const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-  const visibleHeader = Math.max(0, Math.min(headerBottom, viewH));
-  if (open) {
-    root.style.position = 'fixed';
-    root.style.left = '0';
-    root.style.right = '0';
-    root.style.zIndex = '15';
-    root.style.margin = '0 auto';
-    root.style.top = Math.round(viewTop + visibleHeader) + 'px';
-  } else {
-    root.style.position = '';
-    root.style.left = '';
-    root.style.right = '';
-    root.style.top = '';
-    root.style.zIndex = '';
-    root.style.margin = '';
-  }
-  root.style.height = Math.max(180, Math.round(viewH - visibleHeader - reserve)) + 'px';
-  root.style.transform = '';
-  if (open && window.scrollY) window.scrollTo(0, 0);
+  const navH = nav && getComputedStyle(nav).display !== 'none' ? nav.offsetHeight : 0;
+  const key = viewH + ':' + headerH + ':' + navH;
+  if (key === liveFitKey) return;
+  liveFitKey = key;
+  const height = Math.max(180, viewH - headerH - navH);
+  document.documentElement.style.setProperty('--live-h', viewH + 'px');
+  root.style.position = '';
+  root.style.top = '';
+  root.style.transform = 'none';
+  root.style.transition = 'none';
+  root.style.height = height + 'px';
+}
+function scheduleLiveFit() {
+  if (liveFitFrame) return;
+  liveFitFrame = requestAnimationFrame(() => {
+    liveFitFrame = 0;
+    fitLive();
+  });
 }
 function bindLiveFit() {
-  const fit = () => fitLive();
-  window.__liveFit = fit;
-  window.addEventListener('resize', fit);
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', fit);
-    window.visualViewport.addEventListener('scroll', fit);
-  }
-  fit();
+  window.__liveFit = scheduleLiveFit;
+  liveFitKey = '';
+  liveScrollOnce = false;
+  window.addEventListener('resize', scheduleLiveFit);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleLiveFit);
+  scheduleLiveFit();
 }
 async function forumLive() {
   const token = ++viewToken;
