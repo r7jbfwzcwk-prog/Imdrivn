@@ -590,6 +590,11 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
  .dnav{--nav-gap:6px;--nav-pad-x:2px}
  .dnav a{padding:7px 2px}
 }
+.dnav .nav-about-short{display:none}
+@media(min-width:1220px){
+ .dnav .nav-about-full{display:none}
+ .dnav .nav-about-short{display:inline}
+}
 @media(min-width:1280px){
  .dnav{--nav-gap:8px;--nav-pad-x:4px}
  .dnav a{padding-left:4px;padding-right:4px}
