@@ -1378,6 +1378,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   .fq-card{margin-top:4vh}
   .fq-choice{flex-basis:calc(50% - 10px)}
   .garage-edit{min-height:39px;padding:0 28px;font-size:.63rem}
-  .garage-actions .btn{flex-basis:calc((100% - 12px) / 2)}
-  .garage-actions .garage-edit{height:42px;min-height:42px;padding:0 28px;font-size:.63rem}
+  .garage-actions{align-items:stretch}
+  .garage-actions .btn{flex:1 1 calc((100% - 12px) / 2);width:calc((100% - 12px) / 2);max-width:calc((100% - 12px) / 2);height:var(--tap);min-height:var(--tap)}
+  .garage-actions .garage-edit{flex:1 1 calc((100% - 12px) / 2);width:calc((100% - 12px) / 2);max-width:calc((100% - 12px) / 2);height:var(--tap);min-height:var(--tap);padding:0 28px;font-size:.63rem}
 }
