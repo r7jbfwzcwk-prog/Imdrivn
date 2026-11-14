@@ -713,22 +713,34 @@ const ListFlow = (() => {
       document.querySelectorAll('.ask [aria-labelledby="ask-q"]').forEach(el => el.setAttribute('aria-invalid', msg ? 'true' : 'false'));
     }
 
-    let revState = 'idle', revRpm = 0, revRaf = 0, revStamp = 0, revBuzz = 0, revRedline = false, revHaptic;
+    let revState = 'idle', revRpm = 0, revRaf = 0, revStamp = 0, revRedline = false, revHeld = false, revHaptic, revHapticAt = 0;
     const REV_AT = 8000, REV_CLIMB_MS = 3200, REV_FLASH_MS = 400;
-    const REV_TICKS = [1000, 2000, 3000, 4000, 5000, 6000, 7000];
     const REV_GOLD = '#D9A441';
-    function hapticOn(){
-      try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.matchMedia('(hover: none) and (pointer: coarse)').matches; }
+    function reducedMotion(){
+      try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
       catch (e) { return false; }
+    }
+    function hapticOn(){
+      try { return !reducedMotion() && window.matchMedia('(hover: none) and (pointer: coarse)').matches; }
+      catch (e) { return false; }
+    }
+    function appleTouch(){
+      try {
+        const ua = navigator.userAgent || '';
+        if (/iPhone|iPad|iPod/i.test(ua)) return true;
+        return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+      } catch (e) { return false; }
     }
     function hapticSwitch(){
       try {
         if (revHaptic && revHaptic.isConnected) return revHaptic;
         const label = document.createElement('label');
         label.className = 'rev-haptic';
+        label.htmlFor = 'rev-haptic-switch';
         label.setAttribute('aria-hidden', 'true');
         const input = document.createElement('input');
         input.type = 'checkbox';
+        input.id = 'rev-haptic-switch';
         input.setAttribute('switch', '');
         input.tabIndex = -1;
         input.setAttribute('aria-hidden', 'true');
@@ -738,25 +750,45 @@ const ListFlow = (() => {
         return label;
       } catch (e) { return null; }
     }
-    function hapticPulse(pattern){
+    function hapticPulse(strong){
       try {
         if (!hapticOn()) return;
-        if (typeof navigator.vibrate === 'function') {
-          navigator.vibrate(pattern);
-          return;
+        if (!appleTouch() && typeof navigator.vibrate === 'function') {
+          let used = false;
+          try { used = navigator.vibrate(strong ? [28, 20, 36, 20, 64] : 12) !== false; } catch (e) { used = false; }
+          if (used) return;
         }
         const label = hapticSwitch();
-        if (label) label.click();
-      } catch (e) {
-        try { const label = hapticSwitch(); if (label) label.click(); } catch (err) {}
-      }
-    }
-    function revFeel(rpm){
-      try {
-        let crossed = -1;
-        while (revBuzz < REV_TICKS.length && rpm >= REV_TICKS[revBuzz]) { crossed = revBuzz; revBuzz++; }
-        if (crossed >= 0) hapticPulse(10);
+        if (!label) return;
+        const hits = strong ? 4 : 1;
+        for (let n = 0; n < hits; n++) window.setTimeout(() => { try { label.click(); } catch (e) {} }, n * 32);
       } catch (e) {}
+    }
+    function revFeel(rpm, now){
+      try {
+        if (!revHeld || revRedline) return;
+        const p = Math.max(0, Math.min(1, rpm / REV_AT));
+        const gap = 210 - p * 160;
+        if (!revHapticAt || now - revHapticAt >= gap) {
+          revHapticAt = now;
+          hapticPulse(false);
+        }
+      } catch (e) {}
+    }
+    function clearShake(){
+      document.body.classList.remove('is-rev-shake');
+      document.body.style.transform = '';
+    }
+    function paintShake(rpm, now){
+      if (!revHeld || revRedline || reducedMotion()) { clearShake(); return; }
+      const p = Math.max(0, Math.min(1, rpm / REV_AT));
+      const amp = 0.5 + p * 3.2;
+      const freq = 8 + p * 20;
+      const t = now / 1000;
+      const x = Math.sin(t * freq * Math.PI * 2) * amp;
+      const y = Math.sin(t * freq * Math.PI * 2 * 1.31 + 0.7) * amp * 0.7;
+      document.body.classList.add('is-rev-shake');
+      document.body.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)';
     }
     function revButton(){ return !editing && steps[i] && steps[i].id === 'post'; }
     function tachPolar(cx, cy, r, deg){ const a = deg * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
@@ -831,10 +863,12 @@ const ListFlow = (() => {
       }
       revRpm = base;
       paintRev(base, flash);
-      revFeel(base);
+      paintShake(base, now);
+      revFeel(base, now);
       if (base >= REV_AT && !revRedline) {
         revRedline = true;
-        hapticPulse([50, 40, 90]);
+        clearShake();
+        hapticPulse(true);
       }
       if (elapsed < REV_CLIMB_MS + REV_FLASH_MS) revRaf = requestAnimationFrame(revFrame);
     }
@@ -855,11 +889,13 @@ const ListFlow = (() => {
     }
     function startHold(){
       if (!revButton() || revState !== 'idle') return;
-      if (!postReady()) return;
+      if (!postReady()) { revHeld = false; clearShake(); return; }
       hapticSwitch();
       revState = 'run';
-      revBuzz = 0;
+      revHeld = true;
+      revHapticAt = performance.now();
       revRedline = false;
+      hapticPulse(false);
       stopRevLoop();
       const btn = document.getElementById('ask-ok');
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -887,9 +923,11 @@ const ListFlow = (() => {
         busy = false;
         revState = 'idle';
         revRpm = 0;
-        revBuzz = 0;
+        revHeld = false;
+        revHapticAt = 0;
         revRedline = false;
         stopRevLoop();
+        clearShake();
         if (btn) {
           btn.disabled = false;
           if (typeof btn._dropGarage === 'function') btn._dropGarage();
@@ -924,14 +962,42 @@ const ListFlow = (() => {
         setErr(e && e.message ? e.message : 'Could not save that. Try again in a moment.');
       });
     }
-    function releaseHold(){}
+    function releaseHold(){
+      revHeld = false;
+      clearShake();
+    }
     function wireRev(btn){
       if (!btn) return;
-      btn.onpointerdown = e => { if (e.button != null && e.button !== 0) return; e.preventDefault(); btn.setPointerCapture?.(e.pointerId); startHold(); };
+      const stopGesture = e => { if (e.cancelable) e.preventDefault(); };
+      if (btn._revTouch) btn.removeEventListener('touchstart', btn._revTouch);
+      btn._revTouch = stopGesture;
+      btn.addEventListener('touchstart', stopGesture, {passive: false});
+      btn.onpointerdown = e => {
+        if (e.button != null && e.button !== 0) return;
+        if (e.cancelable) e.preventDefault();
+        try { btn.setPointerCapture(e.pointerId); } catch (err) {}
+        startHold();
+      };
       btn.onpointerup = () => releaseHold();
       btn.onpointercancel = () => releaseHold();
       btn.onpointerleave = () => { if (revState === 'hold') releaseHold(); };
+      btn.oncontextmenu = e => { e.preventDefault(); };
+      btn.onselectstart = e => { e.preventDefault(); };
       btn.onclick = e => { e.preventDefault(); };
+      const live = btn.closest('.post-live');
+      if (live && !live.dataset.revGuard) {
+        live.dataset.revGuard = '1';
+        live.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('#ask-ok')) e.preventDefault(); });
+        live.addEventListener('selectstart', e => { if (e.target.closest && e.target.closest('#ask-ok')) e.preventDefault(); });
+        live.addEventListener('touchstart', e => { if (e.target.closest && e.target.closest('#ask-ok') && e.cancelable) e.preventDefault(); }, {passive: false});
+      }
+      if (ListFlow._revRelease) {
+        document.removeEventListener('pointerup', ListFlow._revRelease);
+        document.removeEventListener('pointercancel', ListFlow._revRelease);
+      }
+      ListFlow._revRelease = releaseHold;
+      document.addEventListener('pointerup', releaseHold);
+      document.addEventListener('pointercancel', releaseHold);
     }
     function postScreen(dir){
       const lane = burnoutLane(draft.sec);

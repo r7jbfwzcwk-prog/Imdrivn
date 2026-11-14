@@ -1001,8 +1001,11 @@ body:has(.post-live) .ask-stage,body:has(.post-live) .post-slide{flex:1 1 auto;m
 .post-park .near{z-index:2}
 .post-road.is-burning .post-park{visibility:hidden}
 .post-live{--tach:min(260px,92vw,34vh)}
-#ask-ok.rev-wrap{position:relative;display:block;width:var(--tach);height:calc(var(--tach) * 230 / 260);margin:0 auto;padding:0;border:0;border-radius:0;background:transparent !important;box-shadow:none;color:#f4f4f4;cursor:pointer;touch-action:none;flex:0 0 auto}
+.post-live,.post-live *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.post-live,#ask-ok.rev-wrap,#ask-ok.rev-wrap *{touch-action:none}
+#ask-ok.rev-wrap{position:relative;display:block;width:var(--tach);height:calc(var(--tach) * 230 / 260);margin:0 auto;padding:0;border:0;border-radius:0;background:transparent !important;box-shadow:none;color:#f4f4f4;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;flex:0 0 auto}
 #ask-ok.rev-wrap:disabled{opacity:1}
+#ask-ok.rev-wrap svg,#ask-ok.rev-wrap .rev-hub,#ask-ok.rev-wrap .rev-hub *{pointer-events:none}
 #ask-ok.rev-wrap svg[data-el="svg"]{width:100%;height:100%;display:block;overflow:visible}
 #ask-ok.rev-wrap.is-live .imdrivn-burnout-btn-inner svg{width:18px;height:18px}
 .rev-hub{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);width:calc(var(--tach) * 108 / 260);height:calc(var(--tach) * 108 / 260);border-radius:50%;background:radial-gradient(circle at 50% 40%,#5a5a5a,#3a3a3a 70%);border:1px solid #6a6a6a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:inset 0 0 18px rgba(0,0,0,.35);pointer-events:none}
@@ -1019,10 +1022,11 @@ body:has(.post-live) .ask-stage,body:has(.post-live) .post-slide{flex:1 1 auto;m
 .post-live .ask-err{min-height:0;margin:6px 0 0}
 .post-live .ask-err:empty{display:none}
 @media(min-width:900px){body:has(.post-live){padding-bottom:calc(76px + env(safe-area-inset-bottom))}}
-.rev-haptic{position:fixed;left:0;top:0;width:1px;height:1px;margin:0;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;pointer-events:none}
-.rev-haptic input{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+.rev-haptic{position:fixed;left:-120px;top:0;width:48px;height:28px;margin:0;padding:0;border:0;opacity:0;overflow:hidden;pointer-events:none}
+.rev-haptic input{position:absolute;left:0;top:0;width:48px;height:28px;margin:0;opacity:0}
+body.is-rev-shake{will-change:transform}
 @keyframes rev-shake{50%{transform:translate3d(1px,0,0)}}
-@media(prefers-reduced-motion:reduce){.rev-post.is-revving{animation:none}}
+@media(prefers-reduced-motion:reduce){.rev-post.is-revving{animation:none}body.is-rev-shake{transform:none !important}}
 .ask-nav .btn[hidden]{display:none}
 .ask-key{margin:14px 0 0;color:var(--c-muted);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase}
 .ask-input{width:100%;background:transparent;border:0;border-bottom:2px solid var(--c-line2);border-radius:0;color:var(--c-text);font:600 1.45rem/1.3 var(--font-body);padding:10px 0;caret-color:var(--acc)}
