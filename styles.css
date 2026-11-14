@@ -1335,6 +1335,7 @@ body.is-livechat #main{overflow:hidden;display:flex;flex-direction:column;min-he
 .live-head .eyebrow{margin:0}
 .live-head h1{margin:0;font-size:1.15rem;letter-spacing:.04em}
 .live-head .live-vibes{margin:4px 0 0}
+.live-vibes-emoji{color:unset;font-size:1em;letter-spacing:0;text-transform:none;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",emoji,sans-serif}
 .live-pill{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;min-height:32px;margin:0;padding:0 10px;border:1px solid #d9a441;border-radius:999px;background:#000;color:#f2f2f2;font:600 .72rem/1 var(--font-body);letter-spacing:.02em;text-transform:none;cursor:pointer}
 .live-pill .flive-dot{width:8px;height:8px}
 .live-now{display:flex;align-items:baseline;gap:8px;margin:6px 14px 0;min-width:0;overflow:hidden;color:#c8c8ce;font-size:.82rem;white-space:nowrap}
