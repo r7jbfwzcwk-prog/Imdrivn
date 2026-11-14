@@ -854,7 +854,7 @@ body:not(.lane-on):not(.is-all):not(.is-list):not(.is-wholesale){--acc:#d9a441;-
 .loader{text-align:center;padding:24px;color:var(--c-muted);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase}
 .loader.is-end{letter-spacing:.04em;text-transform:none;font-size:.8rem}
 /* bottom nav */
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);justify-items:center;align-items:center;height:64px;padding:0 4px env(safe-area-inset-bottom);background:rgba(0,0,0,.96);border-top:1px solid #1a1a1d}
+.bnav{position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom,0px);z-index:30;display:grid;grid-template-columns:repeat(5,1fr);justify-items:center;align-items:center;height:64px;padding:0 4px;background:rgba(0,0,0,.96);border-top:1px solid #1a1a1d}
 .bnav a{position:relative;display:grid;place-items:center;width:48px;max-width:48px;height:48px}
 .bnav a svg{stroke:#9a9aa2;transition:stroke var(--ease)}
 .bnav a[aria-current=page] svg{stroke:var(--acc)}.bnav a[aria-current=page]::after{content:"";position:absolute;bottom:2px;width:18px;height:2px;border-radius:2px;background:var(--acc)}
