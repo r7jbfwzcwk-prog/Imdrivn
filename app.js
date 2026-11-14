@@ -510,8 +510,8 @@ function placeJoinNote(play){
   if(innerWidth-fr.right<250){root.hidden=true;return}
   root.hidden=false;
   const words=root.querySelector('.join-note-words');
-  words.style.left=Math.round(fr.right+72)+'px';
-  words.style.top='188px';
+  words.style.left=Math.round(fr.right+52)+'px';
+  words.style.top='168px';
   const draw=()=>{
     const wr=words.getBoundingClientRect();
     if(wr.left<fr.right+12)words.style.left=Math.round(parseFloat(words.style.left)+(fr.right+12-wr.left))+'px';
