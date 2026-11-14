@@ -953,7 +953,7 @@ body:has(.ask) footer{display:none}
 h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:-.03em;font-size:clamp(1.8rem,5.4vw,3rem);line-height:1.12;margin:0 0 8px}
 .ask-hint{margin:0 0 22px;color:var(--c-muted);font-size:1rem;max-width:38rem}
 .ask-err{min-height:1.35em;margin:12px 0 0;color:var(--c-err);font-size:.95rem}
-.ask-nav{display:flex;align-items:center;gap:12px;margin-top:22px}
+.ask-nav{display:flex;align-items:center;gap:12px;margin-top:30px}
 .rev-post{position:relative;gap:8px;touch-action:none}
 .rev-post .rev-dial{width:28px;height:20px;flex:0 0 auto;display:block}
 .rev-post .rev-label{line-height:1}
@@ -1092,19 +1092,19 @@ body:has(.post-live) .ask-stage,body:has(.post-live) .post-slide{flex:1 1 auto;m
   body:has(.ask) #main{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column}
   body:has(.ask) .ask{flex:1 1 auto;min-height:0;height:auto;max-height:100%;overflow:hidden;margin:0;padding:clamp(2px,.5dvh,8px) 14px clamp(2px,.5dvh,6px);box-sizing:border-box}
   body:has(.ask) .ask-bar{margin:clamp(2px,.4dvh,6px) 0 clamp(6px,1dvh,12px)}
-  body:has(.ask) .ask-stage{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column}
-  body:has(.ask) .ask-slide{flex:1 1 auto;min-height:0;height:auto;margin:0;display:flex;flex-direction:column;overflow:hidden}
+  body:has(.ask) .ask-stage{flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;display:flex;flex-direction:column}
+  body:has(.ask) .ask-slide{flex:0 0 auto;min-height:0;height:auto;margin:0;display:flex;flex-direction:column;justify-content:flex-start;overflow:visible}
   body:has(.ask) .ask-count{margin:0 0 clamp(2px,.4dvh,6px);font-size:clamp(.64rem,1.6dvh,.72rem)}
   body:has(.ask) .ask-intro{margin:0 0 clamp(2px,.4dvh,6px);font-size:clamp(.85rem,2dvh,1rem);line-height:1.25}
   body:has(.ask) h2.ask-q{font-size:clamp(1.15rem,3.4dvh,1.7rem);line-height:1.12;margin:0 0 clamp(2px,.4dvh,6px)}
   body:has(.ask) .ask-hint{margin:0 0 clamp(6px,1.1dvh,14px);font-size:clamp(.78rem,1.9dvh,.95rem);line-height:1.3}
-  body:has(.ask) .ask-body{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+  body:has(.ask) .ask-body{flex:0 0 auto;min-height:0;overflow:visible}
   body:has(.ask) .ask-err{margin:clamp(2px,.4dvh,6px) 0 0;min-height:0;font-size:clamp(.78rem,1.8dvh,.9rem)}
   body:has(.ask) .ask-err:empty{display:none}
-  body:has(.ask) .ask-nav{margin-top:clamp(6px,1dvh,14px);gap:8px}
+  body:has(.ask) .ask-nav{margin-top:30px;gap:8px}
   body:has(.ask) .ask-nav .btn{min-height:44px}
   body:has(.ask) .ask-key{margin:clamp(2px,.4dvh,6px) 0 0;font-size:.68rem}
-  body:has(.ask) .sec-pick.ask-choices{flex:1 1 auto;min-height:0;height:100%;grid-template-columns:1fr;grid-template-rows:repeat(4,minmax(44px,1fr));gap:clamp(6px,1dvh,10px)}
+  body:has(.ask) .sec-pick.ask-choices{flex:0 0 auto;min-height:0;height:auto;grid-template-columns:1fr;grid-template-rows:none;gap:clamp(6px,1dvh,10px)}
   body:has(.ask) .sec-pick .ask-choice{min-height:44px;height:auto;padding:clamp(6px,1dvh,12px) 12px;display:flex;flex-direction:column;justify-content:center}
   body:has(.ask) .sec-pick .ask-choice-k{font-size:clamp(.98rem,2.3dvh,1.2rem);line-height:1.1}
   body:has(.ask) .sec-pick .ask-choice-s{margin-top:2px;font-size:clamp(.72rem,1.7dvh,.85rem);line-height:1.2}
