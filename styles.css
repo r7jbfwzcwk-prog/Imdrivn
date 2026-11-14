@@ -742,6 +742,7 @@ body.is-flooding #lane-ripples{top:var(--flood-top,0px);bottom:var(--flood-botto
 #forumsearch{display:none;background:none;border:0;width:40px;height:40px;place-items:center;cursor:pointer;color:#fff}
 #forumsearch[hidden]{display:none}
 body.is-forum #forumsearch{display:grid}
+body.is-livechat #forumsearch{display:none}
 #forumsearch svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 #forumsearch[aria-expanded=true]{color:var(--acc)}
 .fspanel{display:grid;gap:10px;max-width:960px;margin:0 auto;padding:12px 16px 16px;border-bottom:1px solid #1a1a1d;background:#000}
