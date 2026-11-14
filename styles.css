@@ -1177,7 +1177,12 @@ body:has(.wrap.auth) footer{display:none}
 }
 .auth-head{flex:0 0 auto;width:100%;box-sizing:border-box;text-align:left;padding:9px 16px 2px 14px}
 .auth-head .eyebrow{margin:0}
-.auth-head h1{font-size:clamp(1.4rem,4vw,2.2rem);line-height:1.2;margin:0;text-shadow:0 2px 14px rgba(0,0,0,.85)}
+.auth-title{position:relative;width:100%}
+.auth-head h1{font-size:clamp(1.4rem,4vw,2.2rem);line-height:1.2;margin:0;padding-right:48px;text-shadow:0 2px 14px rgba(0,0,0,.85)}
+.auth-head .auth-close{position:absolute;top:50%;right:0;z-index:2;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;max-height:44px;margin:0;padding:0;border:0;background:transparent;box-shadow:none;color:#d9a441;cursor:pointer;transform:translateY(-50%);-webkit-tap-highlight-color:transparent}
+.auth-head .auth-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.auth-head .auth-close:hover,.auth-head .auth-close:active,.auth-head .auth-close:focus,.auth-head .auth-close:focus-visible{background:transparent;color:#d9a441;border:0;box-shadow:none;outline:none}
+html.using-keyboard .auth-head .auth-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
 .auth-head .muted{margin:2px 0 0;line-height:1.35}
 .wrap.form.auth{flex:1 1 auto;min-height:0;width:100%;max-width:460px;margin:0 auto;padding:4px 16px 2px;display:flex;flex-direction:column;justify-content:center;align-items:stretch;box-sizing:border-box}
 .auth .panel,.auth>.muted,.auth-or,.auth-oauth{width:100%;max-width:100%;align-self:stretch;box-sizing:border-box}
@@ -1541,7 +1546,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .auth>.muted:last-child{margin-top:2px}
 @media(max-width:768px){
  .auth-head{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;text-align:left;padding:25px 16px 25px 14px}
- .auth-head h1{font-size:1.15rem;line-height:1.12;margin:0;padding:0;text-align:left}
+ .auth-head h1{font-size:1.15rem;line-height:1.12;margin:0;padding:0 48px 0 0;text-align:left}
  .auth-head .muted{margin:0;line-height:1.25;text-align:left}
  .wrap.form.auth{flex:1 1 auto;min-height:0;padding:0 10px 8px;justify-content:space-between}
  body:has(.wrap.auth) main{overflow-y:auto}
