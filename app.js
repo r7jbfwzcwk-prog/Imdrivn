@@ -517,27 +517,62 @@ function placeJoinNote(play){
   const draw=()=>{
     const wr=words.getBoundingClientRect();
     if(wr.left<fr.right+12)words.style.left=Math.round(parseFloat(words.style.left)+(fr.right+12-wr.left))+'px';
-    const box=words.getBoundingClientRect();
+    const click=words.querySelector('span:last-child');
+    const lines=[...words.querySelectorAll('span')];
+    const left=parseFloat(words.style.left)||0;
+    const top=parseFloat(words.style.top)||0;
+    const oh=words.offsetHeight||1;
+    const ox=left,oy=top+oh/2;
+    const angNote=-15*Math.PI/180,ca=Math.cos(angNote),sa=Math.sin(angNote);
+    const at=(span,rx,ry)=>{
+      const x=left+span.offsetLeft+rx*span.offsetWidth;
+      const y=top+span.offsetTop+ry*span.offsetHeight;
+      const dx=x-ox,dy=y-oy;
+      return {x:ox+dx*ca-dy*sa,y:oy+dx*sa+dy*ca};
+    };
+    const inkX=lines.map(span=>Math.max(at(span,1,0).x,at(span,1,0.5).x,at(span,1,1).x));
+    const inkRight=Math.max.apply(null,inkX);
+    const inkTop=Math.min.apply(null,lines.map(span=>at(span,0.5,0).y));
     const lr=link.getBoundingClientRect();
-    const click=words.querySelector('span:last-child').getBoundingClientRect();
-    const header=document.querySelector('.top').getBoundingClientRect();
     const n=v=>v.toFixed(1);
-    const start={x:click.left+6,y:click.bottom+8};
-    const right={x:Math.min(innerWidth-22,box.right+26),y:click.top-6};
-    const loop={x:right.x-38,y:box.top-6};
-    const tip={x:lr.left+lr.width*0.5,y:lr.bottom+7};
-    const d=`M ${n(start.x)} ${n(start.y)} C ${n(start.x+70)} ${n(start.y+10)}, ${n(right.x+4)} ${n(right.y+70)}, ${n(right.x)} ${n(right.y)} C ${n(right.x-4)} ${n(right.y-34)}, ${n(loop.x+40)} ${n(loop.y+22)}, ${n(loop.x+2)} ${n(loop.y+1)} C ${n(loop.x-24)} ${n(loop.y-12)}, ${n(loop.x-14)} ${n(loop.y-32)}, ${n(loop.x+12)} ${n(loop.y-26)} C ${n(loop.x+32)} ${n(loop.y-18)}, ${n(loop.x+14)} ${n(loop.y+14)}, ${n(loop.x-1)} ${n(loop.y+3)} C ${n(loop.x+28)} ${n(loop.y-36)}, ${n(tip.x+36)} ${n(tip.y+64)}, ${n(tip.x)} ${n(tip.y)}`;
-    const ang=Math.atan2(-64,-36);
-    const wing=15;
-    const w1={x:tip.x-Math.cos(ang-0.62)*wing,y:tip.y-Math.sin(ang-0.62)*wing};
-    const w2={x:tip.x-Math.cos(ang+0.62)*wing,y:tip.y-Math.sin(ang+0.62)*wing};
+    const edge=innerWidth-20;
+    const start=at(click,0.04,1.24);
+    const dip={x:start.x+14,y:start.y+18};
+    const bottom={x:Math.min(edge-36,inkRight+10),y:start.y+26};
+    const outer={x:Math.min(edge,inkRight+42),y:inkTop+(bottom.y-inkTop)*0.5};
+    const loop={x:Math.min(edge-18,outer.x-28),y:inkTop-16};
+    const tip={x:lr.left+lr.width*0.5,y:lr.bottom+14};
+    const R=12.5;
+    const arc=(a0,a1)=>{
+      const k=4/3*Math.tan((a1-a0)/4);
+      const p=a=>({x:loop.x+(R+1.3*Math.sin(a*2.2))*Math.cos(a),y:loop.y+(R+1.1*Math.cos(a*1.7))*Math.sin(a)});
+      const A=p(a0),B=p(a1);
+      const t=a=>({x:-Math.sin(a),y:Math.cos(a)});
+      const T0=t(a0),T1=t(a1);
+      return {a:A,c1:{x:A.x+k*R*T0.x,y:A.y+k*R*T0.y},c2:{x:B.x-k*R*T1.x,y:B.y-k*R*T1.y},b:B};
+    };
+    const a0=0.85,sweep=Math.PI*1.72,parts=4,step=sweep/parts;
+    const rise={x:Math.min(edge,outer.x+2),y:outer.y+38};
+    let d=`M ${n(start.x)} ${n(start.y)} C ${n(start.x+6)} ${n(start.y+12)}, ${n(dip.x-8)} ${n(dip.y-2)}, ${n(dip.x)} ${n(dip.y)} C ${n(dip.x+28)} ${n(dip.y+6)}, ${n(bottom.x-24)} ${n(bottom.y+4)}, ${n(bottom.x)} ${n(bottom.y)} C ${n(Math.min(edge,bottom.x+18))} ${n(bottom.y-2)}, ${n(rise.x)} ${n(rise.y)}, ${n(outer.x)} ${n(outer.y)}`;
+    let prev=outer;
+    for(let i=0;i<parts;i++){
+      const seg=arc(a0+step*i,a0+step*(i+1));
+      const from=i?seg.a:prev;
+      d+=` C ${n(i?seg.c1.x:from.x+(seg.c1.x-seg.a.x)*0.35)} ${n(i?seg.c1.y:from.y-18)}, ${n(seg.c2.x)} ${n(seg.c2.y)}, ${n(seg.b.x)} ${n(seg.b.y)}`;
+      prev=seg.b;
+    }
+    const lead={x:prev.x+(tip.x-prev.x)*0.28-3,y:prev.y+(tip.y-prev.y)*0.22};
+    const near={x:prev.x+(tip.x-prev.x)*0.72+2,y:prev.y+(tip.y-prev.y)*0.74};
+    d+=` C ${n(lead.x)} ${n(lead.y)}, ${n(near.x)} ${n(near.y)}, ${n(tip.x)} ${n(tip.y)}`;
+    const aim=Math.atan2(tip.y-near.y,tip.x-near.x);
+    const wing=22,spread=1.12;
+    const w1={x:tip.x+Math.cos(aim+Math.PI-spread)*wing,y:tip.y+Math.sin(aim+Math.PI-spread)*wing};
+    const w2={x:tip.x+Math.cos(aim+Math.PI+spread)*wing,y:tip.y+Math.sin(aim+Math.PI+spread)*wing};
     const full=d+` M ${n(tip.x)} ${n(tip.y)} L ${n(w1.x)} ${n(w1.y)} M ${n(tip.x)} ${n(tip.y)} L ${n(w2.x)} ${n(w2.y)}`;
     const shaft=root.querySelector('.shaft');
     const hit=root.querySelector('.hit');
-    const clip=root.querySelector('#join-note-hitclip rect');
     shaft.setAttribute('d',full);
     hit.setAttribute('d',d);
-    if(clip){clip.setAttribute('x','0');clip.setAttribute('y',String(header.bottom));clip.setAttribute('width',String(innerWidth));clip.setAttribute('height',String(innerHeight))}
     const total=shaft.getTotalLength();
     shaft.style.strokeDasharray=String(total);
     const show=()=>{shaft.style.transition='none';shaft.style.strokeDashoffset='0'};
@@ -549,7 +584,9 @@ function placeJoinNote(play){
       shaft.style.strokeDashoffset='0';
     }));
   };
-  requestAnimationFrame(draw);
+  const run=()=>requestAnimationFrame(draw);
+  if(document.fonts&&document.fonts.status!=='loaded')document.fonts.ready.then(()=>{if(!root.hidden)run()});
+  else run();
 }
 function authScreen(mode){mode=mode||'in';const title=mode==='up'?'Join the community':mode==='forgot'?'Reset password':'Sign in';
 const next=sessionStorage.getItem('imdrivn_next')||'';
