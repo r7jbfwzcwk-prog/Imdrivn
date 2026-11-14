@@ -1040,10 +1040,12 @@ async function compressForumPhoto(file) {
   return blob;
 }
 function forumPhotoUrl(path) {
-  if (!path || !sb) return '';
-  if (/^https?:\/\//i.test(path)) return path;
-  const { data } = sb.storage.from('forum-photos').getPublicUrl(path);
-  return data && data.publicUrl ? data.publicUrl : '';
+  if (!path || !sb || !Auth.user) return Promise.resolve('');
+  if (/^https?:\/\//i.test(path)) return Promise.resolve(path);
+  return sb.storage.from('forum-photos').createSignedUrl(path, 60 * 60 * 6).then(res => {
+    if (res.error || !res.data) return '';
+    return res.data.signedUrl || '';
+  });
 }
 async function uploadForumPhoto(blob) {
   if (!sb || !Auth.user) throw new Error('Sign in to post.');

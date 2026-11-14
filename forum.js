@@ -131,8 +131,20 @@ function closeForumSearch() {
 function forumQuery() {
   return String(hashParts().params.get('q') || '').replace(/\s+/g, ' ').trim();
 }
+async function forumMember(token) {
+  try { await Auth.ready; } catch (e) {}
+  if (token != null && token !== viewToken) return false;
+  if (Auth.user && !Auth.needsHandle()) return true;
+  const next = (location.hash || '#/forum').replace(/^#\//, '') || 'forum';
+  try { sessionStorage.setItem('imdrivn_next', next); } catch (e) {}
+  if (location.hash !== '#/join') location.hash = '#/join';
+  else if (typeof join === 'function') join();
+  return false;
+}
 async function forumIndex() {
   const token = ++viewToken;
+  if (!(await forumMember(token))) return;
+  if (token !== viewToken) return;
   const query = forumQuery();
   main.innerHTML = '';
   const wrap = fEl('div', { class: 'wrap forum' });
@@ -209,7 +221,7 @@ async function forumIndex() {
 
 async function forumCategory(slug) {
   const token = ++viewToken;
-  await Auth.ready;
+  if (!(await forumMember(token))) return;
   if (token !== viewToken) return;
   main.innerHTML = '';
   const wrap = fEl('div', { class: 'wrap forum' });
@@ -321,11 +333,13 @@ function fPhotoPicker() {
   return { el: wrap, photo: () => blob };
 }
 function fPhotoNode(path) {
-  const src = typeof forumPhotoUrl === 'function' ? forumPhotoUrl(path) : '';
-  if (!src) return null;
+  if (!path) return null;
   const button = fEl('button', { type: 'button', class: 'fphoto' });
-  button.append(fEl('img', { src: src, alt: 'Photo on this post' }));
-  button.addEventListener('click', () => {
+  const img = fEl('img', { alt: 'Photo on this post' });
+  button.append(img);
+  const open = () => {
+    const src = img.getAttribute('src');
+    if (!src) return;
     let view = document.getElementById('fphoto-view');
     if (!view) {
       view = document.createElement('dialog');
@@ -336,7 +350,10 @@ function fPhotoNode(path) {
     }
     view.replaceChildren(fEl('img', { src: src, alt: 'Forum photo' }));
     if (view.showModal) view.showModal();
-  });
+  };
+  button.addEventListener('click', open);
+  const ready = typeof forumPhotoUrl === 'function' ? forumPhotoUrl(path) : '';
+  Promise.resolve(ready).then(src => { if (src && button.isConnected) img.src = src; }).catch(() => {});
   return button;
 }
 function fComposer(cat) {
@@ -374,7 +391,7 @@ async function forumThread(rawId, replyId) {
   const token = ++viewToken;
   let id = rawId || '';
   try { id = decodeURIComponent(id); } catch (e) {}
-  await Auth.ready;
+  if (!(await forumMember(token))) return;
   if (token !== viewToken) return;
   main.innerHTML = '';
   const wrap = fEl('div', { class: 'wrap forum' });
@@ -596,14 +613,8 @@ function bindLiveFit() {
 }
 async function forumLive() {
   const token = ++viewToken;
-  await Auth.ready;
+  if (!(await forumMember(token))) return;
   if (token !== viewToken) return;
-  if (!Auth.user || Auth.needsHandle()) {
-    sessionStorage.setItem('imdrivn_next', 'forum/live');
-    if (location.hash !== '#/join') location.hash = '#/join';
-    else join();
-    return;
-  }
   document.body.classList.add('is-livechat');
   main.innerHTML = '';
   const root = fEl('section', { class: 'livechat' });
