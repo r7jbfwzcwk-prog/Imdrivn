@@ -1510,7 +1510,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
  .auth.is-signin .auth-signin{gap:8px;margin-top:4px}
  .auth.is-signin #auth-err{margin:0}
  .auth.is-signin #auth-err:empty{display:none}
- .auth.is-signin .auth-signin .btn.solid{align-self:center;box-sizing:border-box;width:calc(100% + 2px);margin-left:0;margin-right:0}
+ .auth.is-signin .auth-signin .btn.solid{align-self:center;box-sizing:border-box;width:calc(100% - 18px);margin-left:0;margin-right:0}
  .auth.is-signin .auth-or{margin:0}
  .auth.is-signin .auth-oauth{gap:8px}
  .auth.is-signin input{scroll-margin:80px}
