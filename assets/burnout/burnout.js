@@ -271,6 +271,7 @@
     inner.appendChild(label);
     buttonEl.innerHTML = '';
     buttonEl.appendChild(inner);
+    buttonEl.appendChild(el('span', { className: 'shimmer-glint', 'aria-hidden': 'true' }));
     buttonEl.classList.add('is-live');
     buttonEl.classList.remove('is-out');
     buttonEl.setAttribute('aria-label', "You're live!");
@@ -295,9 +296,11 @@
     var live = clamp((t - liveAt) / 240, 0, 1);
     var pop = live > 0 ? 1 + 0.04 * Math.sin(Math.min(live, 1) * Math.PI) * (1 - live) : 1;
     var s = live > 0.05 ? pop : scale;
-    buttonEl.style.transform = 'scale(' + s.toFixed(3) + ')';
-    var glow = live * 0.45;
-    buttonEl.style.boxShadow = glow > 0.02 ? ('0 0 ' + (18 + live * 16) + 'px rgba(212,175,55,' + glow + ')') : '';
+    if (!buttonEl.classList.contains('is-live')) {
+      buttonEl.style.transform = 'scale(' + s.toFixed(3) + ')';
+      var glow = live * 0.45;
+      buttonEl.style.boxShadow = glow > 0.02 ? ('0 0 ' + (18 + live * 16) + 'px rgba(212,175,55,' + glow + ')') : '';
+    }
     var draw = clamp((t - liveAt + 40) / 200, 0, 1);
     if (tick) tick.style.strokeDashoffset = String(tickLen * (1 - easeOutCubic(draw)));
   }
@@ -305,8 +308,7 @@
   function finishButton(buttonEl) {
     if (!buttonEl) return;
     buttonEl.style.transform = '';
-    // Keep a soft gold glow on the live state; empty string restores stylesheet.
-    buttonEl.style.boxShadow = '0 0 18px rgba(212,175,55,0.35)';
+    buttonEl.style.boxShadow = '';
   }
 
   function callDone(fn) {
