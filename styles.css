@@ -288,8 +288,13 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .verify-card p{margin:0;color:var(--c-text);font-size:1.02rem;line-height:1.5}
 .posted-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:var(--s-5)}
 .err{color:var(--c-err);font-size:.85rem}
-footer{border-top:1px solid #d9a441;padding:var(--s-6) var(--s-4);text-align:center;color:var(--c-muted);font-size:.8rem}
+footer{border-top:1px solid #d9a441;padding:var(--s-6) var(--s-4) calc(var(--s-6) + env(safe-area-inset-bottom));text-align:center;color:var(--c-muted);font-size:.8rem}
 footer p{text-transform:none}
+.footer-socials{display:flex;justify-content:center;align-items:center;gap:20px;margin:8px auto 2px}
+.footer-socials a{position:relative;display:grid;place-items:center;width:22px;height:22px;color:var(--c-muted);text-decoration:none}
+.footer-socials a::before{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
+.footer-socials svg{width:22px;height:22px;fill:currentColor;stroke:none;display:block}
+.footer-socials a:hover,.footer-socials a:focus-visible,.footer-socials a:active{color:#d9a441}
 .footer-legal{--nav-gap:16px;display:flex;justify-content:center;align-items:center;gap:var(--nav-gap);margin:14px auto 0;text-align:center}
 .footer-legal a{position:relative;color:var(--c-muted);font-size:12px;line-height:1.2;letter-spacing:.01em;text-decoration:none;text-transform:none}
 .footer-legal a + a::before{content:"";position:absolute;left:calc(var(--nav-gap) / -2);top:22%;bottom:22%;width:1px;background:#d9a441;pointer-events:none}
@@ -395,7 +400,7 @@ header a.logo img{height:24px;width:auto;max-width:none}
 @media(min-width:900px){header a.logo img{height:28px}}
 @media(min-width:1024px){header a.logo img{height:34px}}
 @media(min-width:1200px){header a.logo img{height:40px}}
-footer a.logo{margin:0 auto 10px}
+footer a.logo{margin:0 auto 4px}
 footer a.logo img{height:18px;width:auto;max-width:220px}
 .bar-end{display:flex;align-items:center;flex:0 0 auto;min-width:0}
 .ic{position:relative;display:flex;gap:2px}.ic button{background:none;border:0;width:40px;height:40px;display:grid;place-items:center;cursor:pointer;color:#fff}
