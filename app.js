@@ -62,7 +62,7 @@ const NEW_WINDOW=72*60*60*1000;
 function listingPublishedAt(l){const raw=l&&l.created_at;if(raw==null||raw==='')return NaN;const t=typeof raw==='number'?raw:Date.parse(raw);return Number.isFinite(t)?t:NaN}
 function isNewListing(l,now){const t=listingPublishedAt(l);if(!Number.isFinite(t))return false;const n=now==null?Date.now():now;const age=n-t;return age>=0&&age<=NEW_WINDOW}
 function newMark(l){if(l&&l.status==='sold')return '';if(!isNewListing(l))return '';return `<span class="new" data-new-until="${listingPublishedAt(l)+NEW_WINDOW}">NEW</span>`}
-function topCrown(){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.2 17.2h17.6V21H3.2z"/><path d="M3.4 17.2 6.2 8.6 8.8 14.2 12 5.6 15.2 14.2 17.8 8.6 20.6 17.2z"/><circle cx="6.2" cy="7.3" r="1.9"/><circle cx="12" cy="4.3" r="2.15"/><circle cx="17.8" cy="7.3" r="1.9"/></svg>'}
+function topCrown(){return '<svg viewBox="0 0 24 16" aria-hidden="true"><path d="M.2 11.2 2.2 7.6 4.3 11.2 6.6 5.2 8.8 11.2 12 2.2 15.2 11.2 17.4 5.2 19.7 11.2 21.8 7.6 23.8 11.2V15.6H.2Z"/><circle cx="2.2" cy="7.1" r="1.7"/><circle cx="6.6" cy="4.7" r="1.9"/><circle cx="12" cy="1.9" r="2.15"/><circle cx="17.4" cy="4.7" r="1.9"/><circle cx="21.8" cy="7.1" r="1.7"/><path d="M.2 13.7H23.8V15.6H.2Z" fill="#c49214"/></svg>'}
 function isTopAd(l){const until=Date.parse(l&&l.top_until);return Number.isFinite(until)&&until>Date.now()}
 function topBadge(l){if(!isTopAd(l))return '';return `<span class="top-badge">${topCrown()}TOP</span>`}
 let newBadgeTimer=0,newBadgeFrame=0;
