@@ -497,7 +497,7 @@ function authLead(){const next=sessionStorage.getItem('imdrivn_next')||'';if(nex
 function showAuthErr(msg){const el=$('#auth-err');if(el)el.textContent=msg||''}
 function takeNext(){const next=sessionStorage.getItem('imdrivn_next');if(!next)return false;sessionStorage.removeItem('imdrivn_next');if(next.startsWith('msg:')){messageSeller(next.slice(4));return true}if(next.startsWith('vin:')){requestVin(next.slice(4));return true}const dest='#/'+next;if(location.hash===dest){route();return true}location.hash=dest;return true}
 function afterAuth(){const next=sessionStorage.getItem('imdrivn_next')||'';if(Auth.needsHandle()&&next!=='valuation'){join();return}if(takeNext())return;join()}
-function authScreen(mode){mode=mode||'in';const title=mode==='up'?'Join IM DRIVN':mode==='forgot'?'Reset password':'Sign in';
+function authScreen(mode){mode=mode||'in';const title=mode==='up'?'Join the community':mode==='forgot'?'Reset password':'Sign in';
 const lead=mode==='forgot'?'We will email you a link to set a new password.':authLead();
 const sub=lead?`<p class="muted">${esc(lead)}</p>`:'';
 main.innerHTML=`<header class="auth-head"><div class="eyebrow">Account</div><h1>${title}</h1>${sub}</header><div class="wrap form auth${mode==='in'?' is-signin':mode==='up'?' is-join':''}">
