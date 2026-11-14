@@ -406,14 +406,14 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .sortsheet button[aria-selected=true],.sortsheet button:hover,.sortsheet button:focus-visible{background:#1b1b1e;color:var(--acc);outline:none}
 @media(min-width:900px){.sortsheet{left:auto;right:16px;bottom:auto;top:108px;width:280px;padding:6px;border:1px solid var(--acc);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55)}}
 .appmenu{position:absolute;right:0;top:calc(100% + 8px);z-index:40;min-width:220px;max-width:calc(100vw - 24px);padding:6px;background:#101012;border:1px solid var(--acc);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55)}
-.appmenu a{display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:10px;text-decoration:none;font-size:.95rem}
+.appmenu a,#menu-signout{display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:10px;text-decoration:none;font-size:.95rem}
 .menu-wide,.menu-socials,.menu-foot,.menu-mark{display:none}
 .menu-scroll{display:contents}
 .mbar{display:none}
 .menu-back{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.62)}
 .menu-back[hidden],.menu-wide[hidden],.appmenu[hidden]{display:none}
 #my-ads{scroll-margin-top:96px}
-.appmenu a:hover,.appmenu a:focus-visible{background:#1b1b1e;color:var(--acc);outline:none}
+.appmenu a:hover,.appmenu a:focus-visible,#menu-signout:hover,#menu-signout:focus-visible{background:#1b1b1e;color:var(--acc);outline:none}
 @media(max-width:768px){
   .socials,body.is-buy #sbtn{display:none}
   .mbar{display:grid;place-items:center;position:relative;width:44px;height:44px;color:var(--hdr-icon);text-decoration:none}
@@ -437,9 +437,9 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   #menu-close svg,.top .menu-close svg,.menu-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   #menu-close:hover,#menu-close:active,#menu-close:focus,#menu-close:focus-visible,.ic .menu-close:hover,.ic .menu-close:active,.ic .menu-close:focus,.ic .menu-close:focus-visible,.menu-close:hover,.menu-close:active,.menu-close:focus,.menu-close:focus-visible{transform:none;background:transparent;color:#d9a441;border:0;box-shadow:none;outline:none;outline-offset:0;-webkit-tap-highlight-color:transparent}
   html.using-keyboard #menu-close:focus-visible,html.using-keyboard .menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
-  .appmenu a,.appmenu button.menu-act{display:flex;align-items:center;justify-content:flex-start;width:100%;flex:0 1 auto;min-height:0;height:clamp(34px,5.8dvh,48px);padding:0 14px;border:0;border-bottom:1px solid rgba(217,164,65,.35);border-radius:0;background:transparent;color:#f2f2f2;font:600 clamp(.74rem,2.15dvh,.95rem)/1.15 var(--font-body);letter-spacing:.08em;text-align:left;text-decoration:none;text-transform:uppercase;cursor:pointer}
+  .appmenu a,.appmenu button.menu-act,#menu-signout{display:flex;align-items:center;justify-content:flex-start;width:100%;flex:0 1 auto;min-height:0;height:clamp(34px,5.8dvh,48px);padding:0 14px;border:0;border-bottom:1px solid rgba(217,164,65,.35);border-radius:0;background:transparent;color:#f2f2f2;font:600 clamp(.74rem,2.15dvh,.95rem)/1.15 var(--font-body);letter-spacing:.08em;text-align:left;text-decoration:none;text-transform:uppercase;cursor:pointer}
   .menu-head,.menu-head span{text-transform:uppercase;letter-spacing:.14em}
-  .appmenu a:hover,.appmenu a:focus-visible,.appmenu button.menu-act:hover,.appmenu button.menu-act:focus-visible{background:#14120c;color:#d9a441;outline:none}
+  .appmenu a:hover,.appmenu a:focus-visible,.appmenu button.menu-act:hover,.appmenu button.menu-act:focus-visible,#menu-signout:hover,#menu-signout:focus-visible{background:#14120c;color:#d9a441;outline:none}
   .appmenu a[aria-current=page]{color:#d9a441}
   .menu-head{order:0}
   a[href="#/buyin"].menu-slot{order:1}
@@ -455,6 +455,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   a[href="#/saved"]{order:8}
   #menu-msgs{order:9}
   a[href="#/garage"]{order:10}
+  #menu-signout{order:11}
   .menu-foot{order:20;display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;margin-top:clamp(8px,1.6dvh,24px);padding:0 4px calc(6px + env(safe-area-inset-bottom));background:#000}
   .appmenu .menu-foot #menu-search{flex:0 1 auto;width:auto;min-width:0;max-width:calc(100% - 104px);height:clamp(36px,6dvh,44px);min-height:clamp(36px,6dvh,44px);justify-content:flex-start;gap:8px;padding:0 4px 0 2px;border:0;border-bottom:0;border-radius:12px;background:transparent;color:#f2f2f2;font-size:clamp(.66rem,1.7dvh,.8rem);letter-spacing:.12em;white-space:nowrap}
   .menu-foot .menu-search-label{color:inherit;line-height:1}
@@ -481,14 +482,15 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   #appmenu #menu-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
   #appmenu #menu-close:hover,#appmenu #menu-close:active,#appmenu #menu-close:focus{background:transparent;color:#d9a441;outline:none}
   html.using-keyboard #appmenu #menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
-  #appmenu a{min-height:0;height:48px;padding:0 14px;border:0;border-bottom:1px solid rgba(217,164,65,.35);border-radius:0;background:transparent;color:#f2f2f2;font:600 .95rem/1.15 var(--font-body);letter-spacing:.08em;text-transform:uppercase}
-  #appmenu a:hover,#appmenu a:focus-visible,#appmenu #menu-search:hover,#appmenu #menu-search:focus-visible{background:#14120c;color:#d9a441;outline:none}
+  #appmenu a,#appmenu #menu-signout{min-height:0;height:48px;padding:0 14px;border:0;border-bottom:1px solid rgba(217,164,65,.35);border-radius:0;background:transparent;color:#f2f2f2;font:600 .95rem/1.15 var(--font-body);letter-spacing:.08em;text-transform:uppercase}
+  #appmenu a:hover,#appmenu a:focus-visible,#appmenu #menu-search:hover,#appmenu #menu-search:focus-visible,#appmenu #menu-signout:hover,#appmenu #menu-signout:focus-visible{background:#14120c;color:#d9a441;outline:none}
   #appmenu .menu-mark{order:1;align-self:center;width:min(220px,70%);height:auto;max-height:36px;margin-top:auto;margin-bottom:0;object-fit:contain;opacity:.34;pointer-events:none;flex:0 1 auto}
   #appmenu a.nav-account.menu-wide{order:2;flex:0 0 auto;width:auto;max-width:none;height:48px;margin-top:auto}
   #appmenu a[href="#/garage/ads"]{order:3}
   #appmenu a[href="#/saved"]{order:4}
   #appmenu #menu-msgs{order:5}
   #appmenu a[href="#/garage"]{order:6}
+  #appmenu #menu-signout{order:7;display:flex;align-items:center;justify-content:flex-start;width:100%;cursor:pointer}
   #appmenu .menu-foot{order:7;align-items:center;justify-content:flex-start;gap:8px;flex:0 0 auto;margin-top:18px;padding:0 4px;background:#000}
   #appmenu #menu-search{flex:0 1 auto;width:auto;height:44px;min-height:44px;justify-content:flex-start;gap:8px;padding:0 4px 0 2px;border:0;border-bottom:0;border-radius:12px;color:#f2f2f2;font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;cursor:pointer}
   #appmenu .menu-search-label{color:inherit;line-height:1}
@@ -565,6 +567,8 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .detailn{margin-top:var(--s-7);padding-top:var(--s-6);border-top:1px solid var(--c-line)}
 .detailn h2{font-size:clamp(1.4rem,4vw,2.2rem)}
 .dnav,.nav-account{display:none}
+#header-signout{display:none}
+#menu-signout[hidden],#header-signout[hidden]{display:none !important}
 @media(min-width:900px){
  .bar{flex-wrap:nowrap}
  .bar-end{display:flex;align-items:center;flex:0 1 auto;min-width:0;margin-left:12px}
@@ -589,6 +593,11 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 @media(min-width:900px) and (max-width:1099px){
  .dnav{--nav-gap:6px;--nav-pad-x:2px}
  .dnav a{padding:7px 2px}
+}
+@media(min-width:1220px){
+ #menu-signout{display:none !important}
+ #header-signout:not([hidden]){display:inline-flex;align-items:center;flex:0 0 auto;margin-left:10px;padding:0;border:0;background:transparent;color:#f2f2f2;font-size:.68rem;font-weight:600;letter-spacing:.06em;white-space:nowrap;cursor:pointer}
+ #header-signout:hover,#header-signout:focus-visible{color:#d9a441;outline:none}
 }
 @media(min-width:1280px){
  .dnav{--nav-gap:8px;--nav-pad-x:4px}
@@ -1371,5 +1380,4 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   .garage-edit{min-height:39px;padding:0 28px;font-size:.63rem}
   .garage-actions .btn{flex-basis:calc((100% - 12px) / 2)}
   .garage-actions .garage-edit{height:42px;min-height:42px;padding:0 28px;font-size:.63rem}
-  #sign-out{min-height:39px;padding:0 26px;font-size:.59rem}
 }
