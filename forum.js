@@ -236,7 +236,10 @@ async function forumCategory(slug) {
   }
   heading.textContent = cat.name || '';
   if (cat.description) heading.after(fEl('p', { class: 'muted' }, cat.description));
-  tools.append(fComposer(cat));
+  const composer = fComposer(cat);
+  tools.append(composer);
+  const form = composer.querySelector('form');
+  if (form) list.after(form);
   let threads = [];
   try { threads = await Forum.threads(cat.id); }
   catch (e) {
@@ -245,7 +248,10 @@ async function forumCategory(slug) {
     return;
   }
   if (token !== viewToken) return;
-  if (!threads.length) list.append(fEl('p', { class: 'fempty' }, 'Quiet in here. Be the one who asks.'));
+  if (!threads.length) {
+    if (form) { list.hidden = true; form.hidden = false; }
+    else list.append(fEl('p', { class: 'fempty' }, 'Quiet in here. Be the one who asks.'));
+  }
   threads.forEach(thread => {
     const card = fEl('article', { class: 'fthread' });
     const link = fEl('a', { class: 'fthread-title', href: '#/forum/t/' + encodeURIComponent(thread.id) });
@@ -334,8 +340,8 @@ function fPhotoNode(path) {
 function fComposer(cat) {
   const box = fEl('div', { class: 'fcomposer' });
   if (!fCanPost()) { box.append(fGateButton()); return box; }
-  const open = fEl('button', { class: 'btn solid', type: 'button' }, 'New thread');
-  const form = fEl('form', { class: 'panel', hidden: 'hidden' });
+  const open = fEl('button', { class: 'btn solid', type: 'button' }, 'Post new thread');
+  const form = fEl('form', { class: 'panel fnew', hidden: 'hidden' });
   const title = fEl('input', { name: 'title', maxlength: '140', required: 'required', placeholder: 'What is the car doing?', 'aria-label': 'Thread title' });
   const body = fEl('textarea', { name: 'body', rows: '5', maxlength: '8000', required: 'required', placeholder: 'Year, make, what you already tried. The useful stuff.', 'aria-label': 'Thread details' });
   const err = fEl('p', { class: 'err', role: 'alert' });
@@ -345,7 +351,7 @@ function fComposer(cat) {
   const cancel = fEl('button', { class: 'btn', type: 'button' }, 'Cancel');
   row.append(post, cancel);
   form.append(fEl('label', null, 'Title'), title, fEl('label', null, 'Details'), body, photo.el, err, row);
-  open.addEventListener('click', () => { form.hidden = false; open.hidden = true; title.focus(); });
+  open.addEventListener('click', () => { form.hidden = false; title.focus(); form.scrollIntoView({ block: 'nearest' }); });
   cancel.addEventListener('click', () => { form.hidden = true; open.hidden = false; err.textContent = ''; });
   form.addEventListener('submit', async event => {
     event.preventDefault();

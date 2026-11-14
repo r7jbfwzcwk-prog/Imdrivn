@@ -1298,6 +1298,7 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 .factions{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px}
 .fconfirm{flex-basis:100%;border-top:1px solid var(--c-line);padding-top:10px}
 .fcomposer{margin:var(--s-4) 0}
+.forum>.fnew{margin:var(--s-4) 0}
 .fcomposer .panel{margin-top:12px}
 .fcomposer .freply{gap:0}
 .fcomposer .freply textarea,.fcomposer .freply .err,.fcomposer .freply .btn{margin:0}
