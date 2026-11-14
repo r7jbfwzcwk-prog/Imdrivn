@@ -599,10 +599,14 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
  .bar{flex-wrap:nowrap}
  .bar-end{display:flex;align-items:center;flex:0 1 auto;min-width:0;margin-left:12px}
  .dnav{--nav-gap:12px;--nav-pad-x:14px;display:flex;flex:0 1 auto;align-items:center;justify-content:flex-end;gap:var(--nav-gap);margin-left:auto}
- .dnav a{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;white-space:nowrap;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.06em;line-height:1.1;color:#f2f2f2;background:transparent;border:1.5px solid transparent;border-radius:8px;padding:7px 14px;min-height:36px;transition:color .2s ease,border-color .2s ease,background-color .2s ease}
+ .dnav a{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;white-space:nowrap;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.06em;line-height:1.1;color:#f2f2f2;background:transparent;border:1.5px solid transparent;border-radius:8px;padding:7px 14px;min-height:36px;-webkit-tap-highlight-color:transparent;transition:color .2s ease,border-color .2s ease,background-color .2s ease}
  .dnav a + a::before{content:"";position:absolute;left:calc(var(--nav-gap) / -2 - 1.5px);top:22%;bottom:22%;width:1px;background:#d9a441;pointer-events:none}
- .dnav a:hover,.dnav a:focus-visible{border-color:#d9a441;color:#d9a441;outline:none}
- .dnav a[aria-current=page],.dnav a[aria-current=page]:hover,.dnav a[aria-current=page]:focus-visible{background:rgba(217,164,65,.24);border-color:#d9a441;color:#fff}
+ .dnav a:hover,.dnav a:focus{background:transparent;border-color:transparent;box-shadow:none;outline:none}
+ @media(hover:hover) and (pointer:fine){.dnav a:hover{color:#d9a441}}
+ .dnav a:focus-visible{outline:2px solid #d9a441;outline-offset:2px;background:transparent;border-color:transparent}
+ .dnav a[aria-current=page],.dnav a[aria-current=page]:hover,.dnav a[aria-current=page]:focus,.dnav a[aria-current=page]:focus-visible{background:transparent;border-color:transparent;box-shadow:none;color:#d9a441}
+ .dnav a[aria-current=page]:focus-visible{outline:2px solid #d9a441;outline-offset:2px}
+ .dnav a:active,.dnav a[aria-current=page]:active{background:rgba(217,164,65,.24);border-color:#d9a441;color:#fff}
  .nav-account{display:inline-flex;align-items:center;flex:1 1 auto;min-width:0;max-width:11rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none;font-size:.68rem;letter-spacing:.06em;color:#f2f2f2}
  .bar-end .socials,.bar-end .ic{flex:0 0 auto}
  .nav-account:hover,.nav-account:focus-visible{color:#d9a441}
