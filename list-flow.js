@@ -274,6 +274,8 @@ const ListFlow = (() => {
             get: () => draft.condition,
             set(v) { draft.condition = v; }
           });
+          const picks = body.querySelector('.ask-picks');
+          if (picks) picks.classList.add('is-condition-grid');
         },
         read() {
           const on = document.querySelector('.ask [data-choice="condition"][aria-pressed="true"]');

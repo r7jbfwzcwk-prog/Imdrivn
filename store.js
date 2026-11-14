@@ -748,9 +748,10 @@ function storageMessage(error) {
   return msg || 'The photo upload failed. Try a smaller JPG.';
 }
 
-const LISTING_CONDITIONS = ["It's mint", 'Pretty good', 'Not bad', 'Average', 'Absolute shed'];
+const LISTING_CONDITIONS = ["It's mint", 'Pretty good', 'Not bad', 'Average', 'Rough', 'Needs work'];
 function listingCondition(listing) {
   const value = String((listing && listing.condition) || '').trim();
+  if (value === 'Absolute shed') return 'Absolute shed';
   return LISTING_CONDITIONS.includes(value) ? value : '';
 }
 function listingSelect() {
