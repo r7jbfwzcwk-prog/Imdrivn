@@ -984,7 +984,17 @@ body:has(.post-live) .ask-stage,body:has(.post-live) .post-slide{flex:1 1 auto;m
 #ask-ok.post-go .rev-dial{width:54px;height:40px;flex:0 0 auto}
 #ask-ok.post-go .rev-label{font-size:.78rem;line-height:1.1;white-space:nowrap}
 #ask-ok.post-go.is-out{opacity:0;transform:scale(.94);pointer-events:none}
-#ask-ok.post-go.is-live{box-shadow:0 0 22px rgba(217,164,65,.65)}
+#ask-ok.post-go.is-live{position:relative;overflow:hidden;box-shadow:0 0 22px rgba(217,164,65,.65)}
+#ask-ok.post-go.is-live .imdrivn-burnout-btn-inner{position:relative;z-index:1}
+#ask-ok.post-go.is-live::after{content:"";position:absolute;z-index:2;top:-40%;bottom:-40%;left:0;width:55%;pointer-events:none;background:linear-gradient(108deg,transparent 0%,rgba(255,248,230,0) 30%,rgba(255,248,230,.55) 50%,rgba(255,248,230,0) 70%,transparent 100%);transform:translateX(-220%) skewX(-16deg);animation:live-sheen .8s ease-out 2,live-sheen-rest 5.5s ease-in-out 2s infinite}
+@keyframes live-sheen{from{transform:translateX(-220%) skewX(-16deg)}to{transform:translateX(320%) skewX(-16deg)}}
+@keyframes live-sheen-rest{
+  0%,68%{transform:translateX(-220%) skewX(-16deg);opacity:0}
+  74%{opacity:.8}
+  90%{transform:translateX(320%) skewX(-16deg);opacity:.8}
+  100%{transform:translateX(320%) skewX(-16deg);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){#ask-ok.post-go.is-live::after{animation:none;opacity:0}}
 .post-lane{margin:10px 0 0;color:#9a9aa2;font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
 .post-live .ask-err{min-height:0;margin:6px 0 0}
 .post-live .ask-err:empty{display:none}
