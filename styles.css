@@ -1171,7 +1171,7 @@ body:has(.wrap.auth) footer{display:none}
  body:has(.auth.is-join) .wrap.form.auth{justify-content:flex-start}
  body:has(.auth.is-join) .auth-head .eyebrow{display:none}
  body:has(.auth.is-join) .auth-head{padding-top:4px}
- body:has(.auth.is-join) .wrap.form.auth{padding-top:18px}
+ body:has(.auth.is-join) .wrap.form.auth{padding-top:8px}
  body:has(.auth.is-signin) .auth .panel,body:has(.auth.is-join) .auth .panel{margin-top:0}
 }
 .auth-head{flex:0 0 auto;width:100%;box-sizing:border-box;text-align:left;padding:9px 16px 2px 14px}
