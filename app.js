@@ -515,60 +515,28 @@ function placeJoinNote(play){
   words.style.left=Math.round(fr.right+52)+'px';
   words.style.top='168px';
   const draw=()=>{
+    const formNow=document.querySelector('.wrap.auth.is-join');
+    if(!formNow||root.hidden)return;
+    const frNow=formNow.getBoundingClientRect();
+    words.style.left=Math.round(frNow.right+52)+'px';
     const wr=words.getBoundingClientRect();
-    if(wr.left<fr.right+12)words.style.left=Math.round(parseFloat(words.style.left)+(fr.right+12-wr.left))+'px';
-    const click=words.querySelector('span:last-child');
-    const lines=[...words.querySelectorAll('span')];
-    const left=parseFloat(words.style.left)||0;
-    const top=parseFloat(words.style.top)||0;
-    const oh=words.offsetHeight||1;
-    const ox=left,oy=top+oh/2;
-    const angNote=-15*Math.PI/180,ca=Math.cos(angNote),sa=Math.sin(angNote);
-    const at=(span,rx,ry)=>{
-      const x=left+span.offsetLeft+rx*span.offsetWidth;
-      const y=top+span.offsetTop+ry*span.offsetHeight;
-      const dx=x-ox,dy=y-oy;
-      return {x:ox+dx*ca-dy*sa,y:oy+dx*sa+dy*ca};
-    };
-    const inkX=lines.map(span=>Math.max(at(span,1,0).x,at(span,1,0.5).x,at(span,1,1).x));
-    const inkRight=Math.max.apply(null,inkX);
-    const inkTop=Math.min.apply(null,lines.map(span=>at(span,0.5,0).y));
+    if(wr.left<frNow.right+12)words.style.left=Math.round(parseFloat(words.style.left)+(frNow.right+12-wr.left))+'px';
+    const click=words.querySelector('span:last-child').getBoundingClientRect();
     const lr=link.getBoundingClientRect();
     const n=v=>v.toFixed(1);
-    const edge=innerWidth-20;
-    const start=at(click,0.04,1.24);
-    const dip={x:start.x+14,y:start.y+18};
-    const bottom={x:Math.min(edge-36,inkRight+10),y:start.y+26};
-    const outer={x:Math.min(edge,inkRight+42),y:inkTop+(bottom.y-inkTop)*0.5};
-    const loop={x:Math.min(edge-18,outer.x-28),y:inkTop-16};
-    const tip={x:lr.left+lr.width*0.5,y:lr.bottom+14};
-    const R=12.5;
-    const arc=(a0,a1)=>{
-      const k=4/3*Math.tan((a1-a0)/4);
-      const p=a=>({x:loop.x+(R+1.3*Math.sin(a*2.2))*Math.cos(a),y:loop.y+(R+1.1*Math.cos(a*1.7))*Math.sin(a)});
-      const A=p(a0),B=p(a1);
-      const t=a=>({x:-Math.sin(a),y:Math.cos(a)});
-      const T0=t(a0),T1=t(a1);
-      return {a:A,c1:{x:A.x+k*R*T0.x,y:A.y+k*R*T0.y},c2:{x:B.x-k*R*T1.x,y:B.y-k*R*T1.y},b:B};
-    };
-    const a0=0.85,sweep=Math.PI*1.72,parts=4,step=sweep/parts;
-    const rise={x:Math.min(edge,outer.x+2),y:outer.y+38};
-    let d=`M ${n(start.x)} ${n(start.y)} C ${n(start.x+6)} ${n(start.y+12)}, ${n(dip.x-8)} ${n(dip.y-2)}, ${n(dip.x)} ${n(dip.y)} C ${n(dip.x+28)} ${n(dip.y+6)}, ${n(bottom.x-24)} ${n(bottom.y+4)}, ${n(bottom.x)} ${n(bottom.y)} C ${n(Math.min(edge,bottom.x+18))} ${n(bottom.y-2)}, ${n(rise.x)} ${n(rise.y)}, ${n(outer.x)} ${n(outer.y)}`;
-    let prev=outer;
-    for(let i=0;i<parts;i++){
-      const seg=arc(a0+step*i,a0+step*(i+1));
-      const from=i?seg.a:prev;
-      d+=` C ${n(i?seg.c1.x:from.x+(seg.c1.x-seg.a.x)*0.35)} ${n(i?seg.c1.y:from.y-18)}, ${n(seg.c2.x)} ${n(seg.c2.y)}, ${n(seg.b.x)} ${n(seg.b.y)}`;
-      prev=seg.b;
-    }
-    const lead={x:prev.x+(tip.x-prev.x)*0.28-3,y:prev.y+(tip.y-prev.y)*0.22};
-    const near={x:prev.x+(tip.x-prev.x)*0.72+2,y:prev.y+(tip.y-prev.y)*0.74};
-    d+=` C ${n(lead.x)} ${n(lead.y)}, ${n(near.x)} ${n(near.y)}, ${n(tip.x)} ${n(tip.y)}`;
-    const aim=Math.atan2(tip.y-near.y,tip.x-near.x);
-    const wing=22,spread=1.12;
-    const w1={x:tip.x+Math.cos(aim+Math.PI-spread)*wing,y:tip.y+Math.sin(aim+Math.PI-spread)*wing};
-    const w2={x:tip.x+Math.cos(aim+Math.PI+spread)*wing,y:tip.y+Math.sin(aim+Math.PI+spread)*wing};
-    const full=d+` M ${n(tip.x)} ${n(tip.y)} L ${n(w1.x)} ${n(w1.y)} M ${n(tip.x)} ${n(tip.y)} L ${n(w2.x)} ${n(w2.y)}`;
+    const curStart={x:click.left+40*(click.width/142),y:click.bottom+8*(click.height/71)};
+    const curTip={x:lr.left+43*(lr.width/40),y:lr.bottom+20*(lr.height/17)};
+    const refStart={x:838,y:284},refTip={x:849,y:60};
+    const rx=refStart.x-refTip.x,ry=refStart.y-refTip.y,rlen=Math.hypot(rx,ry)||1;
+    const ux=rx/rlen,uy=ry/rlen,px=-uy,py=ux;
+    const cvx=curStart.x-curTip.x,cvy=curStart.y-curTip.y,clen=Math.hypot(cvx,cvy)||1;
+    const scale=clen/rlen,cux=cvx/clen,cuy=cvy/clen,cpx=-cuy,cpy=cux;
+    const map=p=>{const vx=p.x-refTip.x,vy=p.y-refTip.y,along=vx*ux+vy*uy,across=vx*px+vy*py;return {x:curTip.x+(along*cux+across*cpx)*scale,y:curTip.y+(along*cuy+across*cpy)*scale}};
+    const raw=[[838,284],[832,302],[852,310],[880,306],[945,298],[1004,250],[998,190],[995,150],[978,126],[960,128],[940,130],[938,154],[954,152],[972,150],[968,124],[950,112],[925,96],[880,80],[849,60],[884,60],[862,92]];
+    const m=raw.map(([x,y])=>map({x:x,y:y}));
+    const f=i=>n(m[i].x)+' '+n(m[i].y);
+    const d=`M ${f(0)} C ${f(1)}, ${f(2)}, ${f(3)} C ${f(4)}, ${f(5)}, ${f(6)} C ${f(7)}, ${f(8)}, ${f(9)} C ${f(10)}, ${f(11)}, ${f(12)} C ${f(13)}, ${f(14)}, ${f(15)} C ${f(16)}, ${f(17)}, ${f(18)}`;
+    const full=d+` M ${f(18)} L ${f(19)} M ${f(18)} L ${f(20)}`;
     const shaft=root.querySelector('.shaft');
     const hit=root.querySelector('.hit');
     shaft.setAttribute('d',full);
@@ -584,7 +552,7 @@ function placeJoinNote(play){
       shaft.style.strokeDashoffset='0';
     }));
   };
-  const run=()=>requestAnimationFrame(draw);
+  const run=()=>requestAnimationFrame(()=>requestAnimationFrame(draw));
   if(document.fonts&&document.fonts.status!=='loaded')document.fonts.ready.then(()=>{if(!root.hidden)run()});
   else run();
 }

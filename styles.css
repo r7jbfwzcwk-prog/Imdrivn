@@ -1252,7 +1252,7 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 .join-note-arrow{position:fixed;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .join-note-arrow .hit,.join-note-arrow .shaft{pointer-events:none;filter:none}
 .join-note-arrow .hit{fill:none;stroke:none}
-.join-note-arrow .shaft{fill:none;stroke:#d9a441;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.join-note-arrow .shaft{fill:none;stroke:#d9a441;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
 @keyframes join-note-in{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){
  .join-note-words{animation:none;opacity:1}
