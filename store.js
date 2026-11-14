@@ -1006,6 +1006,59 @@ function stampWordmark(ctx, logo, w, h) {
 function photoMark(){
   return '<span class="wm" aria-hidden="true">IM DRIVN</span>';
 }
+function canvasBlob(canvas, type, quality) {
+  return new Promise(resolve => canvas.toBlob(resolve, type, quality));
+}
+async function compressForumPhoto(file) {
+  const types = /^image\/(jpeg|jpg|png|webp|gif|bmp|heic|heif)$/i;
+  if (!file || !types.test(file.type || '')) throw new Error('Choose a photo. That file is not an image.');
+  if (file.size > 15 * 1024 * 1024) throw new Error('That photo is over 15MB.');
+  let bitmap;
+  try { bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+  catch (e) { throw new Error('Could not read that photo.'); }
+  let scale = Math.min(1, 1280 / Math.max(bitmap.width || 1, bitmap.height || 1));
+  let quality = 0.7;
+  let blob = null;
+  try {
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const w = Math.max(1, Math.round(bitmap.width * scale));
+      const h = Math.max(1, Math.round(bitmap.height * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
+      blob = await canvasBlob(canvas, 'image/webp', quality);
+      if (!blob || blob.type !== 'image/webp') blob = await canvasBlob(canvas, 'image/jpeg', quality);
+      if (blob && blob.size <= 250 * 1024) break;
+      if (quality > 0.45) quality = Math.round((quality - 0.1) * 10) / 10;
+      else scale *= 0.85;
+    }
+  } finally { bitmap.close(); }
+  if (!blob) throw new Error('Could not prepare that photo.');
+  if (blob.size > 1024 * 1024) throw new Error('That photo is still too large after compressing.');
+  return blob;
+}
+function forumPhotoUrl(path) {
+  if (!path || !sb) return '';
+  if (/^https?:\/\//i.test(path)) return path;
+  const { data } = sb.storage.from('forum-photos').getPublicUrl(path);
+  return data && data.publicUrl ? data.publicUrl : '';
+}
+async function uploadForumPhoto(blob) {
+  if (!sb || !Auth.user) throw new Error('Sign in to post.');
+  const ext = blob && blob.type === 'image/png' ? 'png' : (blob && blob.type === 'image/webp' ? 'webp' : 'jpg');
+  const path = Auth.user.id + '/' + crypto.randomUUID() + '.' + ext;
+  const { error } = await sb.storage.from('forum-photos').upload(path, blob, {
+    contentType: blob.type || 'image/jpeg',
+    upsert: false
+  });
+  if (error) throw new Error(storageMessage(error));
+  return path;
+}
+async function removeForumPhoto(path) {
+  if (!path || !sb) return;
+  await sb.storage.from('forum-photos').remove([path]);
+}
 function preparePhoto(file) {
   return new Promise((resolve, reject) => {
     const im = new Image();
@@ -1452,7 +1505,7 @@ const Forum = {
     await Presence.ready;
     const who = 'profiles(' + publicProfileCols() + ')';
     const thread = await sb.from('forum_threads')
-      .select('id, category_id, author_id, title, body, created_at, last_activity_at, reply_count, ' + who + ', forum_categories(slug, name)')
+      .select('id, category_id, author_id, title, body, photo_path, created_at, last_activity_at, reply_count, ' + who + ', forum_categories(slug, name)')
       .eq('id', id).maybeSingle();
     if (thread.error) {
       if (/invalid input syntax|22P02/i.test(thread.error.message || '')) return null;
@@ -1460,18 +1513,23 @@ const Forum = {
     }
     if (!thread.data) return null;
     const replies = await sb.from('forum_replies')
-      .select('id, thread_id, author_id, body, created_at, ' + who)
+      .select('id, thread_id, author_id, body, photo_path, created_at, ' + who)
       .eq('thread_id', id).order('created_at', { ascending: true });
     if (replies.error) throw new Error(forumErr(replies.error));
     return { thread: thread.data, replies: replies.data || [] };
   },
-  async createThread(categoryId, title, body) {
+  async createThread(categoryId, title, body, photo) {
     await Ban.assert();
     await assertCanPost('post on the forum');
+    let path = '';
+    if (photo) path = await uploadForumPhoto(photo);
     const { data, error } = await sb.from('forum_threads')
-      .insert({ category_id: categoryId, author_id: Auth.user.id, title, body })
+      .insert({ category_id: categoryId, author_id: Auth.user.id, title, body, photo_path: path || null })
       .select('id').single();
-    if (error) throw new Error(forumErr(error));
+    if (error) {
+      if (path) await removeForumPhoto(path);
+      throw new Error(forumErr(error));
+    }
     return data;
   },
   async updateThread(id, title, body) {
@@ -1483,11 +1541,16 @@ const Forum = {
     const { error } = await sb.from('forum_threads').delete().eq('id', id).eq('author_id', Auth.user.id);
     if (error) throw new Error(forumErr(error));
   },
-  async reply(threadId, body) {
+  async reply(threadId, body, photo) {
     await Ban.assert();
     await assertCanPost('post on the forum');
-    const { data, error } = await sb.from('forum_replies').insert({ thread_id: threadId, author_id: Auth.user.id, body }).select('id').single();
-    if (error) throw new Error(forumErr(error));
+    let path = '';
+    if (photo) path = await uploadForumPhoto(photo);
+    const { data, error } = await sb.from('forum_replies').insert({ thread_id: threadId, author_id: Auth.user.id, body, photo_path: path || null }).select('id').single();
+    if (error) {
+      if (path) await removeForumPhoto(path);
+      throw new Error(forumErr(error));
+    }
     return data;
   },
   async updateReply(id, body) {

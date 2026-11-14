@@ -1290,9 +1290,25 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 .fconfirm{flex-basis:100%;border-top:1px solid var(--c-line);padding-top:10px}
 .fcomposer{margin:var(--s-4) 0}
 .fcomposer .panel{margin-top:12px}
-.fcomposer .freply{gap:20px}
+.fcomposer .freply{gap:0}
 .fcomposer .freply textarea,.fcomposer .freply .err,.fcomposer .freply .btn{margin:0}
 .fcomposer .freply .err:empty{display:none}
+.fcomposer .freply-bar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:20px}
+.fphoto-pick{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
+.fphoto-pick .err{margin:0}
+.fphoto-add{display:inline-flex;align-items:center;gap:8px;min-height:36px;margin:0;padding:0 12px;border:1px solid #d9a441;border-radius:999px;background:#000;color:#d9a441;font:600 .72rem/1 var(--font-body);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.fphoto-add svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.fphoto-add:hover,.fphoto-add:focus-visible{background:#000;color:#d9a441;border-color:#d9a441}
+.fphoto-preview{position:relative;display:inline-block}
+.fphoto-preview[hidden]{display:none}
+.fphoto-preview img{display:block;width:88px;height:88px;object-fit:cover;border:1px solid #d9a441;border-radius:12px;background:#000}
+.fphoto-x{position:absolute;top:4px;right:4px;display:grid;place-items:center;width:28px;height:28px;margin:0;padding:0;border:1px solid #d9a441;border-radius:999px;background:#000;color:#d9a441;cursor:pointer}
+.fphoto-x svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.fphoto{display:block;width:min(100%,420px);margin:12px 0 0;padding:0;border:0;background:transparent;cursor:pointer}
+.fphoto img{display:block;width:100%;height:auto;border-radius:14px}
+.fphoto-view{max-width:min(96vw,1100px);padding:0;border:0;background:#000}
+.fphoto-view img{display:block;width:100%;height:auto}
+.fphoto-view::backdrop{background:rgba(0,0,0,.82)}
 .fempty{color:var(--c-muted);margin:8px 0}
 .fop{border-color:var(--acc-dim)}
 .btn:disabled{opacity:.45;cursor:not-allowed}

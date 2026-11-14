@@ -262,6 +262,75 @@ async function forumCategory(slug) {
   });
 }
 
+function fPhotoPicker() {
+  let blob = null;
+  let url = '';
+  const wrap = fEl('div', { class: 'fphoto-pick' });
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif';
+  input.hidden = true;
+  const add = fEl('button', { type: 'button', class: 'fphoto-add' });
+  add.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Add photo</span>';
+  const preview = fEl('div', { class: 'fphoto-preview' });
+  preview.hidden = true;
+  const img = fEl('img', { alt: 'Selected photo' });
+  const remove = fEl('button', { type: 'button', class: 'fphoto-x', 'aria-label': 'Remove photo' });
+  remove.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+  const note = fEl('p', { class: 'err', role: 'alert' });
+  preview.append(img, remove);
+  wrap.append(input, add, preview, note);
+  function clear() {
+    blob = null;
+    if (url) URL.revokeObjectURL(url);
+    url = '';
+    img.removeAttribute('src');
+    preview.hidden = true;
+    add.hidden = false;
+    note.textContent = '';
+  }
+  add.addEventListener('click', () => input.click());
+  remove.addEventListener('click', clear);
+  input.addEventListener('change', async () => {
+    const file = input.files && input.files[0];
+    input.value = '';
+    if (!file) return;
+    note.textContent = '';
+    add.disabled = true;
+    try {
+      const next = await compressForumPhoto(file);
+      if (url) URL.revokeObjectURL(url);
+      blob = next;
+      url = URL.createObjectURL(next);
+      img.src = url;
+      preview.hidden = false;
+      add.hidden = true;
+    } catch (e) {
+      clear();
+      note.textContent = e.message || 'Could not use that photo.';
+    } finally { add.disabled = false; }
+  });
+  return { el: wrap, photo: () => blob };
+}
+function fPhotoNode(path) {
+  const src = typeof forumPhotoUrl === 'function' ? forumPhotoUrl(path) : '';
+  if (!src) return null;
+  const button = fEl('button', { type: 'button', class: 'fphoto' });
+  button.append(fEl('img', { src: src, alt: 'Photo on this post' }));
+  button.addEventListener('click', () => {
+    let view = document.getElementById('fphoto-view');
+    if (!view) {
+      view = document.createElement('dialog');
+      view.id = 'fphoto-view';
+      view.className = 'fphoto-view';
+      view.addEventListener('click', () => view.close());
+      document.body.appendChild(view);
+    }
+    view.replaceChildren(fEl('img', { src: src, alt: 'Forum photo' }));
+    if (view.showModal) view.showModal();
+  });
+  return button;
+}
 function fComposer(cat) {
   const box = fEl('div', { class: 'fcomposer' });
   if (!fCanPost()) { box.append(fGateButton()); return box; }
@@ -270,11 +339,12 @@ function fComposer(cat) {
   const title = fEl('input', { name: 'title', maxlength: '140', required: 'required', placeholder: 'What is the car doing?', 'aria-label': 'Thread title' });
   const body = fEl('textarea', { name: 'body', rows: '5', maxlength: '8000', required: 'required', placeholder: 'Year, make, what you already tried. The useful stuff.', 'aria-label': 'Thread details' });
   const err = fEl('p', { class: 'err', role: 'alert' });
+  const photo = fPhotoPicker();
   const row = fEl('div', { class: 'auth-row' });
   const post = fEl('button', { class: 'btn solid', type: 'submit' }, 'Post thread');
   const cancel = fEl('button', { class: 'btn', type: 'button' }, 'Cancel');
   row.append(post, cancel);
-  form.append(fEl('label', null, 'Title'), title, fEl('label', null, 'Details'), body, err, row);
+  form.append(fEl('label', null, 'Title'), title, fEl('label', null, 'Details'), body, photo.el, err, row);
   open.addEventListener('click', () => { form.hidden = false; open.hidden = true; title.focus(); });
   cancel.addEventListener('click', () => { form.hidden = true; open.hidden = false; err.textContent = ''; });
   form.addEventListener('submit', async event => {
@@ -284,7 +354,7 @@ function fComposer(cat) {
     if (!b) { err.textContent = 'Write the actual question. One sentence is enough.'; return; }
     post.disabled = true; err.textContent = '';
     try {
-      const created = await Forum.createThread(cat.id, t, b);
+      const created = await Forum.createThread(cat.id, t, b, photo.photo());
       location.hash = '#/forum/t/' + encodeURIComponent(created.id);
     } catch (e) { err.textContent = e.message || 'Could not post that.'; post.disabled = false; }
   });
@@ -342,6 +412,8 @@ function fPost(row, isThread, afterDelete) {
   const body = fEl('div', { class: 'fbody' }, row.body || '');
   if (title) article.append(title);
   article.append(body);
+  const shot = fPhotoNode(row.photo_path);
+  if (shot) article.append(shot);
   const actions = fActions(row.author_id, () => fEdit(article, row, isThread, body, title), async () => {
     if (isThread) await Forum.deleteThread(row.id);
     else await Forum.deleteReply(row.id);
@@ -395,14 +467,17 @@ function fReplyBox(threadId) {
   const form = fEl('form', { class: 'panel freply' });
   const area = fEl('textarea', { rows: '4', maxlength: '8000', required: 'required', placeholder: 'Go on, throw in your 2cents…', 'aria-label': 'Reply' });
   const err = fEl('p', { class: 'err', role: 'alert' });
+  const photo = fPhotoPicker();
   const post = fEl('button', { class: 'btn solid', type: 'submit' }, 'Reply');
-  form.append(area, err, post);
+  const bar = fEl('div', { class: 'freply-bar' });
+  bar.append(photo.el, post);
+  form.append(area, err, bar);
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const text = area.value.trim();
     if (!text) { err.textContent = 'Say something first.'; return; }
     post.disabled = true; err.textContent = '';
-    try { await Forum.reply(threadId, text); forumThread(threadId); }
+    try { await Forum.reply(threadId, text, photo.photo()); forumThread(threadId); }
     catch (e) { err.textContent = e.message || 'Could not post that.'; post.disabled = false; }
   });
   box.append(form);
