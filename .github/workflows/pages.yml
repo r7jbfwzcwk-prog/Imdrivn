@@ -15,7 +15,7 @@ permissions:
 # One production deployment at a time. Do not cancel a deploy that is in progress.
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -26,6 +26,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Refuse to publish an older main
+        run: |
+          git fetch origin main
+          head="$(git rev-parse HEAD)"
+          main="$(git rev-parse origin/main)"
+          echo "This run is ${head}. origin/main is ${main}."
+          if [ "$head" != "$main" ]; then
+            echo "A newer main already exists. Not publishing this older snapshot."
+            exit 1
+          fi
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
