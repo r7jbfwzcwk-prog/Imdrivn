@@ -1334,7 +1334,8 @@ const ListingStore = {
       finance: d.finance === 'yes',
       keys: d.keys,
       mods: d.mods === 'yes',
-      mods_note: d.modsNote || ''
+      mods_note: d.mods === 'yes' ? (d.modsNote || '') : '',
+      mods_details: d.mods === 'yes' ? (d.modsNote || '') : ''
     };
     if (d.regoState) condition.rego_state = d.regoState;
     const { error } = await sb.from('valuations').insert({
