@@ -38,9 +38,10 @@ ${[['people','All Welcome','Daily drivers to supercars, every build and every dr
 <section class="wrap"><div class="eyebrow">Fresh in the feed</div><div class="feed" id="fresh" style="padding:0;margin-top:var(--s-4)"></div></section>
 ${about()}`;
 homeRoll();
-let rows=[];try{rows=await ListingStore.page({mode:BUY,from:0,to:2})}catch(e){rows=[]}
+let pins=[],rows=[];try{pins=await ListingStore.tops({mode:BUY})}catch(e){pins=[]}try{rows=await ListingStore.page({mode:BUY,from:0,to:2})}catch(e){rows=[]}
 if(token!==homeToken||!$('#fresh'))return;
-const fresh=(rows.length?rows:demosFor(false,false)).slice(0,3);
+const picked=previewWithTops(pins,rows,3);
+const fresh=picked.length?picked:demosFor(false,false).slice(0,3);
 $('#fresh').innerHTML=fresh.map(l=>post(l)).join('')||'<p class="muted">Nothing in this mode yet.</p>';}
 const about=()=>`<section class="about" id="about"><div class="img" role="img" aria-label="Taillight of a dark car"></div><div class="txt"><h2>More than a marketplace.<br>It's a community.</h2><p class="muted">IM DRIVN connects Australia's car community. From daily drivers, 4x4s and performance weapons to top-end supercars, you can find it all on IM DRIVN. Buy, sell and get advice, all in one place. Everyone is welcome here!</p><a class="btn" href="#/how">Learn more</a></div><div class="water" aria-hidden="true">IM DRIVN</div></section>`;
 
@@ -69,6 +70,7 @@ function newMark(l){if(l&&l.status==='sold')return '';if(!isNewListing(l))return
 function topCrown(){return '<svg viewBox="0 0 24 16" aria-hidden="true"><path d="M.2 11.2 2.2 7.6 4.3 11.2 6.6 5.2 8.8 11.2 12 2.2 15.2 11.2 17.4 5.2 19.7 11.2 21.8 7.6 23.8 11.2V15.6H.2Z"/><circle cx="2.2" cy="7.1" r="1.7"/><circle cx="6.6" cy="4.7" r="1.9"/><circle cx="12" cy="1.9" r="2.15"/><circle cx="17.4" cy="4.7" r="1.9"/><circle cx="21.8" cy="7.1" r="1.7"/><path d="M.2 13.7H23.8V15.6H.2Z" fill="#c49214"/></svg>'}
 function isTopAd(l){const until=Date.parse(l&&l.top_until);return Number.isFinite(until)&&until>Date.now()}
 function topBadge(l){if(!isTopAd(l))return '';return `<span class="top-badge">${topCrown()}TOP</span>`}
+function previewWithTops(pins, rows, limit){const seen=new Set(),out=[];const push=l=>{if(!l||seen.has(l.id)||out.length>=limit)return;seen.add(l.id);out.push(l)};(pins||[]).forEach(l=>{if(isTopAd(l))push(l)});(rows||[]).forEach(push);return out}
 let newBadgeTimer=0,newBadgeFrame=0;
 function sweepNewBadges(){const now=Date.now();let next=Infinity;document.querySelectorAll('span.new').forEach(el=>{const until=Number(el.getAttribute('data-new-until'));if(!Number.isFinite(until)||now>until){el.remove();return}if(until<next)next=until});if(newBadgeTimer){clearTimeout(newBadgeTimer);newBadgeTimer=0}if(next===Infinity)return;const wait=Math.min(Math.max(next-Date.now(),0)+1,2147483647);newBadgeTimer=setTimeout(sweepNewBadges,wait)}
 function queueNewBadges(){if(newBadgeFrame)return;newBadgeFrame=requestAnimationFrame(()=>{newBadgeFrame=0;sweepNewBadges()})}
