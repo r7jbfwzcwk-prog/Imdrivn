@@ -622,9 +622,6 @@ function liveFeedLine(row, mine) {
   item.append(who, document.createTextNode(': '), body, fEl('time', { class: 'live-time' }, liveWhen(row.created_at)));
   return item;
 }
-function liveJoinLine(handle) {
-  return fEl('p', { class: 'live-join' }, '@' + String(handle || 'driver').replace(/^@/, '') + ' joined');
-}
 function livePeople(channel) {
   const state = (channel && channel.presenceState && channel.presenceState()) || {};
   return Object.keys(state).map(id => {
@@ -707,16 +704,13 @@ async function forumLive() {
   });
   bindLiveFit();
   const seen = new Set();
-  const joined = new Set();
-  let presenceReady = false;
   const stick = () => log.scrollHeight - log.scrollTop - log.clientHeight < 90;
-  function noticeJoin(handle) {
-    const follow = stick();
-    log.append(liveJoinLine(handle));
-    if (follow) log.scrollTop = log.scrollHeight;
-  }
+  const onLiveScreen = () => {
+    const here = typeof hashParts === 'function' ? hashParts() : { p: '', a: '' };
+    return here.p === 'forum' && here.a === 'live' && log.isConnected;
+  };
   function paintMessage(row, force) {
-    if (!row || !row.id || seen.has(row.id)) return;
+    if (!onLiveScreen() || !row || !row.id || seen.has(row.id)) return;
     seen.add(row.id);
     const empty = document.getElementById('live-empty');
     if (empty) empty.remove();
@@ -823,20 +817,8 @@ async function forumLive() {
     if (gen !== liveGen) return;
     dropMessage(payloadRow.old && payloadRow.old.id);
   });
-  channel.on('presence', { event: 'sync' }, () => {
-    livePeople(channel).forEach(person => joined.add(person.id));
-    presenceReady = true;
-    paintPeople();
-  });
-  channel.on('presence', { event: 'join' }, packet => {
-    paintPeople();
-    if (!presenceReady) return;
-    const key = packet && packet.key;
-    if (!key || key === Auth.user.id || joined.has(key)) return;
-    joined.add(key);
-    const meta = (packet.newPresences && packet.newPresences[0]) || {};
-    noticeJoin(meta.handle || 'driver');
-  });
+  channel.on('presence', { event: 'sync' }, paintPeople);
+  channel.on('presence', { event: 'join' }, paintPeople);
   channel.on('presence', { event: 'leave' }, paintPeople);
   channel.subscribe(status => {
     if (gen !== liveGen) return;
