@@ -571,7 +571,7 @@ function liveWhen(iso) {
   if (!iso || Number.isNaN(d.getTime())) return '';
   return d.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' });
 }
-const LIVE_EMOJI = ['🏎️', '🚗', '☕', '🏁', '🔥', '💨', '🔧', '⛽', '🛞', '💥', '🚓', '🛻', '🏍️', '⚙️', '🔩'];
+const LIVE_EMOJI = ['🏎️', '🚗', '☕', '🏁', '🔥', '💨', '🔧', '⛽', '🛞', '💥', '🚓', '🛻', '🏍️', '⚙️', '🔩', '💩', '🚽', '😂', '🤣', '💀', '🤡', '🙈', '🤦‍♂️', '😬', '🫠', '🤯', '🦆', '👍', '🙏', '🍺', '🌭'];
 const LIVE_STICKER_SVG = {
   turbo: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M14 11a2.3 2.3 0 1 0-2.2 2.3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 15.2c-2 .8-4.2 1-6.2.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
   exhaust: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2h9.5l2.6 1.6v2.2L12.5 15.6H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M15.2 9h2.6c1.3 0 2.2 1.2 1.8 2.4L19 14.2h-3.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
