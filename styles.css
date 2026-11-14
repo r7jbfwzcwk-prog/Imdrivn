@@ -645,11 +645,11 @@ body.is-flooding #lane-ripples{top:var(--flood-top,0px);bottom:var(--flood-botto
 #lane-ripples .flood-piece.is-chosen{z-index:4;animation:flood-pick .32s cubic-bezier(.22,.7,.2,1) forwards}
 #lane-ripples .flood-piece.is-shove{animation:flood-shove .64s cubic-bezier(.16,.74,.2,1) var(--shove-delay,0ms) both}
 @keyframes flood-pick{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,0,0) scale(1.04)}}
-@keyframes flood-shove{from{transform:translate3d(0,0,0);opacity:1}to{transform:translate3d(0,var(--shove,0px),0);opacity:0}}
+@keyframes flood-shove{from{transform:translate3d(0,0,0);opacity:1}to{transform:translate3d(var(--shove-x,0px),var(--shove-y,0px),0);opacity:0}}
 @keyframes flood-grow{to{transform:translate3d(0,0,0) scale(1)}}
 @keyframes lane-flood-out{to{opacity:0}}
 @keyframes lane-flash{from{opacity:.9}to{opacity:0}}
-.tabs button,.lanes .path,.view-all{-webkit-tap-highlight-color:transparent}
+.tabs button,.lanes .path,.view-all,.sell-col .path{-webkit-tap-highlight-color:transparent}
 @media(prefers-reduced-motion:reduce){
   #lane-ripples .lane-ripple{left:0 !important;top:0 !important;width:100% !important;height:100% !important;border-radius:0;transform:none !important;animation:lane-ripple-fade .16s ease-out forwards}
   .flood-fill,.flood-edge{left:0 !important;top:0 !important;width:100% !important;height:100% !important;border:0;border-radius:0;transform:none !important;animation:lane-flash .22s ease-out forwards}
