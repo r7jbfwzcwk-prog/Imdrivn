@@ -1,5 +1,6 @@
 const INSTAGRAM_URL='https://instagram.com/imdrivn';
 const TIKTOK_URL='https://tiktok.com/@imdrivn';
+const YOUTUBE_URL='https://www.youtube.com/@DRIVNDAILY';
 const INSPECTION_URL='https://app.carinspect.com.au/inspections/servicing-area';
 const FINANCE_URL='#';
 const VIN_CHECK_URL='#/vin';
@@ -162,7 +163,7 @@ function sheetX(id,label){return `<button type="button" class="menu-close" id="$
 function cameFromSite(){try{if(sessionStorage.getItem('imdrivn_inapp')==='1')return true}catch(e){}try{return !!(document.referrer&&new URL(document.referrer).origin===location.origin&&history.length>1)}catch(e){return false}}
 function closeMessages(){if(!cameFromSite()){if(location.hash!=='#/'&&location.hash!=='#')location.hash='#/';return}const here=location.href;const timer=setTimeout(()=>{if(location.href===here&&location.hash!=='#/'&&location.hash!=='#')location.hash='#/'},500);const done=()=>{clearTimeout(timer);removeEventListener('hashchange',done)};addEventListener('hashchange',done);history.back()}
 function bindMsgsClose(){const btn=$('#msgs-close');if(btn)btn.onclick=e=>{e.preventDefault();closeMessages()}}
-$('#ig').href=INSTAGRAM_URL;$('#tt').href=TIKTOK_URL;const menuIg=$('#menu-ig'),menuTt=$('#menu-tt');if(menuIg)menuIg.href=INSTAGRAM_URL;if(menuTt)menuTt.href=TIKTOK_URL;
+$('#ig').href=INSTAGRAM_URL;$('#tt').href=TIKTOK_URL;if($('#yt'))$('#yt').href=YOUTUBE_URL;const menuIg=$('#menu-ig'),menuTt=$('#menu-tt'),menuYt=$('#menu-yt');if(menuIg)menuIg.href=INSTAGRAM_URL;if(menuTt)menuTt.href=TIKTOK_URL;if(menuYt)menuYt.href=YOUTUBE_URL;
 const menuBtn=$('#menubtn'),appMenu=$('#appmenu'),menuBack=$('#menu-back');
 function menuItems(){return [...appMenu.querySelectorAll('a,button')].filter(el=>!el.hidden&&el.getClientRects().length).sort((a,b)=>{const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();return ra.top-rb.top||ra.left-rb.left})}
 let inputModality='keyboard';
