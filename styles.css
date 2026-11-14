@@ -1127,6 +1127,14 @@ body:has(.post-live) .ask-stage,body:has(.post-live) .post-slide{flex:1 1 auto;m
   body:has(.ask) .ask-headfield{padding:2px 0 4px}
   body:has(.ask) .ask-prefix-chip{min-height:32px;padding:4px 10px;font-size:.9rem}
   body:has(.ask) .vreview div{padding:clamp(2px,.35dvh,6px) 0;font-size:clamp(.74rem,1.65dvh,.88rem);line-height:1.2}
+  body:has(.ask) .ask-slide.is-condition{flex:1 1 auto;min-height:0;overflow:hidden}
+  body:has(.ask) .ask-slide.is-condition .ask-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  body:has(.ask) .ask-slide.is-condition .ask-nav{margin-top:clamp(8px,1.4dvh,16px)}
+  body:has(.ask) .ask-slide.is-condition .vcond{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(5,minmax(0,1fr));align-content:stretch;gap:clamp(4px,1.1dvh,16px)}
+  body:has(.ask) .ask-slide.is-condition .vcond .vgroup{grid-column:1 / -1;grid-template-columns:1fr;grid-template-areas:"lab" "chips";align-content:center;align-items:stretch;gap:clamp(3px,.5dvh,6px);min-height:0}
+  body:has(.ask) .ask-slide.is-condition .vcond .vgroup>p:first-child{font-size:clamp(12px,1.7dvh,14px);letter-spacing:.08em;line-height:1.15}
+  body:has(.ask) .ask-slide.is-condition .vcond .ask-states{flex-wrap:nowrap;gap:6px}
+  body:has(.ask) .ask-slide.is-condition .vcond .ask-states button{min-height:clamp(36px,6dvh,52px);height:auto;padding:0 6px;font-size:clamp(12px,1.7dvh,15px);letter-spacing:0}
   body:has(.ask) .vcond{display:grid;grid-template-columns:1fr 1fr;gap:clamp(4px,.6dvh,8px) 8px;align-content:start}
   body:has(.ask) .vcond .vgroup{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"lab chips" "cap cap";align-items:center;gap:2px 8px}
   body:has(.ask) .vcond .vgroup:nth-child(1),body:has(.ask) .vcond .vgroup:nth-child(2),body:has(.ask) .vcond .vgroup:nth-child(5){grid-column:1 / -1}
