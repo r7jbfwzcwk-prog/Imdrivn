@@ -571,7 +571,9 @@ function liveWhen(iso) {
   if (!iso || Number.isNaN(d.getTime())) return '';
   return d.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' });
 }
-const LIVE_EMOJI = ['🏎️', '🚗', '☕', '🏁', '🔥', '💨', '🔧', '⛽', '🛞', '💥', '🚓', '🛻', '🏍️', '⚙️', '🔩', '💩', '🚽', '😂', '🤣', '💀', '🤡', '🙈', '🤦‍♂️', '😬', '🫠', '🤯', '🦆', '👍', '🙏', '🍺', '🌭'];
+const LIVE_CAR = ['🏎️', '🚗', '☕', '🏁', '🔥', '💨', '🔧', '⛽', '🛞', '💥', '🚓', '🛻', '🏍️', '⚙️', '🔩'];
+const LIVE_FUNNY = ['💩', '🚽', '😂', '🤣', '💀', '🤡', '🙈', '🤦‍♂️', '😬', '🫠', '🤯', '🦆', '👍', '🙏', '🍺', '🌭'];
+const LIVE_POPULAR = ['😂', '❤️', '🤣', '👍', '😭', '🙏', '😘', '🥰', '😍', '😊', '🎉', '😁', '💕', '🥺', '😅', '🔥', '☺️', '🤦', '♥️', '🤷'].filter(face => LIVE_CAR.indexOf(face) < 0 && LIVE_FUNNY.indexOf(face) < 0);
 const LIVE_STICKER_SVG = {
   turbo: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M14 11a2.3 2.3 0 1 0-2.2 2.3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 15.2c-2 .8-4.2 1-6.2.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
   exhaust: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2h9.5l2.6 1.6v2.2L12.5 15.6H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M15.2 9h2.6c1.3 0 2.2 1.2 1.8 2.4L19 14.2h-3.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
@@ -612,6 +614,25 @@ function insertLive(input, text) {
   input.focus();
   try { input.setSelectionRange(caret, caret); } catch (e) {}
   input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+function liveEmojiButtons(tray, input) {
+  function addFace(face) {
+    const btn = fEl('button', { type: 'button', class: 'live-emo' }, face);
+    btn.addEventListener('pointerdown', event => event.preventDefault());
+    btn.addEventListener('click', () => insertLive(input, face));
+    tray.append(btn);
+  }
+  function addSticker(name) {
+    const btn = fEl('button', { type: 'button', class: 'live-emo is-sticker', 'aria-label': name });
+    btn.append(liveSticker(name));
+    btn.addEventListener('pointerdown', event => event.preventDefault());
+    btn.addEventListener('click', () => insertLive(input, ':' + name + ':'));
+    tray.append(btn);
+  }
+  LIVE_CAR.forEach(addFace);
+  Object.keys(LIVE_STICKER_SVG).forEach(addSticker);
+  LIVE_FUNNY.forEach(addFace);
+  LIVE_POPULAR.forEach(addFace);
 }
 function trimLiveFeed(log, seen, follow) {
   const lines = [...log.querySelectorAll('.live-line')];
@@ -715,26 +736,20 @@ async function forumLive() {
   const mainCol = fEl('div', { class: 'live-main' });
   const log = fEl('div', { class: 'live-log', id: 'live-log', role: 'log' });
   const typing = fEl('p', { class: 'live-typing', id: 'live-typing', 'aria-live': 'polite' });
-  const tray = fEl('div', { class: 'live-emoji', role: 'toolbar', 'aria-label': 'Emoji and stickers' });
+  const tray = fEl('div', { class: 'live-emoji', id: 'live-emoji', role: 'toolbar', 'aria-label': 'Emoji and stickers' });
   const form = fEl('form', { class: 'live-send' });
+  const opener = fEl('button', { type: 'button', class: 'live-emoji-open', 'aria-label': 'Emoji', 'aria-expanded': 'false', 'aria-controls': 'live-emoji' }, '😊');
   const input = fEl('input', { type: 'text', maxlength: '500', placeholder: 'Type a message…', 'aria-label': 'Message', autocomplete: 'off' });
   const send = fEl('button', { class: 'btn solid', type: 'submit' }, 'Send');
   const err = fEl('p', { class: 'err', role: 'alert' });
   const aside = fEl('aside', { class: 'live-online', 'aria-label': 'Online now' });
-  LIVE_EMOJI.forEach(face => {
-    const btn = fEl('button', { type: 'button', class: 'live-emo' }, face);
-    btn.addEventListener('pointerdown', event => event.preventDefault());
-    btn.addEventListener('click', () => insertLive(input, face));
-    tray.append(btn);
+  liveEmojiButtons(tray, input);
+  opener.addEventListener('pointerdown', event => event.preventDefault());
+  opener.addEventListener('click', () => {
+    const open = tray.classList.toggle('is-open');
+    opener.setAttribute('aria-expanded', open ? 'true' : 'false');
   });
-  Object.keys(LIVE_STICKER_SVG).forEach(name => {
-    const btn = fEl('button', { type: 'button', class: 'live-emo is-sticker', 'aria-label': name });
-    btn.append(liveSticker(name));
-    btn.addEventListener('pointerdown', event => event.preventDefault());
-    btn.addEventListener('click', () => insertLive(input, ':' + name + ':'));
-    tray.append(btn);
-  });
-  form.append(input, send);
+  form.append(opener, input, send);
   mainCol.append(log, typing, tray, form, err);
   shell.append(mainCol, aside);
   root.append(head, summary, drawer, shell);
