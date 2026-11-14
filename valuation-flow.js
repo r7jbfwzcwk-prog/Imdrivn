@@ -276,9 +276,10 @@ const ValueFlow = (() => {
     }
     function mountPhotos(body) {
       const note = draft.photosDropped ? '<p class="ask-hint">Photos did not survive sign-in. Add them again.</p>' : '';
-      body.innerHTML = `${note}<button type="button" class="ask-drop" id="v-drop" data-autofocus>Add photos</button><input class="ask-file" id="v-files" type="file" accept="image/*" multiple tabindex="-1" aria-hidden="true"><div class="ask-photos" id="v-photos"></div>`;
+      body.innerHTML = `${note}<button type="button" class="ask-drop" id="v-drop" data-autofocus>Add photos</button><input class="ask-file" id="v-files" type="file" accept="image/*" multiple tabindex="-1" aria-hidden="true"><p class="ask-photo-note">Ads with photos sell a lot quicker. Photos are important, so add some now. You can continue without one.</p><div class="ask-photos" id="v-photos"></div>`;
       const host = document.getElementById('v-photos');
       const input = document.getElementById('v-files');
+      if (input) { input.required = false; input.removeAttribute('required'); }
       const draw = () => {
         let count = document.getElementById('v-photo-count');
         if (!count) {
@@ -289,6 +290,10 @@ const ValueFlow = (() => {
           host.before(count);
         }
         count.textContent = draft.photos.length + '/' + PHOTO_MAX;
+        const nudge = document.querySelector('#ask-body .ask-photo-note');
+        if (nudge) nudge.hidden = draft.photos.length > 0;
+        const ok = document.getElementById('ask-ok');
+        if (ok) { ok.disabled = false; ok.textContent = draft.photos.length ? 'OK' : 'Continue'; }
         host.innerHTML = draft.photos.map((src, n) => `<div class="ask-photo shot"><img src="${src}" alt="">${photoMark()}<button type="button" class="ask-x" data-remove="${n}" aria-label="Remove photo ${n + 1}">×</button></div>`).join('');
       };
       const add = async files => {

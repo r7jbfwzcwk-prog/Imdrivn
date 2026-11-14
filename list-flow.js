@@ -611,6 +611,7 @@ const ListFlow = (() => {
         <div class="ask-photos" id="ask-photos"></div>`;
       const host = document.getElementById('ask-photos');
       const input = document.getElementById('ask-files');
+      if (input) { input.required = false; input.removeAttribute('required'); }
       const drop = document.getElementById('ask-drop');
       const countEl = document.getElementById('ask-photo-count');
       const noteEl = document.getElementById('ask-photo-note');
@@ -622,6 +623,8 @@ const ListFlow = (() => {
         if (drop) { drop.hidden = full; drop.disabled = full; }
         if (input) input.disabled = full;
         if (noteEl && !full) noteEl.textContent = draft.photos.length ? '' : photoNudge;
+        const ok = document.getElementById('ask-ok');
+        if (ok && !ok.classList.contains('rev-wrap')) { ok.disabled = false; ok.textContent = draft.photos.length ? 'OK' : 'Continue'; }
         host.innerHTML = draft.photos.map((src, n) => `<div class="ask-photo shot${n === 0 ? ' is-cover' : ''}" data-i="${n}" tabindex="0" role="group" aria-label="${n === 0 ? 'Cover photo' : 'Photo ' + (n + 1)}. Use arrow keys to reorder">
           <img src="${src}" alt="">${photoMark()}
           ${n === 0 ? '<span class="ask-cover">Cover</span>' : ''}
