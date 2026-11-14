@@ -1126,8 +1126,8 @@ body:has(.post-live) .ask-stage,body:has(.post-live) .post-slide{flex:1 1 auto;m
   body:has(.ask) .vreview div{padding:clamp(2px,.35dvh,6px) 0;font-size:clamp(.74rem,1.65dvh,.88rem);line-height:1.2}
   body:has(.ask) .vcond{display:grid;grid-template-columns:1fr 1fr;gap:clamp(4px,.6dvh,8px) 8px;align-content:start}
   body:has(.ask) .vcond .vgroup{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"lab chips" "cap cap";align-items:center;gap:2px 8px}
-  body:has(.ask) .vcond .vgroup:nth-child(1),body:has(.ask) .vcond .vgroup:nth-child(2),body:has(.ask) .vcond .vgroup:nth-child(5){grid-column:1 / -1}
-  body:has(.ask) .vcond .vgroup:nth-child(3),body:has(.ask) .vcond .vgroup:nth-child(4),body:has(.ask) .vcond .vgroup:nth-child(6),body:has(.ask) .vcond .vgroup:nth-child(7){grid-template-columns:minmax(0,1fr);grid-template-areas:"lab" "chips" "cap";align-items:stretch}
+  body:has(.ask) .vcond .vgroup:nth-child(1),body:has(.ask) .vcond .vgroup:nth-child(2){grid-column:1 / -1}
+  body:has(.ask) .vcond .vgroup:nth-child(3),body:has(.ask) .vcond .vgroup:nth-child(4),body:has(.ask) .vcond .vgroup:nth-child(5),body:has(.ask) .vcond .vgroup:nth-child(6){grid-template-columns:minmax(0,1fr);grid-template-areas:"lab" "chips" "cap";align-items:stretch}
   body:has(.ask) .vcond .vgroup>p:first-child{grid-area:lab;margin:0;font-size:clamp(.58rem,1.35dvh,.68rem);letter-spacing:.04em;line-height:1.15}
   body:has(.ask) .vcond .ask-states{grid-area:chips;margin:0;flex-wrap:nowrap;gap:4px}
   body:has(.ask) .vcond .vcap{grid-area:cap;margin:0;font-size:clamp(.7rem,1.55dvh,.8rem);line-height:1.2}

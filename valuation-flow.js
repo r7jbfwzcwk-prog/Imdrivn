@@ -102,6 +102,7 @@ const ValueFlow = (() => {
       {id:'rego', q:'Rego and VIN?', hint:'Optional. Rego plus the state on the plate, and the VIN if you have it.'},
       {id:'place', q:'Where\'s the car?', hint:'Suburb or postcode. Pick one from the list. No street address.'},
       {id:'condition', q:'How is it sitting?', hint:'Tap each one. Dealers price off this.'},
+      {id:'finance', q:'Any finance owing?', hint:'It doesn\u2019t matter if there is!'},
       {id:'photos', q:'Add photos', hint:'Optional. Up to 8. We resize them before they upload.'},
       {id:'price', q:'What are you hoping to get?', hint:'Optional. A wholesale number, not the ad price. Leave it blank if you want the dealers to open.'},
       {id:'contact', q:'How do dealers reach you?', hint:'Name, email, and phone. We filled in what your account already has.'},
@@ -237,13 +238,24 @@ const ValueFlow = (() => {
     }
     function mountCondition(body) {
       const rating = [['Excellent','Excellent'],['Good','Good'],['Fair','Fair'],['Needs work','Needs work']];
-      body.innerHTML = `<div class="vcond">${chipRow('exterior','Exterior',rating)}${chipRow('interior','Interior',rating)}${chipRow('accident','Accident history',[['no','No'],['yes','Yes']])}${chipRow('service','Service history',[['Full','Full'],['Partial','Partial'],['None','None']])}${chipRow('finance','Finance owing',[['no','No'],['yes','Yes']],'It doesn\u2019t matter if there\u2019s finance owing.')}${chipRow('keys','Keys',[['1','1'],['2+','2+']])}${chipRow('mods','Mods',[['no','No'],['yes','Yes']])}<label class="ask-lab" id="v-mods-wrap" ${draft.mods === 'yes' ? '' : 'hidden'}>Mods note<input class="ask-input" id="v-mods-note" maxlength="160" aria-label="Mods note" value="${esc(draft.modsNote)}" placeholder="Exhaust, wheels, tune" autocomplete="off"></label></div>`;
+      body.innerHTML = `<div class="vcond">${chipRow('exterior','Exterior',rating)}${chipRow('interior','Interior',rating)}${chipRow('accident','Accident history',[['no','No'],['yes','Yes']])}${chipRow('service','Service history',[['Full','Full'],['Partial','Partial'],['None','None']])}${chipRow('keys','Keys',[['1','1'],['2+','2+']])}${chipRow('mods','Mods',[['no','No'],['yes','Yes']])}<label class="ask-lab" id="v-mods-wrap" ${draft.mods === 'yes' ? '' : 'hidden'}>Mods note<input class="ask-input" id="v-mods-note" maxlength="160" aria-label="Mods note" value="${esc(draft.modsNote)}" placeholder="Exhaust, wheels, tune" autocomplete="off"></label></div>`;
       body.querySelectorAll('[data-group]').forEach(btn => {
         btn.onclick = () => {
           draft[btn.dataset.group] = btn.dataset.value;
           body.querySelectorAll(`[data-group="${btn.dataset.group}"]`).forEach(b => b.setAttribute('aria-pressed', b === btn));
           const wrap = document.getElementById('v-mods-wrap');
           if (wrap) wrap.hidden = draft.mods !== 'yes';
+        };
+      });
+    }
+    function mountFinance(body) {
+      body.innerHTML = `<div class="ask-states ask-picks" role="group" aria-labelledby="ask-q">${[['no','No'],['yes','Yes']].map(([value, label]) => `<button type="button" data-group="finance" data-value="${value}" aria-pressed="${draft.finance === value}">${label}</button>`).join('')}</div>`;
+      const current = body.querySelector('[aria-pressed="true"]');
+      if (current) current.setAttribute('data-autofocus', '');
+      body.querySelectorAll('[data-group="finance"]').forEach(btn => {
+        btn.onclick = () => {
+          draft.finance = btn.dataset.value;
+          body.querySelectorAll('[data-group="finance"]').forEach(b => b.setAttribute('aria-pressed', b === btn));
         };
       });
     }
@@ -346,9 +358,10 @@ const ValueFlow = (() => {
       }
       if (step === 'place') return draft.suburb && draft.state && draft.postcode ? '' : 'Pick a suburb from the list. Street addresses do not count.';
       if (step === 'condition') {
-        if (!RATINGS.includes(draft.exterior) || !RATINGS.includes(draft.interior) || !draft.accident || !draft.service || !draft.finance || !draft.keys || !draft.mods) return 'Tap each row. Dealers need the full picture.';
+        if (!RATINGS.includes(draft.exterior) || !RATINGS.includes(draft.interior) || !draft.accident || !draft.service || !draft.keys || !draft.mods) return 'Tap each row. Dealers need the full picture.';
         return '';
       }
+      if (step === 'finance') return draft.finance === 'yes' || draft.finance === 'no' ? '' : 'Tap No or Yes.';
       if (step === 'photos') return draft.photos.length <= PHOTO_MAX ? '' : 'Eight photos is the cap.';
       if (step === 'price') {
         if (!String(draft.expected || '').trim()) { draft.expected = ''; return ''; }
@@ -386,6 +399,7 @@ const ValueFlow = (() => {
       else if (step.id === 'rego') mountRego(body);
       else if (step.id === 'place') mountPlace(body);
       else if (step.id === 'condition') mountCondition(body);
+      else if (step.id === 'finance') mountFinance(body);
       else if (step.id === 'photos') mountPhotos(body);
       else if (step.id === 'price') body.innerHTML = `<div class="ask-affix"><span class="ask-prefix">$</span><input class="ask-input" id="v-price" data-autofocus inputmode="numeric" enterkeyhint="next" autocomplete="off" spellcheck="false" aria-labelledby="ask-q" value="${esc(draft.expected)}" placeholder="45000"></div>`;
       else if (step.id === 'contact') body.innerHTML = `<div class="ask-stack"><label class="ask-lab">Name${field('v-name', draft.name, 'Your name')}</label><label class="ask-lab">Email<input class="ask-input" id="v-email" type="email" inputmode="email" autocomplete="email" maxlength="120" aria-labelledby="ask-q" value="${esc(draft.email)}" placeholder="you@email.com"></label><label class="ask-lab">Phone<input class="ask-input" id="v-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" aria-labelledby="ask-q" value="${esc(draft.phone)}" placeholder="04xx xxx xxx"></label></div>`;
