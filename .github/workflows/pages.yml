@@ -40,6 +40,16 @@ jobs:
           fi
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Keep the Google site verification file
+        run: |
+          file="google5de324c3171fd333.html"
+          expected="google-site-verification: google5de324c3171fd333.html"
+          test -f "$file" || { echo "Missing $file"; exit 1; }
+          actual="$(tr -d '\r\n' < "$file")"
+          if [ "$actual" != "$expected" ]; then
+            echo "Google verification file was removed or rewritten."
+            exit 1
+          fi
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
