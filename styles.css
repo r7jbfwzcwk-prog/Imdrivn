@@ -1557,16 +1557,18 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
  body:has(.wrap.auth.is-signin){height:100svh;max-height:100svh;height:100dvh;max-height:100dvh}
  body:has(.wrap.auth.is-signin) main{overflow-y:auto}
  body:has(.wrap.auth.is-signin) .auth-head{padding:25px 16px 25px 14px}
- .wrap.form.auth.is-signin{flex:1 1 auto;min-height:0;justify-content:space-between;padding-top:0;padding-bottom:8px}
+ .wrap.form.auth.is-signin{flex:1 1 auto;min-height:0;justify-content:flex-start;padding-top:0;padding-bottom:8px}
+ .auth.is-signin>.muted:last-child{margin-top:auto}
  .auth.is-signin .panel{gap:10px;padding:10px 10px 12px;margin-top:0}
  .auth.is-signin label{gap:6px}
  .auth.is-signin input{min-height:46px}
  .auth.is-signin .btn{min-height:46px;height:46px}
- .auth.is-signin .auth-signin{gap:8px;margin-top:4px}
+ .auth.is-signin .auth-signin{gap:8px;margin-top:-4px}
  .auth.is-signin #auth-err{margin:0}
  .auth.is-signin #auth-err:empty{display:none}
  .auth.is-signin .auth-signin .btn.solid,.auth.is-join .auth-create .btn.solid{align-self:center;box-sizing:border-box;width:calc(100% - 18px);margin-left:0;margin-right:0}
  .auth.is-signin .auth-or,.auth.is-join .auth-or{margin:0}
+ .auth.is-signin .auth-or{margin-top:calc(64.3px - (1lh - 1px) / 2);margin-bottom:calc(64.3px - (1lh - 1px) / 2)}
  .auth.is-signin .auth-oauth,.auth.is-join .auth-oauth{gap:8px}
  .auth.is-join .panel{padding-bottom:12px}
  .auth.is-join .auth-create .btn.solid{min-height:46px;height:46px}
