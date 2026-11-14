@@ -1599,7 +1599,7 @@ const LiveChat = {
     if (!sb || !Auth.user) throw new Error('Sign in to chat.');
     if (Auth.needsHandle()) throw new Error('Choose a handle first.');
     await Ban.assert();
-    const text = livePlain(body);
+    const text = duckText(livePlain(body));
     if (!text) throw new Error('Write a message first.');
     const wait = 2000 - (Date.now() - this.lastSent);
     if (this.lastSent && wait > 0) throw new Error('Slow down. One message every 2 seconds.');
@@ -1614,6 +1614,7 @@ const LiveChat = {
   },
   async remove(id) {
     if (!sb || !Auth.user) throw new Error('Sign in to do that.');
+    if (!(Auth.profile && Auth.profile.is_admin)) throw new Error('Only an admin can delete a chat message.');
     const { error } = await sb.from('chat_messages').delete().eq('id', id);
     if (error) throw new Error(liveErr(error));
   }
