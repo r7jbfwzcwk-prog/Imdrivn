@@ -708,8 +708,9 @@ body.is-flooding #lane-ripples{top:var(--flood-top,0px);bottom:var(--flood-botto
  body.is-all #sortbtn:not([hidden]),body.is-all #feedsearch:not([hidden]),body.is-all #sortbtn:not([hidden]):hover,body.is-all #sortbtn:not([hidden]):active,body.is-all #feedsearch:not([hidden]):hover,body.is-all #feedsearch:not([hidden]):active,body.is-all #sortbtn:not([hidden])[aria-expanded=true],body.is-all #feedsearch:not([hidden])[aria-expanded=true],body.is-all #feedsearch:not([hidden]).is-on,body.is-all #sortbtn:not([hidden]):focus-visible,body.is-all #feedsearch:not([hidden]):focus-visible{color:#000}
  #sortbtn:not([hidden]) .tab-tool-label,#sortbtn:not([hidden]) .tab-tool-value,#feedsearch:not([hidden]) .tab-tool-label{display:none}
  body.is-buy .loader{margin-bottom:108px}
- #forumsearch:not([hidden]),#forumsearch:not([hidden])[aria-expanded=true]{position:fixed;z-index:32;right:16px;bottom:calc(64px + 16px + env(safe-area-inset-bottom));width:70px;height:70px;min-width:70px;min-height:70px;border-radius:999px;background:#000;color:var(--acc);box-shadow:0 8px 22px rgba(0,0,0,.55)}
- #forumsearch:not([hidden]) svg,#forumsearch:not([hidden])[aria-expanded=true] svg{width:32px;height:32px}
+ #forumsearch:not([hidden]),#forumsearch:not([hidden])[aria-expanded=true]{position:fixed;z-index:32;right:16px;bottom:calc(64px + 16px + env(safe-area-inset-bottom));width:70px;height:70px;min-width:70px;min-height:70px;border:2px solid #d9a441;border-radius:999px;background:#000;color:#d9a441;box-shadow:0 0 14px rgba(217,164,65,.55),0 0 4px rgba(217,164,65,.8);-webkit-tap-highlight-color:transparent}
+ #forumsearch:not([hidden]):active,#forumsearch:not([hidden])[aria-expanded=true]:active{color:#d9a441;border-color:#d9a441;background:#000;box-shadow:0 0 20px rgba(217,164,65,.8),0 0 6px rgba(217,164,65,1)}
+ #forumsearch:not([hidden]) svg,#forumsearch:not([hidden])[aria-expanded=true] svg{width:32px;height:32px;stroke:#d9a441}
 }
 #spanel{padding:12px 16px 16px;border-bottom:1px solid #1a1a1d;max-width:960px;margin:0 auto;background:#000;max-height:min(72dvh,720px);overflow:auto}
 #spanel[hidden]{display:none}
