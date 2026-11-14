@@ -928,7 +928,6 @@ const ListFlow = (() => {
       const lane = burnoutLane(draft.sec);
       return `<div class="ask-slide post-slide${dir > 0 ? ' from-right' : dir < 0 ? ' from-left' : ''}" role="group" aria-labelledby="ask-q"><div class="post-live">
         <button type="button" class="post-back" id="ask-back">Back</button>
-        <p class="post-brand">IM DRIVN</p>
         <h2 class="post-title" id="ask-q">Ready to go live?</h2>
         <p class="post-sub">Last step · Your ad is ready to post</p>
         <div class="post-road" id="post-road" data-lane="${esc(lane)}"></div>
