@@ -571,38 +571,11 @@ function liveWhen(iso) {
   if (!iso || Number.isNaN(d.getTime())) return '';
   return d.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' });
 }
-const LIVE_CAR = ['🏎️', '🚗', '☕', '🏁', '🔥', '💨', '🔧', '⛽', '🛞', '💥', '🚓', '🛻', '🏍️', '⚙️', '🔩'];
+const LIVE_CAR = ['🏎️', '🚗', '☕', '🏁', '🔥', '💨', '🔧', '⛽', '🛞', '💥', '🚓', '🛻', '🏍️', '🔩'];
 const LIVE_FUNNY = ['💩', '🚽', '😂', '🤣', '💀', '🤡', '🙈', '🤦‍♂️', '😬', '🫠', '🤯', '🦆', '👍', '🙏', '🍺', '🌭'];
-const LIVE_POPULAR = ['😂', '❤️', '🤣', '👍', '😭', '🙏', '😘', '🥰', '😍', '😊', '🎉', '😁', '💕', '🥺', '😅', '🔥', '☺️', '🤦', '♥️', '🤷'].filter(face => LIVE_CAR.indexOf(face) < 0 && LIVE_FUNNY.indexOf(face) < 0);
-const LIVE_STICKER_SVG = {
-  turbo: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M14 11a2.3 2.3 0 1 0-2.2 2.3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 15.2c-2 .8-4.2 1-6.2.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
-  exhaust: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2h9.5l2.6 1.6v2.2L12.5 15.6H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M15.2 9h2.6c1.3 0 2.2 1.2 1.8 2.4L19 14.2h-3.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
-  wheel: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.4" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 4.6v5.2M12 14.2v5.2M4.6 12h5.2M14.2 12h5.2" stroke="currentColor" stroke-width="1.6"/></svg>',
-  gearstick: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5.6" r="2.1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.7v8.6M8 19.2h8M7.2 12h3.2M13.6 12H16.8M12 12v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
-  piston: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="8" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.2 6.4h5.6M12 11v4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.8" r="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 19.6h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
-  spanner: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.6 5.1a3.2 3.2 0 0 0-4.4 4.2L4.4 15.1a1.7 1.7 0 0 0 2.4 2.4l5.8-5.8a3.2 3.2 0 0 0 4.2-4.4L14.4 9.7l-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
-  tacho: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16.2a7 7 0 1 1 14 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 16.2 16.2 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.2" r="1.15" fill="currentColor"/></svg>',
-  fuel: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="6" width="9.5" height="13" rx="1.3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7.6 6V4.4h4.4V6M14.5 9.2h2.1a1.8 1.8 0 0 1 1.8 1.8v4.8a1.5 1.5 0 0 1-1.5 1.5H14.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7.6 12.2h4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
-};
-function liveSticker(name) {
-  const mark = document.createElement('span');
-  mark.className = 'live-sticker';
-  mark.setAttribute('role', 'img');
-  mark.setAttribute('aria-label', name);
-  mark.innerHTML = LIVE_STICKER_SVG[name] || '';
-  return mark;
-}
+const LIVE_POPULAR = ['😂', '❤️', '🤣', '👍', '😭', '🙏', '😘', '🥰', '😍', '😊', '🎉', '😁', '💕', '🥺', '😅', '🔥', '🤦', '🤷'].filter(face => LIVE_CAR.indexOf(face) < 0 && LIVE_FUNNY.indexOf(face) < 0);
 function appendLiveText(node, text) {
-  const source = String(text || '');
-  const re = /:(turbo|exhaust|wheel|gearstick|piston|spanner|tacho|fuel):/g;
-  let last = 0;
-  source.replace(re, (match, name, index) => {
-    if (index > last) node.append(document.createTextNode(source.slice(last, index)));
-    node.append(liveSticker(name));
-    last = index + match.length;
-    return match;
-  });
-  if (last < source.length) node.append(document.createTextNode(source.slice(last)));
+  node.append(document.createTextNode(String(text || '')));
 }
 function insertLive(input, text) {
   const start = input.selectionStart == null ? input.value.length : input.selectionStart;
@@ -622,15 +595,7 @@ function liveEmojiButtons(tray, input) {
     btn.addEventListener('click', () => insertLive(input, face));
     tray.append(btn);
   }
-  function addSticker(name) {
-    const btn = fEl('button', { type: 'button', class: 'live-emo is-sticker', 'aria-label': name });
-    btn.append(liveSticker(name));
-    btn.addEventListener('pointerdown', event => event.preventDefault());
-    btn.addEventListener('click', () => insertLive(input, ':' + name + ':'));
-    tray.append(btn);
-  }
   LIVE_CAR.forEach(addFace);
-  Object.keys(LIVE_STICKER_SVG).forEach(addSticker);
   LIVE_FUNNY.forEach(addFace);
   LIVE_POPULAR.forEach(addFace);
 }

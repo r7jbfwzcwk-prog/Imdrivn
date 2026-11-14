@@ -1352,8 +1352,6 @@ body.is-livechat #main{overflow:hidden;display:flex;flex-direction:column;min-he
 .live-who{font-weight:700;color:#d9a441}
 .live-line.is-mine .live-who{color:#fff}
 .live-time{margin-left:8px;color:#9a9aa2;font-size:.72rem;white-space:nowrap}
-.live-sticker{display:inline-block;width:1.2em;height:1.2em;margin:0 .04em;color:#d9a441;vertical-align:-.22em}
-.live-sticker svg{display:block;width:100%;height:100%}
 .live-del{margin-left:8px}
 .live-typing{min-height:0;margin:4px 14px 0;color:#9a9aa2;font-size:.82rem}
 .live-typing:empty{display:none}
@@ -1361,8 +1359,6 @@ body.is-livechat #main{overflow:hidden;display:flex;flex-direction:column;min-he
 .live-emoji::-webkit-scrollbar{display:none}
 .live-emoji-open{display:none}
 .live-emo{flex:0 0 auto;display:grid;place-items:center;width:36px;height:36px;margin:0;padding:0;border:1px solid #2a2a2e;border-radius:10px;background:#0c0c0e;color:#f2f2f2;font-size:18px;cursor:pointer}
-.live-emo.is-sticker{color:#d9a441}
-.live-emo .live-sticker{width:20px;height:20px;margin:0;vertical-align:0}
 .live-send{display:flex;gap:8px;align-items:center;padding:8px 14px 10px;background:#000}
 .live-send input{flex:1 1 auto;min-width:0;height:44px;padding:0 12px;border:1px solid #2a2a2e;border-radius:12px;background:#0e0e10;color:#f4f4f4;font:500 16px/1.3 var(--font-body)}
 .live-send input:focus{outline:none;border-color:#d9a441}
