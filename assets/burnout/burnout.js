@@ -22,8 +22,8 @@
   function armClock(sync) {
     syncRun = !!sync;
     if (syncRun) {
-      /* Needle 0→8 over 3200ms, so 3 (3000rpm) is at 1200ms. */
-      TRIGGER = 0; ENTER_END = 1200; BURN_END = 4000; EXIT_END = 4700; DURATION = 4700; HIDE_AT = 3600;
+      /* Needle 0→8 over 3200ms. Centred at 3 (1200ms). Launch at 6.5 (2600ms). */
+      TRIGGER = 0; ENTER_END = 1200; BURN_END = 2600; EXIT_END = 3500; DURATION = 3720; HIDE_AT = 3600;
     } else {
       TRIGGER = 300; ENTER_END = 1000; BURN_END = 2900; EXIT_END = 3450; DURATION = 3500; HIDE_AT = 2800;
     }
@@ -86,6 +86,10 @@
   }
   function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
   function easeInCubic(t) { return t * t * t; }
+  function easeLaunch(t) {
+    t = clamp(t, 0, 1);
+    return 0.35 * t + 0.65 * t * t * t;
+  }
   function easeOutQuad(t) { return 1 - (1 - t) * (1 - t); }
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function lerp(a, b, t) { return a + (b - a) * t; }
@@ -500,14 +504,19 @@
         frontVel = awd ? rearVel : 0.08;
       } else if (t < EXIT_END) {
         phase = 'exit';
-        var kx = easeInCubic((t - BURN_END) / (EXIT_END - BURN_END));
-        mid = lerp(syncRun ? midX : (midX + 10 * FX), endX, kx);
+        var spanOut = Math.max(1, EXIT_END - BURN_END);
+        var pOut = clamp((t - BURN_END) / spanOut, 0, 1);
+        var kx = syncRun ? easeLaunch(pOut) : easeInCubic(pOut);
+        var exitFrom = syncRun ? midX : (midX + 10 * FX);
+        mid = lerp(exitFrom, endX, kx);
         var hop = kx < 0.18
           ? lerp(-3.4, -4.2, kx / 0.18)
           : lerp(-4.2, 2.0, easeOutQuad(Math.min(1, (kx - 0.18) / 0.45)));
         rot = hop * (1 - Math.max(0, kx - 0.7) / 0.3);
         bob = lerp(1.6, -1.2, kx) * FX;
-        if (awd) {
+        if (syncRun) {
+          rearVel = frontVel = 1.05 + kx * 0.95;
+        } else if (awd) {
           rearVel = frontVel = 0.85 + kx * 0.9;
         } else {
           rearVel = 0.75 + kx * 0.9;
@@ -529,8 +538,9 @@
       }
       if (t >= BURN_END) {
         var tx = Math.min(t, EXIT_END) - BURN_END;
-        var kxe = easeInCubic(Math.min(tx / exitDur, 1));
-        var dx = lerp(0, endX - (midX + 10 * FX), kxe);
+        var pAng = Math.min(tx / exitDur, 1);
+        var kxe = syncRun ? easeLaunch(pAng) : easeInCubic(pAng);
+        var dx = lerp(0, endX - (syncRun ? midX : (midX + 10 * FX)), kxe);
         if (awd) {
           frontAng += dx * 1.25 + tx * 0.4;
           rearAng += dx * 1.25 + tx * 0.4;
@@ -572,7 +582,8 @@
     }
 
     function endFade(t) {
-      return t > 3380 ? clamp(1 - (t - 3380) / 120, 0, 1) : 1;
+      var at = syncRun ? EXIT_END + 80 : 3380;
+      return t > at ? clamp(1 - (t - at) / (syncRun ? 220 : 120), 0, 1) : 1;
     }
 
     function makeSkidStrokes() {
@@ -617,7 +628,8 @@
     function drawSkids(t) {
       kctx.clearRect(0, 0, cssW, cssH);
       if (t < ENTER_END) return;
-      var fade = t > 3360 ? clamp(1 - (t - 3360) / 140, 0, 1) : 1;
+      var skidAt = syncRun ? (EXIT_END - 80) : 3360;
+      var fade = t > skidAt ? clamp(1 - (t - skidAt) / 160, 0, 1) : 1;
       if (fade <= 0) return;
       var u = clamp((t - ENTER_END) / (BURN_END - ENTER_END), 0, 1);
       var hold = Math.min(Math.max(t, ENTER_END), BURN_END);
@@ -669,6 +681,13 @@
         u = rand();
         puffs.push({ spawn: BURN_END + u * 260, life: 480 + rand() * 260, ox: -4 - rand() * 12, oy: 2 + rand() * 8, vx: -(8 + rand() * 24), vy: -(8 + rand() * 28), s0: 0.16 + rand() * 0.10, s1: 0.42 + rand() * 0.28, a0: 0.12 + rand() * 0.10, rot0: rand() * Math.PI * 2, vr: (rand() - 0.5) * 0.5, sprite: (rand() * 4) | 0, layer: rand() > 0.5 ? 'back' : 'front' });
       }
+      if (syncRun) {
+        var span = Math.max(1, EXIT_END - BURN_END);
+        for (i = 0; i < 26; i++) {
+          u = Math.pow(rand(), 1.25);
+          puffs.push({ spawn: BURN_END + u * span * 0.82, life: 640 + rand() * 280, ox: -6 - rand() * 16, oy: 6 + rand() * 8, vx: -(28 + rand() * 72), vy: -(10 + rand() * 36), s0: 0.14 + rand() * 0.10, s1: 0.48 + rand() * 0.30, a0: 0.18 + rand() * 0.14, rot0: rand() * Math.PI * 2, vr: (rand() - 0.5) * 0.6, sprite: (rand() * 4) | 0, layer: rand() > 0.4 ? 'back' : 'front' });
+        }
+      }
       if (meta.dust) {
         for (i = 0; i < 36; i++) {
           u = rand();
@@ -705,7 +724,8 @@
     function drawPuffs(ctx, layer, t) {
       ctx.clearRect(0, 0, cssW, cssH);
       if (t < ENTER_END - 50) return;
-      var dissipate = t > BURN_END ? clamp(1 - (t - BURN_END) / 560, 0, 1) : 1;
+      var releaseAt = syncRun ? EXIT_END : BURN_END;
+      var dissipate = t > releaseAt ? clamp(1 - (t - releaseAt) / (syncRun ? 480 : 560), 0, 1) : 1;
       var fadeAll = endFade(t) * dissipate;
       if (fadeAll <= 0.01) return;
       var i, p, age, origin, k, grow, sc, x, y, fade, alpha, bank, img, w, h;
