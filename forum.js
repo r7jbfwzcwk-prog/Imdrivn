@@ -691,7 +691,10 @@ async function forumLive() {
   const vibes = fEl('p', { class: 'eyebrow live-vibes' }, "It's giving cars and coffee vibes ");
   vibes.append(fEl('span', { class: 'live-vibes-emoji' }, '☕🏁'));
   name.append(fEl('h1', null, 'Live Chat'), vibes);
-  titles.append(fEl('a', { class: 'eyebrow', href: '#/forum' }, 'The forum'), name);
+  const close = fEl('button', { type: 'button', class: 'menu-close', 'aria-label': 'Close' });
+  close.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>';
+  close.addEventListener('click', () => { location.hash = '#/forum'; });
+  titles.append(close, name);
   const pill = fEl('button', { type: 'button', class: 'live-pill', 'aria-expanded': 'false', 'aria-controls': 'live-drawer' });
   pill.append(fEl('span', { class: 'flive-dot', 'aria-hidden': 'true' }), fEl('span', { class: 'live-pill-n' }, '0 online'));
   head.append(titles, pill);

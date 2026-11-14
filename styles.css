@@ -1335,6 +1335,10 @@ body.is-livechat #main{overflow:hidden;display:flex;flex-direction:column;min-he
 .livechat{display:flex;flex-direction:column;width:min(960px,100%);margin:0 auto;min-height:0;background:#000;color:#f2f2f2}
 .live-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px 0}
 .live-titles{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.live-head .menu-close{flex:0 0 44px;display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;max-height:44px;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#d9a441;cursor:pointer;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}
+.live-head .menu-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.live-head .menu-close:hover,.live-head .menu-close:active,.live-head .menu-close:focus,.live-head .menu-close:focus-visible{transform:none;background:transparent;color:#d9a441;border:0;box-shadow:none;outline:none}
+html.using-keyboard .live-head .menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
 .live-name{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
 .live-head .eyebrow{margin:0}
 .live-head h1{margin:0;font-size:1.15rem;letter-spacing:.04em}
