@@ -1188,6 +1188,10 @@ body:has(.wrap.auth) footer{display:none}
 .marketing-opt .btn{min-height:40px;height:40px}
 @media(min-width:769px){
  .auth.is-signin .auth-signin .btn.solid,.auth.is-join .auth-create .btn.solid{align-self:center;width:calc(100% - 14px);margin-left:0;margin-right:0}
+ .auth.is-signin #auth-err{margin:0}
+ .auth.is-signin #auth-err:empty{display:none}
+ .auth.is-signin .auth-signin{gap:14px;margin-top:12px}
+ .auth.is-signin .panel{padding-bottom:14px}
  .auth.is-signin .auth-oauth,.auth.is-join .auth-oauth{gap:14px}
  .auth.is-signin>.muted:last-child,.auth.is-join>.muted:last-child{margin-top:12px}
 }
