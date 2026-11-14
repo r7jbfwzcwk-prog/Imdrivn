@@ -536,6 +536,12 @@ function closeLiveRoom() {
   liveFitKey = '';
   liveFitFrame = 0;
   liveScrollOnce = false;
+  const names = window.__liveNames;
+  if (names) {
+    window.removeEventListener('resize', names);
+    if (window.visualViewport) window.visualViewport.removeEventListener('resize', names);
+    window.__liveNames = null;
+  }
   document.documentElement.style.removeProperty('--live-h');
   document.body.classList.remove('is-livechat');
 }
@@ -630,6 +636,12 @@ function livePeople(channel) {
     return { id, handle: String(meta.handle || 'driver').replace(/^@/, ''), avatar: meta.avatar || '', typing: !!meta.typing };
   }).sort((a, b) => a.handle.localeCompare(b.handle));
 }
+function liveMeasure(el, text) {
+  const canvas = liveMeasure.canvas || (liveMeasure.canvas = document.createElement('canvas').getContext('2d'));
+  const cs = getComputedStyle(el);
+  canvas.font = cs.font || ((cs.fontWeight || '500') + ' ' + (cs.fontSize || '13px') + ' ' + (cs.fontFamily || 'sans-serif'));
+  return canvas.measureText(String(text || '')).width;
+}
 function keyboardViewport() {
   const fake = window.__kbViewport;
   if (fake && typeof fake.height === 'number') return { height: fake.height, offsetTop: fake.offsetTop || 0 };
@@ -699,6 +711,18 @@ async function forumLive() {
   pill.append(fEl('span', { class: 'flive-dot', 'aria-hidden': 'true' }), fEl('span', { class: 'live-pill-n' }, '0 online'));
   head.append(titles, pill);
   const summary = fEl('p', { class: 'live-now', id: 'live-now' });
+  const namesEl = fEl('span', { class: 'live-names' }, 'Online:');
+  const moreBtn = fEl('button', { type: 'button', class: 'live-more', hidden: 'hidden', 'aria-label': 'Show everyone online' }, '…');
+  summary.append(namesEl, moreBtn);
+  const sheet = fEl('div', { class: 'live-sheet', hidden: 'hidden' });
+  const card = fEl('div', { class: 'live-sheet-card', role: 'dialog', 'aria-label': 'Online now' });
+  const sheetHead = fEl('div', { class: 'live-sheet-head' });
+  const sheetClose = fEl('button', { type: 'button', class: 'menu-close', 'aria-label': 'Close' });
+  sheetClose.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>';
+  const sheetList = fEl('div', { class: 'live-sheet-list' });
+  sheetHead.append(fEl('p', { class: 'live-online-h' }, 'Online now'), sheetClose);
+  card.append(sheetHead, sheetList);
+  sheet.append(card);
   const drawer = fEl('div', { class: 'live-drawer', id: 'live-drawer', hidden: 'hidden' });
   const shell = fEl('div', { class: 'live-shell' });
   const mainCol = fEl('div', { class: 'live-main' });
@@ -720,7 +744,7 @@ async function forumLive() {
   form.append(opener, input, send);
   mainCol.append(log, typing, tray, form, err);
   shell.append(mainCol, aside);
-  root.append(head, summary, drawer, shell);
+  root.append(head, summary, drawer, sheet, shell);
   main.append(root);
   pill.addEventListener('click', () => {
     const open = drawer.hidden;
@@ -763,16 +787,38 @@ async function forumLive() {
     pill.querySelector('.live-pill-n').textContent = n + ' online';
     const names = people.filter(person => person.typing && (!Auth.user || person.id !== Auth.user.id)).map(person => '@' + person.handle);
     typing.textContent = !names.length ? '' : names.length === 1 ? names[0] + ' is typing…' : names.slice(0, 2).join(' and ') + ' are typing…';
-    const shown = [];
-    let used = 0;
-    people.forEach(person => {
-      const label = '@' + person.handle;
-      const add = (shown.length ? 2 : 0) + label.length;
-      if (!shown.length || used + add <= 32) { shown.push(label); used += add; }
-    });
-    summary.textContent = '';
-    summary.append(fEl('span', { class: 'live-names' }, 'Online: ' + (shown.join(', ') || 'nobody yet')));
-    if (people.length > shown.length) summary.append(fEl('span', { class: 'live-more' }, '+' + (people.length - shown.length)));
+    const labels = people.map(person => '@' + person.handle);
+    const width = Math.max(0, summary.clientWidth - 2);
+    if (width) {
+      const prefix = 'Online: ';
+      const comma = ', ';
+      const prefixW = liveMeasure(namesEl, prefix);
+      const commaW = liveMeasure(namesEl, comma);
+      const moreW = liveMeasure(moreBtn, '…') + 4;
+      const used = count => {
+        let w = prefixW;
+        for (let i = 0; i < count; i++) w += (i ? commaW : 0) + liveMeasure(namesEl, labels[i]);
+        return w;
+      };
+      let count = labels.length;
+      let more = false;
+      if (labels.length && used(labels.length) > width) {
+        more = true;
+        count = 0;
+        while (count < labels.length && used(count + 1) + 6 + moreW <= width) count++;
+      }
+      const text = labels.length ? prefix + labels.slice(0, count).join(comma) : prefix + 'nobody yet';
+      if (namesEl.textContent !== text) namesEl.textContent = text;
+      const showMore = more && count < labels.length;
+      if (moreBtn.hidden === showMore) moreBtn.hidden = !showMore;
+    }
+    const who = people.map(person => person.id + ':' + person.handle).join('|');
+    if (sheetList.dataset.who !== who) {
+      sheetList.dataset.who = who;
+      sheetList.textContent = '';
+      if (!people.length) sheetList.append(fEl('p', { class: 'muted' }, 'Nobody in the room yet.'));
+      people.forEach(person => sheetList.append(fEl('p', { class: 'live-person' }, '@' + person.handle)));
+    }
     [aside, drawer].forEach(host => {
       const open = host === drawer && !host.hidden;
       host.textContent = '';
@@ -782,6 +828,17 @@ async function forumLive() {
       if (host === drawer) host.hidden = !open;
     });
   }
+  moreBtn.addEventListener('click', () => {
+    sheet.hidden = false;
+    card.style.top = Math.round(summary.getBoundingClientRect().bottom + 6) + 'px';
+  });
+  sheet.addEventListener('click', () => { sheet.hidden = true; });
+  card.addEventListener('click', event => event.stopPropagation());
+  sheetClose.addEventListener('click', () => { sheet.hidden = true; });
+  const refit = () => { if (token === viewToken) paintPeople(); };
+  window.__liveNames = refit;
+  window.addEventListener('resize', refit);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', refit);
   paintPeople();
   let markTyping = () => {};
   form.addEventListener('submit', async event => {
