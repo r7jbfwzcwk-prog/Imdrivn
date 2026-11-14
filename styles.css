@@ -1563,7 +1563,8 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
  .auth.is-signin label{gap:6px}
  .auth.is-signin input{min-height:46px}
  .auth.is-signin .btn{min-height:46px;height:46px}
- .auth.is-signin .auth-signin{gap:8px;margin-top:-4px}
+ .auth.is-signin .auth-signin{gap:8px;margin-top:-1px}
+ .auth.is-signin #forgot{font-size:12px;line-height:1.25}
  .auth.is-signin #auth-err{margin:0}
  .auth.is-signin #auth-err:empty{display:none}
  .auth.is-signin .auth-signin .btn.solid,.auth.is-join .auth-create .btn.solid{align-self:center;box-sizing:border-box;width:calc(100% - 18px);margin-left:0;margin-right:0}
