@@ -125,6 +125,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .wrap.home-paths{margin-top:16px;padding-bottom:0}
   body.is-home .feats{position:relative;padding-top:32px}
   body.is-home .feats .eyebrow{position:static;margin:0;text-align:center}
+  section.landing .hero > .wrap,section.landing .home-paths{transform:translateY(-10px)}
 }
 @media(min-width:769px) and (max-width:1219px){
   body.is-home .hero .wrap{width:100%;max-width:100%}
