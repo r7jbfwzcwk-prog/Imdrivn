@@ -748,7 +748,7 @@ const ListFlow = (() => {
     }
     function revButton(){ return !editing && i === steps.length - 1; }
     function revMarkup(){
-      return `<svg class="rev-dial" viewBox="0 0 64 40" aria-hidden="true"><rect x="1" y="1" width="62" height="38" rx="5" fill="#0a0a0b"/><path d="M10 32A22 22 0 1 1 54 32" fill="none" stroke="#3a3018" stroke-width="4" stroke-linecap="round"/><path d="M10 32A22 22 0 1 1 54 32" fill="none" stroke="#d9a441" stroke-width="3" stroke-linecap="round"/><path d="M46 16.5A22 22 0 0 1 54 32" fill="none" stroke="#e5242b" stroke-width="3" stroke-linecap="round"/><line class="rev-needle" x1="32" y1="32" x2="32" y2="12" stroke="#f4f4f6" stroke-width="1.7" stroke-linecap="round"/><circle cx="32" cy="32" r="2.2" fill="#d9a441"/></svg><span class="rev-label">Post ad</span>`;
+      return `<svg class="rev-dial" viewBox="0 0 64 40" aria-hidden="true"><rect x="1" y="1" width="62" height="38" rx="5" fill="#0a0a0b"/><path d="M10 32A22 22 0 1 1 54 32" fill="none" stroke="#3a3018" stroke-width="4" stroke-linecap="round"/><path d="M10 32A22 22 0 1 1 54 32" fill="none" stroke="#d9a441" stroke-width="3" stroke-linecap="round"/><path d="M46 16.5A22 22 0 0 1 54 32" fill="none" stroke="#e5242b" stroke-width="3" stroke-linecap="round"/><line class="rev-needle" x1="32" y1="32" x2="32" y2="12" stroke="#f4f4f6" stroke-width="1.7" stroke-linecap="round"/><circle cx="32" cy="32" r="2.2" fill="#d9a441"/></svg><span class="rev-label">HOLD TO POST</span>`;
     }
     function paintRev(rpm){
       const btn = document.getElementById('ask-ok');
@@ -862,7 +862,7 @@ const ListFlow = (() => {
           }
           btn.style.transform = '';
           btn.style.boxShadow = '';
-          btn.setAttribute('aria-label', 'Post ad');
+          btn.setAttribute('aria-label', 'Post ad (hold or tap)');
           paintRev(0);
           wireRev(btn);
         }
@@ -893,7 +893,7 @@ const ListFlow = (() => {
         <p class="ask-err" id="ask-err" role="alert"></p>
         <div class="ask-nav">
           <button type="button" class="btn" id="ask-back" ${i === 0 ? 'hidden' : ''}>Back</button>
-          <button type="button" class="btn solid${i === steps.length - 1 && !editing ? ' rev-post' : ''}" id="ask-ok"${i === steps.length - 1 && !editing ? ' aria-label="Post ad"' : ''}>${i === steps.length - 1 && !editing ? revMarkup() : (i === steps.length - 1 ? submitLabel : 'OK')}</button>
+          <button type="button" class="btn solid${i === steps.length - 1 && !editing ? ' rev-post' : ''}" id="ask-ok"${i === steps.length - 1 && !editing ? ' aria-label="Post ad (hold or tap)"' : ''}>${i === steps.length - 1 && !editing ? revMarkup() : (i === steps.length - 1 ? submitLabel : 'OK')}</button>
         </div>
         ${i === steps.length - 1 ? '' : '<p class="ask-key">Enter ↵</p>'}
       </div>`;
