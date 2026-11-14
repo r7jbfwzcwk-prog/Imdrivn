@@ -629,21 +629,18 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .tabs button[data-m=all][aria-selected=true]{color:#c0c0c0}
 .tabs button[data-m=all][aria-selected=true]::after{background:#c0c0c0}
 #lane-ripples{position:fixed;inset:0;z-index:36;overflow:visible;pointer-events:none}
-.lane-ring{position:fixed;border-radius:50%;pointer-events:none;transform:scale(0);opacity:0;animation:water-ring .82s cubic-bezier(.15,.62,.2,1) forwards}
-.lane-ring-fill{background:currentColor;opacity:.42}
-.lane-ring-line{background:transparent;border:2px solid currentColor;opacity:.7}
-.lane-ring-late{opacity:.5}
-.lane-ring-flash{position:fixed;inset:0;border-radius:0;transform:none;animation:lane-flash .22s ease-out forwards}
-@keyframes water-ring{0%{transform:scale(0);opacity:.5}55%{opacity:.22}100%{transform:scale(1);opacity:0}}
-@keyframes lane-flash{from{opacity:.32}to{opacity:0}}
-.card-ink{position:absolute;inset:0;z-index:2;overflow:hidden;border-radius:inherit;pointer-events:none}
-.card-ripple{position:absolute;border-radius:50%;pointer-events:none;transform:scale(0);opacity:.4;animation:card-ripple .48s ease-out forwards}
-.card-ripple-flash{inset:0;width:auto;height:auto;border-radius:inherit;transform:none;animation:lane-flash .22s ease-out forwards}
-@keyframes card-ripple{to{transform:scale(1);opacity:0}}
+#lane-ripples.is-fading{animation:lane-flood-out .32s ease forwards}
+.flood-fill,.flood-edge{position:fixed;border-radius:50%;pointer-events:none;transform:scale(0);animation:flood-grow .7s cubic-bezier(.16,.74,.2,1) forwards}
+.flood-fill{opacity:1}
+.flood-edge{background:transparent;border:3px solid;box-shadow:0 0 18px 2px currentColor}
+.flood-edge-2{border-width:1px;animation-delay:80ms}
+.lane-ring-flash{position:fixed;inset:0;border-radius:0;animation:lane-flash .22s ease-out forwards}
+@keyframes flood-grow{to{transform:scale(1)}}
+@keyframes lane-flood-out{to{opacity:0}}
+@keyframes lane-flash{from{opacity:.9}to{opacity:0}}
 .tabs button,.lanes .path,.view-all{-webkit-tap-highlight-color:transparent}
 @media(prefers-reduced-motion:reduce){
-  .lane-ring{left:0 !important;top:0 !important;width:100% !important;height:100% !important;border:0;border-radius:0;transform:none !important;animation:lane-flash .22s ease-out forwards;background:currentColor}
-  .card-ripple{animation:lane-flash .22s ease-out forwards;transform:none}
+  .flood-fill,.flood-edge{left:0 !important;top:0 !important;width:100% !important;height:100% !important;border:0;border-radius:0;transform:none !important;animation:lane-flash .22s ease-out forwards}
 }
 .tab-tool{display:inline-flex;align-items:center;justify-content:center;align-self:center;gap:6px;flex:0 0 auto;margin:7px 0;padding:6px 12px;border:1px solid var(--acc-dim);border-radius:999px;background:transparent;color:var(--acc);font-size:.62rem;font-weight:600;letter-spacing:.08em;line-height:1;text-transform:uppercase;white-space:nowrap;cursor:pointer;transition:color .2s ease,border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
 .tab-tool[hidden]{display:none}
