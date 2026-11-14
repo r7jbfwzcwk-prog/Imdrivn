@@ -35,14 +35,26 @@ async function home(){const token=++homeToken;stopHomeRoll();main.innerHTML=`
 <a class="path" href="#/sell">${ico('up')}<span class="wide">IM SELLIN</span><span class="tag">List with confidence.</span><span class="muted">List free or get a wholesale offer from dealers.</span><span class="btn">Sell your car →</span></a></div></div></section>
 <section class="wrap feats" id="how"><div class="eyebrow">Built for enthusiasts. DRIVN by performance.</div><div class="row4">
 ${[['people','All Welcome','Daily drivers to supercars, every build and every driver has a place here.'],['shield','Helping You Buy Right','PPSR checks, inspections and finance, all in one place.'],['wheel','Community DRIVN','A crew that talks cars, shares builds and backs each other.'],['chats','Deal Direct','Message sellers straight up. No middlemen, no runaround.']].map(f=>`<div class="feat">${ico(f[0])}<h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div></section>
-<section class="wrap"><div class="eyebrow">Fresh in the feed</div><div class="feed" id="fresh" style="padding:0;margin-top:var(--s-4)"></div></section>
+<section class="wrap home-fresh"><div class="eyebrow">Fresh in the feed</div><div class="feed home-fresh-feed" id="fresh"></div></section>
 ${about()}`;
 homeRoll();
-let pins=[],rows=[];try{pins=await ListingStore.tops({mode:BUY})}catch(e){pins=[]}try{rows=await ListingStore.page({mode:BUY,from:0,to:2})}catch(e){rows=[]}
+const wide=!matchMedia('(max-width:768px)').matches;
+homeLayoutWide=wide;
+let pins=[],rows=[];try{pins=await ListingStore.tops(wide?{mode:BUY}:{})}catch(e){pins=[]}
+const end=wide?2:11+Math.min(pins.length,12);
+try{rows=await ListingStore.page(wide?{mode:BUY,from:0,to:2}:{mode:'all',from:0,to:end,sort:'new'})}catch(e){rows=[]}
 if(token!==homeToken||!$('#fresh'))return;
-const picked=previewWithTops(pins,rows,3);
-const fresh=picked.length?picked:demosFor(false,false).slice(0,3);
-$('#fresh').innerHTML=fresh.map(l=>post(l)).join('')||'<p class="muted">Nothing in this mode yet.</p>';}
+const limit=wide?3:12;
+const picked=previewWithTops(pins,rows,limit);
+const pool=wide?demosFor(false,false):DEMO.filter(l=>l.status!=='sold');
+const fresh=picked.length?picked:pool.slice(0,limit);
+const box=$('#fresh');
+box.classList.toggle('home-rail',!wide);
+box.innerHTML=fresh.map(l=>post(l)).join('')||'<p class="muted">Nothing in this mode yet.</p>';
+if(!wide)wireHomeRail(box);}
+let homeLayoutWide=null;
+addEventListener('resize',()=>{const hash=location.hash||'';if(hash&&hash!=='#/'&&hash!=='#')return;const wide=!matchMedia('(max-width:768px)').matches;if(homeLayoutWide===null||homeLayoutWide===wide)return;home()});
+function wireHomeRail(box){const old=box.parentElement&&box.parentElement.querySelector('.home-dots');if(old)old.remove();const cards=[...box.querySelectorAll(':scope > .post')];if(cards.length<2)return;const dots=document.createElement('div');dots.className='home-dots';dots.setAttribute('role','tablist');dots.setAttribute('aria-label','Ads');cards.forEach((card,i)=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-label','Ad '+(i+1)+' of '+cards.length);if(!i)b.setAttribute('aria-current','true');b.addEventListener('click',()=>box.scrollTo({left:card.offsetLeft-box.offsetLeft,behavior:'smooth'}));dots.append(b)});box.insertAdjacentElement('afterend',dots);let frame=0;const mark=()=>{const left=box.scrollLeft;let best=0,dist=Infinity;cards.forEach((card,i)=>{const d=Math.abs(card.offsetLeft-box.offsetLeft-left);if(d<dist){dist=d;best=i}});[...dots.children].forEach((dot,i)=>dot.toggleAttribute('aria-current',i===best))};box.addEventListener('scroll',()=>{if(frame)return;frame=requestAnimationFrame(()=>{frame=0;mark()})},{passive:true})}
 const about=()=>`<section class="about" id="about"><div class="img" role="img" aria-label="Taillight of a dark car"></div><div class="txt"><h2>More than a marketplace.<br>It's a community.</h2><p class="muted">IM DRIVN connects Australia's car community. From daily drivers, 4x4s and performance weapons to top-end supercars, you can find it all on IM DRIVN. Buy, sell and get advice, all in one place. Everyone is welcome here!</p><a class="btn" href="#/how">Learn more</a></div><div class="water" aria-hidden="true">IM DRIVN</div></section>`;
 
 const SV={heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',send:'<path d="M4 7h16v10H4z"/><path d="m4 8 8 5 8-5"/>',mark:'<path d="M6 3h12v18l-6-4-6 4z"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',
