@@ -871,7 +871,7 @@
         var t = now - startTime;
         if (deferLive) {
           drawScene(t);
-          if (syncRun && t >= HIDE_AT && buttonEl) buttonEl.classList.add('is-out');
+          if (syncRun && t >= HIDE_AT && t < DURATION && buttonEl) buttonEl.classList.add('is-out');
           if (t >= DURATION && !liveHeld) {
             morph = morphButton(buttonEl);
             applyButton(buttonEl, morph.tick, morph.tickLen, DURATION, false);
