@@ -245,6 +245,14 @@
     group.el.style.filter = 'brightness(' + far.brightness + ')';
   }
 
+  function clearPostChrome() {
+    var live = document.querySelector('.post-live');
+    if (!live || live.classList.contains('is-clear')) return;
+    live.classList.add('is-clear');
+    var nodes = live.querySelectorAll('.post-back, .post-title, .post-sub, .post-road');
+    for (var i = 0; i < nodes.length; i++) nodes[i].setAttribute('aria-hidden', 'true');
+  }
+
   function morphButton(buttonEl) {
     if (!buttonEl) return { tick: null, tickLen: 24 };
     if (!buttonEl.getAttribute('data-imdrivn-burnout-prev')) {
@@ -319,6 +327,7 @@
 
   function playReduced(buttonEl, onDone) {
     ensureStyles();
+    clearPostChrome();
     var morph = morphButton(buttonEl);
     var start = performance.now();
     var raf = 0;
@@ -894,6 +903,7 @@
         var t = now - startTime;
         if (deferLive) {
           drawScene(t);
+          if (syncRun && t >= BURN_END) clearPostChrome();
           if (syncRun && t >= HIDE_AT && t < DURATION && buttonEl) buttonEl.classList.add('is-out');
           if (t >= DURATION && !liveHeld) {
             morph = morphButton(buttonEl);

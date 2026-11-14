@@ -895,6 +895,11 @@ const ListFlow = (() => {
           btn.classList.remove('is-revving', 'is-out', 'is-live');
           const road = document.getElementById('post-road');
           if (road) road.classList.remove('is-burning');
+          const stage = document.querySelector('.post-live');
+          if (stage) {
+            stage.classList.remove('is-clear');
+            stage.querySelectorAll('.post-back, .post-title, .post-sub, .post-road').forEach(n => n.removeAttribute('aria-hidden'));
+          }
           if (typeof btn._revCancel === 'function') { try { btn._revCancel(false); } catch (err) {} }
           const overlay = document.getElementById('imdrivn-burnout-overlay');
           if (overlay) overlay.remove();

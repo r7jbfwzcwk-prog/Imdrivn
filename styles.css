@@ -965,6 +965,9 @@ body:has(.post-live) .ask{flex:1 1 auto;min-height:0;height:auto;max-height:100%
 body:has(.post-live) .ask-bar{display:none}
 body:has(.post-live) .ask-stage,body:has(.post-live) .post-slide{flex:1 1 auto;min-height:0;height:100%;margin:0;display:flex;flex-direction:column;overflow:hidden}
 .post-live{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;color:#f2f2f2;padding-bottom:calc(10px + 1.55 * .72rem)}
+.post-back,.post-title,.post-sub,.post-road{transition:opacity .3s linear}
+.post-live.is-clear .post-back,.post-live.is-clear .post-title,.post-live.is-clear .post-sub,.post-live.is-clear .post-road{opacity:0;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.post-back,.post-title,.post-sub,.post-road{transition:none}}
 .post-back{position:absolute;top:0;left:0;z-index:2;min-height:36px;padding:0 4px;border:0;background:transparent;color:#9a9aa2;font:600 .78rem/1 var(--font-body);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
 .post-back:hover,.post-back:focus-visible{color:#d9a441;outline:none}
 .post-title{margin:46px 0 0;color:#fff;font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:-.03em;font-size:clamp(1.7rem,4.4vw,2.6rem);line-height:1.1}
