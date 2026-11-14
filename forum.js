@@ -571,14 +571,59 @@ function liveWhen(iso) {
   if (!iso || Number.isNaN(d.getTime())) return '';
   return d.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' });
 }
-function liveAvatar(url, handle) {
-  if (/^https?:\/\//i.test(url || '')) {
-    const img = fEl('img', { class: 'live-av', alt: '' });
-    img.src = url;
-    return img;
-  }
-  const letter = fEl('span', { class: 'live-av is-letter', 'aria-hidden': 'true' }, (handle || '?').slice(0, 1).toUpperCase());
-  return letter;
+const LIVE_EMOJI = ['🏎️', '🚗', '🏁', '🔥', '💨', '🔧', '⛽', '🛞', '💥', '🚓', '🛻', '🏍️', '⚙️', '🔩'];
+const LIVE_STICKER_SVG = {
+  turbo: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M14 11a2.3 2.3 0 1 0-2.2 2.3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 15.2c-2 .8-4.2 1-6.2.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  exhaust: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2h9.5l2.6 1.6v2.2L12.5 15.6H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M15.2 9h2.6c1.3 0 2.2 1.2 1.8 2.4L19 14.2h-3.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  wheel: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.4" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 4.6v5.2M12 14.2v5.2M4.6 12h5.2M14.2 12h5.2" stroke="currentColor" stroke-width="1.6"/></svg>',
+  gearstick: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5.6" r="2.1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.7v8.6M8 19.2h8M7.2 12h3.2M13.6 12H16.8M12 12v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  piston: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="8" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.2 6.4h5.6M12 11v4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.8" r="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 19.6h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  spanner: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.6 5.1a3.2 3.2 0 0 0-4.4 4.2L4.4 15.1a1.7 1.7 0 0 0 2.4 2.4l5.8-5.8a3.2 3.2 0 0 0 4.2-4.4L14.4 9.7l-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  tacho: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16.2a7 7 0 1 1 14 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 16.2 16.2 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.2" r="1.15" fill="currentColor"/></svg>',
+  fuel: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="6" width="9.5" height="13" rx="1.3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7.6 6V4.4h4.4V6M14.5 9.2h2.1a1.8 1.8 0 0 1 1.8 1.8v4.8a1.5 1.5 0 0 1-1.5 1.5H14.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7.6 12.2h4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
+};
+function liveSticker(name) {
+  const mark = document.createElement('span');
+  mark.className = 'live-sticker';
+  mark.setAttribute('role', 'img');
+  mark.setAttribute('aria-label', name);
+  mark.innerHTML = LIVE_STICKER_SVG[name] || '';
+  return mark;
+}
+function appendLiveText(node, text) {
+  const source = String(text || '');
+  const re = /:(turbo|exhaust|wheel|gearstick|piston|spanner|tacho|fuel):/g;
+  let last = 0;
+  source.replace(re, (match, name, index) => {
+    if (index > last) node.append(document.createTextNode(source.slice(last, index)));
+    node.append(liveSticker(name));
+    last = index + match.length;
+    return match;
+  });
+  if (last < source.length) node.append(document.createTextNode(source.slice(last)));
+}
+function insertLive(input, text) {
+  const start = input.selectionStart == null ? input.value.length : input.selectionStart;
+  const end = input.selectionEnd == null ? start : input.selectionEnd;
+  const next = input.value.slice(0, start) + text + input.value.slice(end);
+  if (next.length > 500) return;
+  input.value = next;
+  const caret = start + text.length;
+  input.focus();
+  try { input.setSelectionRange(caret, caret); } catch (e) {}
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+function liveFeedLine(row, mine) {
+  const handle = String(row.handle || 'driver').replace(/^@/, '');
+  const item = fEl('p', { class: 'live-line' + (mine ? ' is-mine' : ''), 'data-id': row.id || '' });
+  const who = fEl('span', { class: 'live-who' }, '@' + handle);
+  const body = fEl('span', { class: 'live-body' });
+  appendLiveText(body, duckText(row.body || ''));
+  item.append(who, document.createTextNode(': '), body, fEl('time', { class: 'live-time' }, liveWhen(row.created_at)));
+  return item;
+}
+function liveJoinLine(handle) {
+  return fEl('p', { class: 'live-join' }, '@' + String(handle || 'driver').replace(/^@/, '') + ' joined');
 }
 function livePeople(channel) {
   const state = (channel && channel.presenceState && channel.presenceState()) || {};
@@ -595,9 +640,10 @@ function fitLive() {
   const vv = window.visualViewport;
   const viewH = vv ? vv.height : window.innerHeight;
   const viewTop = vv ? vv.offsetTop : 0;
-  const toolbar = window.matchMedia('(max-width:768px)').matches ? 64 : 56;
+  const nav = document.querySelector('.bnav');
+  const navTop = nav ? nav.getBoundingClientRect().top : window.innerHeight;
   const keyboard = Math.max(0, window.innerHeight - viewH - viewTop);
-  const reserve = keyboard > 40 ? 0 : toolbar;
+  const reserve = keyboard > 40 ? 0 : Math.max(0, window.innerHeight - navTop);
   root.style.height = Math.max(220, Math.round(viewH - topH - reserve)) + 'px';
   root.style.transform = viewTop ? 'translateY(' + Math.round(viewTop) + 'px)' : '';
 }
@@ -619,22 +665,40 @@ async function forumLive() {
   main.innerHTML = '';
   const root = fEl('section', { class: 'livechat' });
   const head = fEl('div', { class: 'live-head' });
-  head.append(fEl('a', { class: 'eyebrow', href: '#/forum' }, '← The forum'), fEl('h1', null, 'Live Chat'));
-  const pill = fEl('button', { type: 'button', class: 'live-pill', 'aria-expanded': 'false', 'aria-controls': 'live-drawer' }, 'Online now · 0');
+  const titles = fEl('div', { class: 'live-titles' });
+  titles.append(fEl('a', { class: 'eyebrow', href: '#/forum' }, 'The forum'), fEl('h1', null, 'Live Chat'));
+  const pill = fEl('button', { type: 'button', class: 'live-pill', 'aria-expanded': 'false', 'aria-controls': 'live-drawer' });
+  pill.append(fEl('span', { class: 'flive-dot', 'aria-hidden': 'true' }), fEl('span', { class: 'live-pill-n' }, '0 online'));
+  head.append(titles, pill);
+  const summary = fEl('p', { class: 'live-now', id: 'live-now' });
   const drawer = fEl('div', { class: 'live-drawer', id: 'live-drawer', hidden: 'hidden' });
   const shell = fEl('div', { class: 'live-shell' });
   const mainCol = fEl('div', { class: 'live-main' });
   const log = fEl('div', { class: 'live-log', id: 'live-log', role: 'log' });
   const typing = fEl('p', { class: 'live-typing', id: 'live-typing', 'aria-live': 'polite' });
+  const tray = fEl('div', { class: 'live-emoji', role: 'toolbar', 'aria-label': 'Emoji and stickers' });
   const form = fEl('form', { class: 'live-send' });
   const input = fEl('input', { type: 'text', maxlength: '500', placeholder: 'Type a message…', 'aria-label': 'Message', autocomplete: 'off' });
   const send = fEl('button', { class: 'btn solid', type: 'submit' }, 'Send');
   const err = fEl('p', { class: 'err', role: 'alert' });
   const aside = fEl('aside', { class: 'live-online', 'aria-label': 'Online now' });
+  LIVE_EMOJI.forEach(face => {
+    const btn = fEl('button', { type: 'button', class: 'live-emo' }, face);
+    btn.addEventListener('pointerdown', event => event.preventDefault());
+    btn.addEventListener('click', () => insertLive(input, face));
+    tray.append(btn);
+  });
+  Object.keys(LIVE_STICKER_SVG).forEach(name => {
+    const btn = fEl('button', { type: 'button', class: 'live-emo is-sticker', 'aria-label': name });
+    btn.append(liveSticker(name));
+    btn.addEventListener('pointerdown', event => event.preventDefault());
+    btn.addEventListener('click', () => insertLive(input, ':' + name + ':'));
+    tray.append(btn);
+  });
   form.append(input, send);
-  mainCol.append(log, typing, err, form);
+  mainCol.append(log, typing, tray, form, err);
   shell.append(mainCol, aside);
-  root.append(head, pill, drawer, shell);
+  root.append(head, summary, drawer, shell);
   main.append(root);
   pill.addEventListener('click', () => {
     const open = drawer.hidden;
@@ -643,8 +707,14 @@ async function forumLive() {
   });
   bindLiveFit();
   const seen = new Set();
-  const faces = {};
+  const joined = new Set();
+  let presenceReady = false;
   const stick = () => log.scrollHeight - log.scrollTop - log.clientHeight < 90;
+  function noticeJoin(handle) {
+    const follow = stick();
+    log.append(liveJoinLine(handle));
+    if (follow) log.scrollTop = log.scrollHeight;
+  }
   function paintMessage(row, force) {
     if (!row || !row.id || seen.has(row.id)) return;
     seen.add(row.id);
@@ -652,19 +722,12 @@ async function forumLive() {
     if (empty) empty.remove();
     const follow = force || stick();
     const mine = Auth.user && row.user_id === Auth.user.id;
-    const item = fEl('article', { class: mine ? 'live-msg is-mine' : 'live-msg', 'data-id': row.id });
-    const handle = String(row.handle || 'driver').replace(/^@/, '');
-    item.append(liveAvatar(faces[row.user_id], handle));
-    const bubble = fEl('div', { class: 'live-bubble' });
-    const meta = fEl('div', { class: 'live-meta' });
-    meta.append(fEl('span', { class: 'fhandle' }, '@' + handle), fEl('time', null, liveWhen(row.created_at)));
-    bubble.append(meta, fEl('p', null, duckText(row.body || '')));
+    const item = liveFeedLine(row, mine);
     if (typeof canSeeReports === 'function' && canSeeReports()) {
       const del = fEl('button', { type: 'button', class: 'auth-link live-del' }, 'Delete');
       del.addEventListener('click', () => askRemove('Delete this message?', async () => { await LiveChat.remove(row.id); }));
-      bubble.append(del);
+      item.append(del);
     }
-    item.append(bubble);
     log.append(item);
     if (follow) log.scrollTop = log.scrollHeight;
   }
@@ -677,22 +740,29 @@ async function forumLive() {
     if (token !== viewToken) return;
     const people = livePeople(liveChannel);
     const n = people.length;
-    pill.textContent = 'Online now · ' + n;
+    pill.querySelector('.live-pill-n').textContent = n + ' online';
     const names = people.filter(person => person.typing && (!Auth.user || person.id !== Auth.user.id)).map(person => '@' + person.handle);
     typing.textContent = !names.length ? '' : names.length === 1 ? names[0] + ' is typing…' : names.slice(0, 2).join(' and ') + ' are typing…';
+    const shown = [];
+    let used = 0;
+    people.forEach(person => {
+      const label = '@' + person.handle;
+      const add = (shown.length ? 2 : 0) + label.length;
+      if (!shown.length || used + add <= 32) { shown.push(label); used += add; }
+    });
+    summary.textContent = '';
+    summary.append(fEl('span', { class: 'live-names' }, 'Online: ' + (shown.join(', ') || 'nobody yet')));
+    if (people.length > shown.length) summary.append(fEl('span', { class: 'live-more' }, '+' + (people.length - shown.length)));
     [aside, drawer].forEach(host => {
       const open = host === drawer && !host.hidden;
       host.textContent = '';
       host.append(fEl('p', { class: 'live-online-h' }, 'Online now'));
-      if (!people.length) host.append(fEl('p', { class: 'muted' }, 'Nobody else is in the room.'));
-      people.forEach(person => {
-        const line = fEl('div', { class: 'live-person' });
-        line.append(liveAvatar(person.avatar || faces[person.id], person.handle), fEl('span', null, '@' + person.handle));
-        host.append(line);
-      });
+      if (!people.length) host.append(fEl('p', { class: 'muted' }, 'Nobody in the room yet.'));
+      people.forEach(person => host.append(fEl('p', { class: 'live-person' }, '@' + person.handle)));
       if (host === drawer) host.hidden = !open;
     });
   }
+  paintPeople();
   let markTyping = () => {};
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -717,9 +787,6 @@ async function forumLive() {
     err.textContent = e.message || 'Could not load the room.';
   }
   if (token !== viewToken) return;
-  const pics = await LiveChat.avatars(rows.map(row => row.user_id).concat(Auth.user.id));
-  if (token !== viewToken) return;
-  Object.assign(faces, pics);
   if (!rows.length) log.append(fEl('p', { class: 'fempty', id: 'live-empty' }, 'No messages yet. Say g’day.'));
   rows.forEach(row => paintMessage(row, true));
   log.scrollTop = log.scrollHeight;
@@ -730,7 +797,7 @@ async function forumLive() {
   liveChannel = channel;
   const payload = typing => ({
     handle: String((Auth.profile && Auth.profile.username) || 'driver').replace(/^@/, ''),
-    avatar: faces[Auth.user.id] || '',
+    avatar: (Auth.profile && /^https?:\/\//i.test(Auth.profile.avatar_url || '')) ? Auth.profile.avatar_url : '',
     typing: !!typing
   });
   let typingOn = false;
@@ -750,18 +817,26 @@ async function forumLive() {
     if (gen !== liveGen || token !== viewToken) return;
     const empty = document.getElementById('live-empty');
     if (empty) empty.remove();
-    const row = payloadRow.new || {};
-    if (row.user_id && !faces[row.user_id]) {
-      LiveChat.avatars([row.user_id]).then(more => { Object.assign(faces, more); const node = log.querySelector('[data-id="' + row.id + '"] .live-av'); if (node && more[row.user_id] && node.tagName !== 'IMG') node.replaceWith(liveAvatar(more[row.user_id], row.handle)); }).catch(() => {});
-    }
-    paintMessage(row, false);
+    paintMessage(payloadRow.new || {}, false);
   });
   channel.on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages' }, payloadRow => {
     if (gen !== liveGen) return;
     dropMessage(payloadRow.old && payloadRow.old.id);
   });
-  channel.on('presence', { event: 'sync' }, paintPeople);
-  channel.on('presence', { event: 'join' }, paintPeople);
+  channel.on('presence', { event: 'sync' }, () => {
+    livePeople(channel).forEach(person => joined.add(person.id));
+    presenceReady = true;
+    paintPeople();
+  });
+  channel.on('presence', { event: 'join' }, packet => {
+    paintPeople();
+    if (!presenceReady) return;
+    const key = packet && packet.key;
+    if (!key || key === Auth.user.id || joined.has(key)) return;
+    joined.add(key);
+    const meta = (packet.newPresences && packet.newPresences[0]) || {};
+    noticeJoin(meta.handle || 'driver');
+  });
   channel.on('presence', { event: 'leave' }, paintPeople);
   channel.subscribe(status => {
     if (gen !== liveGen) return;
