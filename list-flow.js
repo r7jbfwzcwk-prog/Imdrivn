@@ -702,6 +702,133 @@ const ListFlow = (() => {
       document.querySelectorAll('.ask [aria-labelledby="ask-q"]').forEach(el => el.setAttribute('aria-invalid', msg ? 'true' : 'false'));
     }
 
+    let revState = 'idle', revRpm = 0, revRaf = 0, revFrom = 0, revStamp = 0;
+    const REV_AT = 5000, REV_HOLD_MS = 1200, REV_SWEEP_MS = 360;
+    function revButton(){ return !editing && i === steps.length - 1; }
+    function revMarkup(){
+      return `<svg class="rev-dial" viewBox="0 0 64 40" aria-hidden="true"><rect x="1" y="1" width="62" height="38" rx="5" fill="#0a0a0b"/><path d="M10 32A22 22 0 1 1 54 32" fill="none" stroke="#3a3018" stroke-width="4" stroke-linecap="round"/><path d="M10 32A22 22 0 1 1 54 32" fill="none" stroke="#d9a441" stroke-width="3" stroke-linecap="round"/><path d="M46 16.5A22 22 0 0 1 54 32" fill="none" stroke="#e5242b" stroke-width="3" stroke-linecap="round"/><line class="rev-needle" x1="32" y1="32" x2="32" y2="12" stroke="#f4f4f6" stroke-width="1.7" stroke-linecap="round"/><circle cx="32" cy="32" r="2.2" fill="#d9a441"/></svg><span class="rev-label">Post ad</span>`;
+    }
+    function paintRev(rpm){
+      const btn = document.getElementById('ask-ok');
+      if (!btn) return;
+      const needle = btn.querySelector('.rev-needle');
+      const angle = -120 + (Math.max(0, Math.min(8000, rpm)) / 8000) * 240;
+      if (needle) needle.setAttribute('transform', 'rotate(' + angle.toFixed(2) + ' 32 32)');
+      btn.dataset.rpm = String(Math.round(rpm));
+      btn.classList.toggle('is-revving', rpm > 4200 && revState === 'hold');
+    }
+    function stopRevLoop(){ if (revRaf) cancelAnimationFrame(revRaf); revRaf = 0; }
+    function revFrame(now){
+      const btn = document.getElementById('ask-ok');
+      if (!btn || revState === 'idle' || revState === 'posting') return;
+      if (revState === 'hold') {
+        const base = Math.min(REV_AT, ((now - revStamp) / REV_HOLD_MS) * REV_AT);
+        const wobble = Math.sin(now / 42) * (5 + base / 180);
+        revRpm = Math.min(REV_AT, Math.max(0, base + wobble));
+        paintRev(revRpm);
+        if (base >= REV_AT) { commitRev(); return; }
+      } else if (revState === 'sweep') {
+        const t = Math.min(1, (now - revStamp) / REV_SWEEP_MS);
+        const eased = 1 - Math.pow(1 - t, 3);
+        revRpm = revFrom + (REV_AT - revFrom) * eased;
+        paintRev(revRpm);
+        if (t >= 1) { commitRev(); return; }
+      }
+      revRaf = requestAnimationFrame(revFrame);
+    }
+    function postReady(){
+      const step = steps[i];
+      if (step && step.read) step.read();
+      for (let n = 0; n < steps.length; n++) {
+        const msg = steps[n].validate ? steps[n].validate() : '';
+        if (msg) {
+          setErr(msg);
+          const bad = steps[n].invalid || (() => document.querySelector('.ask [data-autofocus]')?.focus());
+          bad();
+          return false;
+        }
+      }
+      setErr('');
+      return true;
+    }
+    function startHold(){
+      if (!revButton() || revState === 'posting' || revState === 'sweep') return;
+      if (revState === 'hold') return;
+      if (!postReady()) return;
+      revState = 'hold';
+      revStamp = performance.now();
+      revFrom = revRpm;
+      stopRevLoop();
+      revRaf = requestAnimationFrame(revFrame);
+    }
+    function releaseHold(){
+      if (revState !== 'hold') return;
+      revState = 'sweep';
+      revFrom = revRpm;
+      revStamp = performance.now();
+      stopRevLoop();
+      revRaf = requestAnimationFrame(revFrame);
+    }
+    async function commitRev(){
+      if (revState === 'posting') return;
+      revState = 'posting';
+      stopRevLoop();
+      revRpm = REV_AT;
+      paintRev(REV_AT);
+      const btn = document.getElementById('ask-ok');
+      if (btn) { btn.classList.remove('is-revving'); btn.disabled = true; }
+      busy = true;
+      clearHiddenPower();
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      try {
+        if (!reduced && btn) {
+          btn.dataset.revCommit = '1';
+          try {
+            await loadBurnout();
+            if (window.playBurnout) {
+              const cancel = playBurnout(burnoutLane(draft.sec), btn, () => {
+                btn._revBurnoutDone = true;
+                if (typeof btn._revGo === 'function') btn._revGo();
+              });
+              if (typeof cancel === 'function') btn._revCancel = cancel;
+            }
+          } catch (err) {}
+        }
+        await opts.publish({...draft, photos: draft.photos.slice()});
+      } catch (e) {
+        busy = false;
+        revState = 'idle';
+        revRpm = 0;
+        if (btn) {
+          btn.disabled = false;
+          btn.dataset.revCommit = '';
+          btn.classList.remove('is-revving');
+          if (typeof btn._revCancel === 'function') { try { btn._revCancel(false); } catch (err) {} }
+          const overlay = document.getElementById('imdrivn-burnout-overlay');
+          if (overlay) overlay.remove();
+          const prev = btn.getAttribute('data-imdrivn-burnout-html');
+          if (prev) {
+            btn.innerHTML = prev;
+            btn.removeAttribute('data-imdrivn-burnout-prev');
+            btn.removeAttribute('data-imdrivn-burnout-html');
+          }
+          btn.style.transform = '';
+          btn.style.boxShadow = '';
+          btn.setAttribute('aria-label', 'Post ad');
+          paintRev(0);
+          wireRev(btn);
+        }
+        setErr(e && e.message ? e.message : 'Could not save that. Try again in a moment.');
+      }
+    }
+    function wireRev(btn){
+      if (!btn) return;
+      btn.onpointerdown = e => { if (e.button != null && e.button !== 0) return; e.preventDefault(); btn.setPointerCapture?.(e.pointerId); startHold(); };
+      btn.onpointerup = () => releaseHold();
+      btn.onpointercancel = () => releaseHold();
+      btn.onpointerleave = () => { if (revState === 'hold') releaseHold(); };
+      btn.onclick = e => { e.preventDefault(); };
+    }
     function render(dir) {
       const step = steps[i];
       const bar = root.querySelector('.ask-bar');
@@ -718,12 +845,16 @@ const ListFlow = (() => {
         <p class="ask-err" id="ask-err" role="alert"></p>
         <div class="ask-nav">
           <button type="button" class="btn" id="ask-back" ${i === 0 ? 'hidden' : ''}>Back</button>
-          <button type="button" class="btn solid" id="ask-ok">${i === steps.length - 1 ? submitLabel : 'OK'}</button>
+          <button type="button" class="btn solid${i === steps.length - 1 && !editing ? ' rev-post' : ''}" id="ask-ok"${i === steps.length - 1 && !editing ? ' aria-label="Post ad"' : ''}>${i === steps.length - 1 && !editing ? revMarkup() : (i === steps.length - 1 ? submitLabel : 'OK')}</button>
         </div>
         ${i === steps.length - 1 ? '' : '<p class="ask-key">Enter ↵</p>'}
       </div>`;
       step.mount(document.getElementById('ask-body'));
-      document.getElementById('ask-ok').onclick = () => { ok(); };
+      stopRevLoop();
+      if (revState !== 'posting') revState = 'idle';
+      const okBtn = document.getElementById('ask-ok');
+      if (revButton() && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) { wireRev(okBtn); loadBurnout(); }
+      else okBtn.onclick = () => { ok(); };
       document.getElementById('ask-back').onclick = () => { back(); };
       const focusEl = step.focusOk ? document.getElementById('ask-ok') : stage.querySelector('[data-autofocus]');
       if (focusEl) {
@@ -779,12 +910,20 @@ const ListFlow = (() => {
       const stateBtn = e.target.closest('[data-choice="state"]');
       if (stateBtn) stateBtn.parentElement.querySelectorAll('[data-choice="state"]').forEach(b => b.setAttribute('aria-pressed', b === stateBtn));
       e.preventDefault();
+      if (revButton() && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && (e.key === 'Enter' || e.key === ' ')) { if (!e.repeat) startHold(); return; }
       ok();
+    }
+    function onKeyUp(e){
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      releaseHold();
     }
 
     if (ListFlow._key) document.removeEventListener('keydown', ListFlow._key);
+    if (ListFlow._keyUp) document.removeEventListener('keyup', ListFlow._keyUp);
     ListFlow._key = onKey;
+    ListFlow._keyUp = onKeyUp;
     document.addEventListener('keydown', onKey);
+    document.addEventListener('keyup', onKeyUp);
 
     rebuildSteps();
     if (opts && opts.startAt === 'photos') {

@@ -939,6 +939,12 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .ask-hint{margin:0 0 22px;color:var(--c-muted);font-size:1rem;max-width:38rem}
 .ask-err{min-height:1.35em;margin:12px 0 0;color:var(--c-err);font-size:.95rem}
 .ask-nav{display:flex;align-items:center;gap:12px;margin-top:22px}
+.rev-post{position:relative;gap:8px;touch-action:none}
+.rev-post .rev-dial{width:28px;height:20px;flex:0 0 auto;display:block}
+.rev-post .rev-label{line-height:1}
+.rev-post.is-revving{animation:rev-shake .07s linear infinite}
+@keyframes rev-shake{50%{transform:translate3d(1px,0,0)}}
+@media(prefers-reduced-motion:reduce){.rev-post.is-revving{animation:none}}
 .ask-nav .btn[hidden]{display:none}
 .ask-key{margin:14px 0 0;color:var(--c-muted);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase}
 .ask-input{width:100%;background:transparent;border:0;border-bottom:2px solid var(--c-line2);border-radius:0;color:var(--c-text);font:600 1.45rem/1.3 var(--font-body);padding:10px 0;caret-color:var(--acc)}
