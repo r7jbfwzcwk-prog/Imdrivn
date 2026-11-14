@@ -1252,7 +1252,7 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 .wrap.form.auth.is-handle{justify-content:flex-start}
 .auth.is-handle h1{margin-bottom:0}
 .auth.is-handle #auth-form{margin-top:60px;margin-bottom:0}
-.auth.is-handle .handle-warn{margin:60px 0 0}
+.auth.is-handle .handle-warn{margin:24px 0 0}
 .auth.is-handle .panel{gap:0}
 .auth.is-handle #lock-go{margin-top:30px}
 .auth.is-handle #lock-go[hidden],.auth.is-handle #handle-confirm[hidden]{display:none !important}
