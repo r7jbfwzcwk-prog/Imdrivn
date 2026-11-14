@@ -643,20 +643,44 @@ function livePeople(channel) {
     return { id, handle: String(meta.handle || 'driver').replace(/^@/, ''), avatar: meta.avatar || '', typing: !!meta.typing };
   }).sort((a, b) => a.handle.localeCompare(b.handle));
 }
+function keyboardViewport() {
+  const fake = window.__kbViewport;
+  if (fake && typeof fake.height === 'number') return { height: fake.height, offsetTop: fake.offsetTop || 0 };
+  const vv = window.visualViewport;
+  return { height: vv ? vv.height : window.innerHeight, offsetTop: vv ? vv.offsetTop : 0 };
+}
 function fitLive() {
   const root = document.querySelector('.livechat');
   if (!root) return;
-  const top = document.querySelector('.top');
-  const topH = top ? top.getBoundingClientRect().height : 0;
-  const vv = window.visualViewport;
-  const viewH = vv ? vv.height : window.innerHeight;
-  const viewTop = vv ? vv.offsetTop : 0;
-  const nav = document.querySelector('.bnav');
-  const navTop = nav ? nav.getBoundingClientRect().top : window.innerHeight;
+  const header = document.querySelector('.top');
+  const box = keyboardViewport();
+  const viewH = box.height;
+  const viewTop = box.offsetTop;
   const keyboard = Math.max(0, window.innerHeight - viewH - viewTop);
-  const reserve = keyboard > 40 ? 0 : Math.max(0, window.innerHeight - navTop);
-  root.style.height = Math.max(220, Math.round(viewH - topH - reserve)) + 'px';
-  root.style.transform = viewTop ? 'translateY(' + Math.round(viewTop) + 'px)' : '';
+  const open = keyboard > 40 || document.body.classList.contains('kb-open');
+  const nav = document.querySelector('.bnav');
+  const navBox = !open && nav && getComputedStyle(nav).display !== 'none' ? nav.getBoundingClientRect() : null;
+  const reserve = navBox && navBox.height > 20 ? Math.max(0, window.innerHeight - navBox.top) : 0;
+  const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+  const visibleHeader = Math.max(0, Math.min(headerBottom, viewH));
+  if (open) {
+    root.style.position = 'fixed';
+    root.style.left = '0';
+    root.style.right = '0';
+    root.style.zIndex = '15';
+    root.style.margin = '0 auto';
+    root.style.top = Math.round(viewTop + visibleHeader) + 'px';
+  } else {
+    root.style.position = '';
+    root.style.left = '';
+    root.style.right = '';
+    root.style.top = '';
+    root.style.zIndex = '';
+    root.style.margin = '';
+  }
+  root.style.height = Math.max(180, Math.round(viewH - visibleHeader - reserve)) + 'px';
+  root.style.transform = '';
+  if (open && window.scrollY) window.scrollTo(0, 0);
 }
 function bindLiveFit() {
   const fit = () => fitLive();

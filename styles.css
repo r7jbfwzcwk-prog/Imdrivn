@@ -1327,6 +1327,9 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 @media(prefers-reduced-motion:no-preference){.flive-dot{animation:flive-pulse 1.8s ease-out infinite}}
 @keyframes flive-pulse{70%{box-shadow:0 0 0 6px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
 body.is-livechat{overflow:hidden;height:100dvh}
+@media(max-width:768px){
+ body.kb-open .bnav,body.kb-open #forumsearch{display:none !important}
+}
 body.is-livechat #main{overflow:hidden;display:flex;flex-direction:column;min-height:0}
 .livechat{display:flex;flex-direction:column;width:min(960px,100%);margin:0 auto;min-height:0;background:#000;color:#f2f2f2}
 .live-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px 0}
