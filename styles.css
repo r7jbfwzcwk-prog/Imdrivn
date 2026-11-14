@@ -1157,6 +1157,13 @@ body:has(.wrap.auth) footer{display:none}
 .auth input:focus{outline:none;border-color:var(--acc)}
 .auth-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:0}
 .auth-signin{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.auth-gate-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;width:100%;text-align:left}
+.auth-gate-titles{min-width:0}
+.auth-gate-titles .eyebrow{margin:0 0 4px}
+.auth-gate-head h1{margin:0;text-align:left}
+.auth-gate-body{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:100%}
+.auth-gate-body .muted{margin:0}
+.auth-gate-mark{display:none}
 .auth-signin .btn.solid{align-self:stretch;box-sizing:border-box;width:calc(100% + 26px);margin-left:-13px;margin-right:-13px}
 .auth .btn{min-height:44px;height:44px;padding-top:0;padding-bottom:0}
 .auth-link{background:none;border:0;padding:0;color:var(--acc);cursor:pointer;font:inherit}
@@ -1493,6 +1500,17 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
  .auth.is-signin .auth-or{margin:0}
  .auth.is-signin .auth-oauth{gap:8px}
  .auth.is-signin input{scroll-margin:80px}
+ body:has(.auth-gate){height:100svh;max-height:100svh;height:100dvh;max-height:100dvh}
+ body:has(.auth-gate) main{overflow-y:auto}
+ .wrap.form.auth.auth-gate{justify-content:flex-start;align-items:stretch;padding:10px 16px 12px}
+ .auth-gate-head{align-items:center;flex:0 0 auto}
+ .auth-gate-head h1{font-size:1.35rem;line-height:1.15}
+ .auth-gate-head .menu-close{align-self:center}
+ .auth-gate-body{flex:1 1 auto;min-height:0;align-items:center;justify-content:center;text-align:center;gap:18px;padding:12px 0 8px}
+ .auth-gate-mark{display:grid;place-items:center;width:64px;height:64px;border:1px solid rgba(217,164,65,.4);border-radius:50%;color:#d9a441}
+ .auth-gate-mark svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+ .auth-gate-body .muted{font-size:1.05rem;line-height:1.4;max-width:28ch}
+ .auth-gate-body .btn.solid{width:100%;min-height:48px;height:48px}
 }
 .auth .terms-ticks label{display:flex;align-items:flex-start;gap:8px;color:#e4e4e8;font-size:.9rem;font-weight:400;letter-spacing:0;text-transform:none;line-height:1.15}
 .auth .terms-ticks input{width:18px;height:18px;min-height:0;padding:0;margin-top:2px;flex:none}
