@@ -1322,6 +1322,51 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 .fphoto-view img{display:block;width:100%;height:auto}
 .fphoto-view::backdrop{background:rgba(0,0,0,.82)}
 .fempty{color:var(--c-muted);margin:8px 0}
+.flive-title{display:flex;align-items:center;gap:8px}
+.flive-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.85);flex:0 0 auto}
+@media(prefers-reduced-motion:no-preference){.flive-dot{animation:flive-pulse 1.8s ease-out infinite}}
+@keyframes flive-pulse{70%{box-shadow:0 0 0 6px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+body.is-livechat{overflow:hidden;height:100dvh}
+body.is-livechat #main{overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.livechat{display:flex;flex-direction:column;width:min(960px,100%);margin:0 auto;min-height:0;background:#000;color:#f2f2f2}
+.live-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:8px 14px 0}
+.live-head h1{margin:0;font-size:1.25rem}
+.live-pill{display:none}
+.live-drawer{display:none}
+.live-shell{display:flex;flex:1 1 auto;min-height:0}
+.live-main{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;min-height:0}
+.live-log{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:12px 14px}
+.live-msg{display:flex;align-items:flex-end;gap:8px;max-width:min(100%,460px)}
+.live-msg.is-mine{align-self:flex-end;flex-direction:row-reverse}
+.live-av{width:32px;height:32px;border-radius:50%;object-fit:cover;background:#111;border:1px solid #d9a441;flex:0 0 auto}
+.live-av.is-letter{display:grid;place-items:center;color:#d9a441;font-weight:700;font-size:.78rem}
+.live-bubble{border-radius:14px;padding:8px 12px;background:#2a2a2e;color:#f2f2f2}
+.live-msg.is-mine .live-bubble{background:#d9a441;color:#111}
+.live-msg.is-mine .fhandle{color:#111}
+.live-bubble p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.live-meta{display:flex;gap:8px;align-items:baseline;font-size:.75rem}
+.live-meta time{color:#9a9aa2}
+.live-msg.is-mine .live-meta time{color:rgba(0,0,0,.62)}
+.live-del{margin-top:4px}
+.live-typing{min-height:0;margin:0;padding:0 14px;color:#9a9aa2;font-size:.82rem}
+.live-typing:empty{display:none}
+.live-send{display:flex;gap:8px;align-items:center;padding:8px 14px 10px;border-top:1px solid #1a1a1d;background:#000}
+.live-send input{flex:1 1 auto;min-width:0;height:44px;padding:0 12px;border:1px solid #2a2a2e;border-radius:12px;background:#0e0e10;color:#f4f4f4;font:500 16px/1.3 var(--font-body)}
+.live-send input:focus{outline:none;border-color:#d9a441}
+.live-send .btn{min-height:44px;flex:0 0 auto}
+.live-online,.live-drawer{background:#0c0c0e}
+.live-online-h{margin:0 0 8px;color:#d9a441;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase}
+.live-person{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:.9rem}
+@media(max-width:768px){
+ .live-pill{display:flex;align-items:center;justify-content:space-between;width:calc(100% - 28px);margin:8px 14px 0;min-height:36px;padding:0 12px;border:1px solid #d9a441;border-radius:999px;background:#000;color:#d9a441;font:600 .72rem/1 var(--font-body);letter-spacing:.08em;text-transform:uppercase}
+ .live-drawer:not([hidden]){display:block;max-height:38%;margin:8px 14px 0;padding:10px 12px;overflow:auto;border:1px solid #1a1a1d;border-radius:14px}
+ .live-online{display:none}
+}
+@media(min-width:769px){
+ .live-shell{display:grid;grid-template-columns:minmax(0,1fr) 220px}
+ .live-online{display:block;overflow:auto;padding:14px 12px;border-left:1px solid #1a1a1d}
+ .live-pill,.live-drawer{display:none}
+}
 .fop{border-color:var(--acc-dim)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .toast{position:fixed;z-index:40;left:50%;top:84px;transform:translateX(-50%);width:min(560px,calc(100% - 24px));padding:14px 16px;background:#141416;color:var(--c-text);border:1px solid var(--c-line2);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);font-size:.95rem;line-height:1.45;cursor:pointer}

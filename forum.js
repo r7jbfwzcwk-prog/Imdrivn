@@ -190,6 +190,8 @@ async function forumIndex() {
   }
   if (token !== viewToken) return;
   list.textContent = '';
+  list.append(liveBoardCard());
+  watchLiveCount(token);
   cats.forEach(cat => {
     const count = fCount(cat.forum_threads);
     const latest = Array.isArray(cat.latest) ? cat.latest[0] : null;
@@ -494,4 +496,265 @@ function fReplyBox(threadId) {
   });
   box.append(form);
   return box;
+}
+
+let liveChannel = null;
+let liveGen = 0;
+function dropLiveChannel() {
+  liveGen += 1;
+  const channel = liveChannel;
+  liveChannel = null;
+  if (channel && typeof sb !== 'undefined' && sb) {
+    try { sb.removeChannel(channel); } catch (e) {}
+  }
+}
+function closeLiveRoom() {
+  dropLiveChannel();
+  const fit = window.__liveFit;
+  if (fit) {
+    window.removeEventListener('resize', fit);
+    if (window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', fit);
+      window.visualViewport.removeEventListener('scroll', fit);
+    }
+    window.__liveFit = null;
+  }
+  document.body.classList.remove('is-livechat');
+}
+function liveBoardCard() {
+  const link = fEl('a', { class: 'fcat flive', href: '#/forum/live' });
+  const title = fEl('div', { class: 'fcat-top' });
+  const name = fEl('h2', { class: 'flive-title' });
+  name.append(fEl('span', { class: 'flive-dot', 'aria-hidden': 'true' }));
+  name.append(document.createTextNode('Live Chat'));
+  title.append(name, fEl('span', { class: 'fcount', id: 'flive-count' }, '0 online'));
+  link.append(title, fEl('p', null, 'One room. The people who are in it right now.'));
+  return link;
+}
+function watchLiveCount(token) {
+  dropLiveChannel();
+  if (typeof sb === 'undefined' || !sb || token !== viewToken) return;
+  const gen = liveGen;
+  const channel = sb.channel('room:live');
+  liveChannel = channel;
+  const paint = () => {
+    if (gen !== liveGen || token !== viewToken) return;
+    const count = document.getElementById('flive-count');
+    if (!count) return;
+    const n = Object.keys(channel.presenceState() || {}).length;
+    count.textContent = n === 1 ? '1 online' : n + ' online';
+  };
+  channel.on('presence', { event: 'sync' }, paint);
+  channel.on('presence', { event: 'join' }, paint);
+  channel.on('presence', { event: 'leave' }, paint);
+  channel.subscribe(status => { if (status === 'SUBSCRIBED') paint(); });
+}
+function liveWhen(iso) {
+  const d = new Date(iso);
+  if (!iso || Number.isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' });
+}
+function liveAvatar(url, handle) {
+  if (/^https?:\/\//i.test(url || '')) {
+    const img = fEl('img', { class: 'live-av', alt: '' });
+    img.src = url;
+    return img;
+  }
+  const letter = fEl('span', { class: 'live-av is-letter', 'aria-hidden': 'true' }, (handle || '?').slice(0, 1).toUpperCase());
+  return letter;
+}
+function livePeople(channel) {
+  const state = (channel && channel.presenceState && channel.presenceState()) || {};
+  return Object.keys(state).map(id => {
+    const meta = (state[id] && state[id][0]) || {};
+    return { id, handle: String(meta.handle || 'driver').replace(/^@/, ''), avatar: meta.avatar || '', typing: !!meta.typing };
+  }).sort((a, b) => a.handle.localeCompare(b.handle));
+}
+function fitLive() {
+  const root = document.querySelector('.livechat');
+  if (!root) return;
+  const top = document.querySelector('.top');
+  const topH = top ? top.getBoundingClientRect().height : 0;
+  const vv = window.visualViewport;
+  const viewH = vv ? vv.height : window.innerHeight;
+  const viewTop = vv ? vv.offsetTop : 0;
+  const toolbar = window.matchMedia('(max-width:768px)').matches ? 64 : 56;
+  const keyboard = Math.max(0, window.innerHeight - viewH - viewTop);
+  const reserve = keyboard > 40 ? 0 : toolbar;
+  root.style.height = Math.max(220, Math.round(viewH - topH - reserve)) + 'px';
+  root.style.transform = viewTop ? 'translateY(' + Math.round(viewTop) + 'px)' : '';
+}
+function bindLiveFit() {
+  const fit = () => fitLive();
+  window.__liveFit = fit;
+  window.addEventListener('resize', fit);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', fit);
+    window.visualViewport.addEventListener('scroll', fit);
+  }
+  fit();
+}
+async function forumLive() {
+  const token = ++viewToken;
+  await Auth.ready;
+  if (token !== viewToken) return;
+  if (!Auth.user || Auth.needsHandle()) {
+    sessionStorage.setItem('imdrivn_next', 'forum/live');
+    if (location.hash !== '#/join') location.hash = '#/join';
+    else join();
+    return;
+  }
+  document.body.classList.add('is-livechat');
+  main.innerHTML = '';
+  const root = fEl('section', { class: 'livechat' });
+  const head = fEl('div', { class: 'live-head' });
+  head.append(fEl('a', { class: 'eyebrow', href: '#/forum' }, '← The forum'), fEl('h1', null, 'Live Chat'));
+  const pill = fEl('button', { type: 'button', class: 'live-pill', 'aria-expanded': 'false', 'aria-controls': 'live-drawer' }, 'Online now · 0');
+  const drawer = fEl('div', { class: 'live-drawer', id: 'live-drawer', hidden: 'hidden' });
+  const shell = fEl('div', { class: 'live-shell' });
+  const mainCol = fEl('div', { class: 'live-main' });
+  const log = fEl('div', { class: 'live-log', id: 'live-log', role: 'log' });
+  const typing = fEl('p', { class: 'live-typing', id: 'live-typing', 'aria-live': 'polite' });
+  const form = fEl('form', { class: 'live-send' });
+  const input = fEl('input', { type: 'text', maxlength: '500', placeholder: 'Type a message…', 'aria-label': 'Message', autocomplete: 'off' });
+  const send = fEl('button', { class: 'btn solid', type: 'submit' }, 'Send');
+  const err = fEl('p', { class: 'err', role: 'alert' });
+  const aside = fEl('aside', { class: 'live-online', 'aria-label': 'Online now' });
+  form.append(input, send);
+  mainCol.append(log, typing, err, form);
+  shell.append(mainCol, aside);
+  root.append(head, pill, drawer, shell);
+  main.append(root);
+  pill.addEventListener('click', () => {
+    const open = drawer.hidden;
+    drawer.hidden = !open;
+    pill.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  bindLiveFit();
+  const seen = new Set();
+  const faces = {};
+  const stick = () => log.scrollHeight - log.scrollTop - log.clientHeight < 90;
+  function paintMessage(row, force) {
+    if (!row || !row.id || seen.has(row.id)) return;
+    seen.add(row.id);
+    const empty = document.getElementById('live-empty');
+    if (empty) empty.remove();
+    const follow = force || stick();
+    const mine = Auth.user && row.user_id === Auth.user.id;
+    const item = fEl('article', { class: mine ? 'live-msg is-mine' : 'live-msg', 'data-id': row.id });
+    const handle = String(row.handle || 'driver').replace(/^@/, '');
+    item.append(liveAvatar(faces[row.user_id], handle));
+    const bubble = fEl('div', { class: 'live-bubble' });
+    const meta = fEl('div', { class: 'live-meta' });
+    meta.append(fEl('span', { class: 'fhandle' }, '@' + handle), fEl('time', null, liveWhen(row.created_at)));
+    bubble.append(meta, fEl('p', null, duckText(row.body || '')));
+    if (typeof canSeeReports === 'function' && canSeeReports()) {
+      const del = fEl('button', { type: 'button', class: 'auth-link live-del' }, 'Delete');
+      del.addEventListener('click', () => askRemove('Delete this message?', async () => { await LiveChat.remove(row.id); }));
+      bubble.append(del);
+    }
+    item.append(bubble);
+    log.append(item);
+    if (follow) log.scrollTop = log.scrollHeight;
+  }
+  function dropMessage(id) {
+    const node = log.querySelector('[data-id="' + id + '"]');
+    if (node) node.remove();
+    seen.delete(id);
+  }
+  function paintPeople() {
+    if (token !== viewToken) return;
+    const people = livePeople(liveChannel);
+    const n = people.length;
+    pill.textContent = 'Online now · ' + n;
+    const names = people.filter(person => person.typing && (!Auth.user || person.id !== Auth.user.id)).map(person => '@' + person.handle);
+    typing.textContent = !names.length ? '' : names.length === 1 ? names[0] + ' is typing…' : names.slice(0, 2).join(' and ') + ' are typing…';
+    [aside, drawer].forEach(host => {
+      const open = host === drawer && !host.hidden;
+      host.textContent = '';
+      host.append(fEl('p', { class: 'live-online-h' }, 'Online now'));
+      if (!people.length) host.append(fEl('p', { class: 'muted' }, 'Nobody else is in the room.'));
+      people.forEach(person => {
+        const line = fEl('div', { class: 'live-person' });
+        line.append(liveAvatar(person.avatar || faces[person.id], person.handle), fEl('span', null, '@' + person.handle));
+        host.append(line);
+      });
+      if (host === drawer) host.hidden = !open;
+    });
+  }
+  let markTyping = () => {};
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    err.textContent = '';
+    const text = input.value;
+    if (!livePlain(text)) { err.textContent = 'Write a message first.'; return; }
+    send.disabled = true;
+    markTyping(false);
+    try {
+      input.value = '';
+      const saved = await LiveChat.send(text);
+      paintMessage(saved, true);
+    } catch (e) {
+      input.value = text;
+      err.textContent = e.message || 'Could not send that.';
+    } finally { send.disabled = false; }
+  });
+  let rows = [];
+  try { rows = await LiveChat.recent(); }
+  catch (e) {
+    if (token !== viewToken) return;
+    err.textContent = e.message || 'Could not load the room.';
+  }
+  if (token !== viewToken) return;
+  const pics = await LiveChat.avatars(rows.map(row => row.user_id).concat(Auth.user.id));
+  if (token !== viewToken) return;
+  Object.assign(faces, pics);
+  if (!rows.length) log.append(fEl('p', { class: 'fempty', id: 'live-empty' }, 'No messages yet. Say g’day.'));
+  rows.forEach(row => paintMessage(row, true));
+  log.scrollTop = log.scrollHeight;
+  if (token !== viewToken || typeof sb === 'undefined' || !sb) return;
+  dropLiveChannel();
+  const gen = liveGen;
+  const channel = sb.channel('room:live', { config: { presence: { key: Auth.user.id } } });
+  liveChannel = channel;
+  const payload = typing => ({
+    handle: String((Auth.profile && Auth.profile.username) || 'driver').replace(/^@/, ''),
+    avatar: faces[Auth.user.id] || '',
+    typing: !!typing
+  });
+  let typingOn = false;
+  let typingIdle = 0;
+  markTyping = on => {
+    if (!liveChannel || gen !== liveGen) return;
+    if (on === typingOn) return;
+    typingOn = on;
+    liveChannel.track(payload(on)).catch(() => {});
+  };
+  input.addEventListener('input', () => {
+    markTyping(true);
+    clearTimeout(typingIdle);
+    typingIdle = setTimeout(() => markTyping(false), 1600);
+  });
+  channel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payloadRow => {
+    if (gen !== liveGen || token !== viewToken) return;
+    const empty = document.getElementById('live-empty');
+    if (empty) empty.remove();
+    const row = payloadRow.new || {};
+    if (row.user_id && !faces[row.user_id]) {
+      LiveChat.avatars([row.user_id]).then(more => { Object.assign(faces, more); const node = log.querySelector('[data-id="' + row.id + '"] .live-av'); if (node && more[row.user_id] && node.tagName !== 'IMG') node.replaceWith(liveAvatar(more[row.user_id], row.handle)); }).catch(() => {});
+    }
+    paintMessage(row, false);
+  });
+  channel.on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages' }, payloadRow => {
+    if (gen !== liveGen) return;
+    dropMessage(payloadRow.old && payloadRow.old.id);
+  });
+  channel.on('presence', { event: 'sync' }, paintPeople);
+  channel.on('presence', { event: 'join' }, paintPeople);
+  channel.on('presence', { event: 'leave' }, paintPeople);
+  channel.subscribe(status => {
+    if (gen !== liveGen) return;
+    if (status === 'SUBSCRIBED') channel.track(payload(false)).then(paintPeople).catch(() => {});
+  });
+  if (window.matchMedia('(min-width:769px)').matches) input.focus();
 }

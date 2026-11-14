@@ -1559,6 +1559,64 @@ const Forum = {
   }
 };
 
+function livePlain(text) {
+  const raw = String(text || '').replace(/<[^>]*>/g, '').replace(/[<>]/g, '');
+  return raw.replace(/\s+/g, ' ').trim().slice(0, 500);
+}
+function liveErr(error) {
+  const msg = (error && error.message) || '';
+  if (/banned/i.test(msg)) return msg;
+  if (/slow down|2 seconds/i.test(msg)) return 'Slow down. One message every 2 seconds.';
+  if (/choose a handle/i.test(msg)) return 'Choose a handle first.';
+  if (/500 characters/i.test(msg)) return 'Keep it to 500 characters.';
+  if (/row-level security|permission|42501/i.test(msg)) return 'You need to be signed in to do that.';
+  if (/jwt|session/i.test(msg)) return 'Your session expired. Sign in again.';
+  return msg || 'Could not send that.';
+}
+const LiveChat = {
+  lastSent: 0,
+  async recent() {
+    if (!sb || !Auth.user) return [];
+    const { data, error } = await sb.from('chat_messages').select('id,user_id,handle,body,created_at').order('created_at', { ascending: false }).limit(50);
+    if (error) throw new Error(liveErr(error));
+    return (data || []).slice().reverse();
+  },
+  async avatars(ids) {
+    const unique = [...new Set((ids || []).filter(Boolean))];
+    if (!sb || !unique.length) return {};
+    const { data, error } = await sb.from('profiles').select('id,avatar_url').in('id', unique);
+    if (error || !data) return {};
+    const map = {};
+    data.forEach(row => {
+      const url = String(row.avatar_url || '');
+      if (/^https?:\/\//i.test(url)) map[row.id] = url;
+    });
+    return map;
+  },
+  async send(body) {
+    if (!sb || !Auth.user) throw new Error('Sign in to chat.');
+    if (Auth.needsHandle()) throw new Error('Choose a handle first.');
+    await Ban.assert();
+    const text = livePlain(body);
+    if (!text) throw new Error('Write a message first.');
+    const wait = 2000 - (Date.now() - this.lastSent);
+    if (this.lastSent && wait > 0) throw new Error('Slow down. One message every 2 seconds.');
+    this.lastSent = Date.now();
+    const handle = (Auth.profile && Auth.profile.username) || 'driver';
+    const { data, error } = await sb.from('chat_messages').insert({ user_id: Auth.user.id, handle, body: text }).select('id,user_id,handle,body,created_at').single();
+    if (error) {
+      this.lastSent = 0;
+      throw new Error(liveErr(error));
+    }
+    return data;
+  },
+  async remove(id) {
+    if (!sb || !Auth.user) throw new Error('Sign in to do that.');
+    const { error } = await sb.from('chat_messages').delete().eq('id', id);
+    if (error) throw new Error(liveErr(error));
+  }
+};
+
 function garagePhotoUrl(photo) {
   if (!photo) return '';
   if (/^https?:\/\//i.test(photo) || photo.startsWith('data:')) return photo;
