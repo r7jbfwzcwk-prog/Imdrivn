@@ -1549,15 +1549,18 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
  .auth-gate-body .muted{font-size:1.05rem;line-height:1.4;max-width:28ch}
  .auth-gate-body .btn.solid{width:100%;min-height:48px;height:48px}
 }
-.auth .terms-ticks label{display:flex;flex-direction:row;align-items:flex-start;gap:8px;color:#e4e4e8;font-size:.9rem;font-weight:400;letter-spacing:0;text-transform:none;line-height:1.35}
+.auth .terms-ticks label{display:flex;flex-direction:row;align-items:center;gap:8px;color:#e4e4e8;font-size:.9rem;font-weight:400;letter-spacing:0;text-transform:none;line-height:1.35}
 .auth .terms-ticks span{min-width:0;text-align:left}
-.auth .terms-ticks input{appearance:none;-webkit-appearance:none;width:18px;height:18px;min-height:18px;padding:0;margin:calc((1.35em - 18px) / 2) 0 0;flex:none;border:1px solid #8a8070;border-radius:3px;background:#0a0a0b;cursor:pointer}
-.auth .terms-ticks input:checked{border-color:#d9a441;background:#0a0a0b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23d9a441' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='M3.2 8.3 6.4 11.5 12.8 4.6'/%3E%3C/svg%3E") center/12px 12px no-repeat}
+.auth .terms-ticks input{appearance:none;-webkit-appearance:none;width:18px;height:18px;min-width:18px;min-height:18px;padding:0;margin:0;flex:none;font-size:inherit;line-height:inherit;border:1px solid #8a8070;border-radius:3px;background:#0a0a0b;cursor:pointer}
+.auth .terms-ticks input:checked{border-color:#d9a441;background:#0a0a0b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23d9a441' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='M3.2 8.3 6.4 11.5 12.8 4.6'/%3E%3C/svg%3E") center/14px 14px no-repeat}
 .auth .terms-ticks input:focus-visible{outline:2px solid #d9a441;outline-offset:2px}
 .auth .terms-ticks a{color:#d9a441;text-decoration:underline}
 @media(min-width:769px){
  .auth .terms-ticks label{font-size:.62rem}
  .auth .terms-ticks span{white-space:nowrap}
+}
+@media(max-width:768px){
+ .auth .terms-ticks input{align-self:flex-start;margin-top:calc((1lh - 18px) / 2)}
 }
 .contact-us .partner-form[hidden]{display:none !important}
 .contact-ok{margin:14px 0 0;color:#f2f2f2;font-size:1.05rem}
