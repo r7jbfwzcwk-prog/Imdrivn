@@ -74,7 +74,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   .home-paths .path .btn{margin-top:4px;min-height:34px;padding:0 10px;font-size:.62rem}
 }
 @media(max-width:768px){
-  body.is-home .landing{min-height:calc(100svh - 57px - 64px);min-height:calc(100dvh - 57px - 64px);display:flex;flex-direction:column;background-attachment:scroll}
+  body.is-home .landing{min-height:calc(100dvh - 57px - 64px);min-height:calc(100svh - 57px - 64px);display:flex;flex-direction:column;background-attachment:scroll}
   body.is-home .hero{flex:1 1 auto;min-height:0}
   body.is-home .hero h1{font-size:1.28rem}
   body.is-home .hero h1 .grey{font-size:clamp(1.2rem,6.05vw,1.83rem);line-height:1.05;white-space:nowrap}
