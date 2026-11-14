@@ -711,8 +711,9 @@ const ListFlow = (() => {
     }
 
     let revState = 'idle', revRpm = 0, revRaf = 0, revStamp = 0, revBuzz = 0, revRedline = false, revHaptic;
-    const REV_AT = 5000, REV_CLIMB_MS = 2800;
-    const REV_TICKS = [1000, 2000, 3000, 4000, 4500, 4800];
+    const REV_AT = 8000, REV_CLIMB_MS = 3200, REV_FLASH_MS = 400;
+    const REV_TICKS = [1000, 2000, 3000, 4000, 5000, 6000, 7000];
+    const REV_GOLD = '#D9A441';
     function hapticOn(){
       try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.matchMedia('(hover: none) and (pointer: coarse)').matches; }
       catch (e) { return false; }
@@ -751,23 +752,67 @@ const ListFlow = (() => {
       try {
         let crossed = -1;
         while (revBuzz < REV_TICKS.length && rpm >= REV_TICKS[revBuzz]) { crossed = revBuzz; revBuzz++; }
-        if (crossed >= 0) hapticPulse(crossed >= 4 ? 12 : 10);
+        if (crossed >= 0) hapticPulse(10);
       } catch (e) {}
     }
     function revButton(){ return !editing && steps[i] && steps[i].id === 'post'; }
     function postLaneName(sec){ return {daily:'DAILY','4x4':'4X4',performance:'PERFORMANCE',supercars:'SUPERCAR'}[sec] || 'DAILY'; }
-    function revMarkup(){
-      return `<svg class="rev-dial" viewBox="0 0 120 88" aria-hidden="true"><circle cx="60" cy="58" r="40" fill="#14120c"/><path d="M22 70 A 42 42 0 1 1 98 70" fill="none" stroke="#3a3220" stroke-width="8" stroke-linecap="round"/><path d="M22 70 A 42 42 0 1 1 98 70" fill="none" stroke="#d9a441" stroke-width="5" stroke-linecap="round"/><path d="M78 34 A 42 42 0 0 1 98 70" fill="none" stroke="#e5242b" stroke-width="5" stroke-linecap="round"/><line class="rev-needle" x1="60" y1="58" x2="60" y2="22" stroke="#f7f7f8" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="58" r="4.5" fill="#d9a441"/><circle cx="60" cy="58" r="2" fill="#1a1408"/></svg><span class="rev-label">Hold here to post</span>`;
+    function tachPolar(cx, cy, r, deg){ const a = deg * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+    function tachArc(cx, cy, r, start, end){
+      const [x1, y1] = tachPolar(cx, cy, r, start);
+      const [x2, y2] = tachPolar(cx, cy, r, end);
+      const delta = ((end - start) % 360 + 360) % 360;
+      const large = delta > 180 ? 1 : 0;
+      return 'M ' + x1 + ' ' + y1 + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2 + ' ' + y2;
     }
-    function paintRev(rpm){
+    function buildTach(svg){
+      if (!svg || svg.dataset.built === '1') return;
+      const cx = 130, cy = 125, r = 96;
+      const ns = 'http://www.w3.org/2000/svg';
+      const add = (name, attrs) => { const el = document.createElementNS(ns, name); for (const k in attrs) el.setAttribute(k, attrs[k]); svg.appendChild(el); return el; };
+      add('circle', { cx, cy, r: 104, fill: '#0C0C0C', stroke: '#1C1C1C', 'stroke-width': 1 });
+      for (let n = 0; n <= 16; n++) {
+        const p = n / 16;
+        const ang = (135 + 270 * p) * Math.PI / 180;
+        const major = n % 2 === 0;
+        const r1 = major ? r - 14 : r - 8;
+        const r2 = r;
+        add('line', { x1: cx + Math.cos(ang) * r1, y1: cy + Math.sin(ang) * r1, x2: cx + Math.cos(ang) * r2, y2: cy + Math.sin(ang) * r2, stroke: n >= 13 ? '#E5242B' : '#8A8A8A', 'stroke-width': major ? 2 : 1 });
+        if (major) {
+          const t = add('text', { x: cx + Math.cos(ang) * (r - 26), y: cy + Math.sin(ang) * (r - 26), fill: n >= 13 ? '#E5242B' : '#CFCFCF', 'font-family': 'Barlow Condensed, sans-serif', 'font-style': 'italic', 'font-weight': '800', 'font-size': '13', 'text-anchor': 'middle', 'dominant-baseline': 'middle' });
+          t.textContent = String(n / 2);
+        }
+      }
+      const arcD = tachArc(cx, cy, 78, 135, 405);
+      add('path', { d: arcD, fill: 'none', stroke: '#222', 'stroke-width': 8, 'stroke-linecap': 'round' });
+      add('path', { d: arcD, fill: 'none', stroke: REV_GOLD, 'stroke-width': 8, 'stroke-linecap': 'round', pathLength: '100', 'stroke-dasharray': '100', 'stroke-dashoffset': '100', 'data-el': 'arc' });
+      add('path', { d: arcD, fill: 'none', stroke: '#E5242B', 'stroke-width': 16, 'stroke-linecap': 'round', pathLength: '100', 'stroke-dasharray': '100', 'stroke-dashoffset': '100', opacity: '0', 'data-el': 'glow', filter: 'blur(6px)' });
+      const g = add('g', { 'data-el': 'needle', transform: 'rotate(225 130 125)' });
+      const needle = document.createElementNS(ns, 'polygon');
+      needle.setAttribute('points', '130,125 126,125 130,36 134,125');
+      needle.setAttribute('fill', REV_GOLD);
+      g.appendChild(needle);
+      const hub = document.createElementNS(ns, 'circle');
+      hub.setAttribute('cx', String(cx)); hub.setAttribute('cy', String(cy)); hub.setAttribute('r', '6'); hub.setAttribute('fill', REV_GOLD);
+      g.appendChild(hub);
+      svg.dataset.built = '1';
+    }
+    function revMarkup(){
+      return `<svg viewBox="0 0 260 230" data-el="svg" aria-hidden="true"></svg><div class="rev-hub"><div class="rev-word">Hold<br>to post</div><div class="rev-sub">RPM × 1000</div></div>`;
+    }
+    function paintRev(rpm, flash){
       const btn = document.getElementById('ask-ok');
       if (!btn) return;
-      const needle = btn.querySelector('.rev-needle');
-      const t = Math.max(0, Math.min(REV_AT, rpm)) / REV_AT;
-      const angle = -108 + t * 216;
-      if (needle) needle.setAttribute('transform', 'rotate(' + angle.toFixed(2) + ' 60 58)');
+      const progress = Math.max(0, Math.min(REV_AT, rpm)) / REV_AT;
+      const off = String(100 * (1 - progress));
+      const arc = btn.querySelector('[data-el="arc"]');
+      const glow = btn.querySelector('[data-el="glow"]');
+      const needle = btn.querySelector('[data-el="needle"]');
+      if (arc) { arc.setAttribute('stroke-dashoffset', off); arc.setAttribute('stroke', progress > 0.78 ? '#E5242B' : REV_GOLD); }
+      if (glow) { glow.setAttribute('stroke-dashoffset', off); glow.style.opacity = String(flash || 0); }
+      if (needle) needle.setAttribute('transform', 'rotate(' + (225 + 270 * progress) + ' 130 125)');
       btn.dataset.rpm = String(Math.round(rpm));
-      btn.classList.toggle('is-revving', rpm > 4200 && revState === 'run');
+      btn.classList.toggle('is-revving', rpm > 6500 && revState === 'run');
     }
     function stopRevLoop(){ if (revRaf) cancelAnimationFrame(revRaf); revRaf = 0; }
     function revFrame(now){
@@ -777,16 +822,19 @@ const ListFlow = (() => {
       if (!stamp) { revRaf = requestAnimationFrame(revFrame); return; }
       const elapsed = now - stamp;
       const base = Math.min(REV_AT, (elapsed / REV_CLIMB_MS) * REV_AT);
-      const wobble = base < REV_AT ? Math.sin(now / 42) * (4 + base / 220) : 0;
-      revRpm = Math.min(REV_AT, Math.max(0, base + wobble));
-      paintRev(revRpm);
+      let flash = 0;
+      if (elapsed >= REV_CLIMB_MS && elapsed < REV_CLIMB_MS + REV_FLASH_MS) {
+        const ms = elapsed - REV_CLIMB_MS;
+        flash = (Math.sin(ms / 40) * 0.5 + 0.5) * 0.9;
+      }
+      revRpm = base;
+      paintRev(base, flash);
       revFeel(base);
       if (base >= REV_AT && !revRedline) {
         revRedline = true;
         hapticPulse([50, 40, 90]);
-        btn.classList.add('is-out');
       }
-      if (base < REV_AT) revRaf = requestAnimationFrame(revFrame);
+      if (elapsed < REV_CLIMB_MS + REV_FLASH_MS) revRaf = requestAnimationFrame(revFrame);
     }
     function postReady(){
       const step = steps[i];
@@ -860,7 +908,9 @@ const ListFlow = (() => {
           btn.style.transform = '';
           btn.style.boxShadow = '';
           btn.setAttribute('aria-label', 'Post ad (hold or tap)');
-          paintRev(0);
+          const svg = btn.querySelector('[data-el="svg"]');
+          if (svg) { svg.dataset.built = ''; svg.replaceChildren(); buildTach(svg); }
+          paintRev(0, 0);
           wireRev(btn);
         }
         setErr(e && e.message ? e.message : 'Could not save that. Try again in a moment.');
@@ -883,7 +933,7 @@ const ListFlow = (() => {
         <h2 class="post-title" id="ask-q">Ready to go live?</h2>
         <p class="post-sub">Last step · Your ad is ready to post</p>
         <div class="post-road" id="post-road" data-lane="${esc(lane)}"></div>
-        <button type="button" class="btn solid rev-post post-go" id="ask-ok" aria-label="Post ad (hold or tap)">${revMarkup()}</button>
+        <button type="button" class="rev-wrap post-go" id="ask-ok" aria-label="Post ad (hold or tap)">${revMarkup()}</button>
         <p class="post-lane">${esc(postLaneName(draft.sec))}</p>
         <p class="ask-err" id="ask-err" role="alert"></p>
       </div></div>`;
@@ -903,6 +953,8 @@ const ListFlow = (() => {
         stopRevLoop();
         if (revState !== 'posting') revState = 'idle';
         const okBtn = document.getElementById('ask-ok');
+        buildTach(okBtn.querySelector('[data-el="svg"]'));
+        paintRev(0, 0);
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) { wireRev(okBtn); }
         else okBtn.onclick = () => { ok(); };
         document.getElementById('ask-back').onclick = () => { back(); };

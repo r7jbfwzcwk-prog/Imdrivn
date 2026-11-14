@@ -17,14 +17,15 @@
   'use strict';
 
   var TRIGGER = 300, ENTER_END = 1000, BURN_END = 2900, EXIT_END = 3450;
-  var DURATION = 3500, LIVE_AT = 2920;
+  var DURATION = 3500, LIVE_AT = 2920, HIDE_AT = 2800;
   var syncRun = false;
   function armClock(sync) {
     syncRun = !!sync;
     if (syncRun) {
-      TRIGGER = 0; ENTER_END = 1680; BURN_END = 3600; EXIT_END = 4500; DURATION = 4500;
+      /* Needle 0→8 over 3200ms, so 3 (3000rpm) is at 1200ms. */
+      TRIGGER = 0; ENTER_END = 1200; BURN_END = 4000; EXIT_END = 4700; DURATION = 4700; HIDE_AT = 3600;
     } else {
-      TRIGGER = 300; ENTER_END = 1000; BURN_END = 2900; EXIT_END = 3450; DURATION = 3500;
+      TRIGGER = 300; ENTER_END = 1000; BURN_END = 2900; EXIT_END = 3450; DURATION = 3500; HIDE_AT = 2800;
     }
   }
   var PREVIEW_CAR_W = 318;
@@ -870,7 +871,7 @@
         var t = now - startTime;
         if (deferLive) {
           drawScene(t);
-          if (syncRun && t >= 2800 && buttonEl) buttonEl.classList.add('is-out');
+          if (syncRun && t >= HIDE_AT && buttonEl) buttonEl.classList.add('is-out');
           if (t >= DURATION && !liveHeld) {
             morph = morphButton(buttonEl);
             applyButton(buttonEl, morph.tick, morph.tickLen, DURATION, false);
