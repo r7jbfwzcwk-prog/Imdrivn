@@ -18,6 +18,15 @@
 
   var TRIGGER = 300, ENTER_END = 1000, BURN_END = 2900, EXIT_END = 3450;
   var DURATION = 3500, LIVE_AT = 2920;
+  var syncRun = false;
+  function armClock(sync) {
+    syncRun = !!sync;
+    if (syncRun) {
+      TRIGGER = 0; ENTER_END = 1680; BURN_END = 3600; EXIT_END = 4500; DURATION = 4500;
+    } else {
+      TRIGGER = 300; ENTER_END = 1000; BURN_END = 2900; EXIT_END = 3450; DURATION = 3500;
+    }
+  }
   var PREVIEW_CAR_W = 318;
   var STYLE_ID = 'imdrivn-burnout-styles';
   var OVERLAY_ID = 'imdrivn-burnout-overlay';
@@ -340,6 +349,7 @@
   function playBurnout(lane, buttonEl, onDone) {
     var key = resolveLane(lane);
     var meta = LANES[key];
+    armClock(!!(buttonEl && buttonEl.dataset && buttonEl.dataset.revSync === '1'));
 
     if (active) {
       try { active.cancel(true); } catch (e) {}
@@ -468,16 +478,18 @@
       if (t < TRIGGER) { phase = 'idle'; mid = startX; }
       else if (t < ENTER_END) {
         phase = 'enter';
-        var ke = easeOutCubic((t - TRIGGER) / (ENTER_END - TRIGGER));
+        var spanIn = Math.max(1, ENTER_END - TRIGGER);
+        var pin = clamp((t - TRIGGER) / spanIn, 0, 1);
+        var ke = syncRun ? (pin * pin * (3 - 2 * pin)) : easeOutCubic(pin);
         mid = lerp(startX, midX, ke);
         rot = lerp(1.2, 0, ke);
         bob = Math.sin(ke * Math.PI) * -1.1 * FX;
-        rearVel = frontVel = (1 - ke) * 0.85 + 0.2;
+        rearVel = frontVel = syncRun ? (0.22 + (1 - ke) * 0.2) : ((1 - ke) * 0.85 + 0.2);
       } else if (t < BURN_END) {
         phase = 'burn';
         var u = (t - ENTER_END) / (BURN_END - ENTER_END);
         var squatIn = easeOutCubic(clamp(u / 0.16, 0, 1));
-        mid = midX + u * 10 * FX;
+        mid = syncRun ? midX : (midX + u * 10 * FX);
         rot = lerp(0, squatDeg, squatIn) - squatWobble * squatIn * Math.sin(u * Math.PI * 7.5);
         shakeX = squatIn * (1.45 * Math.sin(t * 0.072) + 0.65 * Math.sin(t * 0.11)) * FX;
         shakeY = squatIn * 0.7 * Math.sin(t * 0.093) * FX;
@@ -488,7 +500,7 @@
       } else if (t < EXIT_END) {
         phase = 'exit';
         var kx = easeInCubic((t - BURN_END) / (EXIT_END - BURN_END));
-        mid = lerp(midX + 10 * FX, endX, kx);
+        mid = lerp(syncRun ? midX : (midX + 10 * FX), endX, kx);
         var hop = kx < 0.18
           ? lerp(-3.4, -4.2, kx / 0.18)
           : lerp(-4.2, 2.0, easeOutQuad(Math.min(1, (kx - 0.18) / 0.45)));
@@ -836,12 +848,13 @@
         wheels.farFront.hot.src = imgs[6].src;
       }
       var deferLive = !!(buttonEl && buttonEl.dataset && buttonEl.dataset.revDefer === '1');
-      if (deferLive) buttonEl.classList.add('is-out');
-      else morph = morphButton(buttonEl);
+      if (deferLive && !syncRun) buttonEl.classList.add('is-out');
+      else if (!deferLive) morph = morphButton(buttonEl);
       layout();
       window.addEventListener('resize', onResize);
       window.addEventListener('scroll', onResize, true);
       startTime = performance.now();
+      if (syncRun && buttonEl) buttonEl.dataset.revStamp = String(startTime);
       var liveHeld = 0;
       function drawScene(t) {
         var tt = Math.max(0, Math.min(t, DURATION - 1));
@@ -857,6 +870,7 @@
         var t = now - startTime;
         if (deferLive) {
           drawScene(t);
+          if (syncRun && t >= 2800 && buttonEl) buttonEl.classList.add('is-out');
           if (t >= DURATION && !liveHeld) {
             morph = morphButton(buttonEl);
             applyButton(buttonEl, morph.tick, morph.tickLen, DURATION, false);
@@ -970,6 +984,14 @@
     return car;
   }
 
+  function warm(lane) {
+    var key = resolveLane(lane);
+    var base = assetBase() + key + '/';
+    ['body.webp', 'wheel-rear.webp', 'wheel-rear-blur.webp', 'wheel-rear-hot.webp', 'wheel-front.webp', 'wheel-front-blur.webp', 'wheel-front-hot.webp'].forEach(function (name) {
+      loadImg(base + name).catch(function () {});
+    });
+  }
+  playBurnout.warm = warm;
   playBurnout.mountParked = mountParked;
   playBurnout.setAssetBase = setAssetBase;
   playBurnout.LANES = ['daily', '4x4', 'performance', 'supercar'];

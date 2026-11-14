@@ -710,8 +710,8 @@ const ListFlow = (() => {
       document.querySelectorAll('.ask [aria-labelledby="ask-q"]').forEach(el => el.setAttribute('aria-invalid', msg ? 'true' : 'false'));
     }
 
-    let revState = 'idle', revRpm = 0, revRaf = 0, revFrom = 0, revStamp = 0, revBuzz = 0, revHaptic;
-    const REV_AT = 5000, REV_HOLD_MS = 1200, REV_SWEEP_MS = 360;
+    let revState = 'idle', revRpm = 0, revRaf = 0, revStamp = 0, revBuzz = 0, revRedline = false, revHaptic;
+    const REV_AT = 5000, REV_CLIMB_MS = 2800;
     const REV_TICKS = [1000, 2000, 3000, 4000, 4500, 4800];
     function hapticOn(){
       try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.matchMedia('(hover: none) and (pointer: coarse)').matches; }
@@ -767,28 +767,26 @@ const ListFlow = (() => {
       const angle = -108 + t * 216;
       if (needle) needle.setAttribute('transform', 'rotate(' + angle.toFixed(2) + ' 60 58)');
       btn.dataset.rpm = String(Math.round(rpm));
-      btn.classList.toggle('is-revving', rpm > 4200 && revState === 'hold');
+      btn.classList.toggle('is-revving', rpm > 4200 && revState === 'run');
     }
     function stopRevLoop(){ if (revRaf) cancelAnimationFrame(revRaf); revRaf = 0; }
     function revFrame(now){
       const btn = document.getElementById('ask-ok');
-      if (!btn || revState === 'idle' || revState === 'posting') return;
-      if (revState === 'hold') {
-        const base = Math.min(REV_AT, ((now - revStamp) / REV_HOLD_MS) * REV_AT);
-        const wobble = Math.sin(now / 42) * (5 + base / 180);
-        revRpm = Math.min(REV_AT, Math.max(0, base + wobble));
-        paintRev(revRpm);
-        revFeel(base);
-        if (base >= REV_AT) { commitRev(); return; }
-      } else if (revState === 'sweep') {
-        const t = Math.min(1, (now - revStamp) / REV_SWEEP_MS);
-        const eased = 1 - Math.pow(1 - t, 3);
-        revRpm = revFrom + (REV_AT - revFrom) * eased;
-        paintRev(revRpm);
-        revFeel(revRpm);
-        if (t >= 1) { commitRev(); return; }
+      if (!btn || revState !== 'run') return;
+      const stamp = Number(btn.dataset.revStamp || 0);
+      if (!stamp) { revRaf = requestAnimationFrame(revFrame); return; }
+      const elapsed = now - stamp;
+      const base = Math.min(REV_AT, (elapsed / REV_CLIMB_MS) * REV_AT);
+      const wobble = base < REV_AT ? Math.sin(now / 42) * (4 + base / 220) : 0;
+      revRpm = Math.min(REV_AT, Math.max(0, base + wobble));
+      paintRev(revRpm);
+      revFeel(base);
+      if (base >= REV_AT && !revRedline) {
+        revRedline = true;
+        hapticPulse([50, 40, 90]);
+        btn.classList.add('is-out');
       }
-      revRaf = requestAnimationFrame(revFrame);
+      if (base < REV_AT) revRaf = requestAnimationFrame(revFrame);
     }
     function postReady(){
       const step = steps[i];
@@ -806,64 +804,47 @@ const ListFlow = (() => {
       return true;
     }
     function startHold(){
-      if (!revButton() || revState === 'posting' || revState === 'sweep') return;
-      if (revState === 'hold') return;
+      if (!revButton() || revState !== 'idle') return;
       if (!postReady()) return;
       hapticSwitch();
-      revState = 'hold';
+      revState = 'run';
       revBuzz = 0;
-      revStamp = performance.now();
-      revFrom = revRpm;
+      revRedline = false;
       stopRevLoop();
-      revRaf = requestAnimationFrame(revFrame);
-    }
-    function releaseHold(){
-      if (revState !== 'hold') return;
-      revState = 'sweep';
-      revFrom = revRpm;
-      revStamp = performance.now();
-      stopRevLoop();
-      revRaf = requestAnimationFrame(revFrame);
-    }
-    async function commitRev(){
-      if (revState === 'posting') return;
-      revState = 'posting';
-      stopRevLoop();
-      revRpm = REV_AT;
-      paintRev(REV_AT);
-      hapticPulse([50, 40, 90]);
       const btn = document.getElementById('ask-ok');
-      if (btn) { btn.classList.remove('is-revving'); btn.disabled = true; }
-      const road = document.getElementById('post-road');
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       busy = true;
       clearHiddenPower();
-      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      try {
-        if (!reduced && btn) {
-          btn.classList.add('is-out');
-          if (road) road.classList.add('is-burning');
-          btn.dataset.revCommit = '1';
-          btn.dataset.revDefer = '1';
-          try {
-            await loadBurnout();
-            if (window.playBurnout) {
-              const cancel = playBurnout(burnoutLane(draft.sec), btn, () => {
-                btn._revBurnoutDone = true;
-                if (typeof btn._revGo === 'function') btn._revGo();
-              });
-              if (typeof cancel === 'function') btn._revCancel = cancel;
-            }
-          } catch (err) {}
-        }
-        await opts.publish({...draft, photos: draft.photos.slice()});
-      } catch (e) {
+      if (btn) btn.disabled = true;
+      if (!reduced && btn) {
+        btn.dataset.revCommit = '1';
+        btn.dataset.revDefer = '1';
+        btn.dataset.revSync = '1';
+        const road = document.getElementById('post-road');
+        if (road) road.classList.add('is-burning');
+        loadBurnout().then(() => {
+          if (!btn.isConnected || !window.playBurnout || revState !== 'run') return;
+          revStamp = performance.now();
+          revRaf = requestAnimationFrame(revFrame);
+          const cancel = playBurnout(burnoutLane(draft.sec), btn, () => {
+            btn._revBurnoutDone = true;
+            if (typeof btn._revGo === 'function') btn._revGo();
+          });
+          if (typeof cancel === 'function') btn._revCancel = cancel;
+        }).catch(() => {});
+      }
+      opts.publish({...draft, photos: draft.photos.slice()}).catch(e => {
         busy = false;
         revState = 'idle';
         revRpm = 0;
         revBuzz = 0;
+        revRedline = false;
+        stopRevLoop();
         if (btn) {
           btn.disabled = false;
           btn.dataset.revCommit = '';
+          btn.dataset.revDefer = '';
+          btn.dataset.revSync = '';
           btn.classList.remove('is-revving', 'is-out', 'is-live');
           const road = document.getElementById('post-road');
           if (road) road.classList.remove('is-burning');
@@ -883,8 +864,9 @@ const ListFlow = (() => {
           wireRev(btn);
         }
         setErr(e && e.message ? e.message : 'Could not save that. Try again in a moment.');
-      }
+      });
     }
+    function releaseHold(){}
     function wireRev(btn){
       if (!btn) return;
       btn.onpointerdown = e => { if (e.button != null && e.button !== 0) return; e.preventDefault(); btn.setPointerCapture?.(e.pointerId); startHold(); };
@@ -917,7 +899,7 @@ const ListFlow = (() => {
       if (step.id === 'post') {
         stage.innerHTML = postScreen(dir);
         const road = document.getElementById('post-road');
-        loadBurnout().then(() => { if (road && road.isConnected && window.playBurnout && playBurnout.mountParked) playBurnout.mountParked(burnoutLane(draft.sec), road); }).catch(() => {});
+        loadBurnout().then(() => { if (window.playBurnout && playBurnout.warm) playBurnout.warm(burnoutLane(draft.sec)); }).catch(() => {});
         stopRevLoop();
         if (revState !== 'posting') revState = 'idle';
         const okBtn = document.getElementById('ask-ok');
