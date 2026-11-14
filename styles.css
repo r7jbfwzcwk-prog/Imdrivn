@@ -1208,6 +1208,10 @@ html.using-keyboard .auth-head .auth-close:focus-visible{outline:2px solid #d9a4
 .auth-consent{width:100%;margin:8px 0 0;color:var(--c-muted);font-size:.78rem;font-weight:400;letter-spacing:0;text-transform:none;line-height:1.35;text-align:left}
 .marketing-opt{margin-top:28px;display:grid;gap:8px;justify-items:start}
 .marketing-opt .btn{min-height:40px;height:40px}
+@media(max-width:768px){
+  .account-details .marketing-opt{justify-items:stretch}
+  .account-details .marketing-opt .btn{width:100%;box-sizing:border-box;min-height:var(--tap);height:var(--tap)}
+}
 @media(min-width:769px){
  .auth.is-signin .auth-signin .btn.solid,.auth.is-join .auth-create .btn.solid{align-self:center;width:calc(100% - 14px);margin-left:0;margin-right:0}
  .auth.is-signin #auth-err{margin:0}
