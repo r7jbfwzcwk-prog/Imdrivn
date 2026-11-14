@@ -1290,6 +1290,9 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 .fconfirm{flex-basis:100%;border-top:1px solid var(--c-line);padding-top:10px}
 .fcomposer{margin:var(--s-4) 0}
 .fcomposer .panel{margin-top:12px}
+.fcomposer .freply{gap:20px}
+.fcomposer .freply textarea,.fcomposer .freply .err,.fcomposer .freply .btn{margin:0}
+.fcomposer .freply .err:empty{display:none}
 .fempty{color:var(--c-muted);margin:8px 0}
 .fop{border-color:var(--acc-dim)}
 .btn:disabled{opacity:.45;cursor:not-allowed}

@@ -392,8 +392,8 @@ function fReplyBox(threadId) {
   const box = fEl('div', { class: 'fcomposer' });
   box.append(fEl('h2', null, 'Reply'));
   if (!fCanPost()) { box.append(fGateButton()); return box; }
-  const form = fEl('form', { class: 'panel' });
-  const area = fEl('textarea', { rows: '4', maxlength: '8000', required: 'required', placeholder: 'What would you tell them?', 'aria-label': 'Reply' });
+  const form = fEl('form', { class: 'panel freply' });
+  const area = fEl('textarea', { rows: '4', maxlength: '8000', required: 'required', placeholder: 'Go on, throw in your 2cents…', 'aria-label': 'Reply' });
   const err = fEl('p', { class: 'err', role: 'alert' });
   const post = fEl('button', { class: 'btn solid', type: 'submit' }, 'Reply');
   form.append(area, err, post);
