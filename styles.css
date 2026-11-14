@@ -1205,6 +1205,7 @@ body:has(.wrap.auth) footer{display:none}
  .auth.is-signin .panel{padding-bottom:14px}
  .auth.is-signin .auth-oauth,.auth.is-join .auth-oauth{gap:14px}
  .auth.is-signin .auth-or,.auth.is-join .auth-or{margin-top:calc(22px - (1lh - 1px) / 2);margin-bottom:calc(22px - (1lh - 1px) / 2)}
+ .auth.is-join .auth-or{margin-top:calc(19px - (1lh - 1px) / 2);margin-bottom:calc(19px - (1lh - 1px) / 2)}
  .auth.is-signin>.muted:last-child,.auth.is-join>.muted:last-child{margin-top:12px}
 }
 .auth .btn{min-height:44px;height:44px;padding-top:0;padding-bottom:0}
