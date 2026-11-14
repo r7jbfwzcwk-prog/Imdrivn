@@ -613,6 +613,20 @@ function insertLive(input, text) {
   try { input.setSelectionRange(caret, caret); } catch (e) {}
   input.dispatchEvent(new Event('input', { bubbles: true }));
 }
+function trimLiveFeed(log, seen, follow) {
+  const lines = [...log.querySelectorAll('.live-line')];
+  const extra = lines.length - 50;
+  if (extra <= 0) return;
+  const before = log.scrollHeight;
+  const top = log.scrollTop;
+  for (let n = 0; n < extra; n++) {
+    const id = lines[n].getAttribute('data-id');
+    lines[n].remove();
+    if (id && seen) seen.delete(id);
+  }
+  if (follow) log.scrollTop = log.scrollHeight;
+  else log.scrollTop = Math.max(0, top - (before - log.scrollHeight));
+}
 function liveFeedLine(row, mine) {
   const handle = String(row.handle || 'driver').replace(/^@/, '');
   const item = fEl('p', { class: 'live-line' + (mine ? ' is-mine' : ''), 'data-id': row.id || '' });
@@ -727,6 +741,7 @@ async function forumLive() {
       item.append(del);
     }
     log.append(item);
+    trimLiveFeed(log, seen, follow);
     if (follow) log.scrollTop = log.scrollHeight;
   }
   function dropMessage(id) {
@@ -786,7 +801,7 @@ async function forumLive() {
   }
   if (token !== viewToken) return;
   if (!rows.length) log.append(fEl('p', { class: 'fempty', id: 'live-empty' }, 'No messages yet. Say g’day.'));
-  rows.forEach(row => paintMessage(row, true));
+  rows.slice(-50).forEach(row => paintMessage(row, true));
   log.scrollTop = log.scrollHeight;
   if (token !== viewToken || typeof sb === 'undefined' || !sb) return;
   dropLiveChannel();
