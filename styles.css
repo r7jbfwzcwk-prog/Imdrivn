@@ -605,6 +605,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
  @media(hover:hover) and (pointer:fine){.dnav a:hover{color:#d9a441}}
  .dnav a:focus-visible{outline:2px solid #d9a441;outline-offset:2px;background:transparent;border-color:transparent}
  .dnav a[aria-current=page],.dnav a[aria-current=page]:hover,.dnav a[aria-current=page]:focus,.dnav a[aria-current=page]:focus-visible{background:transparent;border-color:transparent;box-shadow:none;color:#d9a441}
+ .dnav a[aria-current=page]::after{content:"";position:absolute;left:50%;bottom:2px;width:18px;height:2px;border-radius:2px;background:#d9a441;transform:translateX(-50%);pointer-events:none}
  .dnav a[aria-current=page]:focus-visible{outline:2px solid #d9a441;outline-offset:2px}
  .dnav a:active,.dnav a[aria-current=page]:active{background:rgba(217,164,65,.24);border-color:#d9a441;color:#fff}
  .nav-account{display:inline-flex;align-items:center;flex:1 1 auto;min-width:0;max-width:11rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none;font-size:.68rem;letter-spacing:.06em;color:#f2f2f2}
