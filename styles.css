@@ -1032,6 +1032,9 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .auth-link{background:none;border:0;padding:0;color:var(--acc);cursor:pointer;font:inherit}
 .auth-oauth{display:grid;gap:10px;margin-top:4px}
 .auth-oauth .btn{width:100%}
+.auth-oauth #apple{background:#000;color:#fff;border-color:#fff;text-transform:none;letter-spacing:0;font-size:.95rem;font-weight:600;gap:8px}
+.auth-oauth #apple svg{width:15px;height:18px;display:block;fill:#fff;flex:none}
+.auth-oauth #apple:hover,.auth-oauth #apple:focus-visible{background:#000;color:#fff;border-color:#fff}
 .auth-or{display:flex;align-items:center;gap:12px;color:var(--c-muted);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase}
 .auth-or::before,.auth-or::after{content:"";flex:1;height:1px;background:var(--c-line)}
 .auth .feed{padding:0;margin-top:var(--s-4)}

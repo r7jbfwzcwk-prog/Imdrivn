@@ -315,6 +315,49 @@ const Auth = {
     this.profile = profile.error ? null : profile.data;
     this.likes = new Set(likes.error ? [] : (likes.data || []).map(r => r.listing_id));
     this.saves = new Set(saves.error ? [] : (saves.data || []).map(r => r.listing_id));
+    try { await this.keepAppleName(); } catch (e) {}
+  },
+  applePersonName(user) {
+    const bags = [user && user.user_metadata].concat((user && user.identities || []).map(row => row && row.identity_data));
+    const text = value => {
+      if (value == null || typeof value === 'object') return '';
+      const name = String(value).trim();
+      if (!name || name === 'null' || name.charAt(0) === '{' || name.charAt(0) === '[') return '';
+      if (/privaterelay\.appleid\.com/i.test(name) || name.length > 80) return '';
+      return name;
+    };
+    const fromBag = bag => {
+      if (!bag || typeof bag !== 'object') return '';
+      const full = text(bag.full_name);
+      if (full) return full;
+      const named = text(bag.name);
+      if (named) return named;
+      const obj = bag.name && typeof bag.name === 'object' ? bag.name : bag;
+      const first = text(obj.firstName || obj.first_name || obj.given_name);
+      const last = text(obj.lastName || obj.last_name || obj.family_name);
+      return [first, last].filter(Boolean).join(' ');
+    };
+    for (let i = 0; i < bags.length; i++) {
+      const name = fromBag(bags[i]);
+      if (name) return name;
+    }
+    return '';
+  },
+  async keepAppleName() {
+    const user = this.user;
+    if (!user || !sb || !this.profile) return;
+    const apple = (user.app_metadata && user.app_metadata.provider === 'apple') || (user.identities || []).some(row => row && row.provider === 'apple');
+    if (!apple) return;
+    const name = this.applePersonName(user);
+    const current = String(this.profile.display_name || '').trim();
+    const email = String(user.email || '');
+    const relay = /privaterelay\.appleid\.com$/i.test(email) ? email.split('@')[0] : '';
+    const junk = !current || current === relay || current.charAt(0) === '{' || current.charAt(0) === '[';
+    if (!junk || (!name && !current)) return;
+    const next = name || null;
+    if ((current || '') === (next || '')) return;
+    const res = await sb.from('profiles').update({ display_name: next }).eq('id', user.id).select(ownProfileCols()).maybeSingle();
+    if (!res.error && res.data) this.profile = res.data;
   },
   async init() {
     if (!sb) return;
@@ -355,10 +398,9 @@ const Auth = {
     if (error) throw new Error(authMessage(error));
   },
   async oauth(provider) {
-    const { data, error } = await sb.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: location.origin + location.pathname, skipBrowserRedirect: true }
-    });
+    const options = { redirectTo: location.origin + location.pathname, skipBrowserRedirect: true };
+    if (provider === 'apple') options.scopes = 'name email';
+    const { data, error } = await sb.auth.signInWithOAuth({ provider, options });
     if (error) throw new Error(authMessage(error, provider));
     try { sessionStorage.setItem('imdrivn_oauth', provider); } catch (e) {}
     if (!data || !data.url) throw new Error('Could not start that sign-in.');
