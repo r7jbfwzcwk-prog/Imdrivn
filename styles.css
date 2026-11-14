@@ -1486,10 +1486,10 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .auth .terms-ticks p{margin:0;line-height:1.3}
 .auth>.muted:last-child{margin-top:2px}
 @media(max-width:768px){
- .auth-head{flex:1 1 auto;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;padding:8px 16px 8px 14px}
- .auth-head h1{font-size:1.15rem;line-height:1.12;margin:0;padding:0 0 2px;text-align:left}
+ .auth-head{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;text-align:left;padding:25px 16px 25px 14px}
+ .auth-head h1{font-size:1.15rem;line-height:1.12;margin:0;padding:0;text-align:left}
  .auth-head .muted{margin:0;line-height:1.25;text-align:left}
- .wrap.form.auth{flex:0 1 auto;padding:0 10px 8px;justify-content:flex-start}
+ .wrap.form.auth{flex:1 1 auto;min-height:0;padding:0 10px 8px;justify-content:space-between}
  body:has(.wrap.auth) main{overflow-y:auto}
  .auth>.muted{line-height:1.25}
  .auth .panel{margin-top:0;padding:4px 10px;gap:4px}
@@ -1502,8 +1502,8 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
  .auth>.muted:last-child{margin-top:2px}
  body:has(.wrap.auth.is-signin){height:100svh;max-height:100svh;height:100dvh;max-height:100dvh}
  body:has(.wrap.auth.is-signin) main{overflow-y:auto}
- body:has(.wrap.auth.is-signin) .auth-head{padding:8px 16px 8px 14px}
- .wrap.form.auth.is-signin{flex:0 1 auto;justify-content:flex-start;padding-top:0;padding-bottom:8px}
+ body:has(.wrap.auth.is-signin) .auth-head{padding:25px 16px 25px 14px}
+ .wrap.form.auth.is-signin{flex:1 1 auto;min-height:0;justify-content:space-between;padding-top:0;padding-bottom:8px}
  .auth.is-signin .panel{gap:10px;padding:10px 10px 12px;margin-top:0}
  .auth.is-signin label{gap:6px}
  .auth.is-signin input{min-height:46px}
