@@ -2,7 +2,7 @@
    image_urls is a text[] of https URLs or news-images paths. A JSON string may add
    an optional caption and credit: {"url":"...","caption":"...","credit":"..."}. */
 const NEWS_TITLE = "IM DRIVN – More than a Marketplace … It's a Community";
-const NEWS_DESC = "Australia's premium marketplace for high performance cars. From first cars to supercars, there's a place for you. Join the crew today.";
+const NEWS_DESC = "Buy, sell and talk cars. Free listings, a scroll-first feed and a real car community.";
 
 function newsCatLabel(id) {
   const hit = News.cats.find(row => row[0] === id);
