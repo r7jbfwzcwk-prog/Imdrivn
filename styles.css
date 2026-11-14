@@ -166,8 +166,10 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .lane-col:hover::before,.lane-col:focus-within::before,.lane-col:active::before,.lane-col.is-lit::before{background:#000;box-shadow:inset 0 0 0 2px var(--acc),inset 0 0 80px var(--glow)}
 @media(min-width:760px){.lane-col{padding-top:120px}}
 @media(min-width:769px){
-  body.is-lanes .lanes-head{position:relative;flex:0 0 auto;background:#0a0a0b;text-align:left;z-index:1;padding:9px 16px 9px 14px}
+  body.is-lanes .lanes-head,body.is-sell .sell-intro{position:relative;flex:0 0 auto;background:#0a0a0b;text-align:left;z-index:1;padding:9px 16px 9px 14px}
+  body.is-lanes .lanes-head h1,body.is-sell .sell-intro h1{font-size:clamp(1.4rem,4vw,2.2rem);line-height:1.2;margin:0;padding:0}
   body.is-lanes .lane-col{padding-top:22px}
+  body.is-sell .sell-col{padding-top:28px}
 }
 @media(prefers-reduced-motion:reduce){.lane-col::before{transition:none}}
 .lane-copy{display:contents}
@@ -1314,7 +1316,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   body.is-sell .sell-col .path{min-height:0 !important}
   body.is-lanes .lanes .path,body.is-sell .sell-col .path{height:100%;max-height:100%;overflow:hidden;padding:clamp(4px,1dvh,10px) 10px}
   body.is-lanes .lanes-head,body.is-sell .sell-intro{position:relative;padding:8px 14px 4px}
-  body.is-sell .sell-intro h1{margin:0;padding:2px 0 8px;font-size:clamp(.84rem,2.8dvh,1.1rem);line-height:1.2}
+  body.is-sell .sell-intro h1{margin:0;padding:0;line-height:1.05}
   body.is-lanes .lane-daily,body.is-sell .sell-list{padding-top:8px}
   body.is-lanes .lane-col{padding:6px 12px}
   body.is-lanes .chooser-paths,body.is-sell .sell-cols{gap:0;padding-bottom:0}
@@ -1324,8 +1326,8 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 @media(max-width:759px){
   body.is-lanes{height:100svh;height:100dvh;max-height:100dvh;min-height:0;overflow:hidden;padding-bottom:calc(64px + env(safe-area-inset-bottom));box-sizing:border-box}
   body.is-lanes #main,body.is-lanes .lanes,body.is-lanes .lanes-copy{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;height:auto;max-height:none;overflow:hidden}
-  body.is-lanes .lanes-head{flex:0 0 auto;padding:6px 14px}
-  body.is-lanes .lanes-head h1{margin:0;padding:0 0 2px;font-size:clamp(.78rem,2.3dvh,1rem);line-height:1.12}
+  body.is-lanes .lanes-head,body.is-sell .sell-intro{flex:0 0 auto;padding:6px 14px}
+  body.is-lanes .lanes-head h1,body.is-sell .sell-intro h1{margin:0;padding:0 0 2px;font-size:clamp(.78rem,2.3dvh,1rem);line-height:1.12}
   body.is-lanes .chooser-paths{flex:1 1 auto;min-height:0;height:auto;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(4,minmax(0,1fr));gap:0;overflow:hidden}
   body.is-lanes .lane-col,body.is-lanes .lane-daily,body.is-lanes .lane-4x4,body.is-lanes .lane-performance,body.is-lanes .lane-supercar{height:auto;min-height:0;overflow:hidden;padding:clamp(1px,.18dvh,3px) 2px;align-items:stretch}
   body.is-lanes .lanes .path{display:flex;flex-direction:row;align-items:center;justify-content:center;height:100%;min-height:0;max-height:100%;overflow:hidden;padding:0 8px;gap:8px;text-align:center}
