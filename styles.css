@@ -629,16 +629,24 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
 .tabs button[data-m=all][aria-selected=true]{color:#c0c0c0}
 .tabs button[data-m=all][aria-selected=true]::after{background:#c0c0c0}
 #lane-ripples{position:fixed;inset:0;z-index:36;overflow:visible;pointer-events:none}
+body.is-flooding:not(.menu-open) .top{z-index:64;background:#000}
+body.is-flooding .bnav{z-index:64;background:#000}
+body.is-flooding #lane-ripples{top:var(--flood-top,0px);bottom:var(--flood-bottom,0px);height:auto;overflow:hidden;transform:translateZ(0)}
 #lane-ripples .lane-ink{position:fixed;overflow:hidden;pointer-events:none}
 #lane-ripples .lane-ripple{position:absolute;border-radius:50%;pointer-events:none;transform:scale(0);opacity:1;animation:lane-ripple .55s ease-out forwards}
 @keyframes lane-ripple{to{transform:scale(1);opacity:0}}
 #lane-ripples.is-fading{animation:lane-flood-out .32s ease forwards}
-.flood-fill,.flood-edge{position:fixed;border-radius:50%;pointer-events:none;transform:scale(0);animation:flood-grow .7s cubic-bezier(.16,.74,.2,1) forwards}
+.flood-fill,.flood-edge{position:absolute;z-index:0;border-radius:50%;pointer-events:none;transform:translate3d(0,0,0) scale(0);animation:flood-grow .7s cubic-bezier(.16,.74,.2,1) forwards;will-change:transform}
 .flood-fill{opacity:1}
 .flood-edge{background:transparent;border:3px solid;box-shadow:0 0 18px 2px currentColor}
 .flood-edge-2{border-width:1px;animation-delay:80ms}
-.lane-ring-flash{position:fixed;inset:0;border-radius:0;animation:lane-flash .22s ease-out forwards}
-@keyframes flood-grow{to{transform:scale(1)}}
+.lane-ring-flash{position:absolute;inset:0;border-radius:0;animation:lane-flash .22s ease-out forwards}
+#lane-ripples .flood-piece{position:absolute;z-index:2;margin:0;pointer-events:none;will-change:transform,opacity;backface-visibility:hidden}
+#lane-ripples .flood-piece.is-chosen{z-index:4;animation:flood-pick .32s cubic-bezier(.22,.7,.2,1) forwards}
+#lane-ripples .flood-piece.is-shove{animation:flood-shove .64s cubic-bezier(.16,.74,.2,1) var(--shove-delay,0ms) both}
+@keyframes flood-pick{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,0,0) scale(1.04)}}
+@keyframes flood-shove{from{transform:translate3d(0,0,0);opacity:1}to{transform:translate3d(0,var(--shove,0px),0);opacity:0}}
+@keyframes flood-grow{to{transform:translate3d(0,0,0) scale(1)}}
 @keyframes lane-flood-out{to{opacity:0}}
 @keyframes lane-flash{from{opacity:.9}to{opacity:0}}
 .tabs button,.lanes .path,.view-all{-webkit-tap-highlight-color:transparent}
