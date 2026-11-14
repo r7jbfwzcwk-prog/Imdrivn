@@ -1219,7 +1219,6 @@ const ListingStore = {
     await Ban.assert();
     await assertCanPost('list a car');
     const uid = Auth.user.id;
-    if (!listing.photos || !listing.photos.length) throw new Error('Add at least one photo before you post. The first one is the cover.');
     const email = String(listing.email || '').trim();
     const mobile = auMobile(listing.mobile || listing.phone);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Add an email before you post.');
@@ -1285,7 +1284,6 @@ const ListingStore = {
     const uid = Auth.user.id;
     const blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     const incoming = (listing.photos || []).filter(src => src && src !== blank);
-    if (!incoming.length) throw new Error('Add at least one photo before you update. The first one is the cover.');
     if (incoming.length > 8) throw new Error('8 is the max.');
     const email = String(listing.email || '').trim();
     const mobile = auMobile(listing.mobile || listing.phone);
@@ -1306,10 +1304,6 @@ const ListingStore = {
     const resolved = await resolveListingPhotos(uid, incoming, existing);
     const next = resolved.next;
     const fresh = resolved.fresh;
-    if (!next.length) {
-      if (fresh.length) await sb.storage.from('listing-photos').remove(fresh);
-      throw new Error('Add at least one photo before you update. The first one is the cover.');
-    }
     const row = {
       mode,
       make: listing.make, model: listing.model, year: listing.year, kms: listing.km,

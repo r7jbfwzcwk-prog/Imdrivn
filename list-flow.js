@@ -103,7 +103,7 @@ const ListFlow = (() => {
     draft.price = draft.price == null ? '' : String(draft.price);
     const submitLabel = (opts && opts.submitLabel) || 'Post it';
     const editing = !!(opts && opts.editing);
-    const photoNeed = editing ? 'Add at least one photo before you update. The first one is the cover.' : 'Add at least one photo before you post. The first one is the cover.';
+    const photoNudge = 'Ads with photos sell a lot quicker. Photos are important, so add some now.';
     let i = 0, busy = false, suggestOn = false, steps = [];
     function boosted() { return draft.sec === 'performance' || draft.sec === 'supercars'; }
     function clearHiddenPower() {
@@ -363,7 +363,7 @@ const ListFlow = (() => {
         question: 'Add your photos',
         hint: 'First photo is the cover. Drag to reorder. Space adds more, Enter continues.',
         mount: body => mountPhotos(body),
-        validate: () => draft.photos.length ? '' : photoNeed
+        validate: () => draft.photos.length > PHOTO_MAX ? '8 is the max.' : ''
       },
       {
         question: 'Your email and mobile',
@@ -412,7 +412,6 @@ const ListFlow = (() => {
         question: "How's this looking?",
         hint: 'This is the card people will scroll past. Or stop on.',
         focusOk: true,
-        validate: () => draft.photos.length ? '' : photoNeed,
         mount(body) {
           const handle = (draft.name || 'you').trim().toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '') || 'you';
           const listing = {
@@ -431,7 +430,6 @@ const ListFlow = (() => {
         question: 'Ready to go live?',
         hint: 'Last step · Your ad is ready to post',
         focusOk: true,
-        validate: () => draft.photos.length ? '' : photoNeed,
         mount() {}
       }
     ];
@@ -623,7 +621,7 @@ const ListFlow = (() => {
         if (countEl) countEl.textContent = draft.photos.length + '/' + PHOTO_MAX;
         if (drop) { drop.hidden = full; drop.disabled = full; }
         if (input) input.disabled = full;
-        if (noteEl && !full) noteEl.textContent = '';
+        if (noteEl && !full) noteEl.textContent = draft.photos.length ? '' : photoNudge;
         host.innerHTML = draft.photos.map((src, n) => `<div class="ask-photo shot${n === 0 ? ' is-cover' : ''}" data-i="${n}" tabindex="0" role="group" aria-label="${n === 0 ? 'Cover photo' : 'Photo ' + (n + 1)}. Use arrow keys to reorder">
           <img src="${src}" alt="">${photoMark()}
           ${n === 0 ? '<span class="ask-cover">Cover</span>' : ''}
@@ -1012,7 +1010,7 @@ const ListFlow = (() => {
       if (busy) return;
       const step = steps[i];
       step.read?.();
-      const msg = step.validate();
+      const msg = step.validate ? step.validate() : '';
       if (msg) { setErr(msg); (step.invalid || (() => document.querySelector('.ask [data-autofocus]')?.focus()))(); return; }
       setErr('');
       if (i < steps.length - 1) { go(1); return; }
