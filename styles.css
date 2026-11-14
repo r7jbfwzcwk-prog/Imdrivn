@@ -1181,6 +1181,9 @@ body:has(.wrap.auth) footer{display:none}
 .auth-gate-mark{display:none}
 .auth-signin .btn.solid{align-self:stretch;box-sizing:border-box;width:calc(100% + 26px);margin-left:-13px;margin-right:-13px}
 .auth-create{display:flex;flex-direction:column;align-items:center;width:100%}
+.auth-consent{width:100%;margin:8px 0 0;color:var(--c-muted);font-size:.78rem;font-weight:400;letter-spacing:0;text-transform:none;line-height:1.35;text-align:left}
+.marketing-opt{margin-top:28px;display:grid;gap:8px;justify-items:start}
+.marketing-opt .btn{min-height:40px;height:40px}
 @media(min-width:769px){
  .auth.is-signin .auth-signin .btn.solid,.auth.is-join .auth-create .btn.solid{align-self:center;width:calc(100% - 14px);margin-left:0;margin-right:0}
  .auth.is-signin .auth-oauth,.auth.is-join .auth-oauth{gap:14px}

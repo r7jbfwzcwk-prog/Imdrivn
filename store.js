@@ -277,7 +277,7 @@ function detectOwnExtras() {
     ownExtraTask = (async () => {
       if (!sb) return '';
       const found = [];
-      for (const col of ['full_name', 'state']) {
+      for (const col of ['full_name', 'state', 'marketing_opt_in', 'marketing_opt_out_at']) {
         const res = await sb.from('profiles').select(col).limit(1);
         if (!res.error) found.push(col);
       }
@@ -524,6 +524,20 @@ const AccountSettings = {
     if (error) throw new Error(authMessage(error));
     await Auth.refreshUser();
     return this.get();
+  },
+  async setMarketing(on) {
+    if (!sb || !Auth.user) throw new Error('Sign in to change your details.');
+    const patch = on
+      ? { marketing_opt_in: true, marketing_opt_out_at: null }
+      : { marketing_opt_in: false, marketing_opt_out_at: new Date().toISOString() };
+    const res = await sb.from('profiles').update(patch).eq('id', Auth.user.id).select('marketing_opt_in,marketing_opt_out_at').maybeSingle();
+    if (res.error) throw accountRpcError(res.error);
+    if (!res.data) throw new Error('Could not update that.');
+    if (Auth.profile) {
+      Auth.profile.marketing_opt_in = res.data.marketing_opt_in;
+      Auth.profile.marketing_opt_out_at = res.data.marketing_opt_out_at;
+    }
+    return res.data;
   },
   async resend(kind) {
     if (!sb || !Auth.user || !Auth.user.email) throw new Error('Sign in to change your details.');
