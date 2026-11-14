@@ -41,11 +41,12 @@ homeRoll();
 const wide=!matchMedia('(max-width:768px)').matches;
 homeLayoutWide=wide;
 let pins=[],rows=[];try{pins=await ListingStore.tops(wide?{mode:BUY}:{})}catch(e){pins=[]}
+const cover=!wide&&pins.filter(isTopAd).length>=12;
 const end=wide?2:11+Math.min(pins.length,12);
-try{rows=await ListingStore.page(wide?{mode:BUY,from:0,to:2}:{mode:'all',from:0,to:end,sort:'new'})}catch(e){rows=[]}
+if(!cover){try{rows=await ListingStore.page(wide?{mode:BUY,from:0,to:2}:{mode:'all',from:0,to:end,sort:'new'})}catch(e){rows=[]}}
 if(token!==homeToken||!$('#fresh'))return;
 const limit=wide?3:12;
-const picked=previewWithTops(pins,rows,limit);
+const picked=wide?previewWithTops(pins,rows,limit):homeRailAds(pins,rows,limit);
 const pool=wide?demosFor(false,false):DEMO.filter(l=>l.status!=='sold');
 const fresh=picked.length?picked:pool.slice(0,limit);
 const box=$('#fresh');
@@ -83,6 +84,8 @@ function topCrown(){return '<svg viewBox="0 0 24 16" aria-hidden="true"><path d=
 function isTopAd(l){const until=Date.parse(l&&l.top_until);return Number.isFinite(until)&&until>Date.now()}
 function topBadge(l){if(!isTopAd(l))return '';return `<span class="top-badge">${topCrown()}TOP</span>`}
 function previewWithTops(pins, rows, limit){const seen=new Set(),out=[];const push=l=>{if(!l||seen.has(l.id)||out.length>=limit)return;seen.add(l.id);out.push(l)};(pins||[]).forEach(l=>{if(isTopAd(l))push(l)});(rows||[]).forEach(push);return out}
+function shuffleAds(list){const a=list.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+function homeRailAds(pins, rows, limit){const tops=[],seen=new Set();const take=l=>{if(!l||seen.has(l.id)||!isTopAd(l))return;seen.add(l.id);tops.push(l)};(pins||[]).forEach(take);(rows||[]).forEach(take);let memory={};try{memory=JSON.parse(localStorage.getItem('imdrivn_home_tops')||'{}')||{}}catch(e){memory={}}let picked;if(tops.length>limit){const rank=tops.map(l=>{const rec=memory[l.id];return{l,n:rec&&rec[0]||0,at:rec&&rec[1]||0,tie:Math.random()}});rank.sort((a,b)=>a.n-b.n||a.at-b.at||a.tie-b.tie);picked=shuffleAds(rank.slice(0,limit).map(x=>x.l))}else picked=shuffleAds(tops);const now=Date.now();const next={};tops.forEach(l=>{if(memory[l.id])next[l.id]=memory[l.id]});picked.forEach(l=>{const prev=next[l.id];next[l.id]=[(prev&&prev[0]||0)+1,now]});try{localStorage.setItem('imdrivn_home_tops',JSON.stringify(next))}catch(e){}if(picked.length>=limit)return picked;(rows||[]).forEach(l=>{if(!l||seen.has(l.id)||picked.length>=limit)return;seen.add(l.id);picked.push(l)});return picked}
 let newBadgeTimer=0,newBadgeFrame=0;
 function sweepNewBadges(){const now=Date.now();let next=Infinity;document.querySelectorAll('span.new').forEach(el=>{const until=Number(el.getAttribute('data-new-until'));if(!Number.isFinite(until)||now>until){el.remove();return}if(until<next)next=until});if(newBadgeTimer){clearTimeout(newBadgeTimer);newBadgeTimer=0}if(next===Infinity)return;const wait=Math.min(Math.max(next-Date.now(),0)+1,2147483647);newBadgeTimer=setTimeout(sweepNewBadges,wait)}
 function queueNewBadges(){if(newBadgeFrame)return;newBadgeFrame=requestAnimationFrame(()=>{newBadgeFrame=0;sweepNewBadges()})}
