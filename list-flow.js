@@ -756,7 +756,6 @@ const ListFlow = (() => {
       } catch (e) {}
     }
     function revButton(){ return !editing && steps[i] && steps[i].id === 'post'; }
-    function postLaneName(sec){ return {daily:'DAILY','4x4':'4X4',performance:'PERFORMANCE',supercars:'SUPERCAR'}[sec] || 'DAILY'; }
     function tachPolar(cx, cy, r, deg){ const a = deg * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
     function tachArc(cx, cy, r, start, end){
       const [x1, y1] = tachPolar(cx, cy, r, start);
@@ -934,7 +933,6 @@ const ListFlow = (() => {
         <p class="post-sub">Last step · Your ad is ready to post</p>
         <div class="post-road" id="post-road" data-lane="${esc(lane)}"></div>
         <button type="button" class="rev-wrap post-go" id="ask-ok" aria-label="Post ad (hold or tap)">${revMarkup()}</button>
-        <p class="post-lane">${esc(postLaneName(draft.sec))}</p>
         <p class="ask-err" id="ask-err" role="alert"></p>
       </div></div>`;
     }

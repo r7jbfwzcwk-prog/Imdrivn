@@ -964,7 +964,7 @@ body:has(.post-live) #main{flex:1 1 auto;min-height:0;overflow:hidden;display:fl
 body:has(.post-live) .ask{flex:1 1 auto;min-height:0;height:auto;max-height:100%;margin:0;padding:8px 16px 8px;overflow:hidden;box-sizing:border-box}
 body:has(.post-live) .ask-bar{display:none}
 body:has(.post-live) .ask-stage,body:has(.post-live) .post-slide{flex:1 1 auto;min-height:0;height:100%;margin:0;display:flex;flex-direction:column;overflow:hidden}
-.post-live{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;color:#f2f2f2}
+.post-live{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;color:#f2f2f2;padding-bottom:calc(10px + 1.55 * .72rem)}
 .post-back{position:absolute;top:0;left:0;z-index:2;min-height:36px;padding:0 4px;border:0;background:transparent;color:#9a9aa2;font:600 .78rem/1 var(--font-body);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
 .post-back:hover,.post-back:focus-visible{color:#d9a441;outline:none}
 .post-brand{margin:28px 0 6px;color:#d9a441;font-size:.72rem;font-weight:600;letter-spacing:.28em;text-transform:uppercase}
@@ -996,7 +996,6 @@ body:has(.post-live) .ask-stage,body:has(.post-live) .post-slide{flex:1 1 auto;m
 @keyframes glint-sweep{0%{transform:translateX(-120%) rotate(8deg);opacity:1}100%{transform:translateX(140%) rotate(8deg);opacity:1}}
 @keyframes glint-rest{0%{transform:translateX(-120%) rotate(8deg);opacity:1}23.07%{transform:translateX(140%) rotate(8deg);opacity:1}23.2%,100%{transform:translateX(140%) rotate(8deg);opacity:0}}
 @media(prefers-reduced-motion:reduce){#ask-ok.rev-wrap.is-live{animation:none}#ask-ok.is-live .shimmer-glint{animation:none;opacity:0}}
-.post-lane{margin:10px 0 0;color:#9a9aa2;font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
 .post-live .ask-err{min-height:0;margin:6px 0 0}
 .post-live .ask-err:empty{display:none}
 @media(min-width:900px){body:has(.post-live){padding-bottom:calc(76px + env(safe-area-inset-bottom))}}
