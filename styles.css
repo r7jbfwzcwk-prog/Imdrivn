@@ -267,7 +267,7 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .about-us .founder-name{margin:0 0 12px;color:#d9a441;font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:.95rem}
 .about-us .founder-bio{margin:0 0 14px;color:#e4e4e8;line-height:1.6}
 .about-us .txt .btn{margin-top:8px}
-@media(max-width:759px){.about-us .img{min-height:360px}.about-us .img::after{background:linear-gradient(180deg,transparent 55%,var(--c-bg))}}
+@media(max-width:759px){.about-switch{padding-bottom:11px}.about-us .img{min-height:360px}.about-us .img::after{background:linear-gradient(180deg,transparent 55%,var(--c-bg))}}
 /* detail */
 .detail{display:grid;gap:var(--s-5)}@media(min-width:900px){.detail{grid-template-columns:1.7fr 1fr}}
 .gal .main{aspect-ratio:16/10;object-fit:cover;width:100%;border-radius:var(--r-md)}
