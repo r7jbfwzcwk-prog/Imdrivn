@@ -889,6 +889,7 @@ const ListFlow = (() => {
         stopRevLoop();
         if (btn) {
           btn.disabled = false;
+          if (typeof btn._dropGarage === 'function') btn._dropGarage();
           btn.dataset.revCommit = '';
           btn.dataset.revDefer = '';
           btn.dataset.revSync = '';

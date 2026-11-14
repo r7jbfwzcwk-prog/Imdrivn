@@ -282,7 +282,9 @@
     buttonEl.appendChild(el('span', { className: 'shimmer-glint', 'aria-hidden': 'true' }));
     buttonEl.classList.add('is-live');
     buttonEl.classList.remove('is-out');
+    buttonEl.dataset.liveAt = String(performance.now());
     buttonEl.setAttribute('aria-label', "You're live!");
+    try { buttonEl.dispatchEvent(new CustomEvent('imdrivn-live', { bubbles: true })); } catch (e) {}
     var tickLen = 24;
     try { tickLen = path.getTotalLength() || 24; } catch (e) {}
     path.style.strokeDasharray = String(tickLen);
