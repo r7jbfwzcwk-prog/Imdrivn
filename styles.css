@@ -123,8 +123,8 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .hero .hero-free-desk{display:block;white-space:normal;max-width:calc(100vw - 80px)}
   body.is-home .hero .hero-free{display:none}
   body.is-home .wrap.home-paths{margin-top:16px;padding-bottom:0}
-  body.is-home .feats{position:relative;padding-top:88px}
-  body.is-home .feats .eyebrow{position:absolute;left:0;right:0;bottom:calc(100% + 14px);margin:0;text-align:center;z-index:3}
+  body.is-home .feats{position:relative;padding-top:32px}
+  body.is-home .feats .eyebrow{position:static;margin:0;text-align:center}
 }
 @media(min-width:769px) and (max-width:1219px){
   body.is-home .hero .wrap{width:100%;max-width:100%}
