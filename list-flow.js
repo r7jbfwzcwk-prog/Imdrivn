@@ -702,8 +702,50 @@ const ListFlow = (() => {
       document.querySelectorAll('.ask [aria-labelledby="ask-q"]').forEach(el => el.setAttribute('aria-invalid', msg ? 'true' : 'false'));
     }
 
-    let revState = 'idle', revRpm = 0, revRaf = 0, revFrom = 0, revStamp = 0;
+    let revState = 'idle', revRpm = 0, revRaf = 0, revFrom = 0, revStamp = 0, revBuzz = 0, revHaptic;
     const REV_AT = 5000, REV_HOLD_MS = 1200, REV_SWEEP_MS = 360;
+    const REV_TICKS = [1000, 2000, 3000, 4000, 4500, 4800];
+    function hapticOn(){
+      try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.matchMedia('(hover: none) and (pointer: coarse)').matches; }
+      catch (e) { return false; }
+    }
+    function hapticSwitch(){
+      try {
+        if (revHaptic && revHaptic.isConnected) return revHaptic;
+        const label = document.createElement('label');
+        label.className = 'rev-haptic';
+        label.setAttribute('aria-hidden', 'true');
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.setAttribute('switch', '');
+        input.tabIndex = -1;
+        input.setAttribute('aria-hidden', 'true');
+        label.appendChild(input);
+        document.body.appendChild(label);
+        revHaptic = label;
+        return label;
+      } catch (e) { return null; }
+    }
+    function hapticPulse(pattern){
+      try {
+        if (!hapticOn()) return;
+        if (typeof navigator.vibrate === 'function') {
+          navigator.vibrate(pattern);
+          return;
+        }
+        const label = hapticSwitch();
+        if (label) label.click();
+      } catch (e) {
+        try { const label = hapticSwitch(); if (label) label.click(); } catch (err) {}
+      }
+    }
+    function revFeel(rpm){
+      try {
+        let crossed = -1;
+        while (revBuzz < REV_TICKS.length && rpm >= REV_TICKS[revBuzz]) { crossed = revBuzz; revBuzz++; }
+        if (crossed >= 0) hapticPulse(crossed >= 4 ? 12 : 10);
+      } catch (e) {}
+    }
     function revButton(){ return !editing && i === steps.length - 1; }
     function revMarkup(){
       return `<svg class="rev-dial" viewBox="0 0 64 40" aria-hidden="true"><rect x="1" y="1" width="62" height="38" rx="5" fill="#0a0a0b"/><path d="M10 32A22 22 0 1 1 54 32" fill="none" stroke="#3a3018" stroke-width="4" stroke-linecap="round"/><path d="M10 32A22 22 0 1 1 54 32" fill="none" stroke="#d9a441" stroke-width="3" stroke-linecap="round"/><path d="M46 16.5A22 22 0 0 1 54 32" fill="none" stroke="#e5242b" stroke-width="3" stroke-linecap="round"/><line class="rev-needle" x1="32" y1="32" x2="32" y2="12" stroke="#f4f4f6" stroke-width="1.7" stroke-linecap="round"/><circle cx="32" cy="32" r="2.2" fill="#d9a441"/></svg><span class="rev-label">Post ad</span>`;
@@ -726,12 +768,14 @@ const ListFlow = (() => {
         const wobble = Math.sin(now / 42) * (5 + base / 180);
         revRpm = Math.min(REV_AT, Math.max(0, base + wobble));
         paintRev(revRpm);
+        revFeel(base);
         if (base >= REV_AT) { commitRev(); return; }
       } else if (revState === 'sweep') {
         const t = Math.min(1, (now - revStamp) / REV_SWEEP_MS);
         const eased = 1 - Math.pow(1 - t, 3);
         revRpm = revFrom + (REV_AT - revFrom) * eased;
         paintRev(revRpm);
+        revFeel(revRpm);
         if (t >= 1) { commitRev(); return; }
       }
       revRaf = requestAnimationFrame(revFrame);
@@ -755,7 +799,9 @@ const ListFlow = (() => {
       if (!revButton() || revState === 'posting' || revState === 'sweep') return;
       if (revState === 'hold') return;
       if (!postReady()) return;
+      hapticSwitch();
       revState = 'hold';
+      revBuzz = 0;
       revStamp = performance.now();
       revFrom = revRpm;
       stopRevLoop();
@@ -775,6 +821,7 @@ const ListFlow = (() => {
       stopRevLoop();
       revRpm = REV_AT;
       paintRev(REV_AT);
+      hapticPulse([40, 30, 60]);
       const btn = document.getElementById('ask-ok');
       if (btn) { btn.classList.remove('is-revving'); btn.disabled = true; }
       busy = true;
@@ -799,6 +846,7 @@ const ListFlow = (() => {
         busy = false;
         revState = 'idle';
         revRpm = 0;
+        revBuzz = 0;
         if (btn) {
           btn.disabled = false;
           btn.dataset.revCommit = '';

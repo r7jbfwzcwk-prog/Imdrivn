@@ -943,6 +943,8 @@ h2.ask-q{font-family:var(--font-body);font-style:normal;font-weight:600;text-tra
 .rev-post .rev-dial{width:28px;height:20px;flex:0 0 auto;display:block}
 .rev-post .rev-label{line-height:1}
 .rev-post.is-revving{animation:rev-shake .07s linear infinite}
+.rev-haptic{position:fixed;left:0;top:0;width:1px;height:1px;margin:0;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;pointer-events:none}
+.rev-haptic input{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
 @keyframes rev-shake{50%{transform:translate3d(1px,0,0)}}
 @media(prefers-reduced-motion:reduce){.rev-post.is-revving{animation:none}}
 .ask-nav .btn[hidden]{display:none}
