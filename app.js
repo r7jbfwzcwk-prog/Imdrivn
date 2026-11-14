@@ -589,7 +589,7 @@ timer=setTimeout(async()=>{try{const free=await Auth.handleFree(value);if(ticket
 input.addEventListener('input',()=>{const next=Auth.cleanHandle(input.value);if(input.value!==next){input.value=next;input.setSelectionRange(next.length,next.length)}showAuthErr('');schedule(next)});
 $('#auth-form').onsubmit=async e=>{e.preventDefault();if(!confirm.hidden)return;const name=Auth.cleanHandle(input.value);if(!Auth.handleOk(name)||ready!==name){showAuthErr('Pick an available handle first.');return}
 confirm.hidden=false;btn.hidden=true;input.readOnly=true;
-confirm.innerHTML=`<p class="handle-forever">@${esc(name)} is yours forever. Lock it in?</p><div class="auth-row"><button class="btn solid" type="button" id="lock-yes">Lock it in</button><button class="btn" type="button" id="lock-back">Back</button></div>`;
+confirm.innerHTML=`<p class="handle-forever">@${esc(name)} is yours forever. Lock it in?</p><div class="auth-row"><button class="btn solid" type="button" id="lock-yes">YES, SEND IT!</button><button class="btn" type="button" id="lock-back">OH NOOO!</button></div>`;
 $('#lock-back').onclick=()=>{confirm.hidden=true;confirm.innerHTML='';btn.hidden=false;input.readOnly=false;input.focus()};
 $('#lock-yes').onclick=async()=>{const yes=$('#lock-yes');yes.disabled=true;showAuthErr('');try{await Auth.setHandle(name);afterAuth()}catch(err){showAuthErr(err.message||'Could not save that.');yes.disabled=false;if(/taken/i.test(err.message||'')){ready='';paint("That handle's taken, try another",'bad');confirm.hidden=true;btn.hidden=false;btn.disabled=true;input.readOnly=false}}}};}
 function focusMyAds(){if(hashParts().p!=='join'||hashParts().a!=='ads')return;const el=document.getElementById('my-ads');if(el)el.scrollIntoView()}
