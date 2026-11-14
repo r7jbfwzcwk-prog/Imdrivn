@@ -1249,6 +1249,13 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 .auth .feed{padding:0;margin-top:var(--s-4)}
 .handle-input{font-size:1.4rem;font-weight:600;text-transform:lowercase}
 .handle-warn{margin:0 0 var(--s-4);padding:12px 14px;border:1px solid var(--acc);border-radius:12px;background:var(--c-surface);color:var(--c-text)}
+.wrap.form.auth.is-handle{justify-content:flex-start}
+.auth.is-handle h1{margin-bottom:0}
+.auth.is-handle #auth-form{margin-top:60px;margin-bottom:0}
+.auth.is-handle .handle-warn{margin:60px 0 0}
+.auth.is-handle .panel{gap:0}
+.auth.is-handle #lock-go{margin-top:30px}
+.auth.is-handle .handle-status:empty,.auth.is-handle #auth-err:empty,.auth.is-handle #handle-confirm:empty{display:none;min-height:0;margin:0}
 .handle-status{min-height:1.35em;margin:8px 0 0;font-size:.95rem;color:var(--c-muted)}
 .handle-status.is-ok{color:var(--acc)}
 .handle-status.is-bad{color:var(--c-err)}
