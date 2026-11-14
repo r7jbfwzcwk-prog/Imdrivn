@@ -664,7 +664,7 @@ async function forumLive() {
   const head = fEl('div', { class: 'live-head' });
   const titles = fEl('div', { class: 'live-titles' });
   const name = fEl('div', { class: 'live-name' });
-  name.append(fEl('h1', null, 'Live Chat'), fEl('p', { class: 'eyebrow live-vibes' }, 'Cars & coffee vibes'));
+  name.append(fEl('h1', null, 'Live Chat'), fEl('p', { class: 'eyebrow live-vibes' }, "It's giving cars and coffee vibes"));
   titles.append(fEl('a', { class: 'eyebrow', href: '#/forum' }, 'The forum'), name);
   const pill = fEl('button', { type: 'button', class: 'live-pill', 'aria-expanded': 'false', 'aria-controls': 'live-drawer' });
   pill.append(fEl('span', { class: 'flive-dot', 'aria-hidden': 'true' }), fEl('span', { class: 'live-pill-n' }, '0 online'));
