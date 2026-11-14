@@ -791,7 +791,7 @@ function mapListing(row) {
     condition: listingCondition(row),
     rego: row.rego || '',
     vin: row.vin || '',
-    photos: (row.photos && row.photos.length ? row.photos.map(photoUrl) : ['data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7']),
+    photos: (row.photos && row.photos.length ? row.photos.map(photoUrl).filter(Boolean) : []),
     photoPaths: Array.isArray(row.photos) ? row.photos.slice() : [],
     status: row.status,
     handle: (profile && profile.username) || 'you',
@@ -1709,7 +1709,7 @@ const Notes = {
     if (!sb || !Auth.user) return [];
     await Presence.ready;
     const { data, error } = await sb.from('notifications')
-      .select('id,kind,actor_id,thread_id,reply_id,conversation_id,message_id,thread_title,preview,read_at,created_at,actor:profiles!notifications_actor_id_fkey(' + publicProfileCols() + '),thread:forum_threads!notifications_thread_id_fkey(title,author_id)')
+      .select('id,kind,actor_id,thread_id,reply_id,conversation_id,message_id,listing_id,thread_title,preview,read_at,created_at,actor:profiles!notifications_actor_id_fkey(' + publicProfileCols() + '),thread:forum_threads!notifications_thread_id_fkey(title,author_id)')
       .is('read_at', null)
       .order('created_at', { ascending: false })
       .limit(40);
@@ -1725,6 +1725,7 @@ const Notes = {
         replyId: row.reply_id,
         conversationId: row.conversation_id,
         messageId: row.message_id,
+        listingId: row.listing_id || '',
         preview: row.preview || '',
         handle: actor && actor.username ? String(actor.username).replace(/^@/, '') : '',
         memberVerified: !!(actor && actor.member_verified === true),

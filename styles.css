@@ -755,6 +755,18 @@ input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-sea
 .member-card h2,.member-switch p{margin:0 0 8px;font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0}
 .member-card .btn.solid{background:#d9a441;border-color:#d9a441;color:#111}
 .post .car{position:relative;display:block}.post .car img{width:100%;aspect-ratio:16/7.5;object-fit:cover;background:#111}
+.photo-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;background:#000;overflow:hidden}
+.post .car .photo-soon{aspect-ratio:16/7.5}
+.shot-main .photo-soon{aspect-ratio:16/10}
+.photo-soon img{width:min(62%,240px);height:auto;max-height:34%;object-fit:contain;background:transparent;aspect-ratio:auto;opacity:.86}
+.post .car .photo-soon img,.shot-main .photo-soon img,.inbox-photo .photo-soon img{width:min(62%,240px);height:auto;max-height:34%;aspect-ratio:auto;object-fit:contain}
+.photo-soon span{font-family:var(--font-head);font-style:italic;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:#d9a441;font-size:clamp(.58rem,2.2vw,.78rem);line-height:1.2;text-align:center}
+.inbox-photo .photo-soon{height:48px;aspect-ratio:auto;gap:0}
+.inbox-photo .photo-soon span{display:none}
+.inbox-photo .photo-soon img{width:78%;max-height:70%}
+.add-photos-banner{display:flex;align-items:center;gap:10px;margin:0 0 8px;padding:7px 10px;border:1px solid #d9a441;border-radius:8px;background:#000}
+.add-photos-banner button{flex:none;border:0;background:transparent;color:#d9a441;font-family:var(--font-head);font-style:italic;font-weight:400;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:0}
+.add-photos-banner span{color:#9a9aa2;font-size:.72rem;line-height:1.3}
 .shot{position:relative;display:block;container-type:inline-size}
 .wm{position:absolute;right:8px;bottom:8px;z-index:2;width:auto;max-width:none;min-width:0;margin:0;padding:0;border:0;background:transparent;color:#fff;font-family:var(--font-body);font-style:normal;font-weight:600;font-size:11px;font-size:2.55cqw;letter-spacing:.06em;line-height:1;text-transform:uppercase;text-decoration:none;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.75);pointer-events:none;opacity:.66}
 .thumbs button.shot{overflow:hidden}

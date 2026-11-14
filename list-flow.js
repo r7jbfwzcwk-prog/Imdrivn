@@ -357,6 +357,7 @@ const ListFlow = (() => {
         }
       },
       {
+        id: 'photos',
         question: 'Add your photos',
         hint: 'First photo is the cover. Drag to reorder. Space adds more, Enter continues.',
         mount: body => mountPhotos(body),
@@ -786,6 +787,10 @@ const ListFlow = (() => {
     document.addEventListener('keydown', onKey);
 
     rebuildSteps();
+    if (opts && opts.startAt === 'photos') {
+      const at = steps.findIndex(step => step.id === 'photos');
+      if (at >= 0) i = at;
+    }
     root.innerHTML = `<div class="ask">
       <div class="ask-bar" role="progressbar" aria-valuemin="1" aria-valuemax="${steps.length}" aria-valuenow="1" aria-label="Listing progress"><span></span></div>
       <div class="ask-stage"></div>
