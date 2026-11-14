@@ -1256,7 +1256,7 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
 .auth.is-handle .panel{gap:0}
 .auth.is-handle #lock-go{margin-top:30px}
 .auth.is-handle #lock-go[hidden],.auth.is-handle #handle-confirm[hidden]{display:none !important}
-.auth.is-handle #handle-confirm:not([hidden]){margin-top:30px}
+.auth.is-handle #handle-confirm:not([hidden]){margin-top:-4px}
 .auth.is-handle #handle-confirm .auth-row{display:flex;flex-wrap:nowrap;gap:8px;width:100%;margin:0}
 .auth.is-handle #handle-confirm .auth-row .btn{flex:1 1 0;width:auto;min-width:0;margin:0;padding:0 8px;white-space:nowrap}
 .auth.is-handle #lock-yes,.auth.is-handle #lock-yes:hover,.auth.is-handle #lock-yes:focus,.auth.is-handle #lock-yes:active{background:#d9a441;border-color:#d9a441;color:#111}
