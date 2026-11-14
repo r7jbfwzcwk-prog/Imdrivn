@@ -1481,6 +1481,18 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
  .auth .terms-ticks{gap:2px}
  .auth .terms-ticks label,.auth .terms-ticks p{font-size:.82rem;line-height:1.2}
  .auth>.muted:last-child{margin-top:2px}
+ body:has(.wrap.auth.is-signin){height:100svh;max-height:100svh;height:100dvh;max-height:100dvh}
+ body:has(.wrap.auth.is-signin) main{overflow-y:auto}
+ body:has(.wrap.auth.is-signin) .auth-head{padding-bottom:6px}
+ .wrap.form.auth.is-signin{justify-content:space-evenly;padding-top:4px;padding-bottom:4px}
+ .auth.is-signin .panel{gap:10px;padding:10px 10px 12px;margin-top:0}
+ .auth.is-signin label{gap:6px}
+ .auth.is-signin input{min-height:46px}
+ .auth.is-signin .btn{min-height:46px;height:46px}
+ .auth.is-signin .auth-signin{gap:8px}
+ .auth.is-signin .auth-or{margin:0}
+ .auth.is-signin .auth-oauth{gap:8px}
+ .auth.is-signin input{scroll-margin:80px}
 }
 .auth .terms-ticks label{display:flex;align-items:flex-start;gap:8px;color:#e4e4e8;font-size:.9rem;font-weight:400;letter-spacing:0;text-transform:none;line-height:1.15}
 .auth .terms-ticks input{width:18px;height:18px;min-height:0;padding:0;margin-top:2px;flex:none}
