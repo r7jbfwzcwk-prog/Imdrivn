@@ -1629,7 +1629,7 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .garage-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .garage-top h1{margin:0;min-width:0}
 .garage-edit{flex:0 0 auto;text-transform:none;letter-spacing:.01em;white-space:normal;text-align:center}
-.partners h1{font-size:clamp(1.6rem,4vw,2.4rem);color:#f2f2f2}
+.partners h1{margin-top:.7rem;font-size:clamp(1.6rem,4vw,2.4rem);color:#f2f2f2}
 .partners-lead{margin:0 0 22px;color:#c8c8cc;max-width:36rem}
 .partner-grid{display:grid;grid-template-columns:1fr;gap:14px}
 @media(min-width:700px){.partner-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
