@@ -8,6 +8,16 @@
 .drag-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 10px 10px}
 .drag-controls button{min-height:52px;border:1px solid #d9a441;border-radius:10px;background:#000;color:#d9a441;font:600 .85rem/1 var(--font-body,sans-serif);letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
 .drag-controls button.is-down,.drag-controls button.is-on{background:#d9a441;color:#111}
+.drag-controls button.is-miss{border-color:#e5242b;color:#e5242b;background:#000}
+.drag-controls:has(button[hidden]){grid-template-columns:1fr}
+.drag-trans{display:flex;gap:8px;margin-top:12px}
+.drag-trans button{min-height:40px;padding:0 14px;border:1px solid #2a2a2e;border-radius:8px;background:#0c0c0e;color:#f2f2f2;font:600 .75rem/1 var(--font-body,sans-serif);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.drag-trans button.is-on{border-color:#d9a441;color:#d9a441}
+.drag-ups{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.drag-ups button{min-height:44px;border:1px solid #2a2a2e;border-radius:8px;background:#0c0c0e;color:#f2f2f2;text-align:left;padding:6px 8px;cursor:pointer}
+.drag-ups button span{display:block;color:#d9a441;font-size:.72rem;margin-top:2px}
+.drag-ups button:disabled{opacity:.55;cursor:default}
+.drag-pick button.is-locked{opacity:.8}
 .drag-pick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .drag-pick button{min-height:64px;border:1px solid #2a2a2e;border-radius:10px;background:#0c0c0e;color:#f2f2f2;text-align:left;padding:8px 10px;cursor:pointer}
 .drag-pick button.is-on{border-color:#d9a441}

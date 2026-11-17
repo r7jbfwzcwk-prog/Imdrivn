@@ -9,6 +9,10 @@ const DRAG_CARS = [
 const DRAG_FINISH = 402.336;
 const DRAG_RATIOS = [3.2, 2.2, 1.62, 1.28, 1.05, 0.88, 0.74];
 const DRAG_UPS = ['engine', 'turbo', 'tyres', 'gearbox', 'nitrous', 'weight'];
+const DRAG_PRICE = { daily: 0, '4x4': 800, performance: 2200, supercar: 5000 };
+const DRAG_COST = { engine: 200, turbo: 250, tyres: 150, gearbox: 180, nitrous: 300, weight: 160 };
+const DRAG_MAX = 3;
+const DRAG_UP_NAME = { engine: 'Engine', turbo: 'Turbo', tyres: 'Tyres', gearbox: 'Gearbox', nitrous: 'Nitrous', weight: 'Weight' };
 
 function dragGarage() {
   let data = null;
@@ -17,14 +21,31 @@ function dragGarage() {
   DRAG_CARS.forEach(car => {
     const prev = data && data.cars && data.cars[car.id];
     const upgrades = {};
-    DRAG_UPS.forEach(key => { upgrades[key] = prev && prev.upgrades && prev.upgrades[key] > 0 ? prev.upgrades[key] | 0 : 0; });
-    cars[car.id] = { id: car.id, upgrades };
+    DRAG_UPS.forEach(key => {
+      const n = prev && prev.upgrades && prev.upgrades[key] > 0 ? prev.upgrades[key] | 0 : 0;
+      upgrades[key] = Math.max(0, Math.min(DRAG_MAX, n));
+    });
+    const owned = prev ? prev.owned === true || (prev.owned == null && (car.id === 'daily' || car.id === data.selected)) : car.id === 'daily';
+    cars[car.id] = { id: car.id, owned, upgrades };
   });
-  const selected = data && cars[data.selected] ? data.selected : 'daily';
-  return { cash: data && data.cash > 0 ? data.cash | 0 : 0, selected, cars };
+  const selected = data && cars[data.selected] && cars[data.selected].owned ? data.selected : 'daily';
+  const trans = data && data.trans === 'auto' ? 'auto' : 'manual';
+  return { cash: data && data.cash > 0 ? data.cash | 0 : 0, selected, trans, cars };
 }
 function dragSave(data) { localStorage.setItem(DRAG_KEY, JSON.stringify(data)); }
 function dragSpec(id) { return DRAG_CARS.find(car => car.id === id) || DRAG_CARS[0]; }
+function dragTune(id, saved) {
+  const base = dragSpec(id);
+  const u = saved && saved.upgrades ? saved.upgrades : {};
+  return {
+    id: base.id, name: base.name, color: base.color, gears: base.gears,
+    power: base.power + (u.engine || 0) * 28 + (u.turbo || 0) * 36,
+    weight: Math.max(980, base.weight - (u.weight || 0) * 45),
+    grip: 1 + (u.tyres || 0) * 0.05,
+    box: u.gearbox || 0,
+    nitro: u.nitrous || 0
+  };
+}
 
 function dragRace() {
   const host = document.getElementById('main');
@@ -46,7 +67,7 @@ function dragRace() {
   let raf = 0;
   let paid = false;
 
-  root.innerHTML = '<div class="drag-top"><div><p class="eyebrow">IM DRIVN</p><h1>Drag</h1></div><p class="drag-cash" id="drag-cash"></p></div><div class="drag-stage"><canvas id="drag-canvas" width="640" height="280"></canvas><div class="drag-hud"><span id="drag-gear">Gear —</span><span id="drag-rpm">RPM —</span><span id="drag-speed">0 km/h</span></div><div class="drag-controls"><button type="button" id="drag-hold">Hold to rev</button><button type="button" id="drag-shift">Shift</button></div></div><div class="drag-pick" id="drag-pick"></div><p class="drag-read" id="drag-read">Pick a car, then stage. Hold through the ambers and launch on green.</p><div class="drag-actions"><button type="button" id="drag-stage">Stage</button></div>';
+  root.innerHTML = '<div class="drag-top"><div><p class="eyebrow">IM DRIVN</p><h1>Drag</h1></div><p class="drag-cash" id="drag-cash"></p></div><div class="drag-stage"><canvas id="drag-canvas" width="640" height="280"></canvas><div class="drag-hud"><span id="drag-gear">Gear —</span><span id="drag-rpm">RPM —</span><span id="drag-speed">0 km/h</span></div><div class="drag-controls"><button type="button" id="drag-hold">Hold to rev</button><button type="button" id="drag-shift">Shift</button></div></div><div class="drag-trans" id="drag-trans"><button type="button" data-trans="auto">Auto</button><button type="button" data-trans="manual">Manual</button></div><div class="drag-pick" id="drag-pick"></div><div class="drag-ups" id="drag-ups"></div><p class="drag-read" id="drag-read">Pick a car, then stage. Hold through the ambers and launch on green.</p><div class="drag-actions"><button type="button" id="drag-stage">Stage</button></div>';
   const canvas = document.getElementById('drag-canvas');
   const ctx = canvas.getContext('2d');
   const cashEl = document.getElementById('drag-cash');
@@ -58,19 +79,44 @@ function dragRace() {
   const holdBtn = document.getElementById('drag-hold');
   const shiftBtn = document.getElementById('drag-shift');
   const stageBtn = document.getElementById('drag-stage');
+  const upsEl = document.getElementById('drag-ups');
+  const transEl = document.getElementById('drag-trans');
 
   function paintCash() { cashEl.textContent = '$' + garage.cash; }
+  function paintTrans() {
+    transEl.querySelectorAll('button').forEach(btn => btn.classList.toggle('is-on', btn.getAttribute('data-trans') === garage.trans));
+    shiftBtn.hidden = garage.trans !== 'manual';
+  }
   function paintPick() {
-    pickEl.innerHTML = DRAG_CARS.map(car => '<button type="button" data-car="' + car.id + '"' + (car.id === garage.selected ? ' class="is-on"' : '') + '><b><i class="drag-swatch" style="background:' + car.color + '"></i>' + car.name + '</b><span>' + car.power + ' hp · ' + car.weight + ' kg · ' + car.gears + ' gears</span></button>').join('');
+    pickEl.innerHTML = DRAG_CARS.map(car => {
+      const row = garage.cars[car.id];
+      const tuned = dragTune(car.id, row);
+      const on = car.id === garage.selected ? ' is-on' : '';
+      const lock = row.owned ? '' : ' is-locked';
+      const line = row.owned ? (tuned.power + ' hp · ' + tuned.weight + ' kg · ' + car.gears + ' gears') : ('Buy $' + DRAG_PRICE[car.id]);
+      return '<button type="button" data-car="' + car.id + '" class="' + (on + lock).trim() + '"><b><i class="drag-swatch" style="background:' + car.color + '"></i>' + car.name + '</b><span>' + line + '</span></button>';
+    }).join('');
+  }
+  function paintUps() {
+    const row = garage.cars[garage.selected];
+    upsEl.innerHTML = DRAG_UPS.map(key => {
+      const lvl = row.upgrades[key];
+      const maxed = lvl >= DRAG_MAX;
+      const cost = DRAG_COST[key] * (lvl + 1);
+      return '<button type="button" data-up="' + key + '"' + (maxed ? ' disabled' : '') + '>' + DRAG_UP_NAME[key] + ' ' + lvl + '/' + DRAG_MAX + '<span>' + (maxed ? 'Max' : '$' + cost) + '</span></button>';
+    }).join('');
   }
   paintCash();
   paintPick();
+  paintUps();
+  paintTrans();
 
   function blank(spec) {
     return { spec, gear: 1, rpm: 900, speed: 0, dist: 0, launched: false, foul: false, reaction: null, launchRpm: 900, bog: 0, boost: 0, finished: false, et: 0, trap: 0, run: 0 };
   }
   function fresh() {
-    you = blank(dragSpec(garage.selected));
+    you = blank(dragTune(garage.selected, garage.cars[garage.selected]));
+    you.manual = garage.trans === 'manual';
     const others = DRAG_CARS.filter(car => car.id !== garage.selected);
     cpu = blank(others[(Math.random() * others.length) | 0]);
     cpuLag = 0.1 + Math.random() * 0.16;
@@ -88,9 +134,43 @@ function dragRace() {
   pickEl.onclick = e => {
     const btn = e.target.closest('[data-car]');
     if (!btn || mode === 'tree' || mode === 'race') return;
-    garage.selected = btn.getAttribute('data-car');
+    const id = btn.getAttribute('data-car');
+    const row = garage.cars[id];
+    if (!row.owned) {
+      const cost = DRAG_PRICE[id];
+      if (garage.cash < cost) { readEl.textContent = 'Need $' + cost + ' to buy the ' + dragSpec(id).name + '.'; return; }
+      garage.cash -= cost;
+      row.owned = true;
+    }
+    garage.selected = id;
     dragSave(garage);
+    paintCash();
     paintPick();
+    paintUps();
+  };
+  upsEl.onclick = e => {
+    const btn = e.target.closest('[data-up]');
+    if (!btn || mode === 'tree' || mode === 'race') return;
+    const key = btn.getAttribute('data-up');
+    const row = garage.cars[garage.selected];
+    const lvl = row.upgrades[key];
+    if (lvl >= DRAG_MAX) return;
+    const cost = DRAG_COST[key] * (lvl + 1);
+    if (garage.cash < cost) { readEl.textContent = 'Need $' + cost + ' for ' + DRAG_UP_NAME[key] + '.'; return; }
+    garage.cash -= cost;
+    row.upgrades[key] = lvl + 1;
+    dragSave(garage);
+    paintCash();
+    paintPick();
+    paintUps();
+  };
+  transEl.onclick = e => {
+    const btn = e.target.closest('[data-trans]');
+    if (!btn || mode === 'tree' || mode === 'race') return;
+    garage.trans = btn.getAttribute('data-trans') === 'auto' ? 'auto' : 'manual';
+    dragSave(garage);
+    paintTrans();
+    readEl.textContent = garage.trans === 'manual' ? 'Manual: lift off the gas before every shift.' : 'Auto: it shifts for you. You still launch it.';
   };
   stageBtn.onclick = () => { if (mode === 'pick' || mode === 'done') fresh(); };
   holdBtn.addEventListener('pointerdown', e => { hold = true; armed = true; holdBtn.classList.add('is-down'); if (holdBtn.setPointerCapture) holdBtn.setPointerCapture(e.pointerId); });
@@ -110,6 +190,12 @@ function dragRace() {
     if (e.code === 'Space') { hold = false; holdBtn.classList.remove('is-down'); }
   }
 
+  function noteMiss() {
+    readEl.textContent = 'Lift off the gas before you shift.';
+    shiftBtn.classList.add('is-miss');
+    clearTimeout(noteMiss.t);
+    noteMiss.t = setTimeout(() => { if (shiftBtn.isConnected) shiftBtn.classList.remove('is-miss'); }, 700);
+  }
   function drive(car, dt, now, auto) {
     const ratios = DRAG_RATIOS.slice(0, car.spec.gears);
     const launching = auto ? (!car.launched && greenAt && now >= greenAt + cpuLag) : (!car.launched && !hold && car.reaction === null && (holdBtn.classList.contains('is-down') || car.armed));
@@ -142,7 +228,8 @@ function dragRace() {
     const band = top / car.spec.gears;
     const ceil = band * car.gear;
     const floor = band * (car.gear - 1);
-    let pull = (car.spec.power / car.spec.weight) * 24;
+    let pull = (car.spec.power / car.spec.weight) * 24 * (car.spec.grip || 1);
+    if (car.spec.nitro && car.run < 1.2) pull *= 1 + car.spec.nitro * 0.05;
     if (car.bog > 0) pull *= 0.28;
     if (car.boost > 0) pull *= 1.2;
     if (car.speed < floor * 0.9) pull *= 0.4;
@@ -151,10 +238,18 @@ function dragRace() {
     const span = Math.max(1, ceil - floor);
     car.rpm = 900 + Math.max(0, Math.min(1, (car.speed - floor) / span)) * 6500;
     if (car.speed >= ceil - 0.2) car.rpm = 7520;
-    const wantShift = auto ? car.rpm >= cpuShift : shiftEdge;
+    const manual = !auto && car.manual;
+    if (manual && shiftEdge && hold && car.gear < car.spec.gears) {
+      car.bog = Math.max(car.bog, 0.55);
+      noteMiss();
+    }
+    const wantShift = auto ? car.rpm >= cpuShift : (manual ? (shiftEdge && !hold) : car.rpm >= 6800);
     if (wantShift && car.gear < car.spec.gears) {
+      const box = car.spec.box || 0;
+      const good = 6200 - box * 80;
+      const late = 7480 + box * 40;
       if (car.rpm < 5600) car.bog = Math.max(car.bog, 0.45);
-      else if (car.rpm < 6200 || car.rpm > 7480) car.bog = Math.max(car.bog, 0.22);
+      else if (car.rpm < good || car.rpm > late) car.bog = Math.max(car.bog, 0.22);
       const next = ratios[car.gear] || ratio;
       car.gear += 1;
       car.rpm = Math.max(1600, car.rpm * (next / ratio));
