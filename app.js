@@ -29,7 +29,7 @@ function homeRoll(){stopHomeRoll();if(window.matchMedia('(prefers-reduced-motion
 async function home(){const token=++homeToken;stopHomeRoll();main.innerHTML=`
 <section class="landing"><section class="hero"><div class="wrap"><div class="eyebrow">IM DRIVN</div>
 <!-- ORIGINAL HEADLINE: The High Performance Marketplace -->
-<h1><span class="hero-line">More than a Marketplace …</span><br><span class="grey">It's a Community.</span></h1><hr><p><span class="hero-free">From first cars to supercars, there's a place for you.<br>Why pay to list your car when you can list it here free !</span><span class="hero-free-desk">From first cars to supercars, there's a place for you.<br>Why pay to list your car when you can list it here free !</span></p></div></section>
+<h1><span class="hero-line">More than a Marketplace …</span><br><span class="grey">It's a Community.</span></h1><hr><p><span class="hero-free">From first cars to supercars, there's a place for you.<br>Why pay to list your car when you can list it here free !</span><span class="hero-free-desk">From first cars to supercars, there's a place for you.<br>Why pay to list your car when you can list it here free !</span></p><a class="og-cta-phone" id="og-cta-m" href="#/join/up"><span class="og-cta-pull">Pull up here…</span><span class="og-cta-hundred">First 100 members</span><span class="og-cta-life">Get an OG Badge for Life !!</span></a></div></section>
 <div class="wrap home-paths"><a class="og-cta" id="og-cta" href="#/join/up"><span class="og-cta-main">First 100 members. Get an OG Badge for life.</span><span class="og-cta-sub">Pull up here ..</span></a><div class="paths">
 <a class="path" href="#/buyin">${ico('tag')}<span class="wide">IM BUYIN</span><span class="tag">Find your next machine.</span><span class="muted">Browse cars available now on IM DRIVN.</span><span class="btn">Browse cars →</span></a>
 <a class="path" href="#/sell">${ico('up')}<span class="wide">IM SELLIN</span><span class="tag">List with confidence.</span><span class="muted">List free or get a wholesale offer from dealers.</span><span class="btn">Sell your car →</span></a></div></div></section>
@@ -38,7 +38,7 @@ ${[['people','All Welcome','Daily drivers to supercars, every build and every dr
 <section class="wrap home-fresh"><div class="eyebrow">Fresh in the feed</div><div class="feed home-fresh-feed" id="fresh"></div></section>
 ${about()}`;
 homeRoll();
-const og=$('#og-cta');if(og)og.onclick=async e=>{e.preventDefault();try{await Auth.ready}catch(err){}if(Auth.user){if(location.hash!=='#/garage')location.hash='#/garage';else garage();return}if(location.hash==='#/join/up')join();else location.hash='#/join/up'};
+document.querySelectorAll('#og-cta,#og-cta-m').forEach(og=>{og.onclick=async e=>{e.preventDefault();try{await Auth.ready}catch(err){}if(Auth.user){if(location.hash!=='#/garage')location.hash='#/garage';else garage();return}if(location.hash==='#/join/up')join();else location.hash='#/join/up'}});
 fitOgCta();
 const wide=!matchMedia('(max-width:768px)').matches;
 homeLayoutWide=wide;
