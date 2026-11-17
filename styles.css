@@ -84,9 +84,9 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .hero .wrap::before{content:"";position:absolute;z-index:0;left:0;right:0;width:auto;top:0;bottom:-22px;transform:none;background:linear-gradient(180deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.62) calc(100% - 22px),rgba(0,0,0,0) 100%);pointer-events:none}
   body.is-home .hero .wrap>*{position:relative;z-index:1}
   body.is-home .wrap.home-paths{margin-top:auto;padding:0 12px calc(10px + env(safe-area-inset-bottom))}
-  body.is-home .og-cta{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-sizing:border-box;margin:0 0 8px;padding:7px 10px;min-height:46px;border:1px solid #f7e2a6;border-bottom:3px solid #6e4f17;border-radius:12px;background:#d9a441;color:#111;text-decoration:none;text-align:center}
-  body.is-home .og-cta-main{font-size:.74rem;font-weight:800;letter-spacing:.01em;line-height:1.2}
-  body.is-home .og-cta-sub{font-size:.64rem;font-weight:600;letter-spacing:.03em;line-height:1.2}
+  body.is-home .og-cta{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;box-sizing:border-box;margin:0 0 8px;padding:5px 8px;border:1px solid #d9a441;border-radius:8px;background:rgba(0,0,0,.55);color:#d9a441;text-decoration:none;text-align:left;box-shadow:none}
+  body.is-home .og-cta-main{font-size:.64rem;font-weight:700;letter-spacing:.01em;line-height:1.25}
+  body.is-home .og-cta-sub{font-size:.54rem;font-weight:600;letter-spacing:.02em;line-height:1.2}
   body.is-home .home-paths .paths{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
   body.is-home .home-paths .path{min-height:64px;height:100%;justify-content:flex-start;background:linear-gradient(180deg,transparent 0%,#000 56%)}
   body.is-home .home-paths .path .muted{margin-bottom:12px}
@@ -122,13 +122,13 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .hero .wrap{width:auto;max-width:none;margin:0;padding:calc(5.75vh + 5px) 32px 0 20px;text-align:left;box-sizing:border-box}
   body.is-home .hero h1{width:max-content;max-width:100%;margin-left:0;margin-right:0;text-align:left}
   body.is-home .hero p{max-width:none;margin:0;text-align:left;font-size:18px;line-height:1.35}
-  body.is-home .hero .hero-lead{display:block;white-space:nowrap}
-  body.is-home .hero .hero-free-desk{display:block;white-space:normal;max-width:calc(100vw - 80px)}
+  body.is-home .hero .hero-lead{display:none}
+  body.is-home .hero .hero-free-desk{display:block;width:max-content;max-width:calc(100vw - 80px);white-space:normal}
   body.is-home .hero .hero-free{display:none}
   body.is-home .wrap.home-paths{margin-top:0;padding-bottom:0}
-  body.is-home .og-cta{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-sizing:border-box;width:100%;margin:0 0 12px;padding:10px 18px;min-height:58px;border:1px solid #f7e2a6;border-bottom:4px solid #6e4f17;border-radius:14px;background:#d9a441;color:#111;text-decoration:none;text-align:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 4px 8px rgba(0,0,0,.45)}
-  body.is-home .og-cta-main{font-size:1.05rem;font-weight:800;letter-spacing:.02em;line-height:1.2}
-  body.is-home .og-cta-sub{font-size:.82rem;font-weight:600;letter-spacing:.04em;line-height:1.2}
+  body.is-home .og-cta{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;box-sizing:border-box;margin:0 0 10px;padding:7px 12px;border:1px solid #d9a441;border-radius:10px;background:rgba(0,0,0,.45);color:#d9a441;text-decoration:none;text-align:left;box-shadow:none}
+  body.is-home .og-cta-main{font-size:.9rem;font-weight:700;letter-spacing:.01em;line-height:1.25}
+  body.is-home .og-cta-sub{font-size:.7rem;font-weight:600;letter-spacing:.02em;line-height:1.2}
   body.is-home .feats{position:relative;padding-top:32px}
   body.is-home .feats .eyebrow{position:static;margin:0;text-align:center}
 }
@@ -136,9 +136,9 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .landing{padding-bottom:3px}
 }
 @media(min-width:769px) and (max-height:760px){
-  body.is-home .og-cta{min-height:44px;margin-bottom:6px;padding:6px 14px}
-  body.is-home .og-cta-main{font-size:.92rem}
-  body.is-home .og-cta-sub{font-size:.72rem}
+  body.is-home .og-cta{margin-bottom:6px;padding:5px 10px}
+  body.is-home .og-cta-main{font-size:.82rem}
+  body.is-home .og-cta-sub{font-size:.64rem}
   body.is-home .home-paths .path{padding-bottom:16px}
   body.is-home .home-paths .path .btn{margin-top:6px}
 }
