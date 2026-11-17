@@ -147,9 +147,9 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .og-desk-words .gold{color:#e8c46a}
   body.is-home .og-desk-seal{transform:rotate(-6deg);transform-origin:center}
   body.is-home .og-desk-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-  body.is-home .og-desk-top,body.is-home .og-desk-bot{font-family:var(--font-body);font-weight:900;filter:drop-shadow(0 1px 1px rgba(0,0,0,.75))}
-  body.is-home .og-desk-top{font-size:var(--ogd-top,16px);letter-spacing:var(--ogd-top-track,3.4px);fill:#e8c46a}
-  body.is-home .og-desk-bot{font-size:var(--ogd-bot,20px);letter-spacing:var(--ogd-bot-track,1.4px);fill:#fff}
+  body.is-home .og-desk-top,body.is-home .og-desk-bot{font-family:var(--font-body);font-weight:900}
+  body.is-home .og-desk-top{font-size:var(--ogd-top,16px);letter-spacing:var(--ogd-top-track,3.4px);fill:#e8c46a;filter:drop-shadow(0 1px 1px rgba(0,0,0,.75))}
+  body.is-home .og-desk-bot{font-size:var(--ogd-bot,20px);letter-spacing:var(--ogd-bot-track,1.4px);fill:#fff;filter:drop-shadow(0 0 1.5px #000) drop-shadow(0 2px 3px #000) drop-shadow(0 0 6px rgba(0,0,0,.95))}
   body.is-home .og-desk-seal .og-badge{position:absolute;background:transparent;pointer-events:none}
   body.is-home .og-desk-arrow{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
   body.is-home .og-desk-arrow .shaft,body.is-home .og-desk-arrow .head{fill:none;stroke:#e8c46a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;pointer-events:stroke;filter:drop-shadow(0 2px 2px #000)}
