@@ -654,15 +654,15 @@ function placeSigninNote(play){
     if(node&&at>=0){range.setStart(node,at);range.setEnd(node,at+4)}
     const hh=node&&at>=0?range.getBoundingClientRect():span.getBoundingClientRect();
     const n=v=>v.toFixed(1);
-    const start={x:hh.right-2,y:hh.bottom+8};
     const lr=linkNow.getBoundingClientRect();
-    const tip={x:lr.right+14,y:lr.top+lr.height*0.45};
-    const rail={x:Math.max(start.x-4,frNow.right+30),y:tip.y};
-    const bow={x:rail.x+16,y:start.y+(rail.y-start.y)*0.55};
-    const d=`M ${n(start.x)} ${n(start.y)} C ${n(start.x+20)} ${n(start.y+36)}, ${n(bow.x)} ${n(bow.y-18)}, ${n(bow.x-8)} ${n(bow.y)} C ${n(bow.x-14)} ${n(bow.y+34)}, ${n(rail.x+8)} ${n(rail.y-28)}, ${n(rail.x)} ${n(rail.y)} C ${n(rail.x-40)} ${n(rail.y+3)}, ${n(tip.x+28)} ${n(tip.y-4)}, ${n(tip.x)} ${n(tip.y)}`;
-    const ang=Math.atan2(tip.y-rail.y,tip.x-rail.x);
-    const wing=(len,turn)=>{const a=ang+turn;return {x:tip.x-Math.cos(a)*len,y:tip.y-Math.sin(a)*len}};
-    const a=wing(26,-0.55),b=wing(21,0.62);
+    const start={x:hh.left+hh.width*0.46,y:Math.max(hh.bottom,wr.bottom)+16};
+    const lx=start.x-6,ly=lr.bottom+34,R=29;
+    const tip={x:lr.right+16,y:lr.bottom+2};
+    const dip={x:(lr.right+lx)/2,y:lr.bottom+128};
+    const d=`M ${n(start.x)} ${n(start.y)} C ${n(start.x+16)} ${n(start.y+64)}, ${n(start.x-18)} ${n(start.y+130)}, ${n(lx+8)} ${n(ly-R-22)} C ${n(lx+R+6)} ${n(ly-R-4)}, ${n(lx+R+10)} ${n(ly+6)}, ${n(lx+R-2)} ${n(ly+R-8)} C ${n(lx+4)} ${n(ly+R+18)}, ${n(lx-R-8)} ${n(ly+R+6)}, ${n(lx-R+2)} ${n(ly)} C ${n(lx-R+2)} ${n(ly-R-4)}, ${n(lx-4)} ${n(ly-R-10)}, ${n(lx+12)} ${n(ly-2)} C ${n(lx+28)} ${n(ly+36)}, ${n(dip.x+70)} ${n(dip.y-24)}, ${n(dip.x)} ${n(dip.y)} C ${n(dip.x-90)} ${n(dip.y+22)}, ${n(tip.x+64)} ${n(tip.y+78)}, ${n(tip.x)} ${n(tip.y)}`;
+    const ang=Math.atan2(tip.y-(tip.y+78),tip.x-(tip.x+64));
+    const wing=(len,turn)=>{const a=ang+Math.PI+turn;return {x:tip.x+Math.cos(a)*len,y:tip.y+Math.sin(a)*len}};
+    const a=wing(22,0.5),b=wing(17,-0.55);
     const shaft=root.querySelector('.shaft');
     const head=root.querySelector('.head');
     const hit=root.querySelector('.hit');
