@@ -86,7 +86,8 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .hero .wrap{position:relative;z-index:1;padding-top:21px}
   body.is-home .hero .wrap::before{content:"";position:absolute;z-index:0;left:0;right:0;width:auto;top:0;bottom:-22px;transform:none;background:linear-gradient(180deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.62) calc(100% - 22px),rgba(0,0,0,0) 100%);pointer-events:none}
   body.is-home .hero .wrap>*{position:relative;z-index:1}
-  body.is-home .wrap.home-paths{margin-top:auto;padding:0 12px calc(10px + env(safe-area-inset-bottom))}
+  body.is-home .wrap.home-paths{margin-top:auto;padding:0 12px calc(10px + env(safe-area-inset-bottom));pointer-events:none}
+  body.is-home .home-paths .path{pointer-events:auto}
   body.is-home .home-paths .og-cta{visibility:hidden;pointer-events:none}
   body.is-home .hero .wrap>.og-cta-phone{position:absolute;inset:0;z-index:2;display:block;width:auto;height:auto;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;min-height:0;color:inherit;text-decoration:none;pointer-events:none}
   body.is-home .og-mark-words,body.is-home .og-mark-seal{position:absolute;pointer-events:auto}
@@ -99,7 +100,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .og-ring-bot{font-size:13px;letter-spacing:1.2px;fill:#fff}
   body.is-home .og-mark-seal .og-badge{position:absolute;left:22px;top:16px;width:96px;height:96px;transform:none;background:transparent;filter:drop-shadow(0 0 6px rgba(240,190,70,.3)) drop-shadow(0 0 14px rgba(240,190,70,.16))}
   body.is-home .og-mark-arrow{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-  body.is-home .og-mark-arrow .shaft,body.is-home .og-mark-arrow .head{fill:none;stroke:#e8c46a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+  body.is-home .og-mark-arrow .shaft,body.is-home .og-mark-arrow .head{fill:none;stroke:#e8c46a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke}
   body.is-home .home-paths .paths{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
   body.is-home .home-paths .path{min-height:64px;height:100%;justify-content:flex-start;background:linear-gradient(180deg,transparent 0%,#000 56%)}
   body.is-home .home-paths .path .muted{margin-bottom:12px}
