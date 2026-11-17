@@ -157,6 +157,8 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .hero p{max-width:none;margin:0;text-align:left;font-size:18px;line-height:1.35}
   body.is-home .hero .hero-lead{display:none}
   body.is-home .hero .hero-free-desk{display:block;width:max-content;max-width:calc(100vw - 80px);white-space:normal}
+  body.is-home .hero .hero-sell{color:inherit;font:inherit;letter-spacing:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+  body.is-home .hero .hero-sell:hover{color:#e8c46a}
   body.is-home .hero .hero-free{display:none}
   body.is-home .og-cta-phone{display:none}
   body.is-home .wrap.home-paths{margin-top:0;padding-bottom:0}
