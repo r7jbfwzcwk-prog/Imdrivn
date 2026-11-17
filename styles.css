@@ -513,21 +513,21 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   .appmenu a:hover,.appmenu a:focus-visible,.appmenu button.menu-act:hover,.appmenu button.menu-act:focus-visible,#menu-signout:hover,#menu-signout:focus-visible{background:#14120c;color:#d9a441;outline:none}
   .appmenu a[aria-current=page]{color:#d9a441}
   .menu-head{order:0}
-  a[href="#/buyin"].menu-slot{order:1}
-  a[href="#/sell"].menu-slot{order:2}
-  a[href="#/merch"].menu-slot{order:3}
-  a[href="#/forum"].menu-slot{order:4}
+  a[href="#/forum"].menu-slot{order:1}
+  a[href="#/buyin"].menu-slot{order:2}
+  a[href="#/sell"].menu-slot{order:3}
+  a[href="#/merch"].menu-slot{order:4}
   a[href="#/news"].menu-slot{order:5}
   a[href="#/about"].menu-slot{order:6}
-  a.menu-partners{order:6}
-  a.menu-helpin{order:6}
-  .menu-mark{order:6;display:block;align-self:center;width:min(180px,62%);height:auto;max-height:clamp(14px,3.2dvh,28px);margin-top:auto;margin-bottom:0;object-fit:contain;object-position:center;opacity:.34;pointer-events:none;user-select:none;flex:0 1 auto}
-  a.nav-account.menu-wide{order:6;margin-top:auto}
-  a[href="#/garage"]{order:7}
-  a[href="#/garage/ads"]{order:8}
-  #menu-msgs{order:9}
-  a[href="#/saved"]{order:10}
-  #menu-signout{order:11}
+  a.menu-helpin{order:7}
+  a.menu-partners{order:8}
+  .menu-mark{order:9;display:block;align-self:center;width:min(180px,62%);height:auto;max-height:clamp(14px,3.2dvh,28px);margin-top:auto;margin-bottom:0;object-fit:contain;object-position:center;opacity:.34;pointer-events:none;user-select:none;flex:0 1 auto}
+  a.nav-account.menu-wide{order:10}
+  a[href="#/garage"]{order:11}
+  a[href="#/garage/ads"]{order:12}
+  #menu-msgs{order:13}
+  a[href="#/saved"]{order:14}
+  #menu-signout{order:15}
   .menu-foot{order:20;display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;margin-top:clamp(8px,1.6dvh,24px);padding:0 4px calc(6px + env(safe-area-inset-bottom));background:#000}
   .appmenu .menu-foot #menu-search{flex:0 1 auto;width:auto;min-width:0;max-width:calc(100% - 160px);height:clamp(36px,6dvh,44px);min-height:clamp(36px,6dvh,44px);justify-content:flex-start;gap:8px;padding:0 4px 0 2px;border:0;border-bottom:0;border-radius:12px;background:transparent;color:#f2f2f2;font-size:clamp(.66rem,1.7dvh,.8rem);letter-spacing:.12em;white-space:nowrap}
   .menu-foot .menu-search-label{color:inherit;line-height:1}
@@ -548,14 +548,14 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   #appmenu.appmenu[hidden]{display:none}
   #appmenu .menu-scroll{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden}
   #appmenu a.menu-slot{display:flex}
-  #appmenu a[href="#/buyin"].menu-slot{order:1}
-  #appmenu a[href="#/sell"].menu-slot{order:2}
-  #appmenu a[href="#/merch"].menu-slot{order:3}
-  #appmenu a[href="#/forum"].menu-slot{order:4}
+  #appmenu a[href="#/forum"].menu-slot{order:1}
+  #appmenu a[href="#/buyin"].menu-slot{order:2}
+  #appmenu a[href="#/sell"].menu-slot{order:3}
+  #appmenu a[href="#/merch"].menu-slot{order:4}
   #appmenu a[href="#/news"].menu-slot{order:5}
   #appmenu a[href="#/about"].menu-slot{order:6}
-  #appmenu a.menu-partners{order:6}
-  #appmenu a.menu-helpin{order:6}
+  #appmenu a.menu-helpin{order:7}
+  #appmenu a.menu-partners{order:8}
   #appmenu .menu-head,#appmenu .menu-mark,#appmenu .menu-foot,#appmenu .menu-socials,#appmenu a.nav-account.menu-wide,#appmenu #menu-search{display:flex}
   #appmenu .menu-head{order:0;align-items:center;justify-content:space-between;flex:0 0 auto;height:48px;padding:0 4px;color:#d9a441;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
   #appmenu #menu-close{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;padding:0;border:0;border-radius:0;background:transparent;color:#d9a441;cursor:pointer}
@@ -564,13 +564,13 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   html.using-keyboard #appmenu #menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
   #appmenu a,#appmenu #menu-signout{min-height:0;flex:0 1 auto;height:clamp(36px,4.6vh,48px);padding:0 14px;border:0;border-bottom:1px solid rgba(217,164,65,.35);border-radius:0;background:transparent;color:#f2f2f2;font:600 .95rem/1.15 var(--font-body);letter-spacing:.08em;text-transform:uppercase}
   #appmenu a:hover,#appmenu a:focus-visible,#appmenu #menu-search:hover,#appmenu #menu-search:focus-visible,#appmenu #menu-signout:hover,#appmenu #menu-signout:focus-visible{background:#14120c;color:#d9a441;outline:none}
-  #appmenu .menu-mark{order:6;align-self:center;width:min(220px,70%);height:auto;max-height:36px;margin-top:auto;margin-bottom:0;object-fit:contain;opacity:.34;pointer-events:none;flex:0 1 auto}
-  #appmenu a.nav-account.menu-wide{order:6;flex:0 1 auto;width:auto;max-width:none;margin-top:auto}
-  #appmenu a[href="#/garage"]{order:7}
-  #appmenu a[href="#/garage/ads"]{order:8}
-  #appmenu #menu-msgs{order:9}
-  #appmenu a[href="#/saved"]{order:10}
-  #appmenu #menu-signout{order:11;display:flex;align-items:center;justify-content:flex-start;width:100%;cursor:pointer}
+  #appmenu .menu-mark{order:9;align-self:center;width:min(220px,70%);height:auto;max-height:36px;margin-top:auto;margin-bottom:0;object-fit:contain;opacity:.34;pointer-events:none;flex:0 1 auto}
+  #appmenu a.nav-account.menu-wide{order:10;flex:0 1 auto;width:auto;max-width:none}
+  #appmenu a[href="#/garage"]{order:11}
+  #appmenu a[href="#/garage/ads"]{order:12}
+  #appmenu #menu-msgs{order:13}
+  #appmenu a[href="#/saved"]{order:14}
+  #appmenu #menu-signout{order:15;display:flex;align-items:center;justify-content:flex-start;width:100%;cursor:pointer}
   #appmenu .menu-foot{order:20;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;width:100%;margin-top:18px;padding:0 4px;background:#000}
   #appmenu .menu-socials{order:0;justify-content:flex-start;align-items:center;gap:8px;margin:0;padding:0}
   #appmenu #menu-ig,#appmenu #menu-tt,#appmenu #menu-yt{flex:0 0 auto;width:44px;min-width:44px;height:44px;min-height:44px;justify-content:center;padding:0;border:0;border-bottom:0;border-radius:12px;color:#f2f2f2}
