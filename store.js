@@ -659,7 +659,7 @@ const PartnerEnquiry = {
     return data;
   }
 };
-const CONTACT_TOPICS = ['General', 'Sellin', 'Buyin', 'Report a listing', 'Partnerships', 'Other'];
+const CONTACT_TOPICS = ['General', 'Sellin', 'Buyin', 'Report a listing', 'Partnerships', 'Merch', 'Other'];
 const ContactMessage = {
   async submit(input) {
     if (!sb) throw new Error('Contact is offline right now.');
