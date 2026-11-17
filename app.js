@@ -558,7 +558,7 @@ function placeJoinNote(play){
     const lr=link.getBoundingClientRect();
     const n=v=>v.toFixed(1);
     const curStart={x:click.left+40*(click.width/142),y:click.bottom+8*(click.height/71)};
-    const curTip={x:lr.left+43*(lr.width/40),y:lr.bottom+20*(lr.height/17)};
+    const curTip={x:lr.left+lr.width/2,y:lr.bottom+5};
     const refStart={x:838,y:284},refTip={x:849,y:60};
     const rx=refStart.x-refTip.x,ry=refStart.y-refTip.y,rlen=Math.hypot(rx,ry)||1;
     const ux=rx/rlen,uy=ry/rlen,px=-uy,py=ux;
