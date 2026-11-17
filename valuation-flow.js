@@ -441,7 +441,7 @@ const ValueFlow = (() => {
       if (i < steps.length - 1) { i += 1; persist(); render(1); return; }
       persist();
       try { await Auth.ready; } catch (e) {}
-      if (!Auth.user) { sessionStorage.setItem('imdrivn_next', 'valuation'); location.hash = '#/join'; return; }
+      if (!Auth.user) { setAuthNext( 'valuation'); location.hash = '#/join'; return; }
       busy = true;
       const btn = document.getElementById('ask-ok');
       if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }

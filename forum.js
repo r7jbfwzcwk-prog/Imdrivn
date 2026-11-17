@@ -29,7 +29,7 @@ function fMine(authorId) {
   return !!(Auth.user && authorId && Auth.user.id === authorId);
 }
 function fSendToJoin() {
-  sessionStorage.setItem('imdrivn_next', location.hash.replace(/^#\//, ''));
+  setAuthNext( location.hash.replace(/^#\//, ''));
   location.hash = '#/join';
 }
 function fCanPost() {
@@ -136,7 +136,7 @@ async function forumMember(token) {
   if (token != null && token !== viewToken) return false;
   if (Auth.user && !Auth.needsHandle()) return true;
   const next = (location.hash || '#/forum').replace(/^#\//, '') || 'forum';
-  try { sessionStorage.setItem('imdrivn_next', next); } catch (e) {}
+  try { setAuthNext( next); } catch (e) {}
   if (location.hash !== '#/join') location.hash = '#/join';
   else if (typeof join === 'function') join();
   return false;
