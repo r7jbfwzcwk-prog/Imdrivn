@@ -559,10 +559,11 @@ function placeJoinNote(play){
     words.style.left=Math.round(frNow.right+52)+'px';
     const wr=words.getBoundingClientRect();
     if(wr.left<frNow.right+12)words.style.left=Math.round(parseFloat(words.style.left)+(frNow.right+12-wr.left))+'px';
-    const click=words.querySelector('span:last-child').getBoundingClientRect();
+    const click=words.querySelector('span:last-child');
+    const clickBox=click.getBoundingClientRect();
     const lr=link.getBoundingClientRect();
     const n=v=>v.toFixed(1);
-    const curStart={x:click.left+40*(click.width/142),y:click.bottom+8*(click.height/71)};
+    const curStart={x:clickBox.left+40*(clickBox.width/142),y:clickBox.bottom+8*(clickBox.height/71)};
     const curTip={x:lr.left+lr.width/2,y:lr.bottom+5};
     const refStart={x:838,y:284},refTip={x:849,y:60};
     const rx=refStart.x-refTip.x,ry=refStart.y-refTip.y,rlen=Math.hypot(rx,ry)||1;
@@ -573,7 +574,17 @@ function placeJoinNote(play){
     const raw=[[838,284],[832,302],[852,310],[880,306],[945,298],[1004,250],[998,190],[995,150],[978,126],[960,128],[940,130],[938,154],[954,152],[972,150],[968,124],[950,112],[925,96],[880,80],[849,60],[884,60],[862,92]];
     const m=raw.map(([x,y])=>map({x:x,y:y}));
     const f=i=>n(m[i].x)+' '+n(m[i].y);
-    const d=`M ${f(0)} C ${f(1)}, ${f(2)}, ${f(3)} C ${f(4)}, ${f(5)}, ${f(6)} C ${f(7)}, ${f(8)}, ${f(9)} C ${f(10)}, ${f(11)}, ${f(12)} C ${f(13)}, ${f(14)}, ${f(15)} C ${f(16)}, ${f(17)}, ${f(18)}`;
+    const hereNode=click.firstChild;
+    const hereAt=(hereNode&&hereNode.textContent||'').toLowerCase().indexOf('here');
+    const hereRange=document.createRange();
+    if(hereNode&&hereAt>=0){hereRange.setStart(hereNode,hereAt);hereRange.setEnd(hereNode,hereAt+1)}
+    const hh=hereAt>=0?hereRange.getBoundingClientRect():clickBox;
+    const start={x:hh.left+hh.width/2,y:hh.bottom+8};
+    const join=m[3],leave=m[4];
+    const jx=join.x-leave.x,jy=join.y-leave.y,jlen=Math.hypot(jx,jy)||1;
+    const c2={x:join.x+jx/jlen*36,y:join.y+jy/jlen*36};
+    const c1={x:start.x+16,y:start.y+28};
+    const d=`M ${n(start.x)} ${n(start.y)} C ${n(c1.x)} ${n(c1.y)}, ${n(c2.x)} ${n(c2.y)}, ${f(3)} C ${f(4)}, ${f(5)}, ${f(6)} C ${f(7)}, ${f(8)}, ${f(9)} C ${f(10)}, ${f(11)}, ${f(12)} C ${f(13)}, ${f(14)}, ${f(15)} C ${f(16)}, ${f(17)}, ${f(18)}`;
     const full=d+` M ${f(18)} L ${f(19)} M ${f(18)} L ${f(20)}`;
     const shaft=root.querySelector('.shaft');
     const hit=root.querySelector('.hit');
