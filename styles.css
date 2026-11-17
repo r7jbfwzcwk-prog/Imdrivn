@@ -1315,6 +1315,9 @@ body:has(#join-note:not([hidden])) .auth.is-join>.muted:last-child{display:none}
  .join-note{display:block;position:fixed;inset:0;z-index:40;pointer-events:none}
  body:has(#join-note:not([hidden])) main{position:relative;z-index:25}
  .join-og:not([hidden]){position:fixed;z-index:26;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;margin:0;padding:0;box-sizing:border-box;background:none;border:0;text-align:center;pointer-events:none}
+ button.join-og{appearance:none;-webkit-appearance:none;color:inherit;font:inherit;cursor:pointer}
+ button.join-og:not([hidden]){pointer-events:auto}
+ #signin-note .join-note-arrow .hit{pointer-events:stroke;stroke:transparent;stroke-width:28}
  .join-og-badge{display:flex;justify-content:center;background:none;line-height:0}
  .join-og-badge .og-badge{width:264px;max-width:100%;height:auto;filter:drop-shadow(0 0 6px rgba(240,190,70,.3)) drop-shadow(0 0 14px rgba(240,190,70,.16))}
  .join-og-cap{margin:0;max-width:16rem;color:#d9a441;font-family:var(--font-body);font-style:normal;font-weight:700;font-size:16px;line-height:1.3;letter-spacing:0;text-transform:none}
