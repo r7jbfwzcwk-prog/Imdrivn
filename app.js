@@ -978,7 +978,8 @@ const PARTNERS = [
   {name:'A21 Transport', description:'Transport', location:'', logo:'assets/partners/a21.webp?v=1'},
   {name:'CarInspect', description:'Pre-Purchase Car Inspections', location:'Australia Wide', logo:'assets/partners/carinspect.webp?v=1', url:'https://www.carinspect.com.au'},
   {name:'East Coast Tyre & Auto', description:'Tyres & Wheels', location:'Gold Coast, QLD', logo:'assets/partners/eastcoast.webp', url:'https://www.facebook.com/share/1CLk319phF/?mibextid=wwXIfr'},
-  {name:'OnesUp', description:'Premium Australian Streetwear', location:'', logo:'assets/partners/onesup.webp?v=1', url:'https://onesup.au'}
+  {name:'OnesUp', description:'Premium Australian Streetwear', location:'', logo:'assets/partners/onesup.webp?v=1', url:'https://onesup.au'},
+  {name:'Maranello Autos', description:'Expert Luxury Car Mechanics', location:'', logo:'assets/partners/maranello.webp?v=1', url:'https://maranelloautos.com.au'}
 ];
 function partnerPin(){return '<svg class="partner-pin" viewBox="0 0 11 14" width="11" height="14" aria-hidden="true"><path fill="#d9a441" d="M5.5 0a5.4 5.4 0 0 0-5.5 5.4C0 9.1 5.5 14 5.5 14S11 9.1 11 5.4A5.4 5.4 0 0 0 5.5 0z"/><circle cx="5.5" cy="5.2" r="1.55" fill="#101012"/></svg>'}
 const HELPIN={
