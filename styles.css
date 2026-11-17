@@ -488,10 +488,12 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   body:has(#sortbtn:not([hidden]))[data-mode=supercar]{--hdr-icon:#d9a441}
   body:has(#sortbtn:not([hidden])).is-all{--hdr-icon:#c0c0c0}
   .bellwrap{display:flex;align-items:center}
-  body.menu-open{overflow:hidden}
+  html.menu-open,body.menu-open{overscroll-behavior:none}
+  body.menu-open{overflow:hidden;width:100%;touch-action:none}
   body.menu-open .top{z-index:70;backdrop-filter:none;-webkit-backdrop-filter:none}
   .menu-wide{display:flex}
-  .appmenu{position:fixed;top:0;right:0;bottom:auto;z-index:61;display:flex;flex-direction:column;width:min(320px,88vw);height:100svh;height:100dvh;max-height:100dvh;max-width:none;margin:0;padding:6px 12px calc(6px + env(safe-area-inset-bottom));box-sizing:border-box;overflow:hidden;border:0;border-left:1px solid #d9a441;border-radius:0;background:#000;box-shadow:-18px 0 40px rgba(0,0,0,.6)}
+  .menu-back{overscroll-behavior:none;touch-action:none}
+  .appmenu{position:fixed;inset:0 0 0 auto;z-index:61;display:flex;flex-direction:column;width:min(320px,88vw);height:100vh;height:100svh;height:100dvh;max-height:100dvh;max-width:none;margin:0;padding:6px 12px calc(6px + env(safe-area-inset-bottom));box-sizing:border-box;overflow:hidden;overscroll-behavior:none;touch-action:none;border:0;border-left:1px solid #d9a441;border-radius:0;background:#000;box-shadow:-18px 0 40px rgba(0,0,0,.6)}
   .menu-scroll{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden}
   .appmenu[hidden]{display:none}
   .menu-head{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;min-height:0;height:clamp(40px,6.2dvh,48px);padding:0 4px;color:#d9a441;font-weight:600;letter-spacing:.14em}
