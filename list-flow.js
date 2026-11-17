@@ -194,7 +194,7 @@ const ListFlow = (() => {
         validate() {
           if (!/^\d{4}$/.test(draft.year)) return 'Year has to be 4 digits, like 2021.';
           const y = +draft.year;
-          if (y < YEAR_MIN || y > YEAR_MAX) return `That year is outside ${YEAR_MIN}–${YEAR_MAX}. Try again.`;
+          if (y < YEAR_MIN || y > YEAR_MAX) return `That year is outside ${YEAR_MIN}-${YEAR_MAX}. Try again.`;
           return '';
         }
       },

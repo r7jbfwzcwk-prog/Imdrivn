@@ -1,7 +1,7 @@
 /* News feed and article. Markdown is escaped first, then a small safe subset is marked up.
    image_urls is a text[] of https URLs or news-images paths. A JSON string may add
    an optional caption and credit: {"url":"...","caption":"...","credit":"..."}. */
-const NEWS_TITLE = "IM DRIVN – More than a Marketplace … It's a Community";
+const NEWS_TITLE = "IM DRIVN. More than a Marketplace … It's a Community";
 const NEWS_DESC = "Buy, sell and talk cars. Free listings, a scroll-first feed and a real car community.";
 
 function newsCatLabel(id) {
@@ -225,7 +225,7 @@ function resetNewsMeta() {
   }
 }
 function setNewsMeta(article) {
-  const title = (article.title || 'News') + ' – IM DRIVN';
+  const title = (article.title || 'News') + '. IM DRIVN';
   const summary = article.summary || NEWS_DESC;
   document.title = title;
   const desc = document.querySelector('meta[name="description"]');
@@ -294,7 +294,7 @@ function newsFilters(active) {
 async function newsFeed() {
   const token = ++viewToken;
   resetNewsMeta();
-  document.title = 'News – IM DRIVN';
+  document.title = 'News. IM DRIVN';
   const cat = (hashParts().params.get('cat') || '').toLowerCase();
   const known = News.cats.some(row => row[0] === cat && row[0] !== 'general');
   const category = known ? cat : '';
@@ -341,7 +341,7 @@ async function newsArticle(raw) {
   try { res = await News.get(slug); } catch (e) { res = { failed: true }; }
   if (token !== viewToken) return;
   if (!res.row) {
-    document.title = 'News – IM DRIVN';
+    document.title = 'News. IM DRIVN';
     const line = res.failed ? 'Couldn\'t load that story just now.' : 'That story isn\'t up yet.';
     main.innerHTML = `<div class="wrap news"><a class="eyebrow" href="#/news">← News</a><h1>${esc(line)}</h1><p class="news-empty">Fresh news dropping soon.</p></div>`;
     return;

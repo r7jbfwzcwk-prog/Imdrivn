@@ -457,7 +457,7 @@ const Auth = {
       throw new Error('Handle cannot be changed once set.');
     }
     const username = this.cleanHandle(raw);
-    if (!this.handleOk(username)) throw new Error('Use 3–20 characters: letters, numbers, dots, and underscores.');
+    if (!this.handleOk(username)) throw new Error('Use 3-20 characters: letters, numbers, dots, and underscores.');
     const id = this.user.id;
     await Presence.ready;
     let res = await sb.from('profiles').update({ username }).eq('id', id).select(ownProfileCols()).maybeSingle();
@@ -1689,7 +1689,7 @@ const Garage = {
     if (Auth.needsHandle()) throw new Error('Choose a handle first.');
     const mk = String(make || '').trim();
     const md = String(model || '').trim();
-    if (!mk || !md || mk.length > 40 || md.length > 40) throw new Error('Make and model need 1–40 characters.');
+    if (!mk || !md || mk.length > 40 || md.length > 40) throw new Error('Make and model need 1-40 characters.');
     const uid = Auth.user.id;
     const blob = await dataUrlToBlob(dataUrl);
     const path = uid + '/' + crypto.randomUUID() + '.jpg';

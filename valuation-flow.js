@@ -97,7 +97,7 @@ const ValueFlow = (() => {
       {id:'make', q:'What\'s the make?', intro:'Alright, tell us what you\u2019ve got ..', hint:'Start typing. Pick a suggestion, or write your own.'},
       {id:'model', q:'Now the model?', hint:'Pick the model for this make, or type your own if it is not listed.'},
       {id:'year', q:'What year?', hint:'The year it was built.'},
-      {id:'variant', q:'Variant or badge?', hint:'Optional. GT, SR5, Competition — skip it if it is just the base car.'},
+      {id:'variant', q:'Variant or badge?', hint:'Optional. GT, SR5, Competition. Skip it if it is just the base car.'},
       {id:'kms', q:'How many kms?', hint:'Odometer reading. A rough number is fine.'},
       {id:'rego', q:'Rego and VIN?', hint:'Optional. Rego plus the state on the plate, and the VIN if you have it.'},
       {id:'place', q:'Where\'s the car?', hint:'Suburb or postcode. Pick one from the list. No street address.'},
@@ -318,7 +318,7 @@ const ValueFlow = (() => {
       body.innerHTML = `<div class="ask-stack"><label class="ask-lab">Rego<input class="ask-input" id="v-rego" data-autofocus maxlength="10" value="${esc(draft.rego)}" placeholder="ABC123" autocomplete="off" spellcheck="false"></label><label class="ask-lab" for="v-rego-state">State<select class="ask-select" id="v-rego-state" aria-label="State"><option value=""></option>${STATES.map(s => `<option value="${s}"${state === s ? ' selected' : ''}>${s}</option>`).join('')}</select></label><label class="ask-lab">VIN<input class="ask-input" id="v-vin" maxlength="17" value="${esc(draft.vin)}" placeholder="17 characters" autocomplete="off" spellcheck="false"></label></div>`;
       document.getElementById('v-rego-state').addEventListener('change', e => { draft.regoState = STATES.includes(e.target.value) ? e.target.value : ''; });
     }
-    function reviewLine(label, value) { return `<div><span>${esc(label)}</span><b>${esc(value || '—')}</b></div>`; }
+    function reviewLine(label, value) { return `<div><span>${esc(label)}</span><b>${esc(value || '-')}</b></div>`; }
     function mountReview(body) {
       const place = [draft.suburb, draft.state, draft.postcode].filter(Boolean).join(' ');
       const money = draft.expected ? '$' + Number(draft.expected).toLocaleString('en-AU') : '';
@@ -362,7 +362,7 @@ const ValueFlow = (() => {
       if (step === 'year') {
         if (!/^\d{4}$/.test(draft.year)) return 'Year has to be 4 digits, like 2021.';
         const y = +draft.year;
-        if (y < YEAR_MIN || y > YEAR_MAX) return `That year is outside ${YEAR_MIN}–${YEAR_MAX}. Try again.`;
+        if (y < YEAR_MIN || y > YEAR_MAX) return `That year is outside ${YEAR_MIN}-${YEAR_MAX}. Try again.`;
         return '';
       }
       if (step === 'kms') {

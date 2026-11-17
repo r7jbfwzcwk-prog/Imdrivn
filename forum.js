@@ -375,7 +375,7 @@ function fComposer(cat) {
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const t = title.value.trim(), b = body.value.trim();
-    if (t.length < 3 || t.length > 140) { err.textContent = 'Title needs 3–140 characters. Say what the car is doing.'; return; }
+    if (t.length < 3 || t.length > 140) { err.textContent = 'Title needs 3-140 characters. Say what the car is doing.'; return; }
     if (!b) { err.textContent = 'Write the actual question. One sentence is enough.'; return; }
     post.disabled = true; err.textContent = '';
     try {
@@ -470,7 +470,7 @@ function fEdit(article, row, isThread, body, title) {
     event.preventDefault();
     const nextBody = area.value.trim();
     const nextTitle = titleInput ? titleInput.value.trim() : '';
-    if (isThread && (nextTitle.length < 3 || nextTitle.length > 140)) { err.textContent = 'Title needs 3–140 characters.'; return; }
+    if (isThread && (nextTitle.length < 3 || nextTitle.length > 140)) { err.textContent = 'Title needs 3-140 characters.'; return; }
     if (!nextBody) { err.textContent = 'The post cannot be empty.'; return; }
     save.disabled = true;
     try {
