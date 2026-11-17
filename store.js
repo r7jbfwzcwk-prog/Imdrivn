@@ -288,10 +288,10 @@ function detectOwnExtras() {
   return ownExtraTask;
 }
 function ownProfileCols() {
-  return 'id,username,display_name,avatar_url,is_admin,member_verified,membership_status,current_period_end,stripe_customer_id,stripe_subscription_id' + (Presence.column ? ',last_seen_at' : '') + ownExtraCols;
+  return 'id,username,display_name,avatar_url,created_at,og_number,is_admin,member_verified,membership_status,current_period_end,stripe_customer_id,stripe_subscription_id' + (Presence.column ? ',last_seen_at' : '') + ownExtraCols;
 }
 function publicProfileCols() {
-  return 'username,member_verified' + (Presence.column ? ',last_seen_at' : '');
+  return 'username,member_verified,og_number' + (Presence.column ? ',last_seen_at' : '');
 }
 const Auth = {
   user: null,
@@ -768,7 +768,7 @@ function listingCondition(listing) {
   return LISTING_CONDITIONS.includes(value) ? value : '';
 }
 function listingSelect() {
-  const who = 'username,display_name,member_verified' + (Presence.column ? ',last_seen_at' : '');
+  const who = 'username,display_name,member_verified,og_number' + (Presence.column ? ',last_seen_at' : '');
   return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,condition,rego,vin,photos,status,created_at,bumped_at,sort_at,top_until,top_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
 }
 
@@ -824,6 +824,7 @@ function mapListing(row) {
     status: row.status,
     handle: (profile && profile.username) || 'you',
     memberVerified: !!(profile && profile.member_verified === true),
+    ogNumber: profile && profile.og_number,
     last_seen_at: (profile && profile.last_seen_at) || '',
     when: whenLabel(row.sort_at || row.bumped_at || row.created_at),
     likeCount: countOf(row.likes),
@@ -1673,7 +1674,7 @@ const Garage = {
     if (!Auth.handleOk(name)) return null;
     const pattern = name.replace(/[\\%_]/g, ch => '\\' + ch);
     await Presence.ready;
-    const cols = 'id,username,created_at,member_verified' + (Presence.column ? ',last_seen_at' : '');
+    const cols = 'id,username,created_at,avatar_url,og_number,member_verified' + (Presence.column ? ',last_seen_at' : '');
     const { data, error } = await sb.from('profiles').select(cols).ilike('username', pattern).limit(5);
     if (error) throw new Error(garageErr(error));
     return (data || []).find(row => String(row.username || '').toLowerCase() === name) || null;
@@ -1757,6 +1758,7 @@ const Chat = {
     const handleById = new Map((profiles.data || []).map(p => [p.id, p.username]));
     const seenById = new Map((profiles.data || []).map(p => [p.id, p.last_seen_at || '']));
     const verifiedById = new Map((profiles.data || []).map(p => [p.id, p.member_verified === true]));
+    const ogById = new Map((profiles.data || []).map(p => [p.id, p.og_number]));
     let unreadIds = null;
     try { unreadIds = await this.unreadIds(); } catch (e) { unreadIds = null; }
     return rows.map(row => {
@@ -1773,6 +1775,7 @@ const Chat = {
         unread: unreadIds ? unreadIds.has(row.id) : chatUnread(row, uid),
         handle: handleById.get(other) || 'member',
         memberVerified: verifiedById.get(other) === true,
+        ogNumber: ogById.get(other),
         last_seen_at: seenById.get(other) || '',
         heading: listing.heading || [listing.year, listing.make, listing.model].filter(Boolean).join(' ') || 'Listing',
         price: listing.price,

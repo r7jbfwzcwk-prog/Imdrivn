@@ -16,6 +16,7 @@ function fHandleNode(row) {
     : fEl('a', { class: 'fhandle', href: '#/u/' + encodeURIComponent(name) }, '@' + name);
   const fresh = bestSeen(name, profile && profile.last_seen_at);
   if (fresh.self) node.setAttribute('data-self-presence', '1');
+  if (typeof ogInline === 'function') node.insertAdjacentHTML('beforeend', ogInline(profile && profile.og_number));
   if (profile && profile.member_verified === true) node.insertAdjacentHTML('beforeend', memberTick(true));
   if (Presence.online(fresh.stamp)) node.insertAdjacentHTML('beforeend', Presence.dot(fresh.stamp));
   return node;
