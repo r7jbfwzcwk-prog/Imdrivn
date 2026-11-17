@@ -456,9 +456,6 @@ footer a.logo{margin:0 auto 4px}
 footer a.logo img{height:18px;width:auto;max-width:220px}
 .bar-end{display:flex;align-items:center;flex:0 0 auto;min-width:0}
 .ic{position:relative;display:flex;gap:2px}.ic button{background:none;border:0;width:40px;height:40px;display:grid;place-items:center;cursor:pointer;color:#fff}
-#menubtn,#bell,.mbar,#menu-close,.menu-close{-webkit-tap-highlight-color:transparent}
-#menubtn:focus:not(:focus-visible),#bell:focus:not(:focus-visible),.mbar:focus:not(:focus-visible),#menu-close:focus:not(:focus-visible),.menu-close:focus:not(:focus-visible){outline:none;box-shadow:none}
-html:not(.using-keyboard) #menubtn:focus,html:not(.using-keyboard) #bell:focus,html:not(.using-keyboard) .mbar:focus,html:not(.using-keyboard) #menu-close:focus,html:not(.using-keyboard) .menu-close:focus{outline:none;box-shadow:none}
 .socials{display:flex;align-items:center;gap:0;margin-left:auto}.socials a{width:40px;height:40px;display:grid;place-items:center;color:#c8c8cc}
 .socials a:hover,.socials a:focus-visible{color:var(--acc)}
 @media(max-width:899px){
@@ -493,6 +490,9 @@ html:not(.using-keyboard) #menubtn:focus,html:not(.using-keyboard) #bell:focus,h
   .socials,body.is-buy #sbtn{display:none}
   .mbar{display:grid;place-items:center;position:relative;width:44px;height:44px;color:var(--hdr-icon);text-decoration:none}
   .ic #bell,.ic #menubtn,.mbar{width:44px;height:44px;color:var(--hdr-icon);transition:color .35s ease}
+  #menubtn,#appmenu #menu-close{-webkit-tap-highlight-color:transparent}
+  #menubtn:focus:not(:focus-visible),#appmenu #menu-close:focus:not(:focus-visible){outline:none;box-shadow:none}
+  html:not(.using-keyboard) #menubtn:focus,html:not(.using-keyboard) #appmenu #menu-close:focus{outline:none;box-shadow:none}
   .top .ic #bell svg,.top .ic #menubtn svg,.top .mbar svg{stroke:var(--hdr-icon);transition:stroke .35s ease}
   body{--hdr-icon:#fff;transition:--hdr-icon .35s ease}
   body:has(#sortbtn:not([hidden]))[data-mode=daily]{--hdr-icon:#2f7bff}
