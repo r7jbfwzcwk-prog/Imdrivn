@@ -277,7 +277,7 @@ function detectOwnExtras() {
     ownExtraTask = (async () => {
       if (!sb) return '';
       const found = [];
-      for (const col of ['full_name', 'state', 'marketing_opt_in', 'marketing_opt_out_at']) {
+      for (const col of ['full_name', 'state', 'marketing_opt_in', 'marketing_opt_out_at', 'welcomed_at']) {
         const res = await sb.from('profiles').select(col).limit(1);
         if (!res.error) found.push(col);
       }
@@ -302,6 +302,19 @@ const Auth = {
   oauthError: oauthErrorMessage,
   listeners: new Set(),
   needsHandle() { return !!(this.user && !(this.profile && String(this.profile.username || '').trim())); },
+  needsWelcome() {
+    const profile = this.profile;
+    if (!this.user || !profile || !Object.prototype.hasOwnProperty.call(profile, 'welcomed_at')) return false;
+    return !profile.welcomed_at;
+  },
+  async markWelcomed() {
+    if (!this.needsWelcome()) return;
+    const stamp = new Date().toISOString();
+    this.profile.welcomed_at = stamp;
+    if (!sb) return;
+    const res = await sb.from('profiles').update({ welcomed_at: stamp }).eq('id', this.user.id).is('welcomed_at', null);
+    if (res.error) this.profile.welcomed_at = null;
+  },
   emit() { this.listeners.forEach(fn => { try { fn(); } catch (e) {} }); },
   async sync() {
     if (!this.user) { this.profile = null; this.likes = new Set(); this.saves = new Set(); return; }
