@@ -503,6 +503,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   a[href="#/news"].menu-slot{order:5}
   a[href="#/about"].menu-slot{order:6}
   a.menu-partners{order:6}
+  a.menu-helpin{order:6}
   .menu-mark{order:6;display:block;align-self:center;width:min(180px,62%);height:auto;max-height:clamp(14px,3.2dvh,28px);margin-top:auto;margin-bottom:0;object-fit:contain;object-position:center;opacity:.34;pointer-events:none;user-select:none;flex:0 1 auto}
   a.nav-account.menu-wide{order:6;margin-top:auto}
   a[href="#/garage/ads"]{order:7}
@@ -530,6 +531,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   #appmenu .menu-scroll{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden}
   #appmenu a.menu-slot{display:none}
   #appmenu a.menu-partners{display:flex;order:1}
+  #appmenu a.menu-helpin{display:flex;order:1}
   #appmenu .menu-head,#appmenu .menu-mark,#appmenu .menu-foot,#appmenu .menu-socials,#appmenu a.nav-account.menu-wide,#appmenu #menu-search{display:flex}
   #appmenu .menu-head{order:0;align-items:center;justify-content:space-between;flex:0 0 auto;height:48px;padding:0 4px;color:#d9a441;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
   #appmenu #menu-close{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;padding:0;border:0;border-radius:0;background:transparent;color:#d9a441;cursor:pointer}
@@ -1661,6 +1663,22 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .garage-top h1{margin:0;min-width:0}
 .garage-edit{flex:0 0 auto;text-transform:none;letter-spacing:.01em;white-space:normal;text-align:center}
 .partners h1{margin-top:calc(.7rem - 20px);font-size:clamp(1.6rem,4vw,2.4rem);color:#f2f2f2}
+.helpin h1{margin-top:calc(.7rem - 20px);font-size:clamp(1.6rem,4vw,2.4rem);color:#f2f2f2}
+.helpin-lead{margin:0 0 22px;max-width:36rem;color:#c8c8cc}
+.helpin-soon{margin:0;color:#d9a441;font-weight:600;letter-spacing:.02em}
+.helpin-card{display:flex;align-items:center;gap:18px;max-width:640px;padding:16px;border:1px solid #d9a441;border-radius:16px;background:#101012;box-shadow:0 0 24px rgba(217,164,65,.12)}
+.helpin-logo{width:88px;height:88px;flex:none;object-fit:contain;border-radius:12px;background:#0a0a0b}
+.helpin-copy{min-width:0}
+.helpin-card h2{margin:0 0 6px;font-family:var(--font-body);font-style:normal;font-weight:700;text-transform:none;letter-spacing:0;font-size:22px;line-height:1.2;color:#f2f2f2}
+.helpin-card p{margin:0 0 10px;color:#c8c8cc;font-size:16px;line-height:1.4}
+.helpin-site{color:#d9a441;font-weight:600;text-decoration:none}
+.helpin-site:hover,.helpin-site:focus-visible{text-decoration:underline}
+.helpin a.helpin-donate{display:inline-flex;margin-top:18px;min-height:56px;padding:0 32px;background:#d9a441;border-color:#d9a441;color:#111;font-weight:700;letter-spacing:.12em}
+.helpin a.helpin-donate:hover,.helpin a.helpin-donate:focus-visible{background:#e2b45a;border-color:#e2b45a;color:#111}
+@media(max-width:768px){
+  .helpin-card{flex-direction:column;align-items:flex-start}
+  .helpin a.helpin-donate{width:100%}
+}
 .partners-lead{margin:0 0 22px;color:#c8c8cc;max-width:36rem}
 .partner-grid{display:grid;grid-template-columns:1fr;gap:14px}
 @media(min-width:700px){.partner-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}

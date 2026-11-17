@@ -854,6 +854,29 @@ const PARTNERS = [
   {name:'East Coast Tyre & Auto', description:'Tyres & Wheels', location:'Gold Coast, QLD', logo:'assets/partners/eastcoast.webp', url:'https://www.facebook.com/share/1CLk319phF/?mibextid=wwXIfr'}
 ];
 function partnerPin(){return '<svg class="partner-pin" viewBox="0 0 11 14" width="11" height="14" aria-hidden="true"><path fill="#d9a441" d="M5.5 0a5.4 5.4 0 0 0-5.5 5.4C0 9.1 5.5 14 5.5 14S11 9.1 11 5.4A5.4 5.4 0 0 0 5.5 0z"/><circle cx="5.5" cy="5.2" r="1.55" fill="#101012"/></svg>'}
+const HELPIN={
+  name:'',
+  description:'',
+  image:'',
+  website:'',
+  gofundme_url:''
+};
+function helpinLink(url){const s=String(url||'').trim();return /^https?:\/\//i.test(s)?s:''}
+function helpinPage(){
+  const name=String(HELPIN.name||'').trim();
+  const description=String(HELPIN.description||'').trim();
+  const image=String(HELPIN.image||'').trim();
+  const website=helpinLink(HELPIN.website);
+  const donate=helpinLink(HELPIN.gofundme_url);
+  let body='<p class="helpin-soon">Charity announcement coming soon</p>';
+  if(name){
+    const pic=image?`<img class="helpin-logo" src="${esc(image)}" alt="">`:'';
+    const site=website?`<a class="helpin-site" href="${esc(website)}" target="_blank" rel="noopener">Visit their site</a>`:'';
+    const give=donate?`<a class="btn solid helpin-donate" href="${esc(donate)}" target="_blank" rel="noopener">DONATE NOW</a>`:'';
+    body=`<article class="helpin-card">${pic}<div class="helpin-copy"><h2>${esc(name)}</h2>${description?`<p>${esc(description)}</p>`:''}${site}</div></article>${give}`;
+  }
+  main.innerHTML=`<section class="wrap helpin"><h1>WE HELPIN</h1><p class="helpin-lead">Every month IM DRIVN nominates a charity. Donations go straight to them — we don't touch a cent.</p>${body}</section>`;
+}
 function partnersPage(){
   const spots = PARTNERS;
   const cards = spots.map(p=>{
@@ -884,11 +907,11 @@ function draw(order){if(!order){host.innerHTML='<h1>Report not found</h1><p clas
 (async()=>{await Auth.ready;if(token!==viewToken)return;if(!Auth.user){sessionStorage.setItem('imdrivn_next','vin/r/'+id);location.hash='#/join';return}let order=null;try{order=await VinOrders.get(id)}catch(e){if(token!==viewToken)return;host.innerHTML=`<p class="err">${esc(e.message||'Could not load that report.')}</p>`;return}if(token!==viewToken)return;draw(order);if(order&&(order.status==='paid'||order.status==='searching')){setTimeout(()=>{if(token===viewToken&&hashParts().p==='vin')vinReport(id)},2500)}})()}
 function whenText(value){if(!value)return '—';const d=new Date(value);if(Number.isNaN(d.getTime()))return String(value);return d.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}
 function route(){stopWelcomeTimer();const quiz=document.getElementById('finance-quiz');if(quiz)quiz.remove();Presence.nudge();resetNewsMeta();closeAlerts();if(hashParts().p==='how')history.replaceState(null,'',location.pathname+location.search+'#/about');document.body.classList.remove('menu-open');closeMenu(false);closeSort(false);dropChat();if(typeof closeLiveRoom==='function')closeLiveRoom();if(garageAdd._key){document.removeEventListener('keydown',garageAdd._key);garageAdd._key=null}if(ListFlow._key){document.removeEventListener('keydown',ListFlow._key);ListFlow._key=null}if(ValueFlow._key){document.removeEventListener('keydown',ValueFlow._key);ValueFlow._key=null}const {p,a,b,params}=hashParts();if(p==='buy'){const requested=params.get('sort');if(sortOk(requested)){SORT=requested;localStorage.setItem('imdrivn_sort',SORT)}}syncSortUi();const onFeed=p==='buy';const modebar=document.querySelector('.modebar');if(modebar)modebar.hidden=!(onFeed||p==='car');const sortBtn=$('#sortbtn');if(sortBtn)sortBtn.hidden=!onFeed;const feedSearch=$('#feedsearch');if(feedSearch)feedSearch.hidden=!onFeed;const showHeaderSearch=p==='buy'||p==='buyin';document.body.classList.toggle('is-buy',showHeaderSearch);const headerSearch=$('#sbtn');if(headerSearch){headerSearch.hidden=!showHeaderSearch;if(!showHeaderSearch)setSearchOpen(false)}const forumSearch=$('#forumsearch');if(forumSearch){forumSearch.hidden=p!=='forum';if(p!=='forum')closeForumSearch()}io&&io.disconnect();feedToken++;homeToken++;viewToken++;
-pendingRestore=p==='buy'&&lastRoute==='car'&&feedReturn&&snapMatches();const pages={'':home,buy:()=>buy(),buyin:buyChooser,saved:()=>buy(1),garage:()=>a==='details'?accountDetails():garage(a==='ads'),merch,msgs,messages:()=>a?chatThread(a):inbox(),car:()=>car(a),sell,list,valuation,vin:()=>a==='r'&&b?vinReport(b):vinPage(),how:aboutPage,about:aboutPage,terms:termsPage,partners:partnersPage,membership:membershipPage,admin:adminPage,join,u:()=>publicProfile(a),reports:reportsPage,forum:()=>a==='live'?forumLive():a==='t'&&b?forumThread(b, params.get('reply')):a?forumCategory(a):forumIndex(),news:()=>a?newsArticle(a):newsFeed(),boost:()=>openListingBoost(a),top:()=>openListingTop(a),drag:dragRace,welcome:welcomePage};if(p==='car'){if(BUY==='all')document.body.classList.add('is-all');else setMode(BUY);syncTabs()}document.body.classList.toggle('is-home',p===''||!Object.prototype.hasOwnProperty.call(pages,p||''));document.body.classList.toggle('is-all',(p==='buy'||p==='car')&&BUY==='all');document.body.classList.toggle('is-lanes',p==='buyin');document.body.classList.toggle('lane-on',(p==='buy'||p==='car')&&MODES.includes(BUY));document.body.classList.toggle('is-sell',p==='sell');document.body.classList.toggle('is-list',p==='list');document.body.classList.toggle('is-wholesale',p==='valuation');document.body.classList.toggle('is-welcome',p==='welcome');document.body.classList.toggle('is-forum',p==='forum');document.body.classList.toggle('is-livechat',p==='forum'&&a==='live');const run=pages[p||'']||home;
+pendingRestore=p==='buy'&&lastRoute==='car'&&feedReturn&&snapMatches();const pages={'':home,buy:()=>buy(),buyin:buyChooser,saved:()=>buy(1),garage:()=>a==='details'?accountDetails():garage(a==='ads'),merch,msgs,messages:()=>a?chatThread(a):inbox(),car:()=>car(a),sell,list,valuation,vin:()=>a==='r'&&b?vinReport(b):vinPage(),how:aboutPage,about:aboutPage,terms:termsPage,partners:partnersPage,'we-helpin':helpinPage,membership:membershipPage,admin:adminPage,join,u:()=>publicProfile(a),reports:reportsPage,forum:()=>a==='live'?forumLive():a==='t'&&b?forumThread(b, params.get('reply')):a?forumCategory(a):forumIndex(),news:()=>a?newsArticle(a):newsFeed(),boost:()=>openListingBoost(a),top:()=>openListingTop(a),drag:dragRace,welcome:welcomePage};if(p==='car'){if(BUY==='all')document.body.classList.add('is-all');else setMode(BUY);syncTabs()}document.body.classList.toggle('is-home',p===''||!Object.prototype.hasOwnProperty.call(pages,p||''));document.body.classList.toggle('is-all',(p==='buy'||p==='car')&&BUY==='all');document.body.classList.toggle('is-lanes',p==='buyin');document.body.classList.toggle('lane-on',(p==='buy'||p==='car')&&MODES.includes(BUY));document.body.classList.toggle('is-sell',p==='sell');document.body.classList.toggle('is-list',p==='list');document.body.classList.toggle('is-wholesale',p==='valuation');document.body.classList.toggle('is-welcome',p==='welcome');document.body.classList.toggle('is-forum',p==='forum');document.body.classList.toggle('is-livechat',p==='forum'&&a==='live');const run=pages[p||'']||home;
 Promise.resolve(run()).catch(()=>{});
 if(!(p==='buy'&&pendingRestore))scrollTo(0,0);main.focus({preventScroll:true});lastRoute=p||'';
 const section=p==='forum'?'forum':(p==='messages'||p==='msgs')?'messages':(p||'');
-document.querySelectorAll('.bnav a, .dnav a, .nav-account, .menu-partners').forEach(x=>{const key=x.dataset.r||String(x.getAttribute('href')||'').replace(/^#\//,'');const on=(key===section&&!!section)||(key==='buy'&&(p==='car'||p==='buyin'));x.setAttribute('aria-current',on?'page':'false')});paintMembershipCopy();consumeSearchOpen()}
+document.querySelectorAll('.bnav a, .dnav a, .nav-account, .menu-partners, .menu-helpin').forEach(x=>{const key=x.dataset.r||String(x.getAttribute('href')||'').replace(/^#\//,'');const on=(key===section&&!!section)||(key==='buy'&&(p==='car'||p==='buyin'));x.setAttribute('aria-current',on?'page':'false')});paintMembershipCopy();consumeSearchOpen()}
 function consumeSearchOpen(){let flag='';try{flag=sessionStorage.getItem('imdrivn_open_search')||''}catch(e){}if(flag!=='1')return;try{sessionStorage.removeItem('imdrivn_open_search')}catch(e){}const p=hashParts().p;if(p==='forum'){openForumSearch();return}if(p==='buy'||p==='car')setSearchOpen(true)}
 addEventListener('hashchange',()=>{try{sessionStorage.setItem('imdrivn_inapp','1')}catch(e){}route()});
 Auth.listeners.add(()=>{updateNav();watchInbox();if(Auth.user)Presence.start();else Presence.stop();if(location.hash.startsWith('#/join')||Auth.recovery)join()});
