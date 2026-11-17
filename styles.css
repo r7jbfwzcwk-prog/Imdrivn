@@ -446,6 +446,12 @@ body{transition:--acc var(--ease) ease,--acc-dim var(--ease) ease,--glow var(--e
 .bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #1a1a1d}
 .logo{font-family:var(--font-head);font-style:italic;font-size:1.05rem;letter-spacing:.04em;text-decoration:none;color:#fff;font-weight:700;text-shadow:0 0 .5px #fff}
 a.logo{display:inline-flex;align-items:center;flex:0 0 auto;line-height:0;text-shadow:none}
+.logo-mark{position:relative;display:inline-flex;align-items:center;max-width:100%;line-height:0}
+.hdr-og{position:absolute;left:calc(100% + 6px);top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:22px;height:22px;line-height:0;pointer-events:none}
+.hdr-og[hidden]{display:none !important}
+.top .hdr-og .og-badge{width:100%;height:100%;fill:none;stroke:none;stroke-width:0}
+@media(min-width:900px){.hdr-og{width:26px;height:26px}}
+@media(min-width:1200px){.hdr-og{width:28px;height:28px}}
 header a.logo img{height:24px;width:auto;max-width:none}
 @media(min-width:390px){header a.logo img{height:28px}}
 @media(min-width:500px) and (max-width:899px){header a.logo img{height:36px}}
