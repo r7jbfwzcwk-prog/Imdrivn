@@ -98,7 +98,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .og-mark-seal .og-ring{position:absolute;inset:0;width:140px;height:134px;overflow:visible}
   body.is-home .og-ring-top,body.is-home .og-ring-bot{font-family:var(--font-body);font-weight:900;fill:#fff}
   body.is-home .og-ring-top{font-size:11px;letter-spacing:2.4px;fill:#e8c46a;filter:drop-shadow(0 1px 1px rgba(0,0,0,.75))}
-  body.is-home .og-ring-bot{font-size:13px;letter-spacing:1.2px;fill:#fff;filter:drop-shadow(0 0 1.5px #000) drop-shadow(0 2px 3px #000) drop-shadow(0 0 6px rgba(0,0,0,.95))}
+  body.is-home .og-ring-bot{font-size:13px;letter-spacing:1.2px;fill:#fff}
   body.is-home .og-mark-seal .og-badge{position:absolute;left:22px;top:16px;width:96px;height:96px;transform:none;background:transparent;filter:drop-shadow(0 0 6px rgba(240,190,70,.3)) drop-shadow(0 0 14px rgba(240,190,70,.16))}
   body.is-home .og-mark-arrow{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
   body.is-home .og-mark-arrow .shaft,body.is-home .og-mark-arrow .head{fill:none;stroke:#e8c46a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke;filter:drop-shadow(0 1px 1px rgba(0,0,0,.65))}
@@ -148,7 +148,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .og-desk-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
   body.is-home .og-desk-top,body.is-home .og-desk-bot{font-family:var(--font-body);font-weight:900}
   body.is-home .og-desk-top{font-size:var(--ogd-top,16px);letter-spacing:var(--ogd-top-track,3.4px);fill:#e8c46a;filter:drop-shadow(0 1px 1px rgba(0,0,0,.75))}
-  body.is-home .og-desk-bot{font-size:var(--ogd-bot,20px);letter-spacing:var(--ogd-bot-track,1.4px);fill:#fff;filter:drop-shadow(0 0 1.5px #000) drop-shadow(0 2px 3px #000) drop-shadow(0 0 6px rgba(0,0,0,.95))}
+  body.is-home .og-desk-bot{font-size:var(--ogd-bot,20px);letter-spacing:var(--ogd-bot-track,1.4px);fill:#fff}
   body.is-home .og-desk-seal .og-badge{position:absolute;background:transparent;pointer-events:none}
   body.is-home .og-desk-arrow{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
   body.is-home .og-desk-arrow .shaft,body.is-home .og-desk-arrow .head{fill:none;stroke:#e8c46a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;pointer-events:stroke;filter:drop-shadow(0 2px 2px #000)}
