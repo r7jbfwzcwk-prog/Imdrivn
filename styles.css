@@ -516,10 +516,10 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   a.menu-helpin{order:6}
   .menu-mark{order:6;display:block;align-self:center;width:min(180px,62%);height:auto;max-height:clamp(14px,3.2dvh,28px);margin-top:auto;margin-bottom:0;object-fit:contain;object-position:center;opacity:.34;pointer-events:none;user-select:none;flex:0 1 auto}
   a.nav-account.menu-wide{order:6;margin-top:auto}
-  a[href="#/garage/ads"]{order:7}
-  a[href="#/saved"]{order:8}
+  a[href="#/garage"]{order:7}
+  a[href="#/garage/ads"]{order:8}
   #menu-msgs{order:9}
-  a[href="#/garage"]{order:10}
+  a[href="#/saved"]{order:10}
   #menu-signout{order:11}
   .menu-foot{order:20;display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;margin-top:clamp(8px,1.6dvh,24px);padding:0 4px calc(6px + env(safe-area-inset-bottom));background:#000}
   .appmenu .menu-foot #menu-search{flex:0 1 auto;width:auto;min-width:0;max-width:calc(100% - 160px);height:clamp(36px,6dvh,44px);min-height:clamp(36px,6dvh,44px);justify-content:flex-start;gap:8px;padding:0 4px 0 2px;border:0;border-bottom:0;border-radius:12px;background:transparent;color:#f2f2f2;font-size:clamp(.66rem,1.7dvh,.8rem);letter-spacing:.12em;white-space:nowrap}
@@ -558,10 +558,10 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   #appmenu a:hover,#appmenu a:focus-visible,#appmenu #menu-search:hover,#appmenu #menu-search:focus-visible,#appmenu #menu-signout:hover,#appmenu #menu-signout:focus-visible{background:#14120c;color:#d9a441;outline:none}
   #appmenu .menu-mark{order:6;align-self:center;width:min(220px,70%);height:auto;max-height:36px;margin-top:auto;margin-bottom:0;object-fit:contain;opacity:.34;pointer-events:none;flex:0 1 auto}
   #appmenu a.nav-account.menu-wide{order:6;flex:0 1 auto;width:auto;max-width:none;margin-top:auto}
-  #appmenu a[href="#/garage/ads"]{order:7}
-  #appmenu a[href="#/saved"]{order:8}
+  #appmenu a[href="#/garage"]{order:7}
+  #appmenu a[href="#/garage/ads"]{order:8}
   #appmenu #menu-msgs{order:9}
-  #appmenu a[href="#/garage"]{order:10}
+  #appmenu a[href="#/saved"]{order:10}
   #appmenu #menu-signout{order:11;display:flex;align-items:center;justify-content:flex-start;width:100%;cursor:pointer}
   #appmenu .menu-foot{order:20;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;width:100%;margin-top:18px;padding:0 4px;background:#000}
   #appmenu .menu-socials{order:0;justify-content:flex-start;align-items:center;gap:8px;margin:0;padding:0}
