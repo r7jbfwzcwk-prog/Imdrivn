@@ -284,7 +284,16 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .buy-rule .btn.inspect-book,.buy-rule #how-vin{position:relative;display:flex;width:fit-content;max-width:100%;margin-top:12px;-webkit-tap-highlight-color:transparent;border:1px solid #f3d78a;border-bottom-color:#8a7018;font-weight:700;background:linear-gradient(180deg,#e8c46a 0%,#d7b144 52%,#c9a227 100%);color:#111;transform:translateY(0);transition:transform .15s ease,box-shadow .15s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.62),inset 0 -1px 0 rgba(0,0,0,.10),0 3px 0 #8a7018,0 6px 10px rgba(0,0,0,.34)}
 .buy-rule .btn.inspect-book::before,.buy-rule .btn.inspect-book::after,.buy-rule #how-vin::before,.buy-rule #how-vin::after{content:none}
 @media(hover:hover){.buy-rule .btn.inspect-book:hover,.buy-rule #how-vin:hover{transform:translateY(2px);border-color:#f3d78a;border-bottom-color:#8a7018;background:linear-gradient(180deg,#e8c46a 0%,#d7b144 52%,#c9a227 100%);color:#111;box-shadow:inset 0 1px 0 rgba(255,255,255,.40),inset 0 -1px 0 rgba(0,0,0,.12),0 1px 0 #8a7018,0 2px 5px rgba(0,0,0,.30)}}
-.buy-rule .btn.inspect-book:active,.buy-rule #how-vin:active{transform:translateY(2px);border-color:#f3d78a;border-bottom-color:#8a7018;background:linear-gradient(180deg,#e8c46a 0%,#d7b144 52%,#c9a227 100%);color:#111;box-shadow:inset 0 1px 0 rgba(255,255,255,.40),inset 0 -1px 0 rgba(0,0,0,.12),0 1px 0 #8a7018,0 2px 5px rgba(0,0,0,.30)}}
+.buy-rule .btn.inspect-book:active,.buy-rule #how-vin:active{transform:translateY(2px);border-color:#f3d78a;border-bottom-color:#8a7018;background:linear-gradient(180deg,#e8c46a 0%,#d7b144 52%,#c9a227 100%);color:#111;box-shadow:inset 0 1px 0 rgba(255,255,255,.40),inset 0 -1px 0 rgba(0,0,0,.12),0 1px 0 #8a7018,0 2px 5px rgba(0,0,0,.30)}
+@media(hover:hover) and (pointer:fine) and (min-width:900px){
+  .buy-rule .btn.inspect-book,.buy-rule #how-vin{--mag-x:0px;--mag-y:0px;--mag-hx:50%;--mag-hy:30%;transition:transform .2s ease,box-shadow .15s ease;transform:translate3d(var(--mag-x),var(--mag-y),0);background-image:radial-gradient(circle at var(--mag-hx) var(--mag-hy),rgba(255,255,255,.42),transparent 55%),linear-gradient(180deg,#e8c46a 0%,#d7b144 52%,#c9a227 100%)}
+  .buy-rule .btn.inspect-book:hover,.buy-rule #how-vin:hover{transform:translate3d(var(--mag-x),var(--mag-y),0);background-image:radial-gradient(circle at var(--mag-hx) var(--mag-hy),rgba(255,255,255,.42),transparent 55%),linear-gradient(180deg,#e8c46a 0%,#d7b144 52%,#c9a227 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.62),inset 0 -1px 0 rgba(0,0,0,.10),0 3px 0 #8a7018,0 6px 10px rgba(0,0,0,.34)}
+  .buy-rule .btn.inspect-book:active,.buy-rule #how-vin:active{transform:translate3d(var(--mag-x),calc(var(--mag-y) + 2px),0);box-shadow:inset 0 1px 0 rgba(255,255,255,.40),inset 0 -1px 0 rgba(0,0,0,.12),0 1px 0 #8a7018,0 2px 5px rgba(0,0,0,.30)}
+}
+@media(hover:hover) and (pointer:fine) and (min-width:900px) and (prefers-reduced-motion:reduce){
+  .buy-rule .btn.inspect-book,.buy-rule #how-vin,.buy-rule .btn.inspect-book:hover,.buy-rule #how-vin:hover{transform:translateY(0);transition:box-shadow .15s ease;background:linear-gradient(180deg,#e8c46a 0%,#d7b144 52%,#c9a227 100%)}
+  .buy-rule .btn.inspect-book:active,.buy-rule #how-vin:active{transform:translateY(2px)}
+}}
 .buy-rule .inspect-offer{align-items:stretch;width:100%;max-width:100%}
 .buy-rule .inspect-offer .btn{align-self:flex-start;width:auto}
 .buy-rule .inspect-note{text-align:left}
