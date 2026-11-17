@@ -29,8 +29,8 @@ function homeRoll(){stopHomeRoll();if(window.matchMedia('(prefers-reduced-motion
 async function home(){const token=++homeToken;stopHomeRoll();main.innerHTML=`
 <section class="landing"><section class="hero"><div class="wrap"><div class="eyebrow">IM DRIVN</div>
 <!-- ORIGINAL HEADLINE: The High Performance Marketplace -->
-<h1><span class="hero-line">More than a Marketplace …</span><br><span class="grey">It's a Community.</span></h1><hr><p><em class="hero-lead">Australia's premium marketplace.</em><span class="hero-free">From first cars to supercars, there's a place for you.<br>Join the crew today.</span><span class="hero-free-desk">From first cars to supercars, there's a place for you.<br>Join the crew today.</span></p></div></section>
-<div class="wrap home-paths"><div class="paths">
+<h1><span class="hero-line">More than a Marketplace …</span><br><span class="grey">It's a Community.</span></h1><hr><p><em class="hero-lead">Australia's premium marketplace.</em><span class="hero-free">From first cars to supercars, there's a place for you.<br>Why pay to list your car when you can list it here free !</span><span class="hero-free-desk">From first cars to supercars, there's a place for you.<br>Why pay to list your car when you can list it here free !</span></p></div></section>
+<div class="wrap home-paths"><a class="og-cta" id="og-cta" href="#/join/up"><span class="og-cta-main">First 100 members. Get an OG Badge for life.</span><span class="og-cta-sub">Pull up here ..</span></a><div class="paths">
 <a class="path" href="#/buyin">${ico('tag')}<span class="wide">IM BUYIN</span><span class="tag">Find your next machine.</span><span class="muted">Browse cars available now on IM DRIVN.</span><span class="btn">Browse cars →</span></a>
 <a class="path" href="#/sell">${ico('up')}<span class="wide">IM SELLIN</span><span class="tag">List with confidence.</span><span class="muted">List free or get a wholesale offer from dealers.</span><span class="btn">Sell your car →</span></a></div></div></section>
 <section class="wrap feats" id="how"><div class="eyebrow">Built for enthusiasts. DRIVN by performance.</div><div class="row4">
@@ -38,6 +38,7 @@ ${[['people','All Welcome','Daily drivers to supercars, every build and every dr
 <section class="wrap home-fresh"><div class="eyebrow">Fresh in the feed</div><div class="feed home-fresh-feed" id="fresh"></div></section>
 ${about()}`;
 homeRoll();
+const og=$('#og-cta');if(og)og.onclick=async e=>{e.preventDefault();try{await Auth.ready}catch(err){}if(Auth.user){if(location.hash!=='#/garage')location.hash='#/garage';else garage();return}if(location.hash==='#/join/up')join();else location.hash='#/join/up'};
 const wide=!matchMedia('(max-width:768px)').matches;
 homeLayoutWide=wide;
 let pins=[],rows=[];try{pins=await ListingStore.tops(wide?{mode:BUY}:{})}catch(e){pins=[]}
@@ -631,7 +632,7 @@ bindGarageDelete($('#gcars'),()=>profileScreen());
 focusMyAds()}
 async function join(){const token=++viewToken;const wantAds=hashParts().a==='ads';main.innerHTML='<div class="wrap form"><p class="muted">Loading…</p></div>';try{await Auth.ready}catch(e){}
 if(token!==viewToken)return;if(!sb){main.innerHTML='<div class="wrap form auth"><h1>Sign in</h1><p class="err">Accounts are offline right now. The demo feed still works.</p><a class="btn" href="#/buy">Browse cars</a></div>';return}
-if(Auth.recovery)return recoveryScreen();if(!Auth.user){if(wantAds)sessionStorage.setItem('imdrivn_next','join/ads');return authScreen('in')}if(Auth.needsHandle()){if(wantAds)sessionStorage.setItem('imdrivn_next','join/ads');return handleScreen()}return profileScreen()}
+if(Auth.recovery)return recoveryScreen();if(!Auth.user){if(wantAds)sessionStorage.setItem('imdrivn_next','join/ads');return authScreen(hashParts().a==='up'?'up':'in')}if(Auth.needsHandle()){if(wantAds)sessionStorage.setItem('imdrivn_next','join/ads');return handleScreen()}return profileScreen()}
 
 function sellerPanel(l){if(l.status==='sold')return '<p class="muted">This car has been sold. The ad is off the feed.</p>';if(l.demo||!l.user_id)return '<p class="muted">Sample car. There is no seller to message.</p>';if(Auth.user&&l.user_id===Auth.user.id)return '<p class="muted">Buyers message you from this car. Replies land in Messages.</p><a class="btn" href="#/messages">Open messages</a>';return '<p class="muted">Chat in the app. Your number stays off the ad.</p><button class="btn solid" type="button" id="msg-seller">Message seller</button>'}
 function confirmDeleteAd(btn){let dlg=document.getElementById('mod-dialog');if(!dlg){dlg=document.createElement('dialog');dlg.id='mod-dialog';dlg.className='report-dialog';document.body.appendChild(dlg)}dlg.innerHTML=`<form><h2>Delete this ad? This can't be undone.</h2><div class="auth-row"><button class="btn" type="button" id="mod-no">Cancel</button><button class="btn admin-del" type="submit">Delete ad</button></div></form>`;if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','');const shut=()=>{if(dlg.close)dlg.close()};dlg.querySelector('#mod-no').onclick=shut;dlg.onclick=e=>{if(e.target===dlg)shut()};dlg.querySelector('form').onsubmit=async e=>{e.preventDefault();const go=e.target.querySelector('[type=submit]');go.disabled=true;try{await ListingStore.deleteOwn(btn.dataset.id);shut();const card=btn.closest('.post');if(card)card.remove();toast('Ad deleted.')}catch(ex){go.disabled=false;toast(ex.message||'Could not delete that ad.','error')}}}
