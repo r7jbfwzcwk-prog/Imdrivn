@@ -593,20 +593,33 @@ function placeJoinOg(){
   const hero=$('#join-og');
   const form=document.querySelector('.wrap.auth.is-join');
   if(!hero||!form)return;
-  const header=document.querySelector('header.top');
-  const bar=document.querySelector('.bnav');
   if(matchMedia('(max-width:768px)').matches){hero.hidden=true;return}
   const fr=form.getBoundingClientRect();
-  const top=(header?header.getBoundingClientRect().bottom:0)+16;
-  const bottom=(bar?bar.getBoundingClientRect().top:innerHeight)-16;
   const edge=fr.left-36;
   const width=Math.min(280,edge-24);
-  if(width<200||bottom-top<260){hero.hidden=true;return}
+  const h1=document.querySelector('.auth-head h1');
+  let aim=0;
+  if(h1&&h1.firstChild&&h1.firstChild.nodeType===3){
+    const text=h1.firstChild.textContent||'';
+    const at=text.toLowerCase().indexOf('community');
+    if(at>=0){
+      const range=document.createRange();
+      range.setStart(h1.firstChild,at);
+      range.setEnd(h1.firstChild,at+1);
+      const cr=range.getBoundingClientRect();
+      aim=(cr.top+cr.bottom)/2;
+    }
+  }
+  if(width<200||!aim){hero.hidden=true;return}
   hero.hidden=false;
-  hero.style.top=Math.round(top)+'px';
-  hero.style.height=Math.round(bottom-top)+'px';
+  hero.style.height='auto';
   hero.style.width=Math.round(width)+'px';
   hero.style.left=Math.round(edge-width)+'px';
+  hero.style.top='0px';
+  const badge=hero.querySelector('.og-badge');
+  const box=badge?badge.getBoundingClientRect():null;
+  const inset=box?(1.25/64)*box.height:0;
+  hero.style.top=Math.round(aim-((box?box.top:0)+inset))+'px';
 }
 function authScreen(mode){mode=mode||'in';const title=mode==='up'?'Join the community':mode==='forgot'?'Reset password':'Sign in';
 const next=sessionStorage.getItem('imdrivn_next')||'';
