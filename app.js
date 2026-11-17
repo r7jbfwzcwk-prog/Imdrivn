@@ -978,7 +978,7 @@ const PARTNERS = [
   {name:'A21 Transport', description:'Transport', location:'', logo:'assets/partners/a21.webp?v=1'},
   {name:'CarInspect', description:'Pre-Purchase Car Inspections', location:'Australia Wide', logo:'assets/partners/carinspect.webp?v=1', url:'https://www.carinspect.com.au'},
   {name:'East Coast Tyre & Auto', description:'Tyres & Wheels', location:'Gold Coast, QLD', logo:'assets/partners/eastcoast.webp', url:'https://www.facebook.com/share/1CLk319phF/?mibextid=wwXIfr'},
-  {name:'OnesUp', description:'Premium Australian Streetwear', location:'', logo:'assets/partners/onesup.webp?v=1', url:'https://onesup.au'},
+  {name:'OnesUp', description:'Premium Australian Streetwear', location:'', logo:'assets/partners/onesup.webp?v=2', url:'https://onesup.au'},
   {name:'Maranello Autos', description:'Expert Luxury Car Mechanics', location:'', logo:'assets/partners/maranello.webp?v=1', url:'https://maranelloautos.com.au'},
   {name:'Limiter Motorsports', description:'Aus Wide Wheels & Tyre Packages', location:'', logo:'assets/partners/limiter.webp?v=1', url:'https://www.instagram.com/limitermotorsports?cplk=ajlrcnp6azFkYnJi'},
   {name:'Static Films', description:'Leading Tint, Wrap & PPF Specialist', location:'', logo:'assets/partners/staticfilms.webp?v=2', url:'https://www.staticfilms.com.au'}
