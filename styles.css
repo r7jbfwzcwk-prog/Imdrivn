@@ -527,14 +527,14 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   a[href="#/about"].menu-slot{order:6}
   a.menu-helpin{order:7}
   a.menu-partners{order:8}
-  .menu-mark{order:9;display:block;align-self:center;width:min(180px,62%);height:auto;max-height:clamp(14px,3.2dvh,28px);margin-top:auto;margin-bottom:0;object-fit:contain;object-position:center;opacity:.34;pointer-events:none;user-select:none;flex:0 1 auto}
+  .menu-mark{order:9;display:block;align-self:center;width:min(180px,62%);height:auto;max-height:clamp(14px,3.2dvh,28px);margin-top:auto;margin-bottom:auto;object-fit:contain;object-position:center;opacity:.34;pointer-events:none;user-select:none;flex:0 1 auto}
   a.nav-account.menu-wide{order:10}
   a[href="#/garage"]{order:11}
   a[href="#/garage/ads"]{order:12}
   #menu-msgs{order:13}
   a[href="#/saved"]{order:14}
   #menu-signout{order:15}
-  .menu-foot{order:20;display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;margin-top:24px;padding:0 4px calc(6px + env(safe-area-inset-bottom));background:#000}
+  .menu-foot{order:20;display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;margin-top:10px;padding:0 4px calc(6px + env(safe-area-inset-bottom));background:#000}
   .appmenu .menu-foot #menu-search{flex:0 1 auto;width:auto;min-width:0;max-width:calc(100% - 160px);height:clamp(36px,6dvh,44px);min-height:clamp(36px,6dvh,44px);justify-content:flex-start;gap:8px;padding:0 4px 0 2px;border:0;border-bottom:0;border-radius:12px;background:transparent;color:#f2f2f2;font-size:clamp(.66rem,1.7dvh,.8rem);letter-spacing:.12em;white-space:nowrap}
   .menu-foot .menu-search-label{color:inherit;line-height:1}
   .menu-foot .menu-act svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;flex:none}
