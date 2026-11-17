@@ -1,5 +1,5 @@
 // Stripe Checkout. Membership is a $5 AUD/month subscription.
-// Boost is a one-off $5 AUD payment for any signed-in owner, even while membership is off.
+// Boost is a one-off $2 AUD payment for any signed-in owner, even while membership is off.
 // Top Ad is a one-off pin: 3 days $3, 5 days $5, 7 days $6 AUD.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -141,7 +141,7 @@ Deno.serve(async (req) => {
       mode: "payment",
       "line_items[0][quantity]": "1",
       "line_items[0][price_data][currency]": "aud",
-      "line_items[0][price_data][unit_amount]": "500",
+      "line_items[0][price_data][unit_amount]": "200",
       "line_items[0][price_data][product_data][name]": "IM DRIVN boost",
       success_url: origin + "/#/garage/ads?boost=1",
       cancel_url: origin + "/#/garage/ads",
