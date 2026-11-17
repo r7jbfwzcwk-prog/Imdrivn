@@ -102,7 +102,6 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .og-mark-seal .og-badge{position:absolute;left:22px;top:16px;width:96px;height:96px;transform:none;background:transparent;filter:drop-shadow(0 0 6px rgba(240,190,70,.3)) drop-shadow(0 0 14px rgba(240,190,70,.16))}
   body.is-home .og-mark-arrow{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
   body.is-home .og-mark-arrow .shaft,body.is-home .og-mark-arrow .head{fill:none;stroke:#e8c46a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke;filter:drop-shadow(0 1px 1px rgba(0,0,0,.65))}
-  body.is-home .og-mark-arrow .head{opacity:0}
   body.is-home .home-paths .paths{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
   body.is-home .home-paths .path{min-height:64px;height:100%;justify-content:flex-start;background:linear-gradient(180deg,transparent 0%,#000 56%)}
   body.is-home .home-paths .path .muted{margin-bottom:12px}
@@ -153,7 +152,6 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .og-desk-seal .og-badge{position:absolute;background:transparent;pointer-events:none}
   body.is-home .og-desk-arrow{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
   body.is-home .og-desk-arrow .shaft,body.is-home .og-desk-arrow .head{fill:none;stroke:#e8c46a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;pointer-events:stroke;filter:drop-shadow(0 2px 2px #000)}
-  body.is-home .og-desk-arrow .head{opacity:0}
   body.is-home .home-paths>.og-cta{display:none}
   body.is-home .hero p{max-width:none;margin:0;text-align:left;font-size:18px;line-height:1.35}
   body.is-home .hero .hero-lead{display:none}
