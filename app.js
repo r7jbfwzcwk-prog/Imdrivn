@@ -637,7 +637,7 @@ function placeJoinNote(play){
     const appleEl=document.getElementById('apple');
     const ar=appleEl?appleEl.getBoundingClientRect():null;
     const lim={margin:frNow.right+10,floor:nav?nav.getBoundingClientRect().top-40:innerHeight-40,apple:ar?{right:ar.right,top:ar.top,bottom:ar.bottom}:null};
-    let start={x:hh.left+hh.width*0.46,y:Math.max(hh.bottom,wr.bottom)+16};
+    let start={x:hh.left+hh.width*0.46,y:Math.max(hh.bottom,wr.bottom)+8};
     const tip={x:lr.right+16,y:(lr.top+lr.bottom)/2};
     let laid=drawMemberArrow(root, start, tip, play, lim);
     let guard=0;
@@ -654,7 +654,7 @@ function placeJoinNote(play){
       const range2=document.createRange();
       if(node2&&at2>=0){range2.setStart(node2,at2);range2.setEnd(node2,at2+4)}
       const hh2=node2&&at2>=0?range2.getBoundingClientRect():span2.getBoundingClientRect();
-      start={x:hh2.left+hh2.width*0.46,y:Math.max(hh2.bottom,wr2.bottom)+16};
+      start={x:hh2.left+hh2.width*0.46,y:Math.max(hh2.bottom,wr2.bottom)+8};
       laid=drawMemberArrow(root, start, tip, false, lim);
       guard++;
     }
@@ -695,7 +695,7 @@ function placeSigninNote(play){
     const appleEl=document.getElementById('apple');
     const ar=appleEl?appleEl.getBoundingClientRect():null;
     const lim={margin:frNow.right+10,floor:nav?nav.getBoundingClientRect().top-40:innerHeight-40,apple:ar?{right:ar.right,top:ar.top,bottom:ar.bottom}:null};
-    let start={x:hh.left+hh.width*0.46,y:Math.max(hh.bottom,wr.bottom)+16};
+    let start={x:hh.left+hh.width*0.46,y:Math.max(hh.bottom,wr.bottom)+8};
     const tip={x:lr.right+16,y:(lr.top+lr.bottom)/2};
     let laid=drawMemberArrow(root, start, tip, play, lim);
     let guard=0;
@@ -712,7 +712,7 @@ function placeSigninNote(play){
       const range2=document.createRange();
       if(node2&&at2>=0){range2.setStart(node2,at2);range2.setEnd(node2,at2+4)}
       const hh2=node2&&at2>=0?range2.getBoundingClientRect():span2.getBoundingClientRect();
-      start={x:hh2.left+hh2.width*0.46,y:Math.max(hh2.bottom,wr2.bottom)+16};
+      start={x:hh2.left+hh2.width*0.46,y:Math.max(hh2.bottom,wr2.bottom)+8};
       laid=drawMemberArrow(root, start, tip, false, lim);
       guard++;
     }
