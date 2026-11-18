@@ -1126,11 +1126,19 @@ const ListFlow = (() => {
       const at = steps.findIndex(step => step.id === opts.startAt);
       if (at >= 0) i = at;
     }
+    const openAtPhotos = !!(opts && opts.startAt === 'photos' && steps[i] && steps[i].id === 'photos');
     root.innerHTML = `<div class="ask">
       <div class="ask-bar" role="progressbar" aria-valuemin="1" aria-valuemax="${steps.length}" aria-valuenow="1" aria-label="Listing progress"><span></span></div>
       <div class="ask-stage"></div>
     </div>`;
     render(0);
+    if (openAtPhotos) {
+      const drop = document.getElementById('ask-drop');
+      if (drop) {
+        drop.classList.add('is-photo-target');
+        requestAnimationFrame(() => drop.scrollIntoView({block:'center', inline:'nearest'}));
+      }
+    }
   }
 
   loadCatalog();
