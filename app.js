@@ -570,66 +570,100 @@ function playNoteArrow(shaft,head,play,reduce){
     head.style.opacity='1';
   }));
 }
+function drawMemberArrow(root, start, tip, play, lim){
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const n=v=>v.toFixed(1);
+  const nav=document.querySelector('.bnav');
+  const floor=lim&&lim.floor!=null?lim.floor:(nav?nav.getBoundingClientRect().top-40:innerHeight-40);
+  const margin=lim&&lim.margin!=null?lim.margin:start.x-40;
+  const apple=lim&&lim.apple?lim.apple:{right:margin,top:tip.y-40,bottom:tip.y-12};
+  const R=14;
+  const k=R*0.62;
+  const hx=Math.max(apple.right+R+12, margin+R+6);
+  const hy=(apple.top+apple.bottom)/2;
+  const top={x:hx,y:hy-R};
+  const right={x:hx+R,y:hy};
+  const bot={x:hx,y:hy+R};
+  const span=Math.max(36, top.y-start.y);
+  const bow=Math.min(22, Math.max(12, (start.x-hx)*0.4));
+  const c1={x:Math.max(apple.right+8, start.x-bow),y:start.y+span*0.46};
+  const c2={x:top.x,y:top.y-span*0.16};
+  const dip=Math.min(16, Math.max(8, floor-tip.y-8));
+  const low=Math.min(floor-4, Math.max(bot.y+8, tip.y+dip));
+  const knee={x:Math.max(apple.right+14, hx-2),y:low};
+  const s1={x:bot.x-10,y:bot.y};
+  const s2={x:knee.x+18,y:knee.y-8};
+  const t1={x:knee.x-22,y:Math.min(floor-3, knee.y+6)};
+  const t2={x:tip.x+34,y:Math.min(floor-3, tip.y+5)};
+  const P=p=>n(p.x)+' '+n(p.y);
+  const d=`M ${n(start.x)} ${n(start.y)} C ${P(c1)}, ${P(c2)}, ${P(top)} C ${n(top.x)} ${n(top.y+k)}, ${n(right.x)} ${n(right.y-k)}, ${P(right)} C ${n(right.x)} ${n(right.y+k)}, ${n(bot.x+k)} ${n(bot.y)}, ${P(bot)} C ${P(s1)}, ${P(s2)}, ${P(knee)} C ${P(t1)}, ${P(t2)}, ${n(tip.x)} ${n(tip.y)}`;
+  const w1={x:tip.x+14,y:tip.y+6}, w2={x:tip.x+16,y:tip.y-3};
+  const shaft=root.querySelector('.shaft'), head=root.querySelector('.head'), hit=root.querySelector('.hit');
+  shaft.setAttribute('d', d);
+  head.setAttribute('d', `M ${n(tip.x)} ${n(tip.y)} L ${n(w1.x)} ${n(w1.y)} M ${n(tip.x)} ${n(tip.y)} L ${n(w2.x)} ${n(w2.y)}`);
+  if(hit)hit.setAttribute('d', d);
+  playNoteArrow(shaft, head, play, reduce);
+  return {lift:Math.max(0, start.y+24-(hy-R))};
+}
 function placeJoinNote(play){
   const root=$('#join-note');
   if(!root)return;
   const form=document.querySelector('.wrap.auth.is-join');
-  const link=document.querySelector('.bar .nav-account');
-  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(!form||!link||getComputedStyle(link).display==='none'){root.hidden=true;return}
+  const link=$('#member-signin');
+  if(!form||!link||matchMedia('(max-width:768px)').matches){root.hidden=true;return}
   const fr=form.getBoundingClientRect();
   if(innerWidth-fr.right<250){root.hidden=true;return}
   root.hidden=false;
   const words=root.querySelector('.join-note-words');
   words.style.left=Math.round(fr.right+52)+'px';
-  words.style.top='168px';
+  words.style.top=Math.round(fr.top-26.8)+'px';
   const draw=()=>{
     const formNow=document.querySelector('.wrap.auth.is-join');
-    if(!formNow||root.hidden)return;
+    const linkNow=$('#member-signin');
+    if(!formNow||!linkNow||root.hidden)return;
     const frNow=formNow.getBoundingClientRect();
     words.style.left=Math.round(frNow.right+52)+'px';
+    words.style.top=Math.round(frNow.top-26.8)+'px';
     const wr=words.getBoundingClientRect();
     if(wr.left<frNow.right+12)words.style.left=Math.round(parseFloat(words.style.left)+(frNow.right+12-wr.left))+'px';
     const click=words.querySelector('span:last-child');
-    const clickBox=click.getBoundingClientRect();
-    const lr=link.getBoundingClientRect();
-    const n=v=>v.toFixed(1);
-    const curStart={x:clickBox.left+40*(clickBox.width/142),y:clickBox.bottom+8*(clickBox.height/71)};
-    const curTip={x:lr.left+lr.width/2,y:lr.bottom+5};
-    const refStart={x:838,y:284},refTip={x:849,y:60};
-    const rx=refStart.x-refTip.x,ry=refStart.y-refTip.y,rlen=Math.hypot(rx,ry)||1;
-    const ux=rx/rlen,uy=ry/rlen,px=-uy,py=ux;
-    const cvx=curStart.x-curTip.x,cvy=curStart.y-curTip.y,clen=Math.hypot(cvx,cvy)||1;
-    const scale=clen/rlen,cux=cvx/clen,cuy=cvy/clen,cpx=-cuy,cpy=cux;
-    const map=p=>{const vx=p.x-refTip.x,vy=p.y-refTip.y,along=vx*ux+vy*uy,across=vx*px+vy*py;return {x:curTip.x+(along*cux+across*cpx)*scale,y:curTip.y+(along*cuy+across*cpy)*scale}};
-    const raw=[[838,284],[832,302],[852,310],[880,306],[945,298],[1004,250],[998,190],[995,150],[978,126],[960,128],[940,130],[938,154],[954,152],[972,150],[968,124],[950,112],[925,96],[880,80],[849,60],[884,60],[862,92]];
-    const m=raw.map(([x,y])=>map({x:x,y:y}));
-    const f=i=>n(m[i].x)+' '+n(m[i].y);
-    const hereNode=click.firstChild;
-    const hereAt=(hereNode&&hereNode.textContent||'').toLowerCase().indexOf('here');
-    const hereRange=document.createRange();
-    if(hereNode&&hereAt>=0){hereRange.setStart(hereNode,hereAt);hereRange.setEnd(hereNode,hereAt+1)}
-    const hh=hereAt>=0?hereRange.getBoundingClientRect():clickBox;
-    const start={x:hh.left+hh.width/2,y:hh.bottom+8};
-    const join=m[3],leave=m[4];
-    const jx=join.x-leave.x,jy=join.y-leave.y,jlen=Math.hypot(jx,jy)||1;
-    const c2={x:join.x+jx/jlen*36,y:join.y+jy/jlen*36};
-    const c1={x:start.x+16,y:start.y+28};
-    const d=`M ${n(start.x)} ${n(start.y)} C ${n(c1.x)} ${n(c1.y)}, ${n(c2.x)} ${n(c2.y)}, ${f(3)} C ${f(4)}, ${f(5)}, ${f(6)} C ${f(7)}, ${f(8)}, ${f(9)} C ${f(10)}, ${f(11)}, ${f(12)} C ${f(13)}, ${f(14)}, ${f(15)} C ${f(16)}, ${f(17)}, ${f(18)}`;
-    const shaft=root.querySelector('.shaft');
-    const head=root.querySelector('.head');
-    const hit=root.querySelector('.hit');
-    shaft.setAttribute('d',d);
-    head.setAttribute('d',`M ${f(18)} L ${f(19)} M ${f(18)} L ${f(20)}`);
-    hit.setAttribute('d',d);
-    playNoteArrow(shaft,head,play,reduce);
+    const node=click&&click.firstChild;
+    const at=(node&&node.textContent||'').toLowerCase().indexOf('here');
+    const range=document.createRange();
+    if(node&&at>=0){range.setStart(node,at);range.setEnd(node,at+4)}
+    const hh=node&&at>=0?range.getBoundingClientRect():click.getBoundingClientRect();
+    const lr=linkNow.getBoundingClientRect();
+    const nav=document.querySelector('.bnav');
+    const appleEl=document.getElementById('apple');
+    const ar=appleEl?appleEl.getBoundingClientRect():null;
+    const lim={margin:frNow.right+10,floor:nav?nav.getBoundingClientRect().top-40:innerHeight-40,apple:ar?{right:ar.right,top:ar.top,bottom:ar.bottom}:null};
+    let start={x:hh.left+hh.width*0.46,y:Math.max(hh.bottom,wr.bottom)+16};
+    const tip={x:lr.right+16,y:(lr.top+lr.bottom)/2};
+    let laid=drawMemberArrow(root, start, tip, play, lim);
+    let guard=0;
+    while(laid.lift>6&&guard<5){
+      const cur=parseFloat(words.style.top)||0;
+      const next=Math.max(128, cur-laid.lift);
+      if(next>=cur-1)break;
+      words.style.top=next+'px';
+      const wr2=words.getBoundingClientRect();
+      const span2=words.querySelector('span:last-child');
+      const node2=span2&&span2.firstChild;
+      const text2=(node2&&node2.textContent||'').toLowerCase();
+      const at2=text2.indexOf('here');
+      const range2=document.createRange();
+      if(node2&&at2>=0){range2.setStart(node2,at2);range2.setEnd(node2,at2+4)}
+      const hh2=node2&&at2>=0?range2.getBoundingClientRect():span2.getBoundingClientRect();
+      start={x:hh2.left+hh2.width*0.46,y:Math.max(hh2.bottom,wr2.bottom)+16};
+      laid=drawMemberArrow(root, start, tip, false, lim);
+      guard++;
+    }
   };
   const run=()=>requestAnimationFrame(()=>requestAnimationFrame(draw));
   if(document.fonts&&document.fonts.status!=='loaded')document.fonts.ready.then(()=>{if(!root.hidden)run()});
   else run();
 }
 function placeSigninNote(play){
-  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const root=$('#signin-note');
   const form=document.querySelector('.wrap.auth.is-signin');
   const link=$('#swap');
@@ -639,13 +673,14 @@ function placeSigninNote(play){
   root.hidden=false;
   const words=root.querySelector('.join-note-words');
   words.style.left=Math.round(fr.right+52)+'px';
-  words.style.top='207px';
+  words.style.top=Math.round(fr.top+69.4)+'px';
   const draw=()=>{
     const formNow=document.querySelector('.wrap.auth.is-signin');
     const linkNow=$('#swap');
     if(!formNow||!linkNow||root.hidden)return;
     const frNow=formNow.getBoundingClientRect();
     words.style.left=Math.round(frNow.right+52)+'px';
+    words.style.top=Math.round(frNow.top+69.4)+'px';
     const wr=words.getBoundingClientRect();
     if(wr.left<frNow.right+12)words.style.left=Math.round(parseFloat(words.style.left)+(frNow.right+12-wr.left))+'px';
     const span=words.querySelector('span:last-child');
@@ -655,23 +690,32 @@ function placeSigninNote(play){
     const range=document.createRange();
     if(node&&at>=0){range.setStart(node,at);range.setEnd(node,at+4)}
     const hh=node&&at>=0?range.getBoundingClientRect():span.getBoundingClientRect();
-    const n=v=>v.toFixed(1);
     const lr=linkNow.getBoundingClientRect();
-    const start={x:hh.left+hh.width*0.46,y:Math.max(hh.bottom,wr.bottom)+16};
-    const lx=start.x-6,ly=lr.bottom+34,R=29;
-    const tip={x:lr.right+16,y:lr.bottom+2};
-    const dip={x:(lr.right+lx)/2,y:lr.bottom+128};
-    const d=`M ${n(start.x)} ${n(start.y)} C ${n(start.x+16)} ${n(start.y+64)}, ${n(start.x-18)} ${n(start.y+130)}, ${n(lx+8)} ${n(ly-R-22)} C ${n(lx+R+6)} ${n(ly-R-4)}, ${n(lx+R+10)} ${n(ly+6)}, ${n(lx+R-2)} ${n(ly+R-8)} C ${n(lx+4)} ${n(ly+R+18)}, ${n(lx-R-8)} ${n(ly+R+6)}, ${n(lx-R+2)} ${n(ly)} C ${n(lx-R+2)} ${n(ly-R-4)}, ${n(lx-4)} ${n(ly-R-10)}, ${n(lx+12)} ${n(ly-2)} C ${n(lx+28)} ${n(ly+36)}, ${n(dip.x+70)} ${n(dip.y-24)}, ${n(dip.x)} ${n(dip.y)} C ${n(dip.x-90)} ${n(dip.y+22)}, ${n(tip.x+64)} ${n(tip.y+78)}, ${n(tip.x)} ${n(tip.y)}`;
-    const ang=Math.atan2(tip.y-(tip.y+78),tip.x-(tip.x+64));
-    const wing=(len,turn)=>{const a=ang+Math.PI+turn;return {x:tip.x+Math.cos(a)*len,y:tip.y+Math.sin(a)*len}};
-    const a=wing(22,0.5),b=wing(17,-0.55);
-    const shaft=root.querySelector('.shaft');
-    const head=root.querySelector('.head');
-    const hit=root.querySelector('.hit');
-    shaft.setAttribute('d',d);
-    head.setAttribute('d',`M ${n(tip.x)} ${n(tip.y)} L ${n(a.x)} ${n(a.y)} M ${n(tip.x)} ${n(tip.y)} L ${n(b.x)} ${n(b.y)}`);
-    hit.setAttribute('d',d);
-    playNoteArrow(shaft,head,play,reduce);
+    const nav=document.querySelector('.bnav');
+    const appleEl=document.getElementById('apple');
+    const ar=appleEl?appleEl.getBoundingClientRect():null;
+    const lim={margin:frNow.right+10,floor:nav?nav.getBoundingClientRect().top-40:innerHeight-40,apple:ar?{right:ar.right,top:ar.top,bottom:ar.bottom}:null};
+    let start={x:hh.left+hh.width*0.46,y:Math.max(hh.bottom,wr.bottom)+16};
+    const tip={x:lr.right+16,y:(lr.top+lr.bottom)/2};
+    let laid=drawMemberArrow(root, start, tip, play, lim);
+    let guard=0;
+    while(laid.lift>6&&guard<5){
+      const cur=parseFloat(words.style.top)||0;
+      const next=Math.max(128, cur-laid.lift);
+      if(next>=cur-1)break;
+      words.style.top=next+'px';
+      const wr2=words.getBoundingClientRect();
+      const span2=words.querySelector('span:last-child');
+      const node2=span2&&span2.firstChild;
+      const text2=(node2&&node2.textContent||'').toLowerCase();
+      const at2=text2.indexOf('here');
+      const range2=document.createRange();
+      if(node2&&at2>=0){range2.setStart(node2,at2);range2.setEnd(node2,at2+4)}
+      const hh2=node2&&at2>=0?range2.getBoundingClientRect():span2.getBoundingClientRect();
+      start={x:hh2.left+hh2.width*0.46,y:Math.max(hh2.bottom,wr2.bottom)+16};
+      laid=drawMemberArrow(root, start, tip, false, lim);
+      guard++;
+    }
   };
   const run=()=>requestAnimationFrame(()=>requestAnimationFrame(draw));
   if(document.fonts&&document.fonts.status!=='loaded')document.fonts.ready.then(()=>{if(!root.hidden)run()});
@@ -719,9 +763,9 @@ main.innerHTML=`<header class="auth-head"><div class="eyebrow">${mode==='up'?'Cr
 ${mode==='forgot'?'':`<label>Password<input name="password" type="password" required minlength="6" autocomplete="${mode==='up'?'new-password':'current-password'}"></label>`}
 ${mode==='up'?`<fieldset class="terms-ticks"><label><input type="checkbox" name="agree-rules"><span>I agree to the <a href="/terms.html#code-of-conduct">IM DRIVN Community Rules &amp; Guidelines</a></span></label><label><input type="checkbox" name="agree-terms"><span>I agree to the <a href="/terms.html">IM DRIVN User Agreement,<br>Terms &amp; Conditions</a> and <a href="/privacy.html">Privacy Policy</a></span></label></fieldset>`:''}<p class="err" id="auth-err" role="alert"></p>
 ${mode==='in'?'<div class="auth-signin"><button class="auth-link" type="button" id="forgot">Forgot password</button><button class="btn solid" type="submit">Sign in</button></div>':mode==='up'?'<div class="auth-create"><button class="btn solid" type="submit">Create account</button><p class="auth-consent">By joining you agree to receive news and deals from IM DRIVN. Unsubscribe anytime in My Garage.</p></div>':`<div class="auth-row"><button class="btn solid" type="submit">Send link</button></div>`}</form>
-${mode==='forgot'?'':`<div class="auth-or">or</div><div class="auth-oauth"><button class="btn" type="button" id="google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</button><button class="btn apple" type="button" id="apple"><svg viewBox="0 0 814 1000" aria-hidden="true"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76.5 0-103.7 40.8-165.9 40.8s-105.6-57-155.5-127C46.7 790.7 0 663 0 541.8c0-194.3 126.4-297.5 250.8-297.5 66.1 0 121.2 43.4 162.7 43.4 39.5 0 101.1-46 176.3-46 28.5 0 130.9 2.6 198.3 99.2zm-234-181.5c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/></svg>Continue with Apple</button></div>`}
+${mode==='forgot'?'':`<div class="auth-or">or</div><div class="auth-oauth"><button class="btn" type="button" id="google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</button><button class="btn apple" type="button" id="apple"><svg viewBox="0 0 814 1000" aria-hidden="true"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76.5 0-103.7 40.8-165.9 40.8s-105.6-57-155.5-127C46.7 790.7 0 663 0 541.8c0-194.3 126.4-297.5 250.8-297.5 66.1 0 121.2 43.4 162.7 43.4 39.5 0 101.1-46 176.3-46 28.5 0 130.9 2.6 198.3 99.2zm-234-181.5c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/></svg>Continue with Apple</button></div>${mode==='up'?'<p class="muted auth-member">Already a member? <button class="auth-link" type="button" id="member-signin">Sign in</button></p>':''}`}
 <p class="muted">${mode==='up'?`Already have an account? <button class="auth-link" type="button" id="swap">Sign in</button>`:`New here? <button class="auth-link" type="button" id="swap">Create an account</button>${mode!=='in'?' · <button class="auth-link" type="button" id="back-in">Back</button>':''}`}</p></div>${mode==='up'?`<aside class="join-og" id="join-og" hidden><div class="join-og-badge">${ogBadge('join')}</div><p class="join-og-cap">First 100 members get an OG Badge for Life !!</p></aside><div class="join-note" id="join-note" hidden><button type="button" class="join-note-words" aria-label="Already a member? Sign in"><span>Already a</span><span>member?</span><span>Click here</span></button><svg class="join-note-arrow" aria-hidden="true"><defs><clipPath id="join-note-hitclip"><rect/></clipPath></defs><g clip-path="url(#join-note-hitclip)"><path class="hit"/></g><path class="shaft"/><path class="head"/></svg></div>`:mode==='in'?`<button type="button" class="join-og" id="join-og" hidden><span class="join-og-badge">${ogBadge('join')}</span><span class="join-og-cap">First 100 members get an OG Badge for Life !!</span></button><div class="join-note" id="signin-note" hidden><button type="button" class="join-note-words" aria-label="Not a member? Join the IM DRIVN Fam here"><span>Not a member?</span><span>Join the IM DRIVN</span><span>Fam here</span></button><svg class="join-note-arrow" aria-hidden="true"><path class="hit"/><path class="shaft"/><path class="head"/></svg></div>`:''}`;
-$('#swap').onclick=()=>{clearAuthNext();authScreen(mode==='up'?'in':'up')};
+$('#swap').onclick=()=>{clearAuthNext();authScreen(mode==='up'?'in':'up')};const member=$('#member-signin');if(member)member.onclick=()=>{clearAuthNext();authScreen('in')};
 const authClose=$('#auth-close');if(authClose)authClose.onclick=()=>{if(location.hash==='#/'||location.hash==='#')route();else location.hash='#/'};
 if(mode==='up'){const note=$('#join-note');if(note){note.addEventListener('click',e=>{if(e.target.closest('.join-note-words, .join-note-arrow path')){clearAuthNext();authScreen('in')}});placeJoinNote(true);placeJoinOg();if(window._joinNoteR)removeEventListener('resize',window._joinNoteR);window._joinNoteR=()=>{placeJoinNote(false);placeJoinOg()};addEventListener('resize',window._joinNoteR)}}else if(mode==='in'){const openJoin=()=>{clearAuthNext();if(location.hash==='#/join/up')authScreen('up');else location.hash='#/join/up'};const og=$('#join-og');if(og){og.onclick=openJoin;placeJoinOg()}const note=$('#signin-note');if(note){note.addEventListener('click',e=>{if(e.target.closest('.join-note-words, .join-note-arrow path'))openJoin()});placeSigninNote(true)}if(window._joinNoteR)removeEventListener('resize',window._joinNoteR);window._joinNoteR=()=>{placeJoinOg();placeSigninNote(false)};addEventListener('resize',window._joinNoteR)}else if(window._joinNoteR){removeEventListener('resize',window._joinNoteR);window._joinNoteR=null}
 const back=$('#back-in');if(back)back.onclick=()=>{let ret='';try{ret=sessionStorage.getItem('imdrivn_reset_return')||''}catch(e){}if(ret){try{sessionStorage.removeItem('imdrivn_reset_return')}catch(err){}const dest='#/'+ret;if(location.hash===dest)route();else location.hash=dest;return}authScreen('in')};
