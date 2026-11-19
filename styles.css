@@ -601,7 +601,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   #menu-close svg,.top .menu-close svg,.menu-close svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   #menu-close:hover,#menu-close:active,#menu-close:focus,#menu-close:focus-visible,.ic .menu-close:hover,.ic .menu-close:active,.ic .menu-close:focus,.ic .menu-close:focus-visible,.menu-close:hover,.menu-close:active,.menu-close:focus,.menu-close:focus-visible{transform:none;background:transparent;color:#d9a441;border:0;box-shadow:none;outline:none;outline-offset:0;-webkit-tap-highlight-color:transparent}
   html.using-keyboard #menu-close:focus-visible,html.using-keyboard .menu-close:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
-  .appmenu a,.appmenu button.menu-act,#menu-signout{display:flex;align-items:center;justify-content:flex-start;width:100%;flex:0 1 auto;min-height:0;height:clamp(29px,4.55dvh,40px);padding:0 14px;border:0;border-bottom:1px solid rgba(217,164,65,.35);border-radius:0;background:transparent;color:#f2f2f2;font:600 clamp(.72rem,1.95dvh,.9rem)/1.15 var(--font-body);letter-spacing:.08em;text-align:left;text-decoration:none;text-transform:uppercase;cursor:pointer}
+  .appmenu a,.appmenu button.menu-act,#menu-signout{display:flex;align-items:center;justify-content:flex-start;width:100%;flex:0 1 auto;min-height:0;height:clamp(33px,5.0dvh,42px);padding:0 14px;border:0;border-bottom:1px solid rgba(217,164,65,.35);border-radius:0;background:transparent;color:#f2f2f2;font:600 clamp(.78rem,2.08dvh,.95rem)/1.15 var(--font-body);letter-spacing:.08em;text-align:left;text-decoration:none;text-transform:uppercase;cursor:pointer}
   .menu-head,.menu-head span{text-transform:uppercase;letter-spacing:.14em}
   .appmenu a:hover,.appmenu a:focus-visible,.appmenu button.menu-act:hover,.appmenu button.menu-act:focus-visible,#menu-signout:hover,#menu-signout:focus-visible{background:#14120c;color:#d9a441;outline:none}
   .appmenu a[aria-current=page]{color:#d9a441}
@@ -614,7 +614,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   a[href="#/about"].menu-slot{order:6}
   a.menu-helpin{order:7}
   a.menu-partners{order:8}
-  .menu-mark{order:9;display:block;align-self:center;flex:0 0 auto;width:min(124px,44%);height:auto;max-height:clamp(11px,2.1dvh,18px);margin:auto;padding:10px 0;box-sizing:content-box;object-fit:contain;object-position:center;opacity:.34;pointer-events:none;user-select:none}
+  .menu-mark{order:9;display:block;align-self:center;flex:0 0 auto;width:min(124px,44%);height:auto;max-height:clamp(10px,1.9dvh,16px);margin:auto;padding:4px 0;box-sizing:content-box;object-fit:contain;object-position:center;opacity:.34;pointer-events:none;user-select:none}
   a.nav-account.menu-wide{order:10}
   a[href="#/garage"]{order:11}
   a[href="#/garage/ads"]{order:12}
@@ -622,7 +622,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   a[href="#/saved"]{order:14}
   a.menu-admin{order:15}
   #menu-signout{order:16}
-  .menu-foot{order:20;display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;margin-top:8px;padding:0 4px calc(6px + env(safe-area-inset-bottom));background:#000}
+  .menu-foot{order:20;display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;margin-top:4px;padding:0 4px calc(6px + env(safe-area-inset-bottom));background:#000}
   .appmenu .menu-foot #menu-search{flex:0 1 auto;width:auto;min-width:0;max-width:calc(100% - 160px);height:clamp(36px,6dvh,44px);min-height:clamp(36px,6dvh,44px);justify-content:flex-start;gap:8px;padding:0 4px 0 2px;border:0;border-bottom:0;border-radius:12px;background:transparent;color:#f2f2f2;font-size:clamp(.66rem,1.7dvh,.8rem);letter-spacing:.12em;white-space:nowrap}
   .menu-foot .menu-search-label{color:inherit;line-height:1}
   .menu-foot .menu-act svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;flex:none}
@@ -2035,7 +2035,10 @@ a.partner-card:active{box-shadow:0 0 14px rgba(217,164,65,.16)}
  .auth.is-signin .auth-oauth,.auth.is-join .auth-oauth{gap:8px}
  .auth.is-signin .auth-oauth{gap:12px}
  .auth.is-join .panel{padding-bottom:12px}
+ .auth.is-join .panel > .err{margin:4.5px 0}
  .auth.is-join .auth-create .btn.solid{min-height:46px;height:46px}
+ .auth-title{position:static}
+ .auth-head .auth-close,#auth-close{position:absolute !important;top:3px !important;right:14px !important;transform:none !important;z-index:15;margin:0;padding:0;display:inline-flex !important;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;min-height:44px;max-height:44px}
  .auth.is-signin input{scroll-margin:80px}
  body:has(.auth-gate){height:100svh;max-height:100svh;height:100dvh;max-height:100dvh}
  body:has(.auth-gate) main{overflow-y:auto}
