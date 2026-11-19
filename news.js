@@ -3,6 +3,14 @@
    an optional caption and credit: {"url":"...","caption":"...","credit":"..."}. */
 const NEWS_TITLE = "IM DRIVN. More than a Marketplace … It's a Community";
 const NEWS_DESC = "Buy, sell and talk cars. Free listings, a scroll-first feed and a real car community.";
+const EVENT_POSTERS = [
+  {
+    src: 'assets/events/ooft-27-feb.webp',
+    title: 'Save the Date - 27th Feb (OOFT Crew)',
+    alt: 'Save the Date: Something Huge Coming 27th Feb, OOFT Crew car meet poster',
+    url: ''
+  }
+];
 
 function newsCatLabel(id) {
   const hit = News.cats.find(row => row[0] === id);
@@ -187,8 +195,17 @@ function newsLightbox() {
   });
   return dlg;
 }
+function newsOpenUrl(src) {
+  const raw = String(src || '').trim();
+  if (!raw || /[\s"'<>\\]/.test(raw) || /^javascript:/i.test(raw) || /^data:/i.test(raw)) return '';
+  try {
+    const abs = new URL(raw, location.href);
+    if (abs.protocol !== 'http:' && abs.protocol !== 'https:') return '';
+    return abs.href;
+  } catch (e) { return ''; }
+}
 function openNewsLightbox(src, alt, cap) {
-  const safe = newsHttp(src);
+  const safe = newsOpenUrl(src);
   if (!safe) return;
   const dlg = newsLightbox();
   const img = dlg.querySelector('img');
@@ -291,8 +308,81 @@ function newsFilters(active) {
     return `<a class="news-filter" href="${href}" aria-pressed="${on ? 'true' : 'false'}">${label}</a>`;
   }).join('')}</div>`;
 }
+function clearEventsWallResize() {
+  if (window._eventsWallResize) {
+    window.removeEventListener('resize', window._eventsWallResize);
+    window._eventsWallResize = null;
+  }
+}
+function eventSrcKeys(src) {
+  const raw = String(src || '').trim();
+  const keys = [];
+  if (!raw) return keys;
+  keys.push(raw.split('?')[0]);
+  try {
+    const abs = new URL(raw, location.href);
+    keys.push(abs.href.split('?')[0]);
+    keys.push(abs.pathname);
+  } catch (e) {}
+  return keys;
+}
+function eventPosterItems(rows) {
+  const items = [];
+  const seen = new Set();
+  const add = item => {
+    const keys = eventSrcKeys(item.src);
+    if (!keys.length || keys.some(key => seen.has(key))) return;
+    keys.forEach(key => seen.add(key));
+    items.push(item);
+  };
+  EVENT_POSTERS.forEach(poster => {
+    const src = poster && String(poster.src || '').trim();
+    if (!src) return;
+    add({
+      src: src,
+      title: poster.title || '',
+      alt: poster.alt || poster.title || 'Event poster',
+      url: poster.url || '',
+      slug: ''
+    });
+  });
+  (rows || []).forEach(row => {
+    const src = newsImageUrl(row && row.cover_image_url);
+    if (!src) return;
+    add({
+      src: src,
+      title: row.title || '',
+      alt: row.title || 'Event poster',
+      url: '',
+      slug: row.slug || ''
+    });
+  });
+  return items;
+}
+function eventPosterHtml(item, index) {
+  const tilt = 'ev-t' + (index % 4);
+  const alt = esc(item.alt || item.title || 'Event poster');
+  const img = `<img src="${esc(item.src)}" alt="${alt}">`;
+  if (item.slug) return `<a class="ev-poster ${tilt}" href="#/news/${encodeURIComponent(item.slug)}">${img}</a>`;
+  const href = newsHttp(item.url);
+  if (href) return `<a class="ev-poster ${tilt}" href="${esc(href)}" target="_blank" rel="noopener">${img}</a>`;
+  return `<button type="button" class="ev-poster ${tilt} news-zoom" data-full="${esc(item.src)}" data-alt="${alt}">${img}</button>`;
+}
+function paintEventsWall(grid, items) {
+  const mobile = window.matchMedia('(max-width: 700px)').matches;
+  const cols = mobile ? (items.length > 1 ? 2 : 1) : 3;
+  const mode = (mobile ? 'm' : 'd') + cols + ':' + items.length;
+  if (grid.dataset.wall === mode && grid.querySelector('.ev-poster')) return;
+  grid.dataset.wall = mode;
+  grid.classList.add('events-wall');
+  grid.classList.toggle('is-single', mobile && items.length < 2);
+  const buckets = Array.from({ length: cols }, () => []);
+  items.forEach((item, index) => buckets[index % cols].push(eventPosterHtml(item, index)));
+  grid.innerHTML = buckets.map(col => `<div class="evcol">${col.join('')}</div>`).join('');
+}
 async function newsFeed() {
   const token = ++viewToken;
+  clearEventsWallResize();
   resetNewsMeta();
   document.title = 'News. IM DRIVN';
   const cat = (hashParts().params.get('cat') || '').toLowerCase();
@@ -302,7 +392,32 @@ async function newsFeed() {
   let offset = 0;
   const grid = document.getElementById('news-grid');
   const more = document.getElementById('news-more');
+  const liveRows = [];
+  let wallItems = [];
+  async function pullEvents(replace) {
+    let res = { rows: [] };
+    try { res = await News.list('events', offset); }
+    catch (e) { res = { failed: true, rows: [] }; }
+    if (token !== viewToken || !grid.isConnected) return;
+    const rows = res.rows || [];
+    if (replace) liveRows.length = 0;
+    rows.forEach(row => liveRows.push(row));
+    wallItems = eventPosterItems(liveRows);
+    if (!wallItems.length) {
+      grid.classList.remove('events-wall', 'is-single');
+      delete grid.dataset.wall;
+      grid.innerHTML = res.failed
+        ? '<p class="muted">Couldn\'t load the news just now. Give it another go in a minute.</p>'
+        : '<p class="news-empty">Fresh news dropping soon.</p>';
+      more.hidden = true;
+      return;
+    }
+    paintEventsWall(grid, wallItems);
+    offset += rows.length;
+    more.hidden = rows.length < News.pageSize;
+  }
   async function pull(replace) {
+    if (category === 'events') return pullEvents(replace);
     const res = await News.list(category, offset);
     if (token !== viewToken || !grid.isConnected) return;
     if (res.failed && replace) {
@@ -329,10 +444,25 @@ async function newsFeed() {
     if (more.isConnected) more.disabled = false;
   };
   try { await pull(true); }
-  catch (e) { if (token === viewToken && grid.isConnected) grid.innerHTML = '<p class="news-empty">Fresh news dropping soon.</p>'; }
+  catch (e) {
+    if (token !== viewToken || !grid.isConnected) return;
+    if (category === 'events' && EVENT_POSTERS.length) {
+      wallItems = eventPosterItems([]);
+      paintEventsWall(grid, wallItems);
+      more.hidden = true;
+    } else grid.innerHTML = '<p class="news-empty">Fresh news dropping soon.</p>';
+  }
+  if (token !== viewToken || !grid.isConnected || category !== 'events') return;
+  bindNewsZoom(main);
+  window._eventsWallResize = () => {
+    if (token !== viewToken || !grid.isConnected || !wallItems.length) return;
+    paintEventsWall(grid, wallItems);
+  };
+  window.addEventListener('resize', window._eventsWallResize);
 }
 async function newsArticle(raw) {
   const token = ++viewToken;
+  clearEventsWallResize();
   resetNewsMeta();
   let slug = raw || '';
   try { slug = decodeURIComponent(slug); } catch (e) {}
