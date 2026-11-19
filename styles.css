@@ -1990,3 +1990,20 @@ input:autofill,input:autofill:hover,input:autofill:focus,input:autofill:active,t
   body.is-welcome .welcome-meter-fill{display:block;height:100%;width:0;background:#d9a441;animation:welcome-fill-desk 5s linear forwards}
   @keyframes welcome-fill-desk{from{width:0}to{width:100%}}
 }
+/* Desktop fine pointers: arrow cursor and no text highlight on page copy.
+   Set on html/body only so links, buttons, and cards keep their own cursor:pointer. */
+@media (min-width: 769px) and (any-hover: hover) and (any-pointer: fine) {
+  html, body {
+    cursor: default;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="range"]):not([type="file"]):not([type="color"]):not(:disabled),
+  textarea:not(:disabled),
+  [contenteditable="true"],
+  [contenteditable=""] {
+    cursor: text;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
