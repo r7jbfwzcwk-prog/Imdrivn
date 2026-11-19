@@ -357,13 +357,40 @@ function fPhotoNode(path) {
   Promise.resolve(ready).then(src => { if (src && button.isConnected) img.src = src; }).catch(() => {});
   return button;
 }
+function fThreadPrompt(slug) {
+  const help = {
+    title: 'What is the car doing?',
+    body: 'Year, make, what you already tried. The useful stuff.',
+    titleErr: 'Title needs 3-140 characters. Say what the car is doing.',
+    bodyErr: 'Write the actual question. One sentence is enough.'
+  };
+  const map = {
+    help: help,
+    mods: { title: 'What are you building?', body: "Car, mod list, what you've done so far and what's next." },
+    daily: { title: "What's the daily?", body: 'Year, model, servicing, fuel or running costs. Share your setup or ask away.' },
+    performance: { title: "What's the setup or tune?", body: 'Engine, power goals, track times, parts or tuning details.' },
+    supercars: { title: 'What did you spot or want to talk about?', body: "Model, where you saw it, specs or why it's in your dream garage." },
+    meets: { title: 'Event name, date and location', body: 'When, where, start time, route and anything people need to know.' },
+    general: { title: "What's on your mind?", body: 'Car news, hot takes, banter or whatever you want to talk about.' },
+    'support-locals': { title: 'Business name and what you do', body: 'Services you offer, location, how to reach you and any deals for the crew.' },
+    'formals-shoots-weddings': { title: 'What car do you have for hire?', body: 'Car details, areas you cover, event types, pricing and how to book.' }
+  };
+  const prompt = map[slug] || { title: 'Thread title', body: 'Add the details for your post.' };
+  return {
+    title: prompt.title,
+    body: prompt.body,
+    titleErr: prompt.titleErr || 'Title needs 3-140 characters.',
+    bodyErr: prompt.bodyErr || 'Add a few details. One sentence is enough.'
+  };
+}
 function fComposer(cat) {
+  const prompt = fThreadPrompt(cat && cat.slug);
   const box = fEl('div', { class: 'fcomposer' });
   if (!fCanPost()) { box.append(fGateButton()); return box; }
   const open = fEl('button', { class: 'btn solid', type: 'button' }, 'Post new thread');
   const form = fEl('form', { class: 'panel fnew', hidden: 'hidden' });
-  const title = fEl('input', { name: 'title', maxlength: '140', required: 'required', placeholder: 'What is the car doing?', 'aria-label': 'Thread title' });
-  const body = fEl('textarea', { name: 'body', rows: '5', maxlength: '8000', required: 'required', placeholder: 'Year, make, what you already tried. The useful stuff.', 'aria-label': 'Thread details' });
+  const title = fEl('input', { name: 'title', maxlength: '140', required: 'required', placeholder: prompt.title, 'aria-label': 'Thread title' });
+  const body = fEl('textarea', { name: 'body', rows: '5', maxlength: '8000', required: 'required', placeholder: prompt.body, 'aria-label': 'Thread details' });
   const err = fEl('p', { class: 'err', role: 'alert' });
   const photo = fPhotoPicker();
   const row = fEl('div', { class: 'auth-row' });
@@ -376,8 +403,8 @@ function fComposer(cat) {
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const t = title.value.trim(), b = body.value.trim();
-    if (t.length < 3 || t.length > 140) { err.textContent = 'Title needs 3-140 characters. Say what the car is doing.'; return; }
-    if (!b) { err.textContent = 'Write the actual question. One sentence is enough.'; return; }
+    if (t.length < 3 || t.length > 140) { err.textContent = prompt.titleErr; return; }
+    if (!b) { err.textContent = prompt.bodyErr; return; }
     post.disabled = true; err.textContent = '';
     try {
       const created = await Forum.createThread(cat.id, t, b, photo.photo());
