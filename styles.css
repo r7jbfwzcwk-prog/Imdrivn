@@ -235,7 +235,11 @@ body.is-lanes footer{border-top:1px solid #d9a441}
   body.is-lanes .lanes-head h1,body.is-sell .sell-intro h1{font-size:clamp(1.4rem,4vw,2.2rem);line-height:1.2;margin:0;padding:0}
   body.is-lanes .lane-col{padding-top:22px;overflow:visible}
   body.is-sell .sell-col{padding-top:28px}
-  body.is-lanes .view-all-row{margin-top:9px;margin-bottom:9px}
+  body.is-lanes .view-all-row{margin-top:9px;margin-bottom:9px;overflow:visible}
+  body.is-lanes .view-all{border-color:rgba(217,164,65,.62);box-shadow:inset 0 1px 0 rgba(255,245,214,.35),0 0 7px rgba(240,190,70,.16);animation:mob-pill-gold-rim 2.4s ease-in-out infinite;overflow:visible}
+  body.is-lanes .view-all .view-all-label{color:#f5efe0;text-shadow:0 0 6px rgba(240,190,70,.32),0 0 14px rgba(240,190,70,.16);animation:mob-pill-gold-text 2.4s ease-in-out infinite}
+  body.is-lanes .view-all:hover,body.is-lanes .view-all:focus-visible{animation:none;border-color:rgba(240,190,70,.95);box-shadow:inset 0 1px 0 rgba(255,245,214,.55),0 0 14px rgba(240,190,70,.40),0 0 24px rgba(240,190,70,.18);color:#f6d57a}
+  body.is-lanes .view-all:hover .view-all-label,body.is-lanes .view-all:focus-visible .view-all-label{animation:none;color:#f6d57a;text-shadow:0 0 10px rgba(240,190,70,.85),0 0 22px rgba(240,190,70,.48)}
   body.is-lanes .lanes .path{padding-left:16px;padding-right:16px;overflow:visible}
   body.is-lanes .lanes .path .wide{font-size:clamp(.68rem,6.5cqw,1.45rem);white-space:nowrap;overflow:visible;max-width:none}
 }
@@ -437,6 +441,8 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
 }
 @media(min-width:769px) and (prefers-reduced-motion:reduce){
   .sell-garage-desk .sell-garage-cta{animation:none;color:#f4ead2;text-shadow:0 0 7px rgba(240,190,70,.32),0 0 16px rgba(240,190,70,.16);filter:drop-shadow(0 0 5px rgba(240,190,70,.24))}
+  body.is-lanes .view-all{animation:none;border-color:rgba(217,164,65,.62);box-shadow:inset 0 1px 0 rgba(255,245,214,.35),0 0 7px rgba(240,190,70,.16)}
+  body.is-lanes .view-all .view-all-label{animation:none;color:#f5efe0;text-shadow:0 0 6px rgba(240,190,70,.32),0 0 14px rgba(240,190,70,.16)}
 }
 .sell-intro .eyebrow{text-shadow:0 1px 8px rgba(0,0,0,.85)}
 .sell-cols{flex:1 1 auto;display:grid;gap:3px;grid-template-columns:minmax(0,1fr);align-items:stretch;min-height:0}
