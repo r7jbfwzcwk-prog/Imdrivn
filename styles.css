@@ -1626,9 +1626,20 @@ html.using-keyboard .live-head .menu-close:focus-visible{outline:2px solid #d9a4
 .alertpanel[hidden]{display:none}
 .alert-title{margin:4px 8px 8px;font-size:.72rem;font-weight:700;letter-spacing:.16em;color:#d9a441}
 #alert-close,#msgs-close{display:none}
+.page-close{display:none !important}
 .sheet-bar,.sheet-copy{display:contents}
+.saved-head{display:contents}
 @media(max-width:768px){
-  #alert-close,#msgs-close{display:inline-flex;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px}
+  #alert-close,#msgs-close,.page-close{display:inline-flex !important;align-items:center;justify-content:center;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;max-height:44px}
+  .page-close{color:#d9a441}
+  .page-close svg{width:28px;height:28px}
+  .saved-head{position:relative;display:flex;align-items:center;justify-content:center}
+  .saved-head .feed-title{width:100%;margin-top:16px}
+  .saved-head .page-close{position:absolute;top:0;right:4px;z-index:2}
+  .page-close-grey,.page-close-grey:hover,.page-close-grey:active,.page-close-grey:focus,.page-close-grey:focus-visible{color:#b8b8c0}
+  .page-close-grey svg circle{stroke:#787880}
+  .page-close-grey svg path{stroke:#b8b8c0}
+  .page-close-grey:active svg circle,.page-close-grey:active svg path,.page-close-grey:focus-visible svg circle,.page-close-grey:focus-visible svg path{stroke:#d0d0d8}
   .sheet-bar{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
   .sheet-copy{min-width:0;flex:1 1 auto}
   .alertpanel #alert-close{position:absolute;top:0;right:0;z-index:2}
@@ -1869,7 +1880,8 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   body.is-lanes .lane-col,body.is-sell .sell-col{min-height:0;height:auto;overflow:hidden;align-items:stretch}
   body.is-sell .sell-col .path{min-height:0 !important}
   body.is-lanes .lanes .path,body.is-sell .sell-col .path{height:100%;max-height:100%;overflow:hidden;padding:clamp(4px,1dvh,10px) 10px}
-  body.is-lanes .lanes-head,body.is-sell .sell-intro{position:relative;padding:8px 14px 4px}
+  body.is-lanes .lanes-head,body.is-sell .sell-intro{position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:auto;padding:8px 14px 4px}
+  body.is-lanes .lanes-head h1,body.is-sell .sell-intro h1{flex:1 1 auto;min-width:0}
   body.is-sell .sell-intro h1{margin:0;padding:0;line-height:1.05}
   body.is-lanes .lane-daily,body.is-sell .sell-list{padding-top:8px}
   body.is-lanes .lane-col{padding:6px 12px}
