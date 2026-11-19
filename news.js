@@ -388,9 +388,10 @@ async function newsFeed() {
   const cat = (hashParts().params.get('cat') || '').toLowerCase();
   const known = News.cats.some(row => row[0] === cat && row[0] !== 'general');
   const category = known ? cat : '';
-  main.innerHTML = `<div class="wrap news"><div class="eyebrow">NEWS</div><h1>What's happening</h1><p class="muted">The builds, the drops, the weekends. No filler.</p>${newsFilters(category)}<div class="news-grid" id="news-grid"><p class="muted">Loading…</p></div><p class="news-more-row"><button type="button" class="btn" id="news-more" hidden>Load more</button></p></div>`;
+  main.innerHTML = `${pageClose()}<div class="wrap news"><div class="eyebrow">NEWS</div><h1>What's happening</h1><p class="muted">The builds, the drops, the weekends. No filler.</p>${newsFilters(category)}<div class="news-grid" id="news-grid"><p class="muted">Loading…</p></div><p class="news-more-row"><button type="button" class="btn" id="news-more" hidden>Load more</button></p></div>`;
   let offset = 0;
   const grid = document.getElementById('news-grid');
+  bindPageClose();
   const more = document.getElementById('news-more');
   const liveRows = [];
   let wallItems = [];
@@ -466,14 +467,16 @@ async function newsArticle(raw) {
   resetNewsMeta();
   let slug = raw || '';
   try { slug = decodeURIComponent(slug); } catch (e) {}
-  main.innerHTML = '<div class="wrap news"><p class="muted">Loading…</p></div>';
+  main.innerHTML = `${pageClose()}<div class="wrap news"><p class="muted">Loading…</p></div>`;
+  bindPageClose();
   let res = { row: null };
   try { res = await News.get(slug); } catch (e) { res = { failed: true }; }
   if (token !== viewToken) return;
   if (!res.row) {
     document.title = 'News. IM DRIVN';
     const line = res.failed ? 'Couldn\'t load that story just now.' : 'That story isn\'t up yet.';
-    main.innerHTML = `<div class="wrap news"><a class="eyebrow" href="#/news">← News</a><h1>${esc(line)}</h1><p class="news-empty">Fresh news dropping soon.</p></div>`;
+    main.innerHTML = `${pageClose()}<div class="wrap news"><a class="eyebrow" href="#/news">← News</a><h1>${esc(line)}</h1><p class="news-empty">Fresh news dropping soon.</p></div>`;
+    bindPageClose();
     return;
   }
   const row = res.row;
@@ -488,7 +491,8 @@ async function newsArticle(raw) {
   const insta = newsHttp(row.instagram_post_url);
   const instaLink = insta ? `<p class="news-source"><a href="${esc(insta)}" target="_blank" rel="noopener">As seen on our Insta</a></p>` : '';
   const gallery = newsGallery(row);
-  main.innerHTML = `<div class="wrap news news-story"><a class="eyebrow" href="#/news">← News</a>${newsHero(row.cover_image_url)}<span class="news-chip">${esc(newsCatLabel(row.category))}</span><h1>${esc(row.title || 'Untitled')}</h1><p class="news-by">${[author, date].filter(Boolean).map(esc).join(' · ')}</p><div class="news-body">${newsMarkdown(row.body || '')}</div>${gallery}${source}${instaLink}<div class="news-share"><button type="button" class="btn" id="news-copy">Copy link</button><button type="button" class="btn" id="news-native">Share</button></div></div>`;
+  main.innerHTML = `${pageClose()}<div class="wrap news news-story"><a class="eyebrow" href="#/news">← News</a>${newsHero(row.cover_image_url)}<span class="news-chip">${esc(newsCatLabel(row.category))}</span><h1>${esc(row.title || 'Untitled')}</h1><p class="news-by">${[author, date].filter(Boolean).map(esc).join(' · ')}</p><div class="news-body">${newsMarkdown(row.body || '')}</div>${gallery}${source}${instaLink}<div class="news-share"><button type="button" class="btn" id="news-copy">Copy link</button><button type="button" class="btn" id="news-native">Share</button></div></div>`;
+  bindPageClose();
   bindNewsZoom(main);
   const link = newsLink(row.slug);
   const copy = document.getElementById('news-copy');
