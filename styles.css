@@ -1678,6 +1678,15 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
   .profile-garage-sec .garage-grid{margin-top:var(--s-4)}
 }
 .profile-listings{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1.05rem;margin:var(--s-6) 0 var(--s-3)}
+@media (min-width: 769px) {
+  .profile-page .profile-listings{font-family:var(--font-head);font-style:italic;font-weight:400;text-transform:uppercase;letter-spacing:.08em;line-height:1.2;font-size:clamp(1.15rem,3vw,1.6rem);text-align:center}
+  .profile-page #mine > p.muted{text-align:center}
+  .profile-page #mine .lane-group{text-align:center}
+  .profile-page #mine .lane-label{justify-content:center;text-align:center}
+  .profile-page #mine .lane-group .feed{max-width:900px;margin:0 auto;padding:14px 0 22px;display:grid;grid-template-columns:repeat(2,minmax(0,420px));justify-content:center;gap:18px}
+  .profile-page #mine .lane-group .feed:has(> .post:only-child){grid-template-columns:minmax(0,420px)}
+  .profile-page #mine .post{text-align:left;width:100%}
+}
 .joined{margin:2px 0 var(--s-4);color:var(--c-muted)}
 .seller-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 14px}
 .seller-line .handle{min-width:0}
