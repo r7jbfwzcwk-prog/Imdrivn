@@ -83,16 +83,25 @@ const ValueFlow = (() => {
     }
   }
   function clearDraft() { try { localStorage.removeItem(KEY); } catch (e) {} }
+  function valueFilled(value) { return String(value == null ? '' : value).trim() !== ''; }
+  function hasSavedProgress(saved) {
+    if (!saved || typeof saved !== 'object') return false;
+    if (typeof saved.step === 'number' && saved.step > 0) return true;
+    const keys = ['make','model','year','variant','kms','rego','vin','overall','exterior','interior','accident','service','finance','keys','mods','modsNote','expected'];
+    if (keys.some(key => valueFilled(saved[key]))) return true;
+    return Array.isArray(saved.photos) && saved.photos.length > 0;
+  }
 
   function start(root) {
     if (typeof VehicleNames !== 'undefined') VehicleNames.ready().then(() => { const input = document.getElementById('v-make'); if (input) input.dispatchEvent(new Event('input')); }).catch(() => {});
-    const saved = loadDraft() || {};
-    const draft = Object.assign(blank(), saved);
+    const saved = loadDraft();
+    const resume = hasSavedProgress(saved);
+    const draft = Object.assign(blank(), resume ? saved : {});
     if (!Array.isArray(draft.photos)) draft.photos = [];
     if (!RATINGS.includes(draft.exterior) && RATINGS.includes(draft.overall)) draft.exterior = draft.overall;
     if (!RATINGS.includes(draft.interior)) draft.interior = '';
     if (!STATES.includes(draft.regoState)) draft.regoState = '';
-    let i = Number.isInteger(saved.step) ? saved.step : 0;
+    let i = resume && typeof saved.step === 'number' && saved.step > 0 ? Math.floor(saved.step) : 0;
     let busy = false, suggestOn = false;
     const steps = [
       {id:'make', q:'What\'s the make?', intro:'Alright, tell us what you\u2019ve got ..', hint:'Start typing. Pick a suggestion, or write your own.'},
@@ -110,7 +119,7 @@ const ValueFlow = (() => {
       {id:'contact', q:'How do dealers reach you?', hint:'Name, email, and phone. We filled in what your account already has.'},
       {id:'review', q:'Get me a price.', hint:'Check it, then submit. We will ask you to sign in if you are not already.'}
     ];
-    if (i < 0 || i >= steps.length) i = 0;
+    if (i < 0 || i >= steps.length) i = i < 0 ? 0 : Math.max(0, steps.length - 1);
 
     function setErr(msg) { const el = document.getElementById('ask-err'); if (el) el.textContent = msg || ''; }
     function field(id, value, placeholder, mode) {
@@ -458,6 +467,7 @@ const ValueFlow = (() => {
       }
     }
     function onKey(e) {
+      if (e.target.closest && e.target.closest('.draft-resume-dialog')) return;
       const ask = document.querySelector('.vask');
       if (!ask || !ask.isConnected || e.key !== 'Enter' || e.shiftKey || e.altKey || e.isComposing || e.repeat) return;
       if (!e.target.closest || !e.target.closest('.vask')) return;
@@ -472,6 +482,27 @@ const ValueFlow = (() => {
     root.innerHTML = `<div class="ask vask"><div class="ask-bar" role="progressbar" aria-valuemin="1" aria-valuemax="${steps.length}" aria-valuenow="1" aria-label="Valuation progress"><span></span></div><div class="ask-stage"></div></div>`;
     render(0);
     prefill();
+    function focusAsk() {
+      const focusEl = document.querySelector('.vask [data-autofocus]');
+      if (focusEl) focusEl.focus({preventScroll: true});
+    }
+    if (resume) {
+      openDraftResume({
+        flow: 'Wholesale valuation',
+        draft,
+        onResume: focusAsk,
+        onRestart() {
+          clearDraft();
+          const fresh = blank();
+          Object.keys(draft).forEach(key => { delete draft[key]; });
+          Object.assign(draft, fresh);
+          if (!Array.isArray(draft.photos)) draft.photos = [];
+          i = 0;
+          render(0);
+          prefill();
+        }
+      });
+    }
     async function prefill() {
       try { await Auth.ready; } catch (e) { return; }
       if (!Auth.user || !sb) return;

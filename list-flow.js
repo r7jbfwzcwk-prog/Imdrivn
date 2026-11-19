@@ -1,7 +1,41 @@
 /* Typeform-style "list your car free" flow.
    One question per screen. New ads go through ListingStore.create().
    Edits pass opts.draft and opts.submitLabel and save with ListingStore.update().
-   This file never touches localStorage. */
+   New ads keep an unfinished draft in localStorage. Edits never touch it. */
+function openDraftResume(opts) {
+  document.querySelectorAll('dialog.draft-resume-dialog').forEach(node => node.remove());
+  const draft = (opts && opts.draft) || {};
+  const flow = (opts && opts.flow) || 'Create an ad';
+  const escText = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const car = [draft.year, draft.make, draft.model].map(v => String(v || '').trim()).filter(Boolean).join(' ');
+  const lanes = {daily:'Daily','4x4':'4x4 Off-road',performance:'Performance',supercars:'Supercar'};
+  const lane = lanes[draft.sec] || '';
+  const summary = car ? car + ' · ' + flow : (lane ? lane + ' · ' + flow : flow);
+  const dlg = document.createElement('dialog');
+  dlg.className = 'draft-resume-dialog';
+  dlg.setAttribute('tabindex', '-1');
+  dlg.innerHTML = `<p class="draft-resume-eyebrow">Saved draft</p><h2>Oh Hey!</h2><p class="draft-resume-msg">Do you want to start over or pick up from where you left off?</p><p class="draft-resume-meta"><span class="draft-resume-meta-dot" aria-hidden="true"></span><span>${escText(summary)}</span></p><div class="draft-resume-actions"><button type="button" class="btn solid" data-resume>Pick up where I left off</button><button type="button" class="btn outline" data-restart>Start over</button></div>`;
+  document.body.appendChild(dlg);
+  let settled = false;
+  const onHash = () => { settled = true; window.removeEventListener('hashchange', onHash); dlg.remove(); };
+  window.addEventListener('hashchange', onHash);
+  const finish = resume => {
+    if (settled) return;
+    settled = true;
+    window.removeEventListener('hashchange', onHash);
+    if (dlg.open && dlg.close) dlg.close();
+    dlg.remove();
+    if (resume) { if (opts && opts.onResume) opts.onResume(); }
+    else if (opts && opts.onRestart) opts.onRestart();
+  };
+  dlg.querySelector('[data-resume]').onclick = () => finish(true);
+  dlg.querySelector('[data-restart]').onclick = () => finish(false);
+  dlg.addEventListener('cancel', e => { e.preventDefault(); finish(true); });
+  if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+  const focusDialog = () => { if (dlg.isConnected) dlg.focus(); };
+  focusDialog();
+  requestAnimationFrame(focusDialog);
+}
 const ListFlow = (() => {
   const SECS = [['daily','Daily','The every-day cars'],['4x4','4x4 Off-road','Air down, send it.'],['performance','Performance','The fun ones'],['supercars','Supercar','The loud ones']];
   const YEAR_MIN = 1950, YEAR_MAX = 2027, KM_MAX = 2000000, PRICE_MAX = 20000000, PHOTO_MAX = 8;
@@ -94,9 +128,32 @@ const ListFlow = (() => {
     return `<input class="ask-input" id="${id}" data-autofocus ${o.extra || ''} aria-labelledby="ask-q" aria-describedby="ask-hint ask-err" value="${esc(o.value)}" placeholder="${esc(o.placeholder || '')}" autocomplete="${o.auto || 'off'}" inputmode="${o.mode || 'text'}" enterkeyhint="next" ${o.maxlength ? `maxlength="${o.maxlength}"` : ''}>`;
   }
 
+  const LIST_KEY = 'imdrivn_list_draft';
+  function blankList() {
+    return {sec:'', make:'', model:'', year:'', km:'', condition:'', price:'', suburb:'', state:'', postcode:'', lat:null, lng:null, tagline:'', heading:'', desc:'', engine:'', cylinders:'', transmission:'', induction:'', rego:'', vin:'', photos:[], name:'', phone:'', email:''};
+  }
+  function listFilled(value) { return String(value == null ? '' : value).trim() !== ''; }
+  function listHasSavedProgress(saved) {
+    if (!saved || typeof saved !== 'object') return false;
+    if (typeof saved.step === 'number' && saved.step > 0) return true;
+    const keys = ['sec','make','model','year','km','condition','price','tagline','heading','desc','engine','cylinders','transmission','induction','rego','vin'];
+    if (keys.some(key => listFilled(saved[key]))) return true;
+    return Array.isArray(saved.photos) && saved.photos.length > 0;
+  }
+  function loadListDraft() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(LIST_KEY) || 'null');
+      if (!raw || typeof raw !== 'object') return null;
+      return raw;
+    } catch (e) { return null; }
+  }
+
   function start(root, opts) {
-    const seed = (opts && opts.draft) || {};
-    const draft = {sec:'', make:'', model:'', year:'', km:'', condition:'', price:'', suburb:'', state:'', postcode:'', lat:null, lng:null, tagline:'', heading:'', desc:'', engine:'', cylinders:'', transmission:'', induction:'', rego:'', vin:'', photos:[], name:'', phone:'', email:''};
+    const isEdit = Boolean(opts && opts.draft);
+    const saved = isEdit ? null : loadListDraft();
+    const resume = !isEdit && listHasSavedProgress(saved);
+    const seed = isEdit ? ((opts && opts.draft) || {}) : (resume ? saved : {});
+    const draft = blankList();
     Object.keys(draft).forEach(key => { if (seed[key] !== undefined && seed[key] !== null) draft[key] = seed[key]; });
     draft.photos = Array.isArray(draft.photos) ? draft.photos.slice(0, PHOTO_MAX) : [];
     draft.year = draft.year == null ? '' : String(draft.year);
@@ -106,6 +163,42 @@ const ListFlow = (() => {
     const editing = !!(opts && opts.editing);
     const photoNudge = 'Ads with photos sell a lot quicker. Photos are important, so add some now.';
     let i = 0, busy = false, suggestOn = false, steps = [];
+    function clearListDraft() {
+      if (isEdit) return;
+      try { localStorage.removeItem(LIST_KEY); } catch (e) {}
+    }
+    function saveListDraft(current, step) {
+      if (isEdit) return;
+      const payload = Object.assign({}, current, {photos: (current.photos || []).slice(), step});
+      if (!listHasSavedProgress(payload)) { clearListDraft(); return; }
+      try { localStorage.setItem(LIST_KEY, JSON.stringify(payload)); }
+      catch (e) {
+        try { localStorage.setItem(LIST_KEY, JSON.stringify(Object.assign({}, payload, {photos: [], photosDropped: true}))); } catch (err) {}
+      }
+    }
+    async function prefillAccount() {
+      if (isEdit) return;
+      try { await Auth.ready; } catch (e) { return; }
+      if (typeof Auth === 'undefined' || !Auth.user) return;
+      if (!draft.email && Auth.user.email) draft.email = Auth.user.email;
+      if (!draft.name && Auth.profile && Auth.profile.display_name) draft.name = String(Auth.profile.display_name);
+      if (!draft.suburb && Auth.location && Auth.location.suburb) {
+        draft.suburb = Auth.location.suburb;
+        draft.state = Auth.location.state || '';
+        draft.postcode = Auth.location.postcode ? String(Auth.location.postcode) : '';
+        if (Number.isFinite(+Auth.location.lat)) draft.lat = +Auth.location.lat;
+        if (Number.isFinite(+Auth.location.lng)) draft.lng = +Auth.location.lng;
+      }
+      try {
+        const settings = await AccountSettings.get();
+        if (settings && !draft.phone && settings.phone) draft.phone = settings.phone;
+        if (settings && !draft.email && settings.email) draft.email = settings.email;
+      } catch (e) {}
+      const step = steps[i];
+      const onContact = step && step.question === 'Your email and mobile';
+      const onPlace = step && step.question && step.question.startsWith("Where's the car");
+      if ((onContact || onPlace) && document.querySelector('.ask')) render(0);
+    }
     function boosted() { return draft.sec === 'performance' || draft.sec === 'supercars'; }
     function clearHiddenPower() {
       if (boosted()) return;
@@ -627,6 +720,7 @@ const ListFlow = (() => {
         if (noteEl && !full) noteEl.textContent = draft.photos.length ? '' : photoNudge;
         const ok = document.getElementById('ask-ok');
         if (ok && !ok.classList.contains('rev-wrap')) { ok.disabled = false; ok.textContent = draft.photos.length ? 'OK' : 'Continue'; }
+        if (!isEdit) saveListDraft(draft, i);
         host.innerHTML = draft.photos.map((src, n) => `<div class="ask-photo shot${n === 0 ? ' is-cover' : ''}" data-i="${n}" tabindex="0" role="group" aria-label="${n === 0 ? 'Cover photo' : 'Photo ' + (n + 1)}. Use arrow keys to reorder">
           <img src="${src}" alt="">${photoMark()}
           ${n === 0 ? '<span class="ask-cover">Cover</span>' : ''}
@@ -654,6 +748,7 @@ const ListFlow = (() => {
         }
         if (draft.photos.length > PHOTO_MAX) draft.photos.length = PHOTO_MAX;
         draw();
+        saveListDraft(draft, i);
         if (noteEl && truncated) noteEl.textContent = '8 is the max. Kept the first photos that fit.';
       };
 
@@ -921,7 +1016,7 @@ const ListFlow = (() => {
           if (typeof cancel === 'function') btn._revCancel = cancel;
         }).catch(() => {});
       }
-      opts.publish({...draft, photos: draft.photos.slice()}).catch(e => {
+      opts.publish({...draft, photos: draft.photos.slice()}).then(() => { if (!isEdit) clearListDraft(); }).catch(e => {
         busy = false;
         revState = 'idle';
         revRpm = 0;
@@ -1074,6 +1169,7 @@ const ListFlow = (() => {
       const next = i + delta;
       if (next < 0 || next >= steps.length) return;
       i = next;
+      if (!isEdit) saveListDraft(draft, i);
       render(delta);
     }
 
@@ -1091,6 +1187,7 @@ const ListFlow = (() => {
       if (btn) btn.disabled = true;
       try {
         await opts.publish({...draft, photos: draft.photos.slice()});
+        if (!isEdit) clearListDraft();
       } catch (e) {
         busy = false;
         if (btn) btn.disabled = false;
@@ -1099,6 +1196,7 @@ const ListFlow = (() => {
     }
 
     function onKey(e) {
+      if (e.target.closest && e.target.closest('.draft-resume-dialog')) return;
       const ask = document.querySelector('.ask');
       if (!ask || !ask.isConnected || e.key !== 'Enter' || e.shiftKey || e.altKey || e.isComposing || e.repeat) return;
       if (!e.target.closest || !e.target.closest('.ask')) return;
@@ -1124,6 +1222,11 @@ const ListFlow = (() => {
     document.addEventListener('keyup', onKeyUp);
 
     rebuildSteps();
+    if (!isEdit && resume && !(opts && (opts.startAt === 'photos' || opts.startAt === 'post'))) {
+      const next = typeof saved.step === 'number' && saved.step > 0 ? Math.floor(saved.step) : 0;
+      i = next < 0 ? 0 : next;
+      if (i >= steps.length) i = Math.max(0, steps.length - 1);
+    }
     if (opts && (opts.startAt === 'photos' || opts.startAt === 'post')) {
       const at = steps.findIndex(step => step.id === opts.startAt);
       if (at >= 0) i = at;
@@ -1134,6 +1237,36 @@ const ListFlow = (() => {
       <div class="ask-stage"></div>
     </div>`;
     render(0);
+    const remember = () => {
+      if (isEdit || !steps[i]) return;
+      try { if (steps[i].read) steps[i].read(); } catch (e) {}
+      saveListDraft(draft, i);
+    };
+    root.addEventListener('input', remember);
+    root.addEventListener('focusout', remember);
+    function focusAsk() {
+      const step = steps[i];
+      const focusEl = step && step.focusOk ? document.getElementById('ask-ok') : document.querySelector('.ask [data-autofocus]');
+      if (focusEl) focusEl.focus({preventScroll: true});
+    }
+    if (resume) {
+      openDraftResume({
+        flow: 'Create an ad',
+        draft,
+        onResume: focusAsk,
+        onRestart() {
+          clearListDraft();
+          const fresh = blankList();
+          Object.keys(draft).forEach(key => { draft[key] = fresh[key]; });
+          draft.photos = [];
+          i = 0;
+          rebuildSteps();
+          render(0);
+          prefillAccount();
+        }
+      });
+    }
+    prefillAccount();
     if (openAtPhotos) {
       const drop = document.getElementById('ask-drop');
       if (drop) {
