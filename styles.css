@@ -1639,7 +1639,9 @@ html.using-keyboard .live-head .menu-close:focus-visible{outline:2px solid #d9a4
   .page-close-grey svg path{stroke:#b8b8c0}
   .page-close-grey:active svg circle,.page-close-grey:active svg path,.page-close-grey:focus-visible svg circle,.page-close-grey:focus-visible svg path{stroke:#d0d0d8}
   .sheet-bar{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-  .sheet-copy{min-width:0;flex:1 1 auto}
+  .sheet-copy{display:block;min-width:0;flex:1 1 auto;padding-right:52px}
+  .profile-page .garage-top{padding-right:52px}
+  .account-details > .eyebrow,.account-details > h1{padding-right:52px}
   .alertpanel #alert-close{position:absolute;top:0;right:0;z-index:2}
   .alertpanel .alert-title{display:flex;align-items:center;min-height:44px;margin:0 48px 8px 8px}
 }
