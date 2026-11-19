@@ -9,8 +9,9 @@ const ValueFlow = (() => {
   const digits = s => String(s ?? '').replace(/[^\d]/g, '');
   let suburbLoad = null;
   function loadSuburbs() {
+    if (typeof Suburbs !== 'undefined' && Suburbs.ready) return Suburbs.ready();
     if (!suburbLoad) {
-      suburbLoad = fetch('data/suburbs.json').then(res => {
+      suburbLoad = fetch('data/suburbs.json?v=2').then(res => {
         if (!res.ok) throw new Error('load');
         return res.json();
       }).catch(err => { suburbLoad = null; throw err; });

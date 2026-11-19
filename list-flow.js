@@ -11,8 +11,9 @@ const ListFlow = (() => {
   const suggested = d => [d.year, d.make, d.model].map(v => String(v || '').trim()).filter(Boolean).join(' ');
   let suburbLoad = null;
   function loadSuburbs() {
+    if (typeof Suburbs !== 'undefined' && Suburbs.ready) return Suburbs.ready();
     if (!suburbLoad) {
-      suburbLoad = fetch('data/suburbs.json').then(res => {
+      suburbLoad = fetch('data/suburbs.json?v=2').then(res => {
         if (!res.ok) throw new Error('load');
         return res.json();
       }).catch(err => { suburbLoad = null; throw err; });
@@ -95,7 +96,7 @@ const ListFlow = (() => {
 
   function start(root, opts) {
     const seed = (opts && opts.draft) || {};
-    const draft = {sec:'', make:'', model:'', year:'', km:'', condition:'', price:'', suburb:'', state:'', postcode:'', tagline:'', heading:'', desc:'', engine:'', cylinders:'', transmission:'', induction:'', rego:'', vin:'', photos:[], name:'', phone:'', email:''};
+    const draft = {sec:'', make:'', model:'', year:'', km:'', condition:'', price:'', suburb:'', state:'', postcode:'', lat:null, lng:null, tagline:'', heading:'', desc:'', engine:'', cylinders:'', transmission:'', induction:'', rego:'', vin:'', photos:[], name:'', phone:'', email:''};
     Object.keys(draft).forEach(key => { if (seed[key] !== undefined && seed[key] !== null) draft[key] = seed[key]; });
     draft.photos = Array.isArray(draft.photos) ? draft.photos.slice(0, PHOTO_MAX) : [];
     draft.year = draft.year == null ? '' : String(draft.year);
@@ -303,7 +304,7 @@ const ListFlow = (() => {
         read() {
           const el = document.getElementById('ask-place');
           const label = draft.suburb && draft.state && draft.postcode ? draft.suburb + ' ' + draft.state + ' ' + draft.postcode : '';
-          if (el && el.value.trim() !== label) { draft.suburb = ''; draft.state = ''; draft.postcode = ''; }
+          if (el && el.value.trim() !== label) { draft.suburb = ''; draft.state = ''; draft.postcode = ''; draft.lat = null; draft.lng = null; }
         },
         validate() {
           if (!draft.suburb || !draft.state || !draft.postcode) return 'Pick a suburb from the list. Street addresses do not count.';
@@ -455,6 +456,7 @@ const ListFlow = (() => {
         const row = items[n];
         if (!row) return;
         draft.suburb = row[0]; draft.state = row[1]; draft.postcode = row[2];
+        draft.lat = Number.isFinite(+row[3]) ? +row[3] : null; draft.lng = Number.isFinite(+row[4]) ? +row[4] : null;
         input.value = placeLabel(row);
         close();
         syncPlaceNext();
@@ -480,7 +482,7 @@ const ListFlow = (() => {
       };
       input.addEventListener('input', () => {
         const label = draft.suburb && draft.state && draft.postcode ? draft.suburb + ' ' + draft.state + ' ' + draft.postcode : '';
-        if (input.value.trim() !== label) { draft.suburb = ''; draft.state = ''; draft.postcode = ''; syncPlaceNext(); }
+        if (input.value.trim() !== label) { draft.suburb = ''; draft.state = ''; draft.postcode = ''; draft.lat = null; draft.lng = null; syncPlaceNext(); }
         refresh();
       });
       input.addEventListener('focus', refresh);

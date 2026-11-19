@@ -293,9 +293,134 @@ function ownProfileCols() {
 function publicProfileCols() {
   return 'username,member_verified,og_number' + (Presence.column ? ',last_seen_at' : '');
 }
+const Suburbs = {
+  rows: null,
+  load: null,
+  byExact: null,
+  byPlace: null,
+  byState: null,
+  ready() {
+    if (this.rows) return Promise.resolve(this.rows);
+    if (!this.load) {
+      this.load = fetch('data/suburbs.json?v=2').then(res => {
+        if (!res.ok) throw new Error('load');
+        return res.json();
+      }).then(rows => {
+        this.rows = rows;
+        return rows;
+      }).catch(err => { this.load = null; throw err; });
+    }
+    return this.load;
+  },
+  index() {
+    if (this.byExact || !this.rows) return;
+    this.byExact = new Map();
+    this.byPlace = new Map();
+    this.byState = new Map();
+    this.rows.forEach(row => {
+      const name = String(row[0] || '').toLowerCase();
+      const state = String(row[1] || '').toUpperCase();
+      const pc = String(row[2] || '');
+      if (!this.byExact.has(name + '|' + state + '|' + pc)) this.byExact.set(name + '|' + state + '|' + pc, row);
+      if (!this.byPlace.has(name + '|' + state)) this.byPlace.set(name + '|' + state, row);
+      if (!this.byState.has(state)) this.byState.set(state, []);
+      this.byState.get(state).push(row);
+    });
+  },
+  search(query, limit) {
+    const rows = this.rows || [];
+    const cap = limit || 8;
+    const q = String(query || '').trim().toLowerCase();
+    if (!q || !rows.length) return [];
+    if (/^\d+$/.test(q)) {
+      const hits = [];
+      for (const row of rows) {
+        const pc = String(row[2]);
+        if (pc.startsWith(q) || (pc.startsWith('0') && !q.startsWith('0') && pc.slice(1).startsWith(q))) hits.push(row);
+        if (hits.length === cap) break;
+      }
+      return hits;
+    }
+    const prefix = [], contains = [];
+    for (const row of rows) {
+      const name = String(row[0]).toLowerCase();
+      const place = name + ' ' + String(row[1]).toLowerCase();
+      if (name.startsWith(q) || place.startsWith(q)) prefix.push(row);
+      else if (name.includes(q) || place.includes(q)) contains.push(row);
+      if (prefix.length >= cap) break;
+    }
+    return prefix.concat(contains).slice(0, cap);
+  },
+  place(row) {
+    if (!row) return null;
+    const lat = +row[3], lng = +row[4];
+    return { suburb: row[0], state: row[1], postcode: String(row[2]), lat, lng };
+  },
+  format(loc) {
+    if (!loc) return '';
+    const suburb = String(loc.suburb || '').trim();
+    const state = String(loc.state || '').trim();
+    const postcode = String(loc.postcode || '').trim();
+    if (!suburb) return '';
+    return postcode ? suburb + ', ' + state + ' ' + postcode : (state ? suburb + ', ' + state : suburb);
+  },
+  coordsFor(listing) {
+    if (!listing) return null;
+    const lat = +listing.lat, lng = +listing.lng;
+    if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+    if (!this.rows) return null;
+    this.index();
+    const suburb = String(listing.suburb || '').trim();
+    const state = String(listing.state || '').trim().toUpperCase();
+    const pc = String(listing.postcode || '').replace(/\D/g, '').padStart(4, '0');
+    if (!suburb || !state) return null;
+    const name = suburb.toLowerCase();
+    if (listing.postcode) {
+      const exact = this.byExact.get(name + '|' + state + '|' + pc);
+      if (exact) return { lat: +exact[3], lng: +exact[4] };
+    }
+    const place = this.byPlace.get(name + '|' + state);
+    if (place) return { lat: +place[3], lng: +place[4] };
+    let best = null;
+    (this.byState.get(state) || []).forEach(row => {
+      const label = String(row[0]).toLowerCase();
+      if (label === name || label.startsWith(name)) {
+        if (!best || String(row[0]).length < String(best[0]).length) best = row;
+      }
+    });
+    return best ? { lat: +best[3], lng: +best[4] } : null;
+  },
+  distanceKm(lat1, lng1, lat2, lng2) {
+    const a1 = +lat1, o1 = +lng1, a2 = +lat2, o2 = +lng2;
+    if (![a1, o1, a2, o2].every(Number.isFinite)) return null;
+    const rad = Math.PI / 180;
+    const dLat = (a2 - a1) * rad, dLng = (o2 - o1) * rad;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(a1 * rad) * Math.cos(a2 * rad) * Math.sin(dLng / 2) ** 2;
+    return 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(h)));
+  }
+};
+function memberPlace(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const suburb = String(raw.suburb || '').trim();
+  const state = String(raw.state || '').trim().toUpperCase();
+  const postcode = String(raw.postcode || '').trim();
+  const lat = +raw.lat, lng = +raw.lng;
+  if (!suburb || !state || !/^\d{4}$/.test(postcode) || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return { suburb, state, postcode, lat, lng, updated_at: raw.updated_at || null };
+}
+function pendingMemberPlace() {
+  try { return memberPlace(JSON.parse(localStorage.getItem('imdrivn_pending_location') || 'null')); }
+  catch (e) { return null; }
+}
+function rememberPendingPlace(place) {
+  const clean = memberPlace(place);
+  if (!clean) return;
+  try { localStorage.setItem('imdrivn_pending_location', JSON.stringify({ suburb: clean.suburb, state: clean.state, postcode: clean.postcode, lat: clean.lat, lng: clean.lng })); } catch (e) {}
+}
 const Auth = {
   user: null,
   profile: null,
+  location: null,
   likes: new Set(),
   saves: new Set(),
   recovery: /type=recovery/.test(bootSearch) || /type=recovery/.test(bootHash),
@@ -317,7 +442,7 @@ const Auth = {
   },
   emit() { this.listeners.forEach(fn => { try { fn(); } catch (e) {} }); },
   async sync() {
-    if (!this.user) { this.profile = null; this.likes = new Set(); this.saves = new Set(); return; }
+    if (!this.user) { this.profile = null; this.location = null; this.likes = new Set(); this.saves = new Set(); return; }
     await Presence.ready;
     await detectOwnExtras();
     const [profile, likes, saves] = await Promise.all([
@@ -328,7 +453,31 @@ const Auth = {
     this.profile = profile.error ? null : profile.data;
     this.likes = new Set(likes.error ? [] : (likes.data || []).map(r => r.listing_id));
     this.saves = new Set(saves.error ? [] : (saves.data || []).map(r => r.listing_id));
+    try { await this.pullLocation(); } catch (e) {}
     try { await this.keepAppleName(); } catch (e) {}
+  },
+  async pullLocation() {
+    if (!sb || !this.user) { this.location = null; return; }
+    try {
+      const res = await sb.rpc('get_my_location');
+      if (!res.error) this.location = memberPlace(res.data);
+    } catch (e) {}
+    if (this.location) {
+      try { localStorage.removeItem('imdrivn_pending_location'); } catch (e) {}
+      return;
+    }
+    const meta = this.user.user_metadata && this.user.user_metadata.pending_location;
+    const pending = pendingMemberPlace() || memberPlace(meta);
+    if (!pending) return;
+    try {
+      const res = await sb.rpc('set_my_location', {
+        p_suburb: pending.suburb, p_state: pending.state, p_postcode: pending.postcode, p_lat: pending.lat, p_lng: pending.lng
+      });
+      if (!res.error) {
+        this.location = memberPlace(res.data) || pending;
+        try { localStorage.removeItem('imdrivn_pending_location'); } catch (e) {}
+      }
+    } catch (e) {}
   },
   applePersonName(user) {
     const bags = [user && user.user_metadata].concat((user && user.identities || []).map(row => row && row.identity_data));
@@ -381,7 +530,7 @@ const Auth = {
     sb.auth.onAuthStateChange((event, session) => {
       this.user = session?.user || null;
       if (event === 'PASSWORD_RECOVERY') this.recovery = true;
-      if (event === 'SIGNED_OUT') { this.profile = null; this.likes = new Set(); this.saves = new Set(); this.recovery = false; }
+      if (event === 'SIGNED_OUT') { this.profile = null; this.location = null; this.likes = new Set(); this.saves = new Set(); this.recovery = false; }
       if (event === 'INITIAL_SESSION') return;
       this.sync().then(async () => {
         if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && this.user) {
@@ -397,13 +546,18 @@ const Auth = {
     if (error) throw new Error(authMessage(error));
     await this.refreshUser();
   },
-  async signUp(email, password) {
-    const { data, error } = await sb.auth.signUp({
-      email, password,
-      options: { emailRedirectTo: location.origin + location.pathname }
-    });
+  async signUp(email, password, place) {
+    const pending = memberPlace(place);
+    if (pending) rememberPendingPlace(pending);
+    const options = { emailRedirectTo: location.origin + location.pathname };
+    if (pending) options.data = { pending_location: { suburb: pending.suburb, state: pending.state, postcode: pending.postcode, lat: pending.lat, lng: pending.lng } };
+    const { data, error } = await sb.auth.signUp({ email, password, options });
     if (error) throw new Error(authMessage(error));
-    if (data.session) { await this.refreshUser(); return { confirmed: true }; }
+    if (data.session) {
+      await this.refreshUser();
+      if (pending) { try { await AccountSettings.setLocation(pending); } catch (e) {} }
+      return { confirmed: true };
+    }
     return { confirmed: false };
   },
   async forgot(email) {
@@ -561,6 +715,36 @@ const AccountSettings = {
       : { type: 'email_change', email };
     const { error } = await sb.auth.resend(args);
     if (error) throw new Error(authMessage(error));
+  },
+  async getLocation() {
+    if (!sb || !Auth.user) throw new Error('Sign in to change your details.');
+    const { data, error } = await sb.rpc('get_my_location');
+    if (error) throw accountRpcError(error);
+    Auth.location = memberPlace(data);
+    Auth.emit();
+    return Auth.location;
+  },
+  async setLocation(place) {
+    if (!sb || !Auth.user) throw new Error('Sign in to change your details.');
+    const clean = memberPlace(place);
+    if (!clean) throw new Error('Pick your suburb from the list.');
+    const { data, error } = await sb.rpc('set_my_location', {
+      p_suburb: clean.suburb, p_state: clean.state, p_postcode: clean.postcode, p_lat: clean.lat, p_lng: clean.lng
+    });
+    if (error) throw accountRpcError(error);
+    Auth.location = memberPlace(data) || clean;
+    try { localStorage.removeItem('imdrivn_pending_location'); } catch (e) {}
+    Auth.emit();
+    return Auth.location;
+  },
+  async clearLocation() {
+    if (!sb || !Auth.user) throw new Error('Sign in to change your details.');
+    const { error } = await sb.rpc('clear_my_location');
+    if (error) throw accountRpcError(error);
+    Auth.location = null;
+    try { localStorage.removeItem('imdrivn_pending_location'); } catch (e) {}
+    Auth.emit();
+    return null;
   }
 };
 const FINANCE_JOBS = ['Employed Full Time', 'Employed Part Time', 'Self Employed / ABN Holder', 'Casual (More than 6 months)', 'Casual (Less than 6 months)', 'Not Currently Working'];
@@ -769,7 +953,7 @@ function listingCondition(listing) {
 }
 function listingSelect() {
   const who = 'username,display_name,member_verified,og_number' + (Presence.column ? ',last_seen_at' : '');
-  return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,condition,rego,vin,photos,status,created_at,bumped_at,sort_at,top_until,top_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
+  return 'id,user_id,mode,make,model,year,kms,price,suburb,state,postcode,lat,lng,heading,description,engine,cylinders,turbo,supercharged,induction,transmission,condition,rego,vin,photos,status,created_at,bumped_at,sort_at,top_until,top_at,profiles!listings_user_id_fkey(' + who + '),likes(count),saves(count)';
 }
 
 function countOf(rel) {
@@ -807,6 +991,8 @@ function mapListing(row) {
     make: row.make, model: row.model, year: row.year,
     km: row.kms, kms: row.kms, price: row.price,
     suburb: row.suburb, state: row.state, postcode: row.postcode || '',
+    lat: Number.isFinite(+row.lat) ? +row.lat : null,
+    lng: Number.isFinite(+row.lng) ? +row.lng : null,
     heading: row.heading,
     desc: row.description, description: row.description,
     engine: row.engine || '',
@@ -1173,6 +1359,12 @@ async function saveListingContact(listingId, uid, email, mobile) {
   if (inserted.error || !inserted.data) throw new Error('The ad was updated, but your contact details did not save. ' + dbMessage(inserted.error || {}));
 }
 
+async function listingPoint(listing) {
+  const lat = +listing.lat, lng = +listing.lng;
+  if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+  try { await Suburbs.ready(); } catch (e) { return null; }
+  return Suburbs.coordsFor(listing);
+}
 const ListingStore = {
   cache: new Map(),
   remember(rows) { rows.forEach(l => this.cache.set(l.id, l)); return rows; },
@@ -1193,6 +1385,19 @@ const ListingStore = {
     const { data, error } = await q.range(from, to);
     if (error) throw new Error(dbMessage(error));
     return this.remember((data || []).map(mapListing));
+  },
+  async inventory({ mode, filters, limit }) {
+    const cap = Math.min(500, Math.max(1, limit || 500));
+    const rows = [];
+    let from = 0;
+    while (rows.length < cap) {
+      const size = Math.min(100, cap - rows.length);
+      const page = await this.page({ mode, from, to: from + size - 1, filters, sort: 'new' });
+      rows.push(...page);
+      if (page.length < size) break;
+      from += page.length;
+    }
+    return rows;
   },
   async tops({ mode, filters }) {
     if (!sb) return [];
@@ -1246,10 +1451,12 @@ const ListingStore = {
     if (powerLane(listing) && !spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
     const paths = await uploadPaths(uid, listing.photos);
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
+    const point = await listingPoint(listing);
     const row = {
       user_id: uid, mode,
       make: listing.make, model: listing.model, year: listing.year, kms: listing.km,
       price: listing.price, suburb: listing.suburb, state: listing.state, postcode: listing.postcode || null,
+      lat: point ? point.lat : null, lng: point ? point.lng : null,
       heading: listing.heading, description: listing.desc,
       engine: listing.engine ? String(listing.engine).trim() : null,
       cylinders: spec.cylinders,
@@ -1312,6 +1519,7 @@ const ListingStore = {
     if (powerLane(listing) && !spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
     if (!['daily', '4x4', 'performance', 'supercar'].includes(mode)) throw new Error('Pick a lane first. Daily, 4x4 Off-road, Performance, or Supercar.');
+    const point = await listingPoint(listing);
     const current = await sb.from('listings').select('id,photos,status').eq('id', id).eq('user_id', uid).maybeSingle();
     if (current.error) throw new Error(dbMessage(current.error));
     if (!current.data) throw new Error('You can only edit your own ad.');
@@ -1324,6 +1532,7 @@ const ListingStore = {
       mode,
       make: listing.make, model: listing.model, year: listing.year, kms: listing.km,
       price: listing.price, suburb: listing.suburb, state: listing.state, postcode: listing.postcode || null,
+      lat: point ? point.lat : null, lng: point ? point.lng : null,
       heading: listing.heading, description: listing.desc,
       engine: listing.engine ? String(listing.engine).trim() : null,
       cylinders: spec.cylinders,
