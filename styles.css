@@ -74,6 +74,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   .home-paths .path .btn{margin-top:4px;min-height:34px;padding:0 10px;font-size:.62rem}
 }
 @media(max-width:768px){
+  .mj-stickman{display:none !important}
   body.is-home .landing{min-height:calc(100dvh - 57px - 64px);min-height:calc(100svh - 57px - 64px);display:flex;flex-direction:column;background-attachment:scroll}
   body.is-home .hero{flex:1 1 auto;min-height:0}
   body.is-home .hero h1{font-size:1.28rem}
@@ -175,6 +176,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-home .og-cta-desk.is-using-phone .og-desk-words,body.is-home .og-cta-desk.is-using-phone .og-desk-arrow,body.is-home .og-cta-desk.is-using-phone .og-desk-seal{visibility:hidden}
   body.is-home .og-cta-phone{display:none}
   body.is-home .wrap.home-paths{margin-top:0;padding-bottom:0}
+  body.is-home .home-paths .path{overflow:visible}
   body.is-home .home-paths>.og-cta{display:none}
   body.is-home .feats{position:relative;padding-top:32px}
   body.is-home .feats .eyebrow{position:static;margin:0;text-align:center}
