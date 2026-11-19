@@ -5,7 +5,7 @@ const NEWS_TITLE = "IM DRIVN. More than a Marketplace … It's a Community";
 const NEWS_DESC = "Buy, sell and talk cars. Free listings, a scroll-first feed and a real car community.";
 const EVENT_POSTERS = [
   {
-    src: 'assets/events/ooft-27-feb.webp',
+    src: 'assets/events/ooft-27-feb.webp?v=2',
     title: 'Save the Date - 27th Feb (OOFT Crew)',
     alt: 'Save the Date: Something Huge Coming 27th Feb, OOFT Crew car meet poster',
     url: ''
