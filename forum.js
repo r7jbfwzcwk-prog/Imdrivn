@@ -1,20 +1,12 @@
 /* IM DRIVN forum. User text is set with textContent only. */
-function forumClose(home) {
+function forumClose() {
   const btn = fEl('button', { type: 'button', class: 'menu-close page-close', 'aria-label': 'Close' });
   btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>';
   btn.addEventListener('click', e => {
     e.preventDefault();
-    if (home) { if (location.hash !== '#/') location.hash = '#/'; return; }
-    if (typeof closeMessages === 'function') closeMessages();
+    if (location.hash !== '#/') location.hash = '#/';
   });
   return btn;
-}
-function forumHead(nodes, home) {
-  const bar = fEl('div', { class: 'sheet-bar' });
-  const copy = fEl('div', { class: 'sheet-copy' });
-  nodes.forEach(node => copy.append(node));
-  bar.append(copy, forumClose(home));
-  return bar;
 }
 function fEl(tag, attrs, text) {
   const node = document.createElement(tag);
@@ -166,12 +158,12 @@ async function forumIndex() {
   const query = forumQuery();
   main.innerHTML = '';
   const wrap = fEl('div', { class: 'wrap forum' });
-  wrap.append(forumHead([fEl('div', { class: 'eyebrow' }, 'The Drivn Community'), fEl('h1', null, query ? 'Forum search' : 'The forum')], false));
+  main.append(forumClose(), wrap);
+  wrap.append(fEl('div', { class: 'eyebrow' }, 'The Drivn Community'), fEl('h1', null, query ? 'Forum search' : 'The forum'));
   wrap.append(fEl('p', { class: 'muted' }, query ? '' : 'Ask the dumb question. Someone has already broken that part. No gatekeeping.'));
   const list = fEl('div', { class: query ? 'fthreads' : 'fcats' });
   list.append(fEl('p', { class: 'muted' }, query ? 'Searching…' : 'Loading the boards…'));
   wrap.append(list);
-  main.append(wrap);
   if (query) {
     const words = query.split(' ').filter(Boolean);
     const bar = fEl('p', { class: 'filt' });
@@ -243,12 +235,12 @@ async function forumCategory(slug) {
   if (token !== viewToken) return;
   main.innerHTML = '';
   const wrap = fEl('div', { class: 'wrap forum' });
+  main.append(forumClose(), wrap);
   const heading = fEl('h1', null, 'Loading…');
-  wrap.append(forumHead([fEl('a', { class: 'eyebrow', href: '#/forum' }, '← The forum'), heading], true));
+  wrap.append(fEl('a', { class: 'eyebrow', href: '#/forum' }, '← The forum'), heading);
   const tools = fEl('div', { class: 'ftools' });
   const list = fEl('div', { class: 'fthreads' });
   wrap.append(tools, list);
-  main.append(wrap);
   let cat;
   let safeSlug = slug || '';
   try { safeSlug = decodeURIComponent(safeSlug); } catch (e) {}
@@ -439,8 +431,8 @@ async function forumThread(rawId, replyId) {
   if (token !== viewToken) return;
   main.innerHTML = '';
   const wrap = fEl('div', { class: 'wrap forum' });
-  wrap.append(forumHead([fEl('p', { class: 'muted' }, 'Loading the thread…')], true));
-  main.append(wrap);
+  main.append(forumClose(), wrap);
+  wrap.append(fEl('p', { class: 'muted' }, 'Loading the thread…'));
   let data;
   try { data = await Forum.thread(id); }
   catch (e) {
@@ -452,13 +444,13 @@ async function forumThread(rawId, replyId) {
   if (token !== viewToken) return;
   wrap.textContent = '';
   if (!data) {
-    wrap.append(forumHead([fEl('a', { class: 'eyebrow', href: '#/forum' }, '← The forum'), fEl('h1', null, 'Thread gone')], true), fEl('p', { class: 'muted' }, 'That thread is not here anymore.'));
+    wrap.append(fEl('a', { class: 'eyebrow', href: '#/forum' }, '← The forum'), fEl('h1', null, 'Thread gone'), fEl('p', { class: 'muted' }, 'That thread is not here anymore.'));
     return;
   }
   const thread = data.thread;
   const cat = Array.isArray(thread.forum_categories) ? thread.forum_categories[0] : thread.forum_categories;
   const back = fEl('a', { class: 'eyebrow', href: cat && cat.slug ? '#/forum/' + encodeURIComponent(cat.slug) : '#/forum' }, cat && cat.name ? '← ' + cat.name : '← The forum');
-  wrap.append(forumHead([back], true));
+  wrap.append(back);
   wrap.append(fPost(thread, true, () => { if (cat && cat.slug) location.hash = '#/forum/' + encodeURIComponent(cat.slug); else location.hash = '#/forum'; }));
   const replies = fEl('div', { class: 'freplies' });
   if (!data.replies.length) replies.append(fEl('p', { class: 'fempty' }, 'No replies yet. If you know, say it.'));
