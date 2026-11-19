@@ -1661,6 +1661,20 @@ a.handle:hover,a.fhandle:hover{color:var(--acc)}
 .og-member-line{margin:8px 0 0;color:#e8c46a;font-family:var(--font-body);font-weight:800;font-size:11px;letter-spacing:2px;line-height:1.2}
 .joined-line{margin:6px 0 0;color:#9a9aa2;font-size:13px;line-height:1.3}
 .profile-garage{font-size:clamp(1.15rem,3vw,1.6rem);margin:var(--s-6) 0 var(--s-3)}
+@media(max-width:768px){
+  .garage-edit-desk{display:none}
+}
+@media(min-width:769px){
+  .garage-edit-mob,.garage-edit-row{display:none}
+  .joined-row{display:flex;align-items:center;gap:12px;margin-top:6px}
+  .joined-row .joined-line{margin:0}
+  .joined-row .garage-edit-desk{min-height:30px;padding:0 14px;font-size:.68rem;line-height:1;white-space:nowrap}
+  .profile-garage-sec{display:grid;grid-template-columns:auto auto 1fr;column-gap:18px;align-items:center;margin-top:var(--s-6)}
+  .profile-garage-sec h2.profile-garage{grid-column:1;grid-row:1;margin:0}
+  .profile-garage-sec .add-car-row{grid-column:2;grid-row:1;margin:0}
+  .profile-garage-sec > .profile-park > .garage-grid,.profile-garage-sec > .profile-park > p.muted{grid-column:1 / -1;grid-row:2}
+  .profile-garage-sec .garage-grid{margin-top:var(--s-4)}
+}
 .profile-listings{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1.05rem;margin:var(--s-6) 0 var(--s-3)}
 .joined{margin:2px 0 var(--s-4);color:var(--c-muted)}
 .seller-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 14px}
