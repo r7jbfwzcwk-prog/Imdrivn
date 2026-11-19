@@ -1631,7 +1631,7 @@ html.using-keyboard .live-head .menu-close:focus-visible{outline:2px solid #d9a4
 @media(max-width:768px){
   #main{position:relative}
   #alert-close{display:inline-flex;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px}
-  #msgs-close,.page-close{position:absolute !important;top:0;right:14px;z-index:15;margin:0;display:inline-flex !important;align-items:flex-start;justify-content:center;box-sizing:border-box;width:44px;height:44px;min-width:44px;min-height:44px;max-height:44px;padding-top:calc(6px - (3px - 0.8px) * 28 / 24)}
+  #msgs-close,.page-close{position:absolute !important;top:3px;right:14px;z-index:15;margin:0;padding:0;display:inline-flex !important;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;min-height:44px;max-height:44px}
   .page-close{color:#d9a441}
   .page-close svg{width:28px;height:28px}
   .page-close-grey,.page-close-grey:hover,.page-close-grey:active,.page-close-grey:focus,.page-close-grey:focus-visible{color:#b8b8c0}
