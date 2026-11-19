@@ -712,32 +712,55 @@
   function mountBattle(buyEl, sellEl, opts) {
     opts = opts || {};
     if (!buyEl || !sellEl) return null;
-    var minW = opts.minWidth == null ? 900 : opts.minWidth;
-    var mqDesk = global.matchMedia ? global.matchMedia('(min-width: ' + minW + 'px)') : null;
     var mqRed = global.matchMedia ? global.matchMedia('(prefers-reduced-motion: reduce)') : null;
-    if (!opts.force) {
-      if (mqRed && mqRed.matches) return null;
-      if (mqDesk && !mqDesk.matches) return null;
-    }
+    if (!opts.force && mqRed && mqRed.matches) return null;
     var L1 = makeLayer(buyEl), L2 = makeLayer(sellEl);
     var rigMJ = new Rig(L1.svg, L1.groundY, 'fedora'), rigHair = new Rig(L2.svg, L2.groundY, 'hair');
     var mj = null, hair = null, key = '', dead = false, raf = 0, pausedAt = 0, elapsed = 0, lastNow = performance.now();
     var manual = !!opts.manual;
+    var sc = SCALE;
+    function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
     function layout() {
       var rb = buyEl.getBoundingClientRect(), rs = sellEl.getBoundingClientRect();
       if (rb.width < 120 || rs.width < 120) return false;
+      if (Math.abs(rb.top - rs.top) > 24) {
+        L1.svg.style.display = 'none';
+        L2.svg.style.display = 'none';
+        return false;
+      }
+      L1.svg.style.display = '';
+      L2.svg.style.display = '';
       var av = opts.avoid && document.querySelector(opts.avoid);
       var ra = av ? av.getBoundingClientRect() : null;
+      var mjTravelPx, startPx, travelPx, maxRightPx;
+      if (global.innerWidth <= 768 || rb.width < 300) {
+        sc = clamp(0.86 * (rb.width / 177), 0.72, 0.94);
+        mjTravelPx = Math.max(48, Math.min(115, rb.width * (90 / 177)));
+        startPx = opts.hairStartPx != null ? opts.hairStartPx : Math.max(36, Math.round(rs.width * (46 / 177)));
+        var rightPad = Math.max(18, Math.round(rs.width * (20 / 177)));
+        maxRightPx = rs.width - rightPad;
+        travelPx = Math.max(48, Math.min(Math.round(rs.width * (90 / 177)), maxRightPx - startPx));
+      } else if (global.innerWidth < 900) {
+        sc = 1.0;
+        mjTravelPx = Math.min(180, rb.width * 0.5);
+        startPx = 56;
+        maxRightPx = rs.width - 32;
+        if (ra && ra.width > 0 && ra.left > rs.left && ra.bottom > rs.top - 72) maxRightPx = Math.min(maxRightPx, ra.left - rs.left - 56);
+        travelPx = Math.max(64, Math.min(180, maxRightPx - startPx));
+      } else {
+        sc = SCALE;
+        mjTravelPx = Math.min(TRAVEL_PX, rb.width * 0.5);
+        startPx = opts.hairStartPx == null ? 69 : opts.hairStartPx;
+        maxRightPx = rs.width - 40;
+        if (ra && ra.width > 0 && ra.left > rs.left && ra.bottom > rs.top - 90) maxRightPx = Math.min(maxRightPx, ra.left - rs.left - (opts.avoidMargin == null ? 64 : opts.avoidMargin));
+        travelPx = Math.max(80, Math.min(opts.hairTravelPx == null ? 220 : opts.hairTravelPx, maxRightPx - startPx));
+      }
       var avKey = ra && ra.width > 0 ? Math.round(ra.left) + 'x' + Math.round(ra.width) : '0';
-      var k = Math.round(rb.width) + 'x' + Math.round(rs.width) + 'x' + Math.round(rs.left) + 'x' + avKey;
+      var k = Math.round(rb.width) + 'x' + Math.round(rs.width) + 'x' + Math.round(rs.left) + 'x' + avKey + 'x' + Math.round(sc * 100);
       if (k === key && mj && hair) return true;
       key = k;
-      mj = new MJBattle(new Choreo(rb.width / SCALE, Math.min(TRAVEL_PX, rb.width * 0.5) / SCALE));
-      var startPx = opts.hairStartPx == null ? 69 : opts.hairStartPx, travelPx = opts.hairTravelPx == null ? 220 : opts.hairTravelPx;
-      var maxRightPx = rs.width - 40;
-      if (ra && ra.width > 0 && ra.left > rs.left) maxRightPx = Math.min(maxRightPx, ra.left - rs.left - (opts.avoidMargin == null ? 64 : opts.avoidMargin));
-      travelPx = Math.max(80, Math.min(travelPx, maxRightPx - startPx));
-      hair = new HairBattle(startPx / SCALE, (startPx + travelPx) / SCALE);
+      mj = new MJBattle(new Choreo(rb.width / sc, mjTravelPx / sc));
+      hair = new HairBattle(startPx / sc, (startPx + travelPx) / sc);
       L1.svg.setAttribute('viewBox', '0 0 ' + rb.width + ' ' + L1.H);
       L2.svg.setAttribute('viewBox', '0 0 ' + rs.width + ' ' + L2.H);
       return true;
@@ -745,8 +768,8 @@
     function render(t) {
       if (!layout()) return;
       var tt = ((t % BATTLE_LOOP) + BATTLE_LOOP) % BATTLE_LOOP;
-      rigMJ.draw(mj.pose(tt), mj.sparks(tt), tt, SCALE);
-      rigHair.draw(hair.pose(tt), hair.sparks(tt), tt, SCALE);
+      rigMJ.draw(mj.pose(tt), mj.sparks(tt), tt, sc);
+      rigHair.draw(hair.pose(tt), hair.sparks(tt), tt, sc);
     }
     function stopRaf() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
     function startRaf() { if (dead || raf || document.hidden || manual) return; lastNow = performance.now(); raf = requestAnimationFrame(tick); }
@@ -765,7 +788,6 @@
     }
     function onResize() {
       if (dead) return;
-      if (!opts.force && mqDesk && !mqDesk.matches) { destroy(); return; }
       key = '';
       render(elapsed);
     }
@@ -773,7 +795,7 @@
       raf = 0;
       if (dead) return;
       if (!buyEl.isConnected || !sellEl.isConnected || (!opts.force && !document.body.classList.contains('is-home'))) { destroy(); return; }
-      if (!opts.force && ((mqDesk && !mqDesk.matches) || (mqRed && mqRed.matches))) { destroy(); return; }
+      if (!opts.force && mqRed && mqRed.matches) { destroy(); return; }
       var dt = Math.min(0.1, Math.max(0, (now - lastNow) / 1000));
       lastNow = now;
       if (!manual) { elapsed = (elapsed + dt) % BATTLE_LOOP; render(elapsed); }
@@ -785,7 +807,7 @@
     if (!document.hidden && !manual) startRaf();
     return {
       svgs: [L1.svg, L2.svg], render: render,
-      info: function () { layout(); return mj && hair ? { mjX0: mj.c.X0 * SCALE, mjX1: mj.c.X1 * SCALE, hairXs: hair.Xs * SCALE, hairXe: hair.Xe * SCALE } : null; },
+      info: function () { layout(); return mj && hair ? { mjX0: mj.c.X0 * sc, mjX1: mj.c.X1 * sc, hairXs: hair.Xs * sc, hairXe: hair.Xe * sc } : null; },
       destroy: destroy
     };
   }

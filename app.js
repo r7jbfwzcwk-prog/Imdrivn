@@ -38,7 +38,6 @@ function armHomeBattle(token){
   let battle=null;
   const onResize=()=>{
     if(token!==homeToken||!document.body.classList.contains('is-home')){stopHomeBattle();return}
-    if(matchMedia('(max-width:899px)').matches){if(battle){battle.destroy();battle=null}return}
     if(battle)return;
     const buyEl=document.querySelector('a.path[href="#/buyin"]');
     const sellEl=document.querySelector('a.path[href="#/sell"]');
