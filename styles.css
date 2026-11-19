@@ -419,6 +419,17 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
 .sell-garage-user[hidden]{display:none}
 .sell-garage-cta{font-family:var(--font-head);font-style:italic;font-weight:400;text-transform:uppercase;letter-spacing:.08em;line-height:1.15;color:#f2f2f2;font-size:clamp(1rem,2.2vw,1.45rem);transition:color .2s}
 .sell-garage-desk:hover .sell-garage-cta,.sell-garage-desk:focus-visible .sell-garage-cta{color:#d9a441}
+@media(min-width:769px){
+  @keyframes sell-garage-heart{
+    0%,22%,60%,100%{color:#f4ead2;text-shadow:0 0 7px rgba(240,190,70,.32),0 0 16px rgba(240,190,70,.16);filter:drop-shadow(0 0 5px rgba(240,190,70,.24))}
+    12%,34%{color:#f6d57a;text-shadow:0 0 10px rgba(240,190,70,.85),0 0 22px rgba(240,190,70,.52),0 0 36px rgba(240,190,70,.26);filter:drop-shadow(0 0 10px rgba(240,190,70,.55))}
+  }
+  .sell-garage-desk .sell-garage-cta{animation:sell-garage-heart 2.4s ease-in-out infinite}
+  .sell-garage-desk:hover .sell-garage-cta,.sell-garage-desk:focus-visible .sell-garage-cta{animation:none;color:#f6d57a;text-shadow:0 0 10px rgba(240,190,70,.85),0 0 22px rgba(240,190,70,.52),0 0 36px rgba(240,190,70,.26);filter:drop-shadow(0 0 10px rgba(240,190,70,.55))}
+}
+@media(min-width:769px) and (prefers-reduced-motion:reduce){
+  .sell-garage-desk .sell-garage-cta{animation:none;color:#f4ead2;text-shadow:0 0 7px rgba(240,190,70,.32),0 0 16px rgba(240,190,70,.16);filter:drop-shadow(0 0 5px rgba(240,190,70,.24))}
+}
 .sell-intro .eyebrow{text-shadow:0 1px 8px rgba(0,0,0,.85)}
 .sell-cols{flex:1 1 auto;display:grid;gap:3px;grid-template-columns:minmax(0,1fr);align-items:stretch;min-height:0}
 @media(min-width:760px){.sell-cols{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
