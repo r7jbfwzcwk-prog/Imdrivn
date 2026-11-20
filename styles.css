@@ -2398,3 +2398,20 @@ input:autofill,input:autofill:hover,input:autofill:focus,input:autofill:active,t
     transform: none;
   }
 }
+
+@media (min-width: 769px) and (max-width: 1366px) and (hover: none) and (pointer: coarse) {
+  #appmenu.appmenu { padding: 8px 20px; padding-bottom: 8px; }
+  #appmenu .menu-head { height: 42px; }
+  #appmenu #menu-close { height: 42px; }
+  #appmenu .menu-scroll > a,
+  #appmenu .menu-scroll > #menu-signout,
+  #appmenu a.nav-account.menu-wide { flex: 1 1 0; min-height: 0; height: auto; max-height: 62px; font: 600 1.05rem / 1.15 var(--font-body); }
+  #appmenu .menu-mark { flex: 0 0 auto; width: min(220px, 70%); max-height: 36px; margin: auto; padding: 15px 0; box-sizing: content-box; object-position: center; }
+  #appmenu .menu-foot { margin-top: 8px; margin-bottom: 0; padding: 0 4px; }
+  #appmenu .menu-scroll > a:hover,
+  #appmenu .menu-scroll > #menu-signout:hover,
+  #appmenu a.nav-account.menu-wide:hover { background: transparent; color: #f2f2f2; outline: none; }
+  #appmenu .menu-scroll > a:active,
+  #appmenu .menu-scroll > #menu-signout:active,
+  #appmenu a.nav-account.menu-wide:active { background: #14120c; color: #d9a441; outline: none; }
+}
