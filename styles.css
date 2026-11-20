@@ -2222,6 +2222,95 @@ input:autofill,input:autofill:hover,input:autofill:focus,input:autofill:active,t
     object-position: center;
   }
 }
+/* Desktop IM SELLIN GO TO MY GARAGE arrow, option C.
+   Triple stacked solid racing chevrons.
+   @media (min-width: 769px) only. Do not load or mount on mobile.
+   The SVG is injected inside .sell-garage-desk. pointer-events: none, out of flow, no layout shift.
+   Glow uses the live sell-garage-heart 2.4s keyframes already in styles.css. */
+
+@media (min-width: 769px) {
+  body.is-sell .sell-garage-desk {
+    position: relative;
+  }
+  body.is-sell .sell-garage-arrow {
+    position: absolute;
+    z-index: 6;
+    pointer-events: none;
+    line-height: 0;
+    overflow: visible;
+    right: calc(100% + 14px);
+    top: 50%;
+    width: 94.2px;
+    height: 32px;
+    transform: translateY(-50%);
+  }
+  body.is-sell .sell-garage-arrow svg {
+    display: block;
+    overflow: visible;
+    width: 94.2px;
+    height: 32px;
+    color: #d9a441;
+    fill: currentColor;
+    animation: sell-garage-heart 2.4s ease-in-out infinite;
+  }
+  body.is-sell .sell-garage-arrow-nudge {
+    display: block;
+    animation: sell-garage-arrow-nudge-x 1.6s ease-in-out infinite;
+  }
+  body.is-sell .sell-garage-arrow svg path[fill="none"] { fill: none; }
+  body.is-sell .sell-garage-arrow svg .flag-dark { fill: #0a0a0b; }
+
+  @keyframes sell-garage-arrow-nudge-x {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(6px); }
+  }
+}
+
+@media (min-width: 769px) and (prefers-reduced-motion: reduce) {
+  body.is-sell .sell-garage-arrow svg {
+    animation: none;
+    color: #f4ead2;
+    filter: drop-shadow(0 0 5px rgba(240,190,70,.24));
+  }
+  body.is-sell .sell-garage-arrow-nudge { animation: none; }
+}
+
+/* Desktop magnetic GO TO MY GARAGE on #/sell.
+   @media (min-width: 769px) + (hover:hover) and (pointer:fine) only.
+   Transforms only; no layout shift. Reduced motion: no movement. */
+
+@media (min-width: 769px) and (hover: hover) and (pointer: fine) {
+  body.is-sell .sell-intro,
+  body.is-sell .sell-copy,
+  body.is-sell #main {
+    overflow: visible;
+  }
+  body.is-sell .sell-garage-desk {
+    transform: translate3d(0, 0, 0);
+    transform-origin: 50% 50%;
+  }
+  body.is-sell .sell-garage-cta {
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
+  /* Extra glow on the chevron wrapper while the magnet is engaged.
+     The SVG itself keeps sell-garage-heart (pulse stays in sync with the text). */
+  body.is-sell .sell-garage-desk.is-magnet .sell-garage-arrow {
+    filter: drop-shadow(0 0 8px rgba(240,190,70,.42));
+  }
+}
+
+@media (min-width: 769px) and (prefers-reduced-motion: reduce) {
+  body.is-sell .sell-garage-desk,
+  body.is-sell .sell-garage-cta,
+  body.is-sell .sell-garage-arrow-nudge {
+    transform: none !important;
+    will-change: auto;
+  }
+  body.is-sell .sell-garage-desk.is-magnet .sell-garage-arrow {
+    filter: none;
+  }
+}
 /* Desktop IM SELLIN hover to match IM BUYIN lanes (commit 8d68547).
    @media (min-width:769px) only. Mobile, homepage and BUYIN are untouched. */
 
