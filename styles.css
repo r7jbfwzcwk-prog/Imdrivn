@@ -2222,3 +2222,88 @@ input:autofill,input:autofill:hover,input:autofill:focus,input:autofill:active,t
     object-position: center;
   }
 }
+/* Desktop IM SELLIN hover to match IM BUYIN lanes (commit 8d68547).
+   @media (min-width:769px) only. Mobile, homepage and BUYIN are untouched. */
+
+@media (min-width: 769px) {
+  /* No square inset outline behind the column. Bloom in the lane colour instead. */
+  body.is-sell .sell-col:hover::before,
+  body.is-sell .sell-col:focus-within::before,
+  body.is-sell .sell-col:active::before,
+  body.is-sell .sell-col.is-lit::before {
+    box-shadow: none !important;
+    transition: background .4s ease, box-shadow .4s ease;
+  }
+
+  body.is-sell .sell-list:hover::before,
+  body.is-sell .sell-list:focus-within::before,
+  body.is-sell .sell-list:active::before,
+  body.is-sell .sell-list.is-lit::before {
+    background: radial-gradient(ellipse 90% 78% at 50% 48%, rgba(80,150,255,.62) 0%, rgba(47,123,255,.46) 32%, rgba(47,123,255,.28) 62%, rgba(18,55,150,.20) 100%);
+  }
+
+  body.is-sell .sell-whole:hover::before,
+  body.is-sell .sell-whole:focus-within::before,
+  body.is-sell .sell-whole:active::before,
+  body.is-sell .sell-whole.is-lit::before {
+    background: radial-gradient(ellipse 90% 78% at 50% 48%, rgba(52,210,110,.58) 0%, rgba(30,163,74,.44) 32%, rgba(30,163,74,.26) 62%, rgba(10,80,36,.20) 100%);
+  }
+
+  body.is-sell .sell-col:hover .path,
+  body.is-sell .sell-col:focus-within .path,
+  body.is-sell .sell-col:active .path,
+  body.is-sell .sell-col.is-lit .path,
+  body.is-sell .sell-col .path:hover,
+  body.is-sell .sell-col .path:focus-visible,
+  body.is-sell .sell-col .path:active {
+    transform: scale(1.04);
+    border-color: var(--acc);
+  }
+
+  /* LIST FREE: same blue bloom / rim / inner glow as .lane-daily */
+  body.is-sell .sell-list:hover .path,
+  body.is-sell .sell-list:focus-within .path,
+  body.is-sell .sell-list:active .path,
+  body.is-sell .sell-list.is-lit .path,
+  body.is-sell .sell-list .path:hover,
+  body.is-sell .sell-list .path:focus-visible,
+  body.is-sell .sell-list .path:active {
+    background: radial-gradient(ellipse 88% 80% at 50% 48%, #06080d 0%, #0a1222 48%, rgba(47,123,255,.30) 100%);
+    box-shadow:
+      0 0 0 1px #2f7bff,
+      0 0 22px rgba(47,123,255,.58),
+      0 0 48px rgba(47,123,255,.30),
+      inset 0 0 34px rgba(47,123,255,.28),
+      inset 0 0 72px rgba(47,123,255,.12);
+  }
+
+  /* WHOLESALE: same green values as .lane-4x4 (#1ea34a) */
+  body.is-sell .sell-whole:hover .path,
+  body.is-sell .sell-whole:focus-within .path,
+  body.is-sell .sell-whole:active .path,
+  body.is-sell .sell-whole.is-lit .path,
+  body.is-sell .sell-whole .path:hover,
+  body.is-sell .sell-whole .path:focus-visible,
+  body.is-sell .sell-whole .path:active {
+    border-color: #1ea34a;
+    background: radial-gradient(ellipse 88% 80% at 50% 48%, #060b08 0%, #0a1810 48%, rgba(30,163,74,.28) 100%);
+    box-shadow:
+      0 0 0 1px #1ea34a,
+      0 0 22px rgba(30,163,74,.58),
+      0 0 48px rgba(30,163,74,.30),
+      inset 0 0 34px rgba(30,163,74,.26),
+      inset 0 0 72px rgba(30,163,74,.12);
+  }
+}
+
+@media (min-width: 769px) and (prefers-reduced-motion: reduce) {
+  body.is-sell .sell-col:hover .path,
+  body.is-sell .sell-col:focus-within .path,
+  body.is-sell .sell-col:active .path,
+  body.is-sell .sell-col.is-lit .path,
+  body.is-sell .sell-col .path:hover,
+  body.is-sell .sell-col .path:focus-visible,
+  body.is-sell .sell-col .path:active {
+    transform: none;
+  }
+}
