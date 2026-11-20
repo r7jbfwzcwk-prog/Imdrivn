@@ -2202,3 +2202,23 @@ input:autofill,input:autofill:hover,input:autofill:focus,input:autofill:active,t
   }
   .events-wall .ev-poster{cursor:zoom-in}
 }
+@media (min-width: 769px) {
+  #appmenu .menu-scroll > a,
+  #appmenu .menu-scroll > #menu-signout,
+  #appmenu a.nav-account.menu-wide {
+    flex: 1 1 0;
+    min-height: 0;
+    height: auto;
+    max-height: 54px;
+    justify-content: flex-start;
+    text-align: left;
+    font: 600 clamp(.82rem, 2.25dvh, .98rem) / 1.15 var(--font-body);
+  }
+  #appmenu .menu-mark {
+    flex: 0 0 auto;
+    margin: auto;
+    padding: 15px 0;
+    box-sizing: content-box;
+    object-position: center;
+  }
+}
