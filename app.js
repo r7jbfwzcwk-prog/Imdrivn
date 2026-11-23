@@ -10,7 +10,6 @@ const aud=n=>'$'+Number(n).toLocaleString('en-AU'),kms=n=>Number(n).toLocaleStri
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fold=s=>String(s??'').normalize('NFD').replace(/\p{M}/gu,'').toLowerCase();
 const passes=l=>{if(l.status==='sold')return false;const km=l.km??l.kms;const makeOk=!F.make||fold(l.make)===fold(F.make);const modelOk=!F.model||fold(l.model)===fold(F.model);const yearOk=(!F.year||+l.year>=+F.year)&&(!F.yearTo||+l.year<=+F.yearTo);const kmOk=!F.km||+km<+F.km;const words=String(F.q||'').trim().split(/\s+/).filter(Boolean).map(fold);const hay=fold([l.make,l.model,l.heading,l.desc,l.description].filter(Boolean).join(' '));return makeOk&&modelOk&&yearOk&&kmOk&&words.every(w=>hay.includes(w))};
-const demosFor=(saved,filtered=true)=>DEMO.filter(l=>l.status!=='sold'&&(saved||BUY==='all'||l.sec===m2s(BUY))&&(!filtered||passes(l))&&(!saved||(st()[l.id]||{}).save));
 const I={tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',up:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 16V8m-4 4 4-4 4 4"/>',
 shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 15 4-5"/><path d="M6 13h1m10 0h1M12 8v1"/>',
 lock:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/>',people:'<circle cx="12" cy="7.5" r="2.6"/><path d="M7.4 20v-.6a4.6 4.6 0 0 1 9.2 0V20"/><circle cx="5.2" cy="9" r="2"/><path d="M1.8 20c.4-2.3 1.7-3.7 3.6-3.7"/><circle cx="18.8" cy="9" r="2"/><path d="M22.2 20c-.4-2.3-1.7-3.7-3.6-3.7"/>',wheel:'<circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.2" stroke-linecap="round" stroke-linejoin="round"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v6.8M4.3 16.5l5.8-3.3M19.7 16.5l-5.8-3.3"/>',chats:'<path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H8l-4 3v-3.2A2 2 0 0 1 3 14z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12h4a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v1"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 10v3l-3-1"/>',head:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="5" rx="1"/><rect x="17" y="14" width="4" height="5" rx="1"/><path d="M19 19c0 1.5-2 2-5 2"/>',
@@ -87,8 +86,7 @@ if(!cover){try{rows=await ListingStore.page(wide?{mode:BUY,from:0,to:2}:{mode:'a
 if(token!==homeToken||!$('#fresh'))return;
 const limit=wide?3:12;
 const picked=wide?previewWithTops(pins,rows,limit):homeRailAds(pins,rows,limit);
-const pool=wide?demosFor(false,false):DEMO.filter(l=>l.status!=='sold');
-const fresh=picked.length?picked:pool.slice(0,limit);
+const fresh=picked;
 const box=$('#fresh');
 box.classList.toggle('home-rail',!wide);
 box.innerHTML=fresh.map(l=>post(l)).join('')||'<p class="muted">Nothing in this mode yet.</p>';
@@ -419,14 +417,7 @@ try{
       }
       if(!failed){
         if(!state.items.length){
-          let demos=stampDist((demosFor(false)||[]).slice());
-          demos=withinDist(demos);
-          if(state.origin!=='all')demos=demos.filter(l=>((l.mode==='supercars'?'supercar':l.mode)||l.sec)===state.lanes[0]||!l.mode);
-          demos=SORT==='dist'?sortByDist(demos):sortRows(demos,SORT);
-          const lane=state.origin==='all'?'all':state.lanes[0];
-          if(demos.length&&!F.dist){demos.forEach(l=>{state.seen.add(l.id);state.items.push({lane,listing:l})});state.demosAdded=true}
-          else if(demos.length&&F.dist){demos.forEach(l=>{state.seen.add(l.id);state.items.push({lane,listing:l})});state.demosAdded=true}
-          else state.emptyDistance=!!F.dist;
+          state.emptyDistance=!!F.dist;
         }
         state.streamDone=true;
         if(state.token!==feedToken)return;
@@ -446,7 +437,7 @@ try{
       if(!state.saved&&state.from===0){try{const pins=await ListingStore.tops({mode:lane,filters:F});pins.filter(l=>!state.seen.has(l.id)).forEach(l=>{state.seen.add(l.id);state.items.push({lane,listing:l})})}catch(err){}}
       page=await ListingStore.page({mode:state.saved?'all':lane,from:state.from,to:state.from+PAGE-1,saved:state.saved,filters:F,sort:SORT})
     }
-    catch(e){if(state.token!==feedToken)return;hold=true;if(!state.items.length){state.failed=true;state.streamDone=true;if(!state.saved){const demos=sortRows(demosFor(false),SORT);demos.forEach(l=>{if(!state.seen.has(l.id)){state.seen.add(l.id);state.items.push({lane:state.origin==='all'?'all':state.lanes[0],listing:l})}});state.demosAdded=true;state.failed=!state.items.length}}else{const more=$('#more');if(more){more.hidden=false;more.classList.remove('is-end');more.textContent='Could not load more. Scroll to try again.'}}break}
+    catch(e){if(state.token!==feedToken)return;hold=true;if(!state.items.length){state.failed=true;state.streamDone=true}else{const more=$('#more');if(more){more.hidden=false;more.classList.remove('is-end');more.textContent='Could not load more. Scroll to try again.'}}break}
     if(state.token!==feedToken)return;
     page.filter(l=>!state.seen.has(l.id)).forEach(l=>{state.seen.add(l.id);state.items.push({lane,listing:l})});
     state.from+=page.length;
@@ -454,7 +445,6 @@ try{
     if(state.origin==='all'||state.saved||state.laneAt>=state.lanes.length-1){state.streamDone=true;break}
     state.laneAt++;state.from=0;
   }
-  if(state.streamDone&&!state.demosAdded&&!state.items.length&&!state.saved){const demos=sortRows(demosFor(false),SORT);demos.forEach(l=>{if(!state.seen.has(l.id)){state.seen.add(l.id);state.items.push({lane:state.origin==='all'?'all':state.lanes[0],listing:l})}});state.demosAdded=true}
   if(state.token!==feedToken)return;
   paintFeed(state);paintEnd(state);if(state.streamDone&&io)io.disconnect();syncVisibleLane();
 }finally{state.busy=false;if(!hold&&state.token===feedToken&&!state.streamDone&&moreOnScreen())fillFeed()}}
@@ -467,7 +457,7 @@ document.addEventListener('touchmove',e=>{if(!pullGesture||!e.touches[0])return;
 document.addEventListener('touchend',()=>{const go=pullGesture&&pullGesture.on&&pullGesture.dy>72&&window.scrollY<=2;const note=$('#pullnote');if(go)refreshFeed();else if(note&&!pullLock&&note.textContent!=='Refreshing…'&&note.textContent!=='Updated')note.hidden=true;pullGesture=null});
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 
-async function car(id){const token=++viewToken;await Auth.ready;if(token!==viewToken)return;if(!Auth.user){sendToBuyin();return}let l=DEMO.find(x=>x.id===id)||ListingStore.cache.get(id);
+async function car(id){const token=++viewToken;await Auth.ready;if(token!==viewToken)return;if(!Auth.user){sendToBuyin();return}let l=ListingStore.cache.get(id);
 if(!l){main.innerHTML='<div class="wrap"><p class="muted">Loading…</p></div>';try{l=await ListingStore.get(id)}catch(e){l=null}}
 if(token!==viewToken)return;
 if(!l){main.innerHTML='<div class="wrap"><h2>Listing not found</h2><a class="btn" href="#/buy">Back to feed</a></div>';return}
