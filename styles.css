@@ -2595,7 +2595,6 @@ input:autofill,input:autofill:hover,input:autofill:focus,input:autofill:active,t
 .forum-hybrid{position:relative}
 .forum-hybrid .forum-title{position:relative;display:inline-block;text-shadow:0 0 22px rgba(217,164,65,.28)}
 .forum-hybrid .forum-title::before{content:"";position:absolute;left:-8%;right:-12%;top:-30%;height:140%;background:radial-gradient(closest-side at 30% 50%,rgba(34,224,255,.28),transparent 72%),radial-gradient(closest-side at 80% 40%,rgba(255,46,166,.2),transparent 70%),radial-gradient(closest-side at 55% 80%,rgba(217,164,65,.18),transparent 70%);filter:blur(18px);z-index:-1;pointer-events:none}
-.forum-hybrid .forum-title::after{content:"";display:block;width:72%;height:8px;margin-top:-4px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' fill='none'%3E%3Cpath d='M2 5 C 20 1, 40 7, 60 4 S 100 1, 120 5 S 160 8, 198 3' stroke='%23d9a441' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%}
 .forum-hybrid>.eyebrow{color:#d9a441;text-shadow:0 0 10px rgba(217,164,65,.35)}
 .forum-hybrid .fstats{display:flex;flex-wrap:wrap;gap:8px 10px;margin:14px 0 0}
 .forum-hybrid .fstat{display:inline-flex;align-items:baseline;gap:6px;min-height:30px;padding:0 11px;border:2px solid #111;border-radius:999px;font-weight:800;box-shadow:2px 2px 0 #111}
