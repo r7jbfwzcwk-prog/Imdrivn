@@ -200,35 +200,6 @@ function fIndexStats(cats) {
   row.append(item('0', 'online now', 'fstat-onnow', 'fstat-live'));
   return row;
 }
-function fLatestStrip(cats) {
-  const box = fEl('section', { class: 'ftrend', 'aria-label': 'Latest in the forum' });
-  box.append(fEl('h2', { class: 'ftrend-head' }, 'Latest in the forum'));
-  const items = [];
-  cats.forEach(cat => {
-    const latest = Array.isArray(cat.latest) ? cat.latest[0] : null;
-    if (latest && latest.id) items.push({ thread: latest, cat });
-  });
-  items.sort((a, b) => new Date(b.thread.last_activity_at || 0) - new Date(a.thread.last_activity_at || 0));
-  if (!items.length) {
-    box.append(fEl('p', { class: 'ftrend-empty' }, 'No threads yet. Pick a board and start a thread.'));
-    return box;
-  }
-  const row = fEl('div', { class: 'ftrend-row' });
-  items.slice(0, 6).forEach(({ thread, cat }) => {
-    const link = fEl('a', { class: 'ftrend-card', href: '#/forum/t/' + encodeURIComponent(thread.id) });
-    const top = fEl('div', { class: 'ftrend-top' });
-    top.append(fEl('span', { class: 'ftrend-board' }, cat.name || 'Board'));
-    const badge = fFreshBadge(thread);
-    if (badge) top.append(badge);
-    link.append(top);
-    link.append(fEl('p', { class: 'ftrend-title' }, thread.title || ''));
-    if (thread.last_activity_at) link.append(fEl('time', null, whenLabel(thread.last_activity_at)));
-    row.append(link);
-  });
-  box.append(row);
-  return box;
-}
-
 function fMotionOk() {
   return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -350,7 +321,6 @@ async function forumIndex() {
   const stats = fIndexStats(cats);
   wrap.insertBefore(stats, list);
   wrap.insertBefore(liveBoardCard(), list);
-  wrap.insertBefore(fLatestStrip(cats), list);
   watchLiveCount(token);
   cats.forEach(cat => list.append(fBoardCard(cat)));
 }
