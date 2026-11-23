@@ -162,13 +162,30 @@ const BOARD_ICON = {
   meets: '<svg viewBox="0 0 24 24"><path d="M12 20.4s6.4-5.1 6.4-10.1A6.4 6.4 0 0 0 5.6 10.3C5.6 15.3 12 20.4 12 20.4z"/><circle cx="12" cy="10.2" r="2.15"/></svg>',
   general: '<svg viewBox="0 0 24 24"><path d="M5 6.5h10a2.5 2.5 0 0 1 2.5 2.5v4.2A2.5 2.5 0 0 1 15 15.7h-3.2L8 18.8v-3.1H5A2.5 2.5 0 0 1 2.5 13.2V9A2.5 2.5 0 0 1 5 6.5z"/></svg>',
   'support-locals': '<svg viewBox="0 0 24 24"><path d="M4 11.4V19h16v-7.6"/><path d="M3.2 11.4L12 4.8l8.8 6.6"/><path d="M10 19v-5.2h4V19"/></svg>',
-  'formals-shoots-weddings': '<svg viewBox="0 0 24 24"><path d="M8.2 8.4h7.6l1.4 2.1H20a1.4 1.4 0 0 1 1.4 1.4v7.1a1.4 1.4 0 0 1-1.4 1.4H4a1.4 1.4 0 0 1-1.4-1.4v-7.1A1.4 1.4 0 0 1 4 10.5h2.8z"/><circle cx="12" cy="14.9" r="2.9"/><path d="M9.1 8.4l.7-1.9h4.4l.7 1.9"/></svg>'
+  'formals-shoots-weddings': '<svg viewBox="0 0 24 24"><path d="M8.2 8.4h7.6l1.4 2.1H20a1.4 1.4 0 0 1 1.4 1.4v7.1a1.4 1.4 0 0 1-1.4 1.4H4a1.4 1.4 0 0 1-1.4-1.4v-7.1A1.4 1.4 0 0 1 4 10.5h2.8z"/><circle cx="12" cy="14.9" r="2.9"/><path d="M9.1 8.4l.7-1.9h4.4l.7 1.9"/></svg>',
+  'mind-over-motor': '<svg viewBox="0 0 24 24"><path d="M12 19.2S4.8 14.5 4.8 9.85A4.2 4.2 0 0 1 12 7.55 4.2 4.2 0 0 1 19.2 9.85C19.2 14.5 12 19.2 12 19.2z"/></svg>'
 };
 function fBoardIcon(slug) {
   const wrap = fEl('span', { class: 'fcat-icon', 'aria-hidden': 'true' });
   wrap.innerHTML = BOARD_ICON[slug] || BOARD_ICON.general;
   wrap.append(fEl('span', { class: 'fcat-shine' }));
   return wrap;
+}
+function fBoardClass(slug) {
+  return 'fboard-' + String(slug || 'board').replace(/[^a-z0-9-]+/g, '');
+}
+function fPaintBoard(wrap, slug) {
+  if (!wrap) return;
+  wrap.classList.add('fboard', fBoardClass(slug));
+}
+function fBoardHead(cat) {
+  const head = fEl('div', { class: 'fboard-head' });
+  head.append(fBoardIcon(cat && cat.slug));
+  const copy = fEl('div', { class: 'fboard-copy' });
+  copy.append(fEl('h1', { class: 'fboard-title' }, (cat && cat.name) || ''));
+  if (cat && cat.description) copy.append(fEl('p', { class: 'muted' }, cat.description));
+  head.append(copy);
+  return head;
 }
 function fFreshBadge(thread) {
   if (!thread) return null;
@@ -325,6 +342,16 @@ async function forumIndex() {
   cats.forEach(cat => list.append(fBoardCard(cat)));
 }
 
+function fMindSupportNote() {
+  const note = fEl('aside', { class: 'fmind-note', 'aria-label': 'Support contacts' });
+  const line = fEl('p');
+  const lifeline = fEl('a', { href: 'tel:131114' }, 'Lifeline 13 11 14');
+  const beyond = fEl('a', { href: 'tel:1300224636' }, 'Beyond Blue 1300 22 4636');
+  const triple = fEl('a', { href: 'tel:000' }, '000');
+  line.append('Need to talk now? ', lifeline, ' (24/7) · ', beyond, ' · In danger, call ', triple);
+  note.append(line);
+  return note;
+}
 async function forumCategory(slug) {
   const token = ++viewToken;
   if (!(await forumMember(token))) return;
@@ -353,8 +380,10 @@ async function forumCategory(slug) {
     list.append(fEl('p', { class: 'muted' }, 'That board is not a thing. Head back to the forum.'));
     return;
   }
-  heading.textContent = cat.name || '';
-  if (cat.description) heading.after(fEl('p', { class: 'muted' }, cat.description));
+  fPaintBoard(wrap, cat.slug || safeSlug);
+  const head = fBoardHead(cat);
+  heading.replaceWith(head);
+  if ((cat.slug || safeSlug) === 'mind-over-motor') head.after(fMindSupportNote());
   const composer = fComposer(cat);
   tools.append(composer);
   const form = composer.querySelector('form');
@@ -477,7 +506,8 @@ function fThreadPrompt(slug) {
     meets: { title: 'Event name, date and location', body: 'When, where, start time, route and anything people need to know.' },
     general: { title: "What's on your mind?", body: 'Car news, hot takes, banter or whatever you want to talk about.' },
     'support-locals': { title: 'Business name and what you do', body: 'Services you offer, location, how to reach you and any deals for the crew.' },
-    'formals-shoots-weddings': { title: 'What car do you have for hire?', body: 'Car details, areas you cover, event types, pricing and how to book.' }
+    'formals-shoots-weddings': { title: 'What car do you have for hire?', body: 'Car details, areas you cover, event types, pricing and how to book.' },
+    'mind-over-motor': { title: 'How are you going?', body: 'Share what is on your mind, or a few words of encouragement for someone else. This space is for the community, not just cars.' }
   };
   const prompt = map[slug] || { title: 'Thread title', body: 'Add the details for your post.' };
   return {
@@ -546,7 +576,14 @@ async function forumThread(rawId, replyId) {
   const thread = data.thread;
   const cat = Array.isArray(thread.forum_categories) ? thread.forum_categories[0] : thread.forum_categories;
   const back = fEl('a', { class: 'eyebrow', href: cat && cat.slug ? '#/forum/' + encodeURIComponent(cat.slug) : '#/forum' }, cat && cat.name ? '← ' + cat.name : '← The forum');
-  wrap.append(back);
+  if (cat && cat.slug) {
+    fPaintBoard(wrap, cat.slug);
+    const lead = fEl('div', { class: 'fthread-lead' });
+    lead.append(fBoardIcon(cat.slug), back);
+    wrap.append(lead);
+  } else {
+    wrap.append(back);
+  }
   wrap.append(fPost(thread, true, () => { if (cat && cat.slug) location.hash = '#/forum/' + encodeURIComponent(cat.slug); else location.hash = '#/forum'; }));
   const replies = fEl('div', { class: 'freplies' });
   if (!data.replies.length) replies.append(fEl('p', { class: 'fempty' }, 'No replies yet. If you know, say it.'));
