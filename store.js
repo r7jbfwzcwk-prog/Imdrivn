@@ -1655,7 +1655,7 @@ const Forum = {
   async categories() {
     if (!sb) throw new Error('Forum is offline right now.');
     const { data, error } = await sb.from('forum_categories')
-      .select('id, slug, name, description, sort, forum_threads(count), latest:forum_threads(id, title, last_activity_at)')
+      .select('id, slug, name, description, sort, forum_threads(count), latest:forum_threads(id, title, created_at, last_activity_at, reply_count)')
       .order('sort', { ascending: true })
       .order('last_activity_at', { referencedTable: 'latest', ascending: false })
       .limit(1, { referencedTable: 'latest' });

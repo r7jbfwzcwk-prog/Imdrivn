@@ -151,15 +151,150 @@ async function forumMember(token) {
   else if (typeof join === 'function') join();
   return false;
 }
+
+const BOARD_ICON = {
+  live: '<svg viewBox="0 0 24 24"><path d="M5 6.5h10a2.5 2.5 0 0 1 2.5 2.5v4.2A2.5 2.5 0 0 1 15 15.7h-3.2L8 18.8v-3.1H5A2.5 2.5 0 0 1 2.5 13.2V9A2.5 2.5 0 0 1 5 6.5z"/><path d="M17.2 8.2h1.3A2.5 2.5 0 0 1 21 10.7v3.4A2.5 2.5 0 0 1 18.5 16H18"/></svg>',
+  help: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 9.4a2.6 2.6 0 1 1 2.7 2.7c-.7.2-1 .7-1 1.35"/><circle cx="12" cy="16.55" r=".85"/></svg>',
+  mods: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.8"/><path d="M12 4.2l.95 1.9 2.05-.35 1.05 1.85 1.9 1.05-.35 2.05 1.9.95-1.9.95.35 2.05-1.9 1.05-1.05 1.85-2.05-.35L12 19.8l-.95-1.9-2.05.35-1.05-1.85-1.9-1.05.35-2.05-1.9-.95 1.9-.95-.35-2.05 1.9-1.05 1.05-1.85 2.05.35z"/></svg>',
+  daily: '<svg viewBox="0 0 24 24"><path d="M3.8 15.2v-2.1l2.3-4.6h8.4L19.2 13v2.2"/><path d="M3.8 15.4h16.4"/><circle cx="7.1" cy="16.3" r="1.6"/><circle cx="16.7" cy="16.3" r="1.6"/><path d="M8.8 16.3h5.8"/><path d="M9.2 8.5h3.2"/></svg>',
+  performance: '<svg viewBox="0 0 24 24"><path d="M5.2 17.2a8.4 8.4 0 1 1 13.6 0"/><path d="M12 13.6l4.1-4.2"/><circle cx="12" cy="13.6" r="1.15"/></svg>',
+  supercars: '<svg viewBox="0 0 24 24"><path d="M3.4 14.4l2.6-3.2 2.1-2.2h5.4l3.1 2.2 3.8 1.3v2.4H3.4z"/><circle cx="7.2" cy="15.8" r="1.55"/><circle cx="16.8" cy="15.8" r="1.55"/><path d="M8.6 9l1.2-2h2.4"/></svg>',
+  meets: '<svg viewBox="0 0 24 24"><path d="M12 20.4s6.4-5.1 6.4-10.1A6.4 6.4 0 0 0 5.6 10.3C5.6 15.3 12 20.4 12 20.4z"/><circle cx="12" cy="10.2" r="2.15"/></svg>',
+  general: '<svg viewBox="0 0 24 24"><path d="M5 6.5h10a2.5 2.5 0 0 1 2.5 2.5v4.2A2.5 2.5 0 0 1 15 15.7h-3.2L8 18.8v-3.1H5A2.5 2.5 0 0 1 2.5 13.2V9A2.5 2.5 0 0 1 5 6.5z"/></svg>',
+  'support-locals': '<svg viewBox="0 0 24 24"><path d="M4 11.4V19h16v-7.6"/><path d="M3.2 11.4L12 4.8l8.8 6.6"/><path d="M10 19v-5.2h4V19"/></svg>',
+  'formals-shoots-weddings': '<svg viewBox="0 0 24 24"><path d="M8.2 8.4h7.6l1.4 2.1H20a1.4 1.4 0 0 1 1.4 1.4v7.1a1.4 1.4 0 0 1-1.4 1.4H4a1.4 1.4 0 0 1-1.4-1.4v-7.1A1.4 1.4 0 0 1 4 10.5h2.8z"/><circle cx="12" cy="14.9" r="2.9"/><path d="M9.1 8.4l.7-1.9h4.4l.7 1.9"/></svg>'
+};
+function fBoardIcon(slug) {
+  const wrap = fEl('span', { class: 'fcat-icon', 'aria-hidden': 'true' });
+  wrap.innerHTML = BOARD_ICON[slug] || BOARD_ICON.general;
+  wrap.append(fEl('span', { class: 'fcat-shine' }));
+  return wrap;
+}
+function fFreshBadge(thread) {
+  if (!thread) return null;
+  const created = new Date(thread.created_at).getTime();
+  const activity = new Date(thread.last_activity_at || thread.created_at).getTime();
+  const now = Date.now();
+  const replies = Number(thread.reply_count) || 0;
+  if (replies >= 3 || (replies >= 1 && Number.isFinite(activity) && now - activity < 12 * 36e5)) {
+    return fEl('span', { class: 'fbadge fbadge-hot' }, 'Hot');
+  }
+  if (Number.isFinite(created) && now - created < 48 * 36e5) {
+    return fEl('span', { class: 'fbadge fbadge-new' }, 'New');
+  }
+  return null;
+}
+function fIndexStats(cats) {
+  const row = fEl('div', { class: 'fstats' });
+  const boards = cats.length;
+  const threads = cats.reduce((n, cat) => n + fCount(cat.forum_threads), 0);
+  const item = (value, label, klass, id) => {
+    const el = fEl('div', { class: 'fstat ' + klass });
+    const num = fEl('span', { class: 'fstat-n' }, String(value));
+    if (id) num.id = id;
+    el.append(num, fEl('span', { class: 'fstat-l' }, label));
+    return el;
+  };
+  row.append(item(boards, boards === 1 ? 'board' : 'boards', 'fstat-boards'));
+  row.append(item(threads, threads === 1 ? 'thread' : 'threads', 'fstat-threads'));
+  row.append(item('0', 'online now', 'fstat-onnow', 'fstat-live'));
+  return row;
+}
+function fLatestStrip(cats) {
+  const box = fEl('section', { class: 'ftrend', 'aria-label': 'Latest in the forum' });
+  box.append(fEl('h2', { class: 'ftrend-head' }, 'Latest in the forum'));
+  const items = [];
+  cats.forEach(cat => {
+    const latest = Array.isArray(cat.latest) ? cat.latest[0] : null;
+    if (latest && latest.id) items.push({ thread: latest, cat });
+  });
+  items.sort((a, b) => new Date(b.thread.last_activity_at || 0) - new Date(a.thread.last_activity_at || 0));
+  if (!items.length) {
+    box.append(fEl('p', { class: 'ftrend-empty' }, 'No threads yet. Pick a board and start a thread.'));
+    return box;
+  }
+  const row = fEl('div', { class: 'ftrend-row' });
+  items.slice(0, 6).forEach(({ thread, cat }) => {
+    const link = fEl('a', { class: 'ftrend-card', href: '#/forum/t/' + encodeURIComponent(thread.id) });
+    const top = fEl('div', { class: 'ftrend-top' });
+    top.append(fEl('span', { class: 'ftrend-board' }, cat.name || 'Board'));
+    const badge = fFreshBadge(thread);
+    if (badge) top.append(badge);
+    link.append(top);
+    link.append(fEl('p', { class: 'ftrend-title' }, thread.title || ''));
+    if (thread.last_activity_at) link.append(fEl('time', null, whenLabel(thread.last_activity_at)));
+    row.append(link);
+  });
+  box.append(row);
+  return box;
+}
+
+function fMotionOk() {
+  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+function fMobileTouch() {
+  return window.matchMedia('(max-width:768px)').matches;
+}
+function fPressFx(link) {
+  if (!link.querySelector('.fcat-streak')) {
+    link.append(fEl('span', { class: 'fcat-streak', 'aria-hidden': 'true' }));
+  }
+  link.addEventListener('click', e => {
+    if (e.defaultPrevented || e.button) return;
+    if (!fMobileTouch() || !fMotionOk()) return;
+    if (e.pointerType && e.pointerType !== 'touch') return;
+    const href = link.getAttribute('href');
+    if (!href || href.charAt(0) !== '#') return;
+    e.preventDefault();
+    if (link.classList.contains('is-tap')) return;
+    const layer = link.querySelector('.fcat-streak') || link;
+    const rect = layer.getBoundingClientRect();
+    const burst = fEl('span', { class: 'fcat-burst', 'aria-hidden': 'true' });
+    const x = (e.clientX || (rect.left + rect.width / 2)) - rect.left;
+    const y = (e.clientY || (rect.top + rect.height / 2)) - rect.top;
+    burst.style.left = x + 'px';
+    burst.style.top = y + 'px';
+    layer.append(burst);
+    link.classList.add('is-tap');
+    setTimeout(() => {
+      if (location.hash !== href) location.hash = href;
+      else if (typeof route === 'function') route();
+    }, 200);
+  });
+}
+
+function fBoardCard(cat) {
+  const count = fCount(cat.forum_threads);
+  const latest = Array.isArray(cat.latest) ? cat.latest[0] : null;
+  const link = fEl('a', { class: 'fcat fcat-' + String(cat.slug || 'board'), href: '#/forum/' + encodeURIComponent(cat.slug) });
+  link.append(fBoardIcon(cat.slug));
+  const copy = fEl('div', { class: 'fcat-copy' });
+  const title = fEl('div', { class: 'fcat-top' });
+  const name = fEl('div', { class: 'fcat-name' });
+  name.append(fEl('h2', null, cat.name || ''));
+  const badge = fFreshBadge(latest);
+  if (badge) name.append(badge);
+  title.append(name, fEl('span', { class: 'fcount' }, count === 1 ? '1 thread' : count + ' threads'));
+  copy.append(title);
+  if (cat.description) copy.append(fEl('p', null, cat.description));
+  const foot = fEl('div', { class: 'fcat-foot' });
+  foot.append(fEl('p', { class: 'flatest' }, latest ? 'Latest · ' + latest.title : 'No threads yet. Be the first.'));
+  if (latest && latest.last_activity_at) foot.append(fEl('time', null, whenLabel(latest.last_activity_at)));
+  copy.append(foot);
+  link.append(copy);
+  fPressFx(link);
+  return link;
+}
+
 async function forumIndex() {
   const token = ++viewToken;
   if (!(await forumMember(token))) return;
   if (token !== viewToken) return;
   const query = forumQuery();
   main.innerHTML = '';
-  const wrap = fEl('div', { class: 'wrap forum' });
+  const wrap = fEl('div', { class: 'wrap forum forum-hybrid' });
   main.append(forumClose(), wrap);
-  wrap.append(fEl('div', { class: 'eyebrow' }, 'The Drivn Community'), fEl('h1', null, query ? 'Forum search' : 'The forum'));
+  wrap.append(fEl('div', { class: 'eyebrow' }, 'The Drivn Community'), fEl('h1', { class: 'forum-title' }, query ? 'Forum search' : 'The forum'));
   wrap.append(fEl('p', { class: 'muted' }, query ? '' : 'Ask the dumb question. Someone has already broken that part. No gatekeeping.'));
   const list = fEl('div', { class: query ? 'fthreads' : 'fcats' });
   list.append(fEl('p', { class: 'muted' }, query ? 'Searching…' : 'Loading the boards…'));
@@ -212,21 +347,12 @@ async function forumIndex() {
   }
   if (token !== viewToken) return;
   list.textContent = '';
-  list.append(liveBoardCard());
+  const stats = fIndexStats(cats);
+  wrap.insertBefore(stats, list);
+  wrap.insertBefore(liveBoardCard(), list);
+  wrap.insertBefore(fLatestStrip(cats), list);
   watchLiveCount(token);
-  cats.forEach(cat => {
-    const count = fCount(cat.forum_threads);
-    const latest = Array.isArray(cat.latest) ? cat.latest[0] : null;
-    const link = fEl('a', { class: 'fcat', href: '#/forum/' + encodeURIComponent(cat.slug) });
-    const title = fEl('div', { class: 'fcat-top' });
-    title.append(fEl('h2', null, cat.name || ''));
-    title.append(fEl('span', { class: 'fcount' }, count === 1 ? '1 thread' : count + ' threads'));
-    link.append(title);
-    if (cat.description) link.append(fEl('p', null, cat.description));
-    link.append(fEl('p', { class: 'flatest' }, latest ? 'Latest · ' + latest.title : 'No threads yet. Be the first.'));
-    if (latest && latest.last_activity_at) link.append(fEl('time', null, whenLabel(latest.last_activity_at)));
-    list.append(link);
-  });
+  cats.forEach(cat => list.append(fBoardCard(cat)));
 }
 
 async function forumCategory(slug) {
@@ -234,7 +360,7 @@ async function forumCategory(slug) {
   if (!(await forumMember(token))) return;
   if (token !== viewToken) return;
   main.innerHTML = '';
-  const wrap = fEl('div', { class: 'wrap forum' });
+  const wrap = fEl('div', { class: 'wrap forum forum-hybrid' });
   main.append(forumClose(), wrap);
   const heading = fEl('h1', null, 'Loading…');
   wrap.append(fEl('a', { class: 'eyebrow', href: '#/forum' }, '← The forum'), heading);
@@ -430,7 +556,7 @@ async function forumThread(rawId, replyId) {
   if (!(await forumMember(token))) return;
   if (token !== viewToken) return;
   main.innerHTML = '';
-  const wrap = fEl('div', { class: 'wrap forum' });
+  const wrap = fEl('div', { class: 'wrap forum forum-hybrid' });
   main.append(forumClose(), wrap);
   wrap.append(fEl('p', { class: 'muted' }, 'Loading the thread…'));
   let data;
@@ -583,12 +709,17 @@ function closeLiveRoom() {
 }
 function liveBoardCard() {
   const link = fEl('a', { class: 'fcat flive', href: '#/forum/live' });
+  link.append(fBoardIcon('live'));
+  const copy = fEl('div', { class: 'fcat-copy' });
   const title = fEl('div', { class: 'fcat-top' });
   const name = fEl('h2', { class: 'flive-title' });
   name.append(fEl('span', { class: 'flive-dot', 'aria-hidden': 'true' }));
   name.append(document.createTextNode('Live Chat'));
   title.append(name, fEl('span', { class: 'fcount', id: 'flive-count' }, '0 online'));
-  link.append(title, fEl('p', null, 'One room. The people who are in it right now.'));
+  copy.append(title, fEl('p', null, 'One room. The people who are in it right now.'));
+  copy.append(fEl('span', { class: 'flive-cta' }, 'Jump in'));
+  link.append(copy);
+  fPressFx(link);
   return link;
 }
 function watchLiveCount(token) {
@@ -599,10 +730,12 @@ function watchLiveCount(token) {
   liveChannel = channel;
   const paint = () => {
     if (gen !== liveGen || token !== viewToken) return;
-    const count = document.getElementById('flive-count');
-    if (!count) return;
     const n = Object.keys(channel.presenceState() || {}).length;
-    count.textContent = n === 1 ? '1 online' : n + ' online';
+    const count = document.getElementById('flive-count');
+    if (count) count.textContent = n === 1 ? '1 online' : n + ' online';
+    const stat = document.getElementById('fstat-live');
+    if (stat) stat.textContent = String(n);
+    if (!count && !stat) return;
   };
   channel.on('presence', { event: 'sync' }, paint);
   channel.on('presence', { event: 'join' }, paint);
