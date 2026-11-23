@@ -361,7 +361,7 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .about-tabs a[aria-selected=true]:hover,.about-tabs a[aria-selected=true]:focus-visible{background:#d9a441;color:#111}
 .about{position:relative;overflow:hidden;border-top:1px solid var(--c-line);display:grid;min-height:340px}
 @media(min-width:760px){.about{grid-template-columns:1fr 1.4fr}}
-.about .img{min-height:220px;background:linear-gradient(90deg,transparent 50%,var(--c-bg)),url(https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=900&q=60) center/cover}
+.about .img{min-height:220px;background:linear-gradient(90deg,transparent 50%,var(--c-bg)),url(img/home-about-a1-bull-v3.jpg?v=1) center/cover}
 .about .txt{padding:var(--s-7) var(--s-5);position:relative;z-index:1}.about h2{font-size:clamp(1.1rem,2.6vw,1.6rem);color:var(--c-grey)}
 .water{position:absolute;right:var(--s-5);bottom:var(--s-3);font-family:var(--font-head);font-style:italic;font-size:clamp(2rem,6vw,4rem);color:rgba(255,255,255,.05);pointer-events:none}
 .about-us .img{position:relative;background:none;min-height:420px}
