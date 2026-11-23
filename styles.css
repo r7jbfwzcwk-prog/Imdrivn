@@ -2702,3 +2702,16 @@ input:autofill,input:autofill:hover,input:autofill:focus,input:autofill:active,t
   .forum-hybrid .fcats .fcat.is-tap,.forum-hybrid>.flive.is-tap{transform:none}
   .forum-hybrid .fcat-streak::before,.forum-hybrid .fcat-burst{animation:none !important;display:none !important}
 }
+
+/* Live Chat card: slow outer neon pulse. Hover and tap still win. */
+@keyframes flive-pulse{
+  0%,100%{box-shadow:0 0 8px rgba(34,224,255,.22),0 0 16px rgba(180,74,255,.1)}
+  50%{box-shadow:0 0 16px rgba(34,224,255,.42),0 0 28px rgba(255,46,166,.2),0 0 40px rgba(180,74,255,.16)}
+}
+.forum-hybrid>.flive{animation:flive-pulse 2.8s ease-in-out infinite}
+.forum-hybrid>.flive:hover,
+.forum-hybrid>.flive:active,
+.forum-hybrid>.flive.is-tap{animation:none}
+@media (prefers-reduced-motion:reduce){
+  .forum-hybrid>.flive{animation:none}
+}
