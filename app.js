@@ -1090,16 +1090,16 @@ const PARTNERS = [
   {name:'Greenlane Panel & Paint', description:'Panel & Paint Repairs', location:'Gold Coast, QLD', logo:'assets/partners/greenlane.webp?v=1', url:'https://www.facebook.com/share/1CHwbKCSem/?mibextid=wwXIfr'},
   {name:'Trims By Bec', description:'Custom Automotive Upholstery', location:'Queanbeyan, NSW', logo:'assets/partners/trims.webp?v=1', url:'https://trimsbybec.com'},
   {name:'Branigans Tyres', description:'Tyres', location:'Gold Coast, QLD', logo:'assets/partners/branigans.webp?v=1', url:'https://branigansbudgettyres.com.au/locations/southport/'},
-  {name:'A21 Transport', description:'Transport', location:'', logo:'assets/partners/a21.webp?v=1'},
+  {name:'A21 Transport', description:'Transport', location:'East Coast, Australia', logo:'assets/partners/a21.webp?v=1'},
   {name:'CarInspect', description:'Pre-Purchase Car Inspections', location:'Australia Wide', logo:'assets/partners/carinspect.webp?v=1', url:'https://www.carinspect.com.au'},
   {name:'East Coast Tyre & Auto', description:'Tyres & Wheels', location:'Gold Coast, QLD', logo:'assets/partners/eastcoast.webp', url:'https://www.facebook.com/share/1CLk319phF/?mibextid=wwXIfr'},
   {name:'OnesUp', description:'Premium Australian Streetwear', location:'', logo:'assets/partners/onesup.webp?v=2', url:'https://onesup.au'},
-  {name:'Maranello Autos', description:'Expert Luxury Car Mechanics', location:'', logo:'assets/partners/maranello.webp?v=1', url:'https://maranelloautos.com.au'},
-  {name:'Limiter Motorsports', description:'Aus Wide Wheels & Tyre Packages', location:'', logo:'assets/partners/limiter.webp?v=2', url:'https://www.instagram.com/limitermotorsports?cplk=ajlrcnp6azFkYnJi'},
-  {name:'Static Films', description:'Leading Tint, Wrap & PPF Specialist', location:'', logo:'assets/partners/staticfilms.webp?v=2', url:'https://www.staticfilms.com.au'},
-  {name:'Violate Automotive', description:"Auto Electrical, Suspension & Roadworthy's", location:'', logo:'assets/partners/violate.webp?v=1', url:'https://www.instagram.com/violate.automotive?jplx=MWczMW9xOGdlMmY1NA%3D%3D&utm_source=qr'},
-  {name:'Precision Rooflining', description:'Mobile Rooflining', location:'', logo:'assets/partners/precision-rooflining.webp?v=1', url:'https://www.instagram.com/precisionrooflining?dmpr=dHl1M3owd2g5bXJ2'},
-  {name:'QLD Tint Co', description:'Professional Window Tinting', location:'', logo:'assets/partners/qldtint.webp?v=1', url:'https://www.qldtintcompany.com.au'},
+  {name:'Maranello Autos', description:'Expert Luxury Car Mechanics', location:'Gold Coast, QLD', logo:'assets/partners/maranello.webp?v=1', url:'https://maranelloautos.com.au'},
+  {name:'Limiter Motorsports', description:'Aus Wide Wheels & Tyre Packages', location:'Gold Coast, QLD', logo:'assets/partners/limiter.webp?v=2', url:'https://www.instagram.com/limitermotorsports?cplk=ajlrcnp6azFkYnJi'},
+  {name:'Static Films', description:'Leading Tint, Wrap & PPF Specialist', location:'Gold Coast, QLD', logo:'assets/partners/staticfilms.webp?v=2', url:'https://www.staticfilms.com.au'},
+  {name:'Violate Automotive', description:'Electrical, Suspension, RWC', location:'Brisbane, QLD', logo:'assets/partners/violate.webp?v=1', url:'https://www.instagram.com/violate.automotive?jplx=MWczMW9xOGdlMmY1NA%3D%3D&utm_source=qr'},
+  {name:'Precision Rooflining', description:'Mobile Rooflining', location:'Southeast QLD', logo:'assets/partners/precision-rooflining.webp?v=1', url:'https://www.instagram.com/precisionrooflining?dmpr=dHl1M3owd2g5bXJ2'},
+  {name:'QLD Tint Co', description:'Professional Window Tinting', location:'Gold Coast, QLD', logo:'assets/partners/qldtint.webp?v=1', url:'https://www.qldtintcompany.com.au'},
   {name:'Burek on Wheels', description:'Balkan Food Truck Catering', location:'Sydney, NSW', logo:'assets/partners/burekonwheels.webp?v=1', url:'https://burekonwheels.com.au'}
 ];
 function partnerPin(){return '<svg class="partner-pin" viewBox="0 0 11 14" width="11" height="14" aria-hidden="true"><path fill="#d9a441" d="M5.5 0a5.4 5.4 0 0 0-5.5 5.4C0 9.1 5.5 14 5.5 14S11 9.1 11 5.4A5.4 5.4 0 0 0 5.5 0z"/><circle cx="5.5" cy="5.2" r="1.55" fill="#101012"/></svg>'}
