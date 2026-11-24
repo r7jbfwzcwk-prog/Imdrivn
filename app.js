@@ -549,9 +549,9 @@ ${[['tag','1. Snap & list','Photos, price, done. Listing is 100% free.'],['gauge
 <div class="rule-col"><p class="golden-kicker">3 Golden Rules if you're sellin</p>
 <h2>Don't get gamed.</h2>
 <div class="rule-row">
-<aside class="golden-rule" role="note"><p>1. The car doesn't go anywhere unless the money is in the bank.</p></aside>
+<aside class="golden-rule" role="note"><p>1. Trust your gut. Sketchy message? Something doesn't feel right? Don't do it! Report it.</p></aside>
 <aside class="golden-rule" role="note"><p>2. See their licence before a test drive, and ride along.</p></aside>
-<aside class="golden-rule" role="note"><p>3. Trust your gut. Sketchy message? Something doesn't feel right? Don't do it! Report it.</p></aside>
+<aside class="golden-rule" role="note"><p>3. The car doesn't go anywhere unless the money is in the bank.</p></aside>
 </div></div>
 <div class="rule-split" aria-hidden="true"><img src="img/logo.svg" alt="" data-wordmark width="180" height="28"></div>
 <div class="rule-col"><p class="golden-kicker buy-kicker">3 Golden Rules if you're buyin</p>

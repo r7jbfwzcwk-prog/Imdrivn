@@ -344,6 +344,12 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .buy-rule .inspect-offer{align-items:stretch;width:100%;max-width:100%}
 .buy-rule .inspect-offer .btn{align-self:flex-start;width:auto}
 .buy-rule .inspect-note{text-align:left}
+@media(min-width:769px) and (hover:hover) and (pointer:fine){
+  .buy-rule .btn.inspect-book,.buy-rule #how-vin{display:inline-flex;margin-top:0;vertical-align:middle;white-space:nowrap}
+}
+@media(max-width:768px){
+  .buy-rule #how-vin{display:inline-flex;margin-top:0;vertical-align:middle}
+}
 .smart h3{font-family:var(--font-body);font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;font-size:1rem;margin:var(--s-5) 0 var(--s-3)}
 .smart-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
 @media(min-width:760px){.smart-list{grid-template-columns:1fr 1fr}}
