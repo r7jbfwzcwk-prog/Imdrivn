@@ -359,6 +359,27 @@ function eventPosterItems(rows) {
   });
   return items;
 }
+function eventItemMatchesRow(item, row) {
+  if (!item || !row) return false;
+  if (item.slug && row.slug && String(item.slug) === String(row.slug)) return true;
+  const rowKeys = eventSrcKeys(newsImageUrl(row.cover_image_url));
+  if (!rowKeys.length) return false;
+  return eventSrcKeys(item.src).some(key => rowKeys.includes(key));
+}
+async function newestEventItem() {
+  let rows = [];
+  try {
+    const res = await News.list('events', 0);
+    rows = (res && res.rows) || [];
+  } catch (e) {
+    rows = [];
+  }
+  return eventPosterItems(rows)[0] || null;
+}
+function pinnedEventHtml(item) {
+  if (!item) return '';
+  return `<div class="news-pinned"><span class="news-pinned-tag">PINNED</span>${eventPosterHtml(item, 0)}</div>`;
+}
 function eventPosterHtml(item, index) {
   const tilt = 'ev-t' + (index % 4);
   const alt = esc(item.alt || item.title || 'Event poster');
@@ -395,6 +416,7 @@ async function newsFeed() {
   const more = document.getElementById('news-more');
   const liveRows = [];
   let wallItems = [];
+  let pinnedEvent = null;
   async function pullEvents(replace) {
     let res = { rows: [] };
     try { res = await News.list('events', offset); }
@@ -419,24 +441,36 @@ async function newsFeed() {
   }
   async function pull(replace) {
     if (category === 'events') return pullEvents(replace);
+    if (category === '' && replace) {
+      pinnedEvent = await newestEventItem();
+      if (token !== viewToken || !grid.isConnected) return;
+    }
     const res = await News.list(category, offset);
     if (token !== viewToken || !grid.isConnected) return;
     if (res.failed && replace) {
-      grid.innerHTML = '<p class="muted">Couldn\'t load the news just now. Give it another go in a minute.</p>';
+      if (category === '' && pinnedEvent) {
+        grid.innerHTML = pinnedEventHtml(pinnedEvent) + '<p class="muted">Couldn\'t load the news just now. Give it another go in a minute.</p>';
+      } else {
+        grid.innerHTML = '<p class="muted">Couldn\'t load the news just now. Give it another go in a minute.</p>';
+      }
       more.hidden = true;
       return;
     }
-    const rows = res.rows || [];
-    if (replace && !rows.length) {
+    const fetched = res.rows || [];
+    const rows = (category === '' && pinnedEvent)
+      ? fetched.filter(row => !eventItemMatchesRow(pinnedEvent, row))
+      : fetched;
+    if (replace && !rows.length && !(category === '' && pinnedEvent)) {
       grid.innerHTML = '<p class="news-empty">Fresh news dropping soon.</p>';
       more.hidden = true;
       return;
     }
-    const html = rows.map(newsCard).join('');
+    const pinHtml = (replace && category === '' && pinnedEvent) ? pinnedEventHtml(pinnedEvent) : '';
+    const html = pinHtml + rows.map(newsCard).join('');
     if (replace) grid.innerHTML = html;
     else grid.insertAdjacentHTML('beforeend', html);
-    offset += rows.length;
-    more.hidden = rows.length < News.pageSize;
+    offset += fetched.length;
+    more.hidden = fetched.length < News.pageSize;
   }
   more.onclick = async () => {
     more.disabled = true;
@@ -451,10 +485,15 @@ async function newsFeed() {
       wallItems = eventPosterItems([]);
       paintEventsWall(grid, wallItems);
       more.hidden = true;
+    } else if (category === '' && (pinnedEvent || EVENT_POSTERS.length)) {
+      if (!pinnedEvent) pinnedEvent = eventPosterItems([])[0] || null;
+      grid.innerHTML = pinnedEvent ? pinnedEventHtml(pinnedEvent) : '<p class="news-empty">Fresh news dropping soon.</p>';
+      more.hidden = true;
     } else grid.innerHTML = '<p class="news-empty">Fresh news dropping soon.</p>';
   }
-  if (token !== viewToken || !grid.isConnected || category !== 'events') return;
-  bindNewsZoom(main);
+  if (token !== viewToken || !grid.isConnected) return;
+  if (category === 'events' || (category === '' && grid.querySelector('.news-zoom'))) bindNewsZoom(main);
+  if (category !== 'events') return;
   window._eventsWallResize = () => {
     if (token !== viewToken || !grid.isConnected || !wallItems.length) return;
     paintEventsWall(grid, wallItems);

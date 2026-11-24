@@ -1863,6 +1863,27 @@ a.handle{text-decoration:none}
   .news-grid.events-wall.is-single{display:block;padding:12px 16px 20px}
   .events-wall.is-single .evcol,.events-wall.is-single .ev-poster{max-width:280px}
 }
+.news-grid:has(.news-pinned){padding-top:14px}
+.news-pinned{position:relative;z-index:2;min-width:0;box-sizing:border-box;margin:0;padding:10px;background:transparent;overflow:visible}
+.news-pinned-tag{position:absolute;z-index:3;top:16px;left:16px;display:inline-flex;align-items:center;padding:4px 8px;border:1px solid #d9a441;border-radius:999px;background:rgba(0,0,0,.78);color:#d9a441;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;pointer-events:none}
+.news-pinned .ev-poster{display:block;position:relative;width:100%;max-width:none;margin:0;padding:7px;border:1px solid rgba(217,164,65,.32);border-radius:3px;background:#121212;box-shadow:0 12px 28px rgba(0,0,0,.75),0 0 24px rgba(217,164,65,.22);color:inherit;font:inherit;text-align:inherit;text-decoration:none;appearance:none;-webkit-appearance:none;cursor:zoom-in;transform:rotate(-1.8deg);transition:transform .25s,box-shadow .25s,border-color .25s}
+.news-pinned .ev-poster img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:center top}
+.news-pinned .ev-poster::before{content:"";position:absolute;z-index:2;top:-7px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f3cf7a,#a8741c 70%);box-shadow:0 3px 5px rgba(0,0,0,.8)}
+.news-pinned .ev-poster:focus-visible{outline:2px solid #d9a441;outline-offset:3px}
+@media (hover:hover) and (pointer:fine){
+  .news-pinned .ev-poster:hover{transform:rotate(0) translateY(-6px);z-index:3;border-color:rgba(217,164,65,.75);box-shadow:0 18px 34px rgba(0,0,0,.8),0 0 24px rgba(217,164,65,.4)}
+}
+@media (prefers-reduced-motion:reduce){
+  .news-pinned .ev-poster{transition:none}
+  .news-pinned .ev-poster:hover{transform:rotate(-1.8deg)}
+}
+@media (max-width:768px){
+  .news-grid:has(.news-pinned){padding-top:10px}
+  .news-pinned{padding:6px}
+  .news-pinned-tag{top:auto;bottom:10px;left:10px;padding:2px 6px;font-size:.5rem}
+  .news-pinned .ev-poster{padding:4px}
+  .news-pinned .ev-poster::before{top:-5px;width:10px;height:10px;margin-left:-5px}
+}
 .news-more-row{display:flex;justify-content:center;margin:18px 0 8px}
 .news-more-row .btn[hidden],.news-share .btn[hidden]{display:none}
 .news-story{max-width:760px}
