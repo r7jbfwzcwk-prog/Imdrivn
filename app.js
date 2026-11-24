@@ -1097,7 +1097,8 @@ const PARTNERS = [
   {name:'Limiter Motorsports', description:'Aus Wide Wheels & Tyre Packages', location:'', logo:'assets/partners/limiter.webp?v=2', url:'https://www.instagram.com/limitermotorsports?cplk=ajlrcnp6azFkYnJi'},
   {name:'Static Films', description:'Leading Tint, Wrap & PPF Specialist', location:'', logo:'assets/partners/staticfilms.webp?v=2', url:'https://www.staticfilms.com.au'},
   {name:'Violate Automotive', description:"Auto Electrical, Suspension & Roadworthy's", location:'', logo:'assets/partners/violate.webp?v=1', url:'https://www.instagram.com/violate.automotive?jplx=MWczMW9xOGdlMmY1NA%3D%3D&utm_source=qr'},
-  {name:'Precision Rooflining', description:'Mobile Rooflining', location:'', logo:'assets/partners/precision-rooflining.webp?v=1', url:'https://www.instagram.com/precisionrooflining?dmpr=dHl1M3owd2g5bXJ2'}
+  {name:'Precision Rooflining', description:'Mobile Rooflining', location:'', logo:'assets/partners/precision-rooflining.webp?v=1', url:'https://www.instagram.com/precisionrooflining?dmpr=dHl1M3owd2g5bXJ2'},
+  {name:'QLD Tint Co', description:'Professional Window Tinting', location:'', logo:'assets/partners/qldtint.webp?v=1', url:'https://www.qldtintcompany.com.au'}
 ];
 function partnerPin(){return '<svg class="partner-pin" viewBox="0 0 11 14" width="11" height="14" aria-hidden="true"><path fill="#d9a441" d="M5.5 0a5.4 5.4 0 0 0-5.5 5.4C0 9.1 5.5 14 5.5 14S11 9.1 11 5.4A5.4 5.4 0 0 0 5.5 0z"/><circle cx="5.5" cy="5.2" r="1.55" fill="#101012"/></svg>'}
 const HELPIN={
