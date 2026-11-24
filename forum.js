@@ -686,6 +686,7 @@ function fReplyBox(threadId) {
 
 let liveChannel = null;
 let liveGen = 0;
+let liveWatch = null;
 function dropLiveChannel() {
   liveGen += 1;
   const channel = liveChannel;
@@ -696,6 +697,16 @@ function dropLiveChannel() {
 }
 function closeLiveRoom() {
   dropLiveChannel();
+  if (liveWatch) {
+    document.removeEventListener('visibilitychange', liveWatch.vis);
+    window.removeEventListener('pageshow', liveWatch.vis);
+    window.removeEventListener('online', liveWatch.vis);
+    if (liveWatch.poll) clearInterval(liveWatch.poll);
+    if (liveWatch.typing) clearInterval(liveWatch.typing);
+    if (liveWatch.retry) clearTimeout(liveWatch.retry);
+    if (liveWatch.presence) clearTimeout(liveWatch.presence);
+    liveWatch = null;
+  }
   const fit = window.__liveFit;
   if (fit) {
     window.removeEventListener('resize', fit);
@@ -942,12 +953,21 @@ async function forumLive() {
     const follow = force || stick();
     const mine = Auth.user && row.user_id === Auth.user.id;
     const item = liveFeedLine(row, mine);
+    item.setAttribute('data-at', row.created_at || '');
     if (typeof canSeeReports === 'function' && canSeeReports()) {
       const del = fEl('button', { type: 'button', class: 'auth-link live-del' }, 'Delete');
       del.addEventListener('click', () => askRemove('Delete this message?', async () => { await LiveChat.remove(row.id); }));
       item.append(del);
     }
-    log.append(item);
+    const at = Date.parse(row.created_at || '') || 0;
+    let before = null;
+    log.querySelectorAll('.live-line').forEach(line => {
+      if (before) return;
+      const other = Date.parse(line.getAttribute('data-at') || '') || 0;
+      if (other > at) before = line;
+    });
+    if (before) log.insertBefore(item, before);
+    else log.append(item);
     trimLiveFeed(log, seen, follow);
     if (follow) log.scrollTop = log.scrollHeight;
   }
@@ -956,12 +976,22 @@ async function forumLive() {
     if (node) node.remove();
     seen.delete(id);
   }
+  const typingState = new Map();
+  function typingLabel() {
+    const now = Date.now();
+    const names = [];
+    typingState.forEach((info, id) => {
+      if (!info || info.until < now || (Auth.user && id === Auth.user.id)) typingState.delete(id);
+      else names.push('@' + info.handle);
+    });
+    return names;
+  }
   function paintPeople() {
     if (token !== viewToken) return;
     const people = livePeople(liveChannel);
     const n = people.length;
     pill.querySelector('.live-pill-n').textContent = n + ' online';
-    const names = people.filter(person => person.typing && (!Auth.user || person.id !== Auth.user.id)).map(person => '@' + person.handle);
+    const names = typingLabel();
     typing.textContent = !names.length ? '' : names.length === 1 ? names[0] + ' is typing…' : names.slice(0, 2).join(' and ') + ' are typing…';
     const labels = people.map(person => '@' + person.handle);
     const width = Math.max(0, summary.clientWidth - 2);
@@ -1017,6 +1047,35 @@ async function forumLive() {
   if (window.visualViewport) window.visualViewport.addEventListener('resize', refit);
   paintPeople();
   let markTyping = () => {};
+  function setLiveStatus(text) {
+    const cur = err.textContent || '';
+    const ours = !cur || /^Reconnecting/.test(cur) || cur === 'Connection lost. Trying again.';
+    if (!text) {
+      if (ours) err.textContent = '';
+      return;
+    }
+    if (ours) err.textContent = text;
+  }
+  async function catchUp() {
+    if (!onLiveScreen() || token !== viewToken) return;
+    let rows = [];
+    try { rows = await LiveChat.recent(); }
+    catch (e) { return; }
+    if (!onLiveScreen() || token !== viewToken) return;
+    const ids = new Set(rows.map(row => row.id));
+    [...log.querySelectorAll('.live-line')].forEach(node => {
+      const id = node.getAttribute('data-id');
+      if (id && !ids.has(id)) dropMessage(id);
+    });
+    const empty = document.getElementById('live-empty');
+    if (rows.length && empty) empty.remove();
+    if (!rows.length && !log.querySelector('.live-line') && !document.getElementById('live-empty')) {
+      log.append(fEl('p', { class: 'fempty', id: 'live-empty' }, 'No messages yet. Say g’day.'));
+    }
+    const follow = stick();
+    rows.forEach(row => paintMessage(row, follow));
+    if (follow) log.scrollTop = log.scrollHeight;
+  }
   form.addEventListener('submit', async event => {
     event.preventDefault();
     err.textContent = '';
@@ -1030,7 +1089,9 @@ async function forumLive() {
       paintMessage(saved, true);
     } catch (e) {
       input.value = text;
-      err.textContent = e.message || 'Could not send that.';
+      const msg = (e && e.message) ? e.message : 'Could not send that.';
+      const retry = /could not send|network|offline|timeout|expired|failed|fetch|session/i.test(msg);
+      err.textContent = retry && !/try sending/i.test(msg) ? msg + ' Try sending it again.' : msg;
     } finally { send.disabled = false; }
   });
   let rows = [];
@@ -1044,44 +1105,137 @@ async function forumLive() {
   rows.slice(-50).forEach(row => paintMessage(row, true));
   log.scrollTop = log.scrollHeight;
   if (token !== viewToken || typeof sb === 'undefined' || !sb) return;
-  dropLiveChannel();
-  const gen = liveGen;
-  const channel = sb.channel('room:live', { config: { presence: { key: Auth.user.id } } });
-  liveChannel = channel;
-  const payload = typing => ({
+  const presencePayload = () => ({
     handle: String((Auth.profile && Auth.profile.username) || 'driver').replace(/^@/, ''),
-    avatar: (Auth.profile && /^https?:\/\//i.test(Auth.profile.avatar_url || '')) ? Auth.profile.avatar_url : '',
-    typing: !!typing
+    avatar: (Auth.profile && /^https?:\/\//i.test(Auth.profile.avatar_url || '')) ? Auth.profile.avatar_url : ''
   });
-  let typingOn = false;
-  let typingIdle = 0;
-  markTyping = on => {
-    if (!liveChannel || gen !== liveGen) return;
-    if (on === typingOn) return;
-    typingOn = on;
-    liveChannel.track(payload(on)).catch(() => {});
-  };
-  input.addEventListener('input', () => {
-    markTyping(true);
-    clearTimeout(typingIdle);
-    typingIdle = setTimeout(() => markTyping(false), 1600);
-  });
-  channel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payloadRow => {
-    if (gen !== liveGen || token !== viewToken) return;
-    const empty = document.getElementById('live-empty');
-    if (empty) empty.remove();
-    paintMessage(payloadRow.new || {}, false);
-  });
-  channel.on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages' }, payloadRow => {
-    if (gen !== liveGen) return;
-    dropMessage(payloadRow.old && payloadRow.old.id);
-  });
-  channel.on('presence', { event: 'sync' }, paintPeople);
-  channel.on('presence', { event: 'join' }, paintPeople);
-  channel.on('presence', { event: 'leave' }, paintPeople);
-  channel.subscribe(status => {
-    if (gen !== liveGen) return;
-    if (status === 'SUBSCRIBED') channel.track(payload(false)).then(paintPeople).catch(() => {});
-  });
+  let lastPresenceAt = 0;
+  function trackPresence(channel) {
+    if (!channel || !Auth.user) return Promise.resolve();
+    const now = Date.now();
+    const wait = lastPresenceAt ? 10000 - (now - lastPresenceAt) : 0;
+    if (wait > 0) {
+      if (liveWatch) {
+        clearTimeout(liveWatch.presence);
+        liveWatch.presence = setTimeout(() => {
+          if (liveWatch) liveWatch.presence = 0;
+          if (liveChannel === channel && onLiveScreen() && token === viewToken) trackPresence(channel);
+        }, wait + 50);
+      }
+      return Promise.resolve();
+    }
+    lastPresenceAt = now;
+    return channel.track(presencePayload()).then(paintPeople).catch(() => {});
+  }
+  function scheduleReconnect() {
+    if (!liveWatch || !onLiveScreen() || token !== viewToken) return;
+    if (liveWatch.retry) return;
+    setLiveStatus('Reconnecting to the room.');
+    const delay = liveWatch.retryMs || 1000;
+    liveWatch.retryMs = Math.min(8000, delay * 2);
+    liveWatch.retry = setTimeout(() => {
+      if (liveWatch) liveWatch.retry = 0;
+      if (!onLiveScreen() || token !== viewToken) return;
+      bindLiveChannel();
+    }, delay);
+  }
+  function bindLiveChannel() {
+    if (!onLiveScreen() || token !== viewToken || typeof sb === 'undefined' || !sb) return;
+    dropLiveChannel();
+    const gen = liveGen;
+    const channel = sb.channel('room:live', {
+      config: {
+        presence: { key: Auth.user.id },
+        broadcast: { ack: false, self: false }
+      }
+    });
+    liveChannel = channel;
+    let typingOn = false;
+    let typingIdle = 0;
+    markTyping = on => {
+      if (!liveChannel || gen !== liveGen || !Auth.user) return;
+      if (on === typingOn) return;
+      typingOn = on;
+      const handle = String((Auth.profile && Auth.profile.username) || 'driver').replace(/^@/, '');
+      liveChannel.send({ type: 'broadcast', event: 'typing', payload: { id: Auth.user.id, handle, typing: !!on } }).catch(() => {});
+    };
+    input.oninput = () => {
+      markTyping(true);
+      clearTimeout(typingIdle);
+      typingIdle = setTimeout(() => markTyping(false), 1600);
+    };
+    channel.on('broadcast', { event: 'typing' }, evt => {
+      if (gen !== liveGen || token !== viewToken) return;
+      const payload = (evt && evt.payload) || {};
+      const id = payload.id;
+      if (!id || (Auth.user && id === Auth.user.id)) return;
+      if (payload.typing) {
+        typingState.set(id, { handle: String(payload.handle || 'driver').replace(/^@/, ''), until: Date.now() + 2200 });
+      } else {
+        typingState.delete(id);
+      }
+      paintPeople();
+    });
+    channel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payloadRow => {
+      if (gen !== liveGen || token !== viewToken) return;
+      const empty = document.getElementById('live-empty');
+      if (empty) empty.remove();
+      paintMessage(payloadRow.new || {}, false);
+    });
+    channel.on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages' }, payloadRow => {
+      if (gen !== liveGen) return;
+      dropMessage(payloadRow.old && payloadRow.old.id);
+    });
+    channel.on('system', '*', payload => {
+      if (gen !== liveGen || token !== viewToken) return;
+      if (payload && payload.extension === 'postgres_changes' && payload.status === 'ok') catchUp();
+    });
+    channel.on('presence', { event: 'sync' }, paintPeople);
+    channel.on('presence', { event: 'join' }, paintPeople);
+    channel.on('presence', { event: 'leave' }, paintPeople);
+    channel.subscribe(status => {
+      if (gen !== liveGen) return;
+      if (status === 'SUBSCRIBED') {
+        if (liveWatch) liveWatch.retryMs = 1000;
+        setLiveStatus('');
+        trackPresence(channel);
+        catchUp();
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        setLiveStatus(status === 'CLOSED' ? 'Connection lost. Trying again.' : 'Reconnecting to the room.');
+        scheduleReconnect();
+      }
+    });
+  }
+  function onResume() {
+    if (document.visibilityState === 'hidden') return;
+    if (!onLiveScreen() || token !== viewToken) return;
+    catchUp();
+    const state = liveChannel && liveChannel.state;
+    if (!liveChannel || state === 'closed' || state === 'errored') scheduleReconnect();
+  }
+  if (liveWatch) {
+    document.removeEventListener('visibilitychange', liveWatch.vis);
+    window.removeEventListener('pageshow', liveWatch.vis);
+    window.removeEventListener('online', liveWatch.vis);
+    if (liveWatch.poll) clearInterval(liveWatch.poll);
+    if (liveWatch.typing) clearInterval(liveWatch.typing);
+    if (liveWatch.retry) clearTimeout(liveWatch.retry);
+    if (liveWatch.presence) clearTimeout(liveWatch.presence);
+  }
+  liveWatch = { vis: onResume, poll: 0, typing: 0, retry: 0, presence: 0, retryMs: 1000 };
+  document.addEventListener('visibilitychange', onResume);
+  window.addEventListener('pageshow', onResume);
+  window.addEventListener('online', onResume);
+  liveWatch.poll = setInterval(() => {
+    if (document.visibilityState === 'hidden' || !onLiveScreen() || token !== viewToken) return;
+    catchUp();
+  }, 5000);
+  liveWatch.typing = setInterval(() => {
+    if (!onLiveScreen() || token !== viewToken || !typingState.size) return;
+    const before = typingState.size;
+    typingLabel();
+    if (typingState.size !== before) paintPeople();
+  }, 1000);
+  bindLiveChannel();
   if (window.matchMedia('(min-width:769px)').matches) input.focus();
 }
