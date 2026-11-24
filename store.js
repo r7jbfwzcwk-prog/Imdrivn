@@ -276,11 +276,9 @@ function detectOwnExtras() {
   if (!ownExtraTask) {
     ownExtraTask = (async () => {
       if (!sb) return '';
-      const found = [];
-      for (const col of ['full_name', 'state', 'marketing_opt_in', 'marketing_opt_out_at', 'welcomed_at']) {
-        const res = await sb.from('profiles').select(col).limit(1);
-        if (!res.error) found.push(col);
-      }
+      const cols = ['full_name', 'state', 'marketing_opt_in', 'marketing_opt_out_at', 'welcomed_at'];
+      const results = await Promise.all(cols.map(col => sb.from('profiles').select(col).limit(1).then(res => res.error ? '' : col).catch(() => '')));
+      const found = results.filter(Boolean);
       ownExtraCols = found.length ? ',' + found.join(',') : '';
       return ownExtraCols;
     })();
@@ -417,6 +415,20 @@ function rememberPendingPlace(place) {
   if (!clean) return;
   try { localStorage.setItem('imdrivn_pending_location', JSON.stringify({ suburb: clean.suburb, state: clean.state, postcode: clean.postcode, lat: clean.lat, lng: clean.lng })); } catch (e) {}
 }
+const FAST_PROFILE_COLS = 'id,username,display_name,avatar_url,created_at,og_number,is_admin,member_verified,membership_status,current_period_end,stripe_customer_id,stripe_subscription_id,last_seen_at,marketing_opt_in,marketing_opt_out_at,welcomed_at';
+const CORE_PROFILE_COLS = 'id,username,display_name,avatar_url,created_at,og_number,is_admin,member_verified,membership_status,current_period_end,stripe_customer_id,stripe_subscription_id';
+function cleanAuthUrl() {
+  try {
+    const u = new URL(location.href);
+    ['code', 'access_token', 'refresh_token', 'expires_in', 'expires_at', 'token_type', 'state', 'error', 'error_description', 'error_code'].forEach(k => u.searchParams.delete(k));
+    let hash = u.hash || '';
+    const raw = hash.startsWith('#') ? hash.slice(1) : hash;
+    if (raw && !raw.startsWith('/') && /(?:^|&)(access_token|refresh_token|error|error_description|code)=/.test(raw)) hash = '';
+    const search = u.searchParams.toString();
+    history.replaceState(null, '', u.pathname + (search ? '?' + search : '') + hash);
+  } catch (e) {}
+}
+
 const Auth = {
   user: null,
   profile: null,
@@ -521,8 +533,18 @@ const Auth = {
     const res = await sb.from('profiles').update({ display_name: next }).eq('id', user.id).select(ownProfileCols()).maybeSingle();
     if (!res.error && res.data) this.profile = res.data;
   },
+  async pullProfileFast() {
+    if (!sb || !this.user) { this.profile = null; return; }
+    let res = await sb.from('profiles').select(FAST_PROFILE_COLS).eq('id', this.user.id).maybeSingle();
+    if (res.error) res = await sb.from('profiles').select(CORE_PROFILE_COLS).eq('id', this.user.id).maybeSingle();
+    this.profile = res.error ? null : res.data;
+    if (this.profile) return;
+    await new Promise(resolve => setTimeout(resolve, 250));
+    res = await sb.from('profiles').select(CORE_PROFILE_COLS).eq('id', this.user.id).maybeSingle();
+    if (!res.error) this.profile = res.data;
+  },
   async init() {
-    if (!sb) return;
+    if (!sb) { this._resolveEntry(); return; }
     try {
       const { data, error } = await sb.auth.getSession();
       if (!error) this.user = data.session?.user || null;
@@ -532,13 +554,18 @@ const Auth = {
       if (event === 'PASSWORD_RECOVERY') this.recovery = true;
       if (event === 'SIGNED_OUT') { this.profile = null; this.location = null; this.likes = new Set(); this.saves = new Set(); this.recovery = false; }
       if (event === 'INITIAL_SESSION') return;
-      this.sync().then(async () => {
+      this.sync().then(() => {
         if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && this.user) {
-          try { await AccountSettings.get(); } catch (e) {}
+          AccountSettings.get().catch(() => {});
         }
         this.emit();
       });
     });
+    try {
+      if (this.user) await this.pullProfileFast();
+      else { this.profile = null; this.location = null; this.likes = new Set(); this.saves = new Set(); }
+    } catch (e) {}
+    this._resolveEntry();
     await this.sync();
   },
   async signIn(email, password) {
@@ -565,6 +592,7 @@ const Auth = {
     if (error) throw new Error(authMessage(error));
   },
   async oauth(provider) {
+    if (document.documentElement.classList.contains('is-auth-return') && !(document.getElementById('auth-return') && document.getElementById('auth-return').classList.contains('is-error'))) return;
     const options = { redirectTo: location.origin + location.pathname, skipBrowserRedirect: true };
     if (provider === 'apple') options.scopes = 'name email';
     const { data, error } = await sb.auth.signInWithOAuth({ provider, options });
@@ -886,8 +914,11 @@ const ContactMessage = {
     }));
   }
 };
+Auth._resolveEntry = () => {};
+Auth.entryReady = new Promise(resolve => { Auth._resolveEntry = resolve; });
 Auth.ready = Auth.init();
 Auth.authReturn = (/[?&]code=/.test(bootSearch) || /access_token/.test(bootHash)) && !Auth.recovery && !oauthErrorMessage;
+Auth.cleanUrl = cleanAuthUrl;
 
 function authMessage(error, provider) {
   const msg = error.message || error.msg || 'Something went wrong. Try again.';

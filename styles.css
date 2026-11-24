@@ -2934,3 +2934,21 @@ input:autofill,input:autofill:hover,input:autofill:focus,input:autofill:active,t
 #ppsr-soon-dialog .ppsr-soon-copy{margin:8px 0 18px;color:#f2f2f2;font:500 1rem/1.45 var(--font-body);letter-spacing:0;text-transform:none}
 #ppsr-soon-dialog .ppsr-cta{display:flex;width:100%;justify-content:center;border-color:#d9a441;color:#d9a441;background:#101012}
 #ppsr-soon-dialog .ppsr-cta:hover,#ppsr-soon-dialog .ppsr-cta:focus-visible{background:#1a160e;outline:none}
+
+/* Signing-you-in overlay after Google or Apple returns. Covers every layout. */
+#auth-return{display:none}
+html.is-auth-return,html.is-auth-return body{background:#000}
+html.is-auth-return{overflow:hidden}
+html.is-auth-return body{overflow:hidden}
+html.is-auth-return #auth-return{display:flex;position:fixed;inset:0;z-index:10100;align-items:center;justify-content:center;padding:24px;padding-top:max(24px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom));box-sizing:border-box;background:#000;color:#d9a441;text-align:center;-webkit-tap-highlight-color:transparent}
+#auth-return .auth-return-card{display:flex;flex-direction:column;align-items:center;gap:18px;max-width:22rem;width:100%}
+#auth-return .auth-return-spin{width:36px;height:36px;border:2px solid rgba(217,164,65,.25);border-top-color:#d9a441;border-radius:50%;animation:auth-return-spin .8s linear infinite}
+#auth-return .auth-return-msg{margin:0;font-family:var(--font-head);font-style:italic;font-weight:400;letter-spacing:.12em;text-transform:uppercase;font-size:clamp(1rem,3.6vw,1.35rem);line-height:1.35;color:#d9a441}
+#auth-return .auth-return-err{display:none;margin:0;color:#f2f2f2;font-family:var(--font-body);font-size:1rem;line-height:1.5;letter-spacing:0;text-transform:none}
+#auth-return .auth-return-retry{display:none;min-width:160px;border-color:#d9a441;color:#d9a441;background:#000}
+#auth-return .auth-return-retry:hover,#auth-return .auth-return-retry:focus-visible{background:#1a160e;outline:none}
+#auth-return.is-error .auth-return-spin,#auth-return.is-error .auth-return-msg{display:none}
+#auth-return.is-error .auth-return-err{display:block}
+#auth-return.is-error .auth-return-retry{display:inline-flex}
+html.is-auth-return .nav-account,html.is-auth-return #google,html.is-auth-return #apple,html.is-auth-return #header-signout{pointer-events:none}
+@keyframes auth-return-spin{to{transform:rotate(360deg)}}
