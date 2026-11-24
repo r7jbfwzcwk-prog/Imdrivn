@@ -8,7 +8,7 @@ function openDraftResume(opts) {
   const flow = (opts && opts.flow) || 'Create an ad';
   const escText = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const car = [draft.year, draft.make, draft.model].map(v => String(v || '').trim()).filter(Boolean).join(' ');
-  const lanes = {daily:'Daily','4x4':'4x4 Off-road',performance:'Performance',supercars:'Supercar'};
+  const lanes = {daily:'Daily','4x4':'4x4 Off-road',performance:'Performance',supercars:'Supercar',bikes:'Bikes'};
   const lane = lanes[draft.sec] || '';
   const summary = car ? car + ' · ' + flow : (lane ? lane + ' · ' + flow : flow);
   const dlg = document.createElement('dialog');
@@ -37,7 +37,7 @@ function openDraftResume(opts) {
   requestAnimationFrame(focusDialog);
 }
 const ListFlow = (() => {
-  const SECS = [['daily','Daily','The every-day cars'],['4x4','4x4 Off-road','Air down, send it.'],['performance','Performance','The fun ones'],['supercars','Supercar','The loud ones']];
+  const SECS = [['daily','Daily','The every-day cars'],['4x4','4x4 Off-road','Air down, send it.'],['performance','Performance','The fun ones'],['supercars','Supercar','The loud ones'],['bikes','Bikes','Two wheels, full send.']];
   const YEAR_MIN = 1950, YEAR_MAX = 2027, KM_MAX = 2000000, PRICE_MAX = 20000000, PHOTO_MAX = 8;
 
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -249,7 +249,7 @@ const ListFlow = (() => {
           if (on) draft.sec = on.dataset.value;
           rebuildSteps();
         },
-        validate: () => ['daily','4x4','performance','supercars'].includes(draft.sec) ? '' : 'Pick a lane first. Daily, 4x4 Off-road, Performance, or Supercar.'
+        validate: () => ['daily','4x4','performance','supercars','bikes'].includes(draft.sec) ? '' : 'Pick a lane first. Daily, 4x4 Off-road, Performance, Supercar, or Bikes.'
       },
       {
         question: "What's the make?",

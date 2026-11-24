@@ -1451,6 +1451,7 @@ const ListingStore = {
     if (powerLane(listing) && !spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
     const paths = await uploadPaths(uid, listing.photos);
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
+    if (!['daily', '4x4', 'performance', 'supercar', 'bikes'].includes(mode)) throw new Error('Pick a lane first. Daily, 4x4 Off-road, Performance, Supercar, or Bikes.');
     const point = await listingPoint(listing);
     const row = {
       user_id: uid, mode,
@@ -1518,7 +1519,7 @@ const ListingStore = {
     if (!condition) throw new Error('Pick a condition.');
     if (powerLane(listing) && !spec.cylinders) throw new Error('Cylinders need to be a whole number from 1 to 16.');
     const mode = listing.sec === 'supercars' ? 'supercar' : listing.sec;
-    if (!['daily', '4x4', 'performance', 'supercar'].includes(mode)) throw new Error('Pick a lane first. Daily, 4x4 Off-road, Performance, or Supercar.');
+    if (!['daily', '4x4', 'performance', 'supercar', 'bikes'].includes(mode)) throw new Error('Pick a lane first. Daily, 4x4 Off-road, Performance, Supercar, or Bikes.');
     const point = await listingPoint(listing);
     const current = await sb.from('listings').select('id,photos,status').eq('id', id).eq('user_id', uid).maybeSingle();
     if (current.error) throw new Error(dbMessage(current.error));

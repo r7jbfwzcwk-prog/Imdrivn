@@ -113,7 +113,7 @@ h1,h2,h3,.wide{font-family:var(--font-head);font-style:italic;text-transform:upp
   body.is-lanes footer,body.is-sell footer{display:none}
   body.is-lanes #main,body.is-sell #main,.lanes,.sell-lanes,.lanes-copy,.sell-copy{min-height:0;height:100%}
   .chooser-paths,.sell-cols{height:100%;grid-template-columns:minmax(0,1fr);align-items:stretch}
-  .chooser-paths{grid-template-rows:repeat(4,minmax(0,1fr))}
+  .chooser-paths{grid-template-rows:repeat(5,minmax(0,1fr))}
   .sell-cols{grid-template-rows:repeat(2,minmax(0,1fr))}
   .lane-col,.sell-col{padding:6px 12px}
   .lanes-head,.sell-intro{padding:8px 14px 0}
@@ -218,17 +218,19 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .lanes-copy{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;min-height:0;padding:0}
 .lanes-head{position:absolute;top:0;left:0;right:0;z-index:3;padding:18px 16px 0;pointer-events:none}
 .lanes-head h1{text-shadow:0 2px 14px rgba(0,0,0,.85);font-size:clamp(1.4rem,4vw,2.2rem);margin-bottom:0}
-.chooser-paths{flex:1 1 auto;display:grid;gap:3px;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;min-height:0}
+.chooser-paths{flex:1 1 auto;display:grid;gap:3px;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;min-height:0}
 .lane-col{position:relative;container-type:inline-size;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;padding:22px 14px 22px;background:#000}
 .lane-daily{--acc:#2f7bff;--glow:rgba(47,123,255,.55)}
 .lane-4x4{--acc:#1ea34a;--glow:rgba(30,163,74,.55)}
 .lane-performance{--acc:#e5242b;--glow:rgba(229,36,43,.55)}
 .lane-supercar{--acc:#d9a441;--glow:rgba(217,164,65,.6)}
+.lane-bikes{--acc:#14d4c8;--glow:rgba(20,212,200,.6)}
 .lane-col::before{content:"";position:absolute;inset:0;transition:background .4s ease,box-shadow .4s ease;pointer-events:none}
 .lane-daily::before{background:rgba(47,123,255,.18)}
 .lane-4x4::before{background:rgba(30,163,74,.18)}
 .lane-performance::before{background:rgba(229,36,43,.18)}
 .lane-supercar::before{background:rgba(217,164,65,.18)}
+.lane-bikes::before{background:rgba(20,212,200,.18)}
 .lane-col:focus-within::before,.lane-col:active::before,.lane-col.is-lit::before{background:#000;box-shadow:inset 0 0 0 2px var(--acc),inset 0 0 80px var(--glow)}
 @media (hover:hover) and (pointer:fine){.lane-col:hover::before{background:#000;box-shadow:inset 0 0 0 2px var(--acc),inset 0 0 80px var(--glow)}}
 @media(min-width:760px){.lane-col{padding-top:120px}}
@@ -256,11 +258,13 @@ body.is-lanes footer{border-top:1px solid #d9a441}
   body.is-lanes .lane-4x4:hover::before,body.is-lanes .lane-4x4:focus-within::before,body.is-lanes .lane-4x4:active::before,body.is-lanes .lane-4x4.is-lit::before{background:radial-gradient(ellipse 90% 78% at 50% 48%,rgba(52,210,110,.58) 0%,rgba(30,163,74,.44) 32%,rgba(30,163,74,.26) 62%,rgba(10,80,36,.20) 100%)}
   body.is-lanes .lane-performance:hover::before,body.is-lanes .lane-performance:focus-within::before,body.is-lanes .lane-performance:active::before,body.is-lanes .lane-performance.is-lit::before{background:radial-gradient(ellipse 90% 78% at 50% 48%,rgba(255,58,64,.60) 0%,rgba(229,36,43,.48) 32%,rgba(229,36,43,.28) 62%,rgba(120,12,18,.20) 100%)}
   body.is-lanes .lane-supercar:hover::before,body.is-lanes .lane-supercar:focus-within::before,body.is-lanes .lane-supercar:active::before,body.is-lanes .lane-supercar.is-lit::before{background:radial-gradient(ellipse 90% 78% at 50% 48%,rgba(240,196,80,.58) 0%,rgba(217,164,65,.44) 32%,rgba(217,164,65,.26) 62%,rgba(120,85,24,.20) 100%)}
+  body.is-lanes .lane-bikes:hover::before,body.is-lanes .lane-bikes:focus-within::before,body.is-lanes .lane-bikes:active::before,body.is-lanes .lane-bikes.is-lit::before{background:radial-gradient(ellipse 90% 78% at 50% 48%,rgba(80,240,230,.58) 0%,rgba(20,212,200,.44) 32%,rgba(20,212,200,.26) 62%,rgba(10,90,85,.20) 100%)}
   body.is-lanes .lane-col:hover .path,body.is-lanes .lane-col:focus-within .path,body.is-lanes .lane-col:active .path,body.is-lanes .lane-col.is-lit .path,body.is-lanes .lanes .path:hover,body.is-lanes .lanes .path:focus-visible,body.is-lanes .lanes .path:active{transform:scale(1.04);border-color:var(--acc)}
   body.is-lanes .lane-daily:hover .path,body.is-lanes .lane-daily:focus-within .path,body.is-lanes .lane-daily:active .path,body.is-lanes .lane-daily.is-lit .path,body.is-lanes .lane-daily .path:hover,body.is-lanes .lane-daily .path:focus-visible,body.is-lanes .lane-daily .path:active{background:radial-gradient(ellipse 88% 80% at 50% 48%,#06080d 0%,#0a1222 48%,rgba(47,123,255,.30) 100%);box-shadow:0 0 0 1px #2f7bff,0 0 22px rgba(47,123,255,.58),0 0 48px rgba(47,123,255,.30),inset 0 0 34px rgba(47,123,255,.28),inset 0 0 72px rgba(47,123,255,.12)}
   body.is-lanes .lane-4x4:hover .path,body.is-lanes .lane-4x4:focus-within .path,body.is-lanes .lane-4x4:active .path,body.is-lanes .lane-4x4.is-lit .path,body.is-lanes .lane-4x4 .path:hover,body.is-lanes .lane-4x4 .path:focus-visible,body.is-lanes .lane-4x4 .path:active{background:radial-gradient(ellipse 88% 80% at 50% 48%,#060b08 0%,#0a1810 48%,rgba(30,163,74,.28) 100%);box-shadow:0 0 0 1px #1ea34a,0 0 22px rgba(30,163,74,.58),0 0 48px rgba(30,163,74,.30),inset 0 0 34px rgba(30,163,74,.26),inset 0 0 72px rgba(30,163,74,.12)}
   body.is-lanes .lane-performance:hover .path,body.is-lanes .lane-performance:focus-within .path,body.is-lanes .lane-performance:active .path,body.is-lanes .lane-performance.is-lit .path,body.is-lanes .lane-performance .path:hover,body.is-lanes .lane-performance .path:focus-visible,body.is-lanes .lane-performance .path:active{background:radial-gradient(ellipse 88% 80% at 50% 48%,#0b0607 0%,#1a0a0c 48%,rgba(229,36,43,.32) 100%);box-shadow:0 0 0 1px #e5242b,0 0 22px rgba(229,36,43,.62),0 0 48px rgba(229,36,43,.32),inset 0 0 34px rgba(229,36,43,.30),inset 0 0 72px rgba(229,36,43,.14)}
   body.is-lanes .lane-supercar:hover .path,body.is-lanes .lane-supercar:focus-within .path,body.is-lanes .lane-supercar:active .path,body.is-lanes .lane-supercar.is-lit .path,body.is-lanes .lane-supercar .path:hover,body.is-lanes .lane-supercar .path:focus-visible,body.is-lanes .lane-supercar .path:active{background:radial-gradient(ellipse 88% 80% at 50% 48%,#0b0905 0%,#18140a 48%,rgba(217,164,65,.30) 100%);box-shadow:0 0 0 1px #d9a441,0 0 22px rgba(217,164,65,.58),0 0 48px rgba(217,164,65,.30),inset 0 0 34px rgba(217,164,65,.26),inset 0 0 72px rgba(217,164,65,.12)}
+  body.is-lanes .lane-bikes:hover .path,body.is-lanes .lane-bikes:focus-within .path,body.is-lanes .lane-bikes:active .path,body.is-lanes .lane-bikes.is-lit .path,body.is-lanes .lane-bikes .path:hover,body.is-lanes .lane-bikes .path:focus-visible,body.is-lanes .lane-bikes .path:active{background:radial-gradient(ellipse 88% 80% at 50% 48%,#050b0b 0%,#0a1817 48%,rgba(20,212,200,.30) 100%);box-shadow:0 0 0 1px #14d4c8,0 0 22px rgba(20,212,200,.58),0 0 48px rgba(20,212,200,.30),inset 0 0 34px rgba(20,212,200,.26),inset 0 0 72px rgba(20,212,200,.12)}
 }
 @media(prefers-reduced-motion:reduce){.lane-col::before{transition:none}}
 .lane-copy{display:contents}
@@ -277,8 +281,9 @@ body.is-lanes footer{border-top:1px solid #d9a441}
 .pick-4x4{--acc:#1ea34a;--acc-dim:rgba(30,163,74,.55);--glow:rgba(30,163,74,.45)}
 .pick-performance{--acc:#e5242b;--acc-dim:rgba(229,36,43,.55);--glow:rgba(229,36,43,.45)}
 .pick-supercar{--acc:#d9a441;--acc-dim:rgba(217,164,65,.6);--glow:rgba(217,164,65,.45)}
+.pick-bikes{--acc:#14d4c8;--acc-dim:rgba(20,212,200,.6);--glow:rgba(20,212,200,.45)}
 @media(max-width:759px){
- .chooser-paths{grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(3,minmax(0,1fr));gap:3px}
+ .chooser-paths{grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));gap:3px}
  .lane-col{padding:12px 14px 72px}
  .lane-daily{padding-top:96px}
  .lanes-head h1{font-size:1.3rem;margin-bottom:0}
@@ -287,8 +292,8 @@ body.is-lanes footer{border-top:1px solid #d9a441}
  .lanes .path .tag{font-size:.9rem}
  .lanes .path .btn{font-size:.65rem;letter-spacing:.12em;min-height:40px;padding:0 14px}
 }
-.view-all-row{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;width:100%;margin:0 0 18px;padding:0;text-align:center;background:transparent}
-.view-all{grid-column:2 / 4;justify-self:stretch;margin:0 14px;display:flex;align-items:center;justify-content:center;min-height:52px;color:#c0c0c0;font-size:1.15rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(236,236,240,.92);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 0 rgba(255,255,255,.4),inset 1px 0 0 rgba(255,255,255,.45),inset -1px 0 0 rgba(255,255,255,.45);padding:11px 18px 14px;background:#000;border-radius:999px;box-sizing:border-box}
+.view-all-row{position:relative;z-index:2;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;width:100%;margin:0 0 18px;padding:0;text-align:center;background:transparent}
+.view-all{grid-column:2 / 5;justify-self:stretch;margin:0 14px;display:flex;align-items:center;justify-content:center;min-height:52px;color:#c0c0c0;font-size:1.15rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(236,236,240,.92);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 0 rgba(255,255,255,.4),inset 1px 0 0 rgba(255,255,255,.45),inset -1px 0 0 rgba(255,255,255,.45);padding:11px 18px 14px;background:#000;border-radius:999px;box-sizing:border-box}
 .view-all:focus-visible{color:#fff;border-color:#fff}
 @media (hover:hover) and (pointer:fine){.view-all:hover{color:#fff;border-color:#fff}}
 @media (hover:none){.view-all:active{color:#fff;border-color:#fff}}
@@ -422,6 +427,7 @@ body.lane-on[data-mode=daily]{--acc:#2f7bff;--acc-dim:rgba(47,123,255,.55);--glo
 body.lane-on[data-mode="4x4"]{--acc:#1ea34a;--acc-dim:rgba(30,163,74,.55);--glow:rgba(30,163,74,.2)}
 body.lane-on[data-mode=performance]{--acc:#e5242b;--acc-dim:rgba(229,36,43,.55);--glow:rgba(229,36,43,.2);--r-card:8px;--ease:280ms}
 body.lane-on[data-mode=supercar]{--acc:#d9a441;--acc-dim:rgba(217,164,65,.6);--glow:rgba(217,164,65,.22);--r-card:12px;--ease:520ms}
+body.lane-on[data-mode=bikes]{--acc:#14d4c8;--acc-dim:rgba(20,212,200,.6);--glow:rgba(20,212,200,.22)}
 body.is-all{--acc:#c0c0c0;--acc-dim:rgba(192,192,192,.55);--glow:rgba(192,192,192,.18)}
 body.is-home{--acc:#d9a441;--acc-dim:rgba(217,164,65,.6);--glow:rgba(217,164,65,.22)}
 body.is-home .path{border-color:rgba(217,164,65,.55)}
@@ -512,6 +518,7 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
   .lane-4x4{background:#000;--lane-tint:rgba(30,163,74,.18)}
   .lane-performance{background:#000;--lane-tint:rgba(229,36,43,.18)}
   .lane-supercar{background:#000;--lane-tint:rgba(217,164,65,.18)}
+  .lane-bikes{background:#000;--lane-tint:rgba(20,212,200,.18)}
   .sell-whole{background:#000;--lane-tint:rgba(34,197,94,.18)}
   body.is-sell .sell-list{padding-bottom:clamp(1px,.18dvh,3px)}
   body.is-sell .sell-whole{padding-top:clamp(1px,.18dvh,3px)}
@@ -519,6 +526,7 @@ body.is-sell #main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0
   .lane-4x4::before,.lane-4x4:hover::before,.lane-4x4:active::before,.lane-4x4.is-lit::before,.lane-4x4:focus-within::before,
   .lane-performance::before,.lane-performance:hover::before,.lane-performance:active::before,.lane-performance.is-lit::before,.lane-performance:focus-within::before,
   .lane-supercar::before,.lane-supercar:hover::before,.lane-supercar:active::before,.lane-supercar.is-lit::before,.lane-supercar:focus-within::before,
+  .lane-bikes::before,.lane-bikes:hover::before,.lane-bikes:active::before,.lane-bikes.is-lit::before,.lane-bikes:focus-within::before,
   .sell-list::before,.sell-list:hover::before,.sell-list:active::before,.sell-list.is-lit::before,.sell-list:focus-within::before,
   .sell-whole::before,.sell-whole:hover::before,.sell-whole:active::before,.sell-whole.is-lit::before,.sell-whole:focus-within::before{background:transparent;box-shadow:none}
   body.is-lanes .lanes .path,body.is-lanes .lanes .path:hover,body.is-lanes .lanes .path:active,body.is-lanes .lanes .path:focus-visible,body.is-lanes .lane-col:hover .path,body.is-lanes .lane-col:focus-within .path,body.is-lanes .lane-col.is-lit .path,body.is-lanes .lane-col:active .path,
@@ -607,6 +615,7 @@ footer a.logo img{height:18px;width:auto;max-width:220px}
   body:has(#sortbtn:not([hidden]))[data-mode="4x4"]{--hdr-icon:#1ea34a}
   body:has(#sortbtn:not([hidden]))[data-mode=performance]{--hdr-icon:#e5242b}
   body:has(#sortbtn:not([hidden]))[data-mode=supercar]{--hdr-icon:#d9a441}
+  body:has(#sortbtn:not([hidden]))[data-mode=bikes]{--hdr-icon:#14d4c8}
   body:has(#sortbtn:not([hidden])).is-all{--hdr-icon:#c0c0c0}
   .bellwrap{display:flex;align-items:center}
   html.menu-open,body.menu-open{overscroll-behavior:none}
@@ -1038,6 +1047,7 @@ input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-sea
 [data-mode="4x4"]{--acc:#1ea34a;--acc-dim:rgba(30,163,74,.55);--glow:rgba(30,163,74,.2)}
 [data-mode=performance]{--acc:#e5242b;--acc-dim:rgba(229,36,43,.55);--glow:rgba(229,36,43,.2)}
 [data-mode=supercar]{--acc:#d9a441;--acc-dim:rgba(217,164,65,.6);--glow:rgba(217,164,65,.22)}
+[data-mode=bikes]{--acc:#14d4c8;--acc-dim:rgba(20,212,200,.6);--glow:rgba(20,212,200,.22)}
 body:not(.lane-on):not(.is-all):not(.is-list):not(.is-wholesale){--acc:#d9a441;--acc-dim:rgba(217,164,65,.6);--glow:rgba(217,164,65,.22)}
 [data-mode] .price{color:var(--acc)}
 .lane-group{margin-top:22px}
@@ -1166,6 +1176,8 @@ body.is-sell .bnav .plus{border-color:transparent;background:linear-gradient(#00
 .s-performance .inspect .btn,.s-performance .inspect .btn:hover{border-color:#e5242b;color:#e5242b}
 .s-performance .inspect .btn:hover{background:rgba(229,36,43,.08)}
 .s-supercars .inspect .btn,.s-supercars .inspect .btn:hover{border-color:#d9a441;color:#d9a441}
+.s-bikes .inspect .btn,.s-bikes .inspect .btn:hover{border-color:#14d4c8;color:#14d4c8}
+.s-bikes .inspect .btn:hover{background:rgba(20,212,200,.08)}
 .owner-acts{display:flex;gap:8px;margin-top:12px}
 .owner-acts .sold-btn{flex:1 1 0;margin-top:0;min-width:0}
 .sold-btn{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;min-height:36px;padding:0 14px;border:1px solid var(--c-line2);border-radius:999px;background:transparent;color:#fff;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
@@ -1263,6 +1275,7 @@ body.is-rev-shake{will-change:transform}
 .ask-prefix,.ask-suffix{font-size:1.45rem;font-weight:600;color:var(--acc)}
 .ask-choices{display:grid;gap:12px}
 @media(min-width:700px){.ask-choices{grid-template-columns:repeat(3,1fr)}.sec-pick.ask-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:769px){.sec-pick.ask-choices{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .ask-choice{min-height:108px;padding:18px 16px;text-align:left;border:1px solid var(--c-line);border-radius:16px;background:var(--c-surface);cursor:pointer;color:inherit;transition:border-color .2s,box-shadow .2s,background .2s}
 .ask-choice-k{display:block;font-size:1.35rem;font-weight:600}
 .ask-choice-s{display:block;margin-top:6px;color:var(--c-muted);font-size:.9rem;font-weight:400}
@@ -1280,6 +1293,9 @@ body.is-rev-shake{will-change:transform}
 .sec-pick .sec-supercars{border-color:rgba(217,164,65,.55)}
 .sec-pick .sec-supercars .ask-choice-k{color:#d9a441}
 .sec-pick .sec-supercars[aria-pressed=true]{border-color:#d9a441;background:#241c0d;box-shadow:0 0 0 1px #d9a441,0 0 28px rgba(217,164,65,.35)}
+.sec-pick .sec-bikes{border-color:rgba(20,212,200,.55)}
+.sec-pick .sec-bikes .ask-choice-k{color:#14d4c8}
+.sec-pick .sec-bikes[aria-pressed=true]{border-color:#14d4c8;background:#0d2422;box-shadow:0 0 0 1px #14d4c8,0 0 28px rgba(20,212,200,.35)}
 .vcond{display:grid;gap:16px}
 .vcond p{margin:0 0 6px;color:var(--c-muted);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
 .vcond .vcap{margin:8px 0 0;color:var(--c-muted);font-size:.9rem;letter-spacing:0;text-transform:none;line-height:1.4}
@@ -1943,7 +1959,7 @@ a.handle{text-decoration:none}
   body.is-lanes .lane-daily,body.is-sell .sell-list{padding-top:8px}
   body.is-lanes .lane-col{padding:6px 12px}
   body.is-lanes .chooser-paths,body.is-sell .sell-cols{gap:0;padding-bottom:0}
-  body.is-lanes .lane-supercar,body.is-lanes .lane-4x4{padding-bottom:clamp(2px,.4dvh,6px)}
+  body.is-lanes .lane-supercar,body.is-lanes .lane-4x4,body.is-lanes .lane-bikes{padding-bottom:clamp(2px,.4dvh,6px)}
   body.is-buy #sbtn{display:none !important}
 }
 @media(max-width:768px) and (prefers-reduced-motion:reduce){
@@ -1955,8 +1971,8 @@ a.handle{text-decoration:none}
   body.is-lanes #main,body.is-lanes .lanes,body.is-lanes .lanes-copy{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;height:auto;max-height:none;overflow:hidden}
   body.is-lanes .lanes-head,body.is-sell .sell-intro{flex:0 0 auto;padding:6px 14px}
   body.is-lanes .lanes-head h1,body.is-sell .sell-intro h1{margin:0;padding:0 0 2px;font-size:clamp(.78rem,2.3dvh,1rem);line-height:1.12}
-  body.is-lanes .chooser-paths{flex:1 1 auto;min-height:0;height:auto;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(4,minmax(0,1fr));gap:0;overflow:hidden}
-  body.is-lanes .lane-col,body.is-lanes .lane-daily,body.is-lanes .lane-4x4,body.is-lanes .lane-performance,body.is-lanes .lane-supercar{height:auto;min-height:0;overflow:hidden;padding:clamp(1px,.18dvh,3px) 2px;align-items:stretch}
+  body.is-lanes .chooser-paths{flex:1 1 auto;min-height:0;height:auto;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));gap:0;overflow:hidden}
+  body.is-lanes .lane-col,body.is-lanes .lane-daily,body.is-lanes .lane-4x4,body.is-lanes .lane-performance,body.is-lanes .lane-supercar,body.is-lanes .lane-bikes{height:auto;min-height:0;overflow:hidden;padding:clamp(1px,.18dvh,3px) 2px;align-items:stretch}
   body.is-lanes .lanes .path{display:flex;flex-direction:row;align-items:center;justify-content:center;height:100%;min-height:0;max-height:100%;overflow:hidden;padding:0 8px;gap:8px;text-align:center}
   body.is-lanes .lane-copy{container-type:inline-size;display:flex;flex:1 1 auto;align-self:stretch;flex-direction:column;align-items:center;justify-content:center;width:auto;max-width:none;min-width:0;margin:0;padding:0;gap:clamp(4px,.6dvh,7px);text-align:center}
   body.is-lanes .lanes .path .ico{width:clamp(25.92px,3.744dvh,40.32px);height:clamp(25.92px,3.744dvh,40.32px);margin:0}
@@ -1974,7 +1990,7 @@ a.handle{text-decoration:none}
 }
 @media(max-width:759px) and (max-height:520px){
   body.is-lanes .lanes-head h1,body.is-sell .sell-intro h1{padding:1px 0 2px}
-  body.is-lanes .lane-col,body.is-lanes .lane-daily,body.is-lanes .lane-4x4,body.is-lanes .lane-performance,body.is-lanes .lane-supercar{padding-top:0;padding-bottom:0}
+  body.is-lanes .lane-col,body.is-lanes .lane-daily,body.is-lanes .lane-4x4,body.is-lanes .lane-performance,body.is-lanes .lane-supercar,body.is-lanes .lane-bikes{padding-top:0;padding-bottom:0}
   body.is-lanes .lanes .path{padding-top:1px;padding-bottom:1px}
 }
 .sell-note{display:block;margin:6px 0 0;max-width:16rem;font-size:.72rem;font-weight:500;letter-spacing:0;text-transform:none;line-height:1.3;text-align:center;color:var(--c-text)}
@@ -2604,6 +2620,32 @@ input:autofill,input:autofill:hover,input:autofill:focus,input:autofill:active,t
   }
   body.is-lanes footer > * { display: none !important; }
 }
+
+/* Touch tablets in portrait: 5 skinny columns clip titles like Performance.
+   Use a 3+2 grid, matching the sell-flow section picker. Mouse desktops and
+   phones are not selected. */
+@media (min-width: 769px) and (max-width: 1023px) and (hover: none) and (pointer: coarse) {
+  body.is-lanes .chooser-paths {
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    grid-template-rows: repeat(2, minmax(0,1fr));
+  }
+  body.is-lanes .lanes .path .wide {
+    white-space: normal;
+    font-size: clamp(.72rem, 6.2cqw, 1.35rem);
+  }
+  body.is-lanes .lanes .path .tag {
+    max-width: 14em;
+  }
+  body.is-lanes .view-all-row {
+    grid-template-columns: repeat(3, minmax(0,1fr));
+  }
+  body.is-lanes .view-all {
+    grid-column: 1 / 4;
+    margin-left: 16%;
+    margin-right: 16%;
+  }
+}
+
 @media (min-width: 900px) and (hover: none) and (pointer: coarse) {
   body.is-lanes {
     /* 56px bar + 12px float + 6px plus overlap + 10px gap */
