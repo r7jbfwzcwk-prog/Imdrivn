@@ -1142,6 +1142,13 @@ const VinOrders = {
     const { data, error } = await sb.from('vin_check_orders').select('id,vin,rego,plate_state,email,status,search_number,error,result,created_at').eq('id', id).maybeSingle();
     if (error) throw new Error(error.message || 'Could not load that report.');
     return data;
+  },
+  async certificateUrl(order) {
+    const path = order && order.result && order.result.certificate && order.result.certificate.storagePath;
+    if (!sb || !path) return '';
+    const { data, error } = await sb.storage.from('vin-certificates').createSignedUrl(path, 60 * 60);
+    if (error || !data) return '';
+    return data.signedUrl || '';
   }
 };
 const VinAsk = {
@@ -1152,7 +1159,7 @@ const VinAsk = {
     return !!data;
   },
   async claim(listingId) {
-    if (!sb || !Auth.user) throw new Error('Sign in to ask for the rego or VIN.');
+    if (!sb || !Auth.user) throw new Error('Sign in to ask for the VIN.');
     const { error } = await sb.from('vin_requests').insert({ listing_id: listingId, buyer_id: Auth.user.id });
     if (error) {
       if (error.code === '23505') return false;

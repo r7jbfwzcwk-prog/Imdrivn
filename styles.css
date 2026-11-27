@@ -1171,8 +1171,31 @@ body.is-sell .bnav .plus{border-color:transparent;background:linear-gradient(#00
 .vin-dl{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin:0}
 .vin-dl div{display:grid;gap:2px}
 .vin-dl dt{color:#9a9aa2;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
-.vin-dl dd{margin:0;color:#f2f2f2}
+.vin-dl dd{margin:0;color:#f2f2f2}.vin-dl .vin-yn{font-weight:700}.vin-dl .vin-yn.is-stop{color:#ff5a5a}.vin-dl .vin-yn.is-caution{color:#f0c14a}.vin-dl .vin-yn.is-clear{color:#7dcc8a}
 .vin-official{color:#d9a441 !important}
+.vin-cert-note{margin:0 0 10px;color:#e4e4e8}
+.vin-cert-file{margin-top:14px}
+.vin-cert-file .auth-row{margin:0 0 12px}
+.vin-cert-frame{display:block;width:100%;min-height:min(70vh,820px);height:70vh;border:1px solid #2c2c30;border-radius:12px;background:#111}
+.vin-alerts{display:grid;gap:10px;margin:0 0 18px}
+.vin-alert{display:grid;grid-template-columns:auto 1fr;gap:10px 12px;align-items:start;padding:14px 16px 14px 16px;border-radius:14px;border:1px solid #d9a441;background:#101012;color:#f2f2f2}
+.vin-alert-ico{display:block;flex:none;width:28px;height:28px;margin-top:1px}
+.vin-alert-copy{min-width:0}
+.vin-alert strong{display:block;font-family:var(--font-body);font-style:normal;font-weight:800;letter-spacing:.04em;text-transform:uppercase;font-size:.78rem;margin:0 0 6px;line-height:1.3}
+.vin-alert p{margin:0;color:#f2f2f2;font-size:1rem;line-height:1.45}
+.vin-alert-emoji{display:inline-block;font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji","Twemoji Mozilla",sans-serif;font-style:normal;font-weight:400;font-size:1.45rem;line-height:1;letter-spacing:0;margin-left:.2em;vertical-align:0;transform:translateY(-0.18em)}
+.vin-alert-police{white-space:nowrap}
+.vin-alert strong:has(.vin-alert-emoji){line-height:1.45}
+.vin-alert.is-caution{border-color:#e0a020;background:#1a1408;box-shadow:inset 5px 0 0 #e0a020}
+.vin-alert.is-caution strong{color:#f0c14a}
+.vin-alert.is-stop{border-color:#c62828;background:#1a0a0a;box-shadow:inset 5px 0 0 #c62828}
+.vin-alert.is-stop strong{color:#ff5a5a}
+.vin-alert.is-clear{border-color:#3d9a62;background:#0a140e;box-shadow:inset 5px 0 0 #3d9a62}
+.vin-alert.is-clear strong{color:#7dcc8a}
+.vin-alert-caveat{margin:2px 4px 0;color:#9a9aa2;font-size:.88rem;line-height:1.45}
+.vin-alert-tip{margin:10px 0 0;color:#c8c4b8;font-size:.92rem;line-height:1.45}.vin-alert .vin-alert-tip strong{display:inline;font-family:var(--font-body);font-style:normal;font-weight:700;letter-spacing:0;text-transform:none;font-size:inherit;color:#decea0;margin:0 0.28em 0 0}
+@media(min-width:768px) and (max-width:1023px){.vin-alert-ico{width:34px;height:34px}.vin-alert{gap:12px 14px;padding:16px 18px}.vin-alert strong{font-size:.82rem}}
+@media(min-width:1024px){.vin-alert-ico{width:40px;height:40px}.vin-alert{gap:12px 16px;padding:16px 18px}.vin-alert strong{font-size:.85rem}.vin-alert p{font-size:1.05rem}}
 .vin-flow select{width:100%;min-height:44px;padding:0 12px;border:1px solid var(--c-line);border-radius:10px;background:#0e0e10;color:var(--c-text);font:500 1rem/1.2 var(--font-body)}
 .inspect .btn:hover{border-color:#d9a441;background:rgba(217,164,65,.08)}
 .s-daily .inspect .btn,.s-daily .inspect .btn:hover{border-color:#2f7bff;color:#2f7bff}

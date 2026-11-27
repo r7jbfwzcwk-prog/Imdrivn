@@ -73,8 +73,8 @@ Deno.serve(async (req) => {
     if (kind === "vin") {
       const vin = String(body.vin || "").trim().toUpperCase();
       if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return json({ error: "VIN must be 17 characters and cannot include I, O, or Q." }, 400);
-      const email = String(body.email || user.email || "").trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "Add a valid email so we can send the report." }, 400);
+      const email = String(user.email || "").trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "Your account needs an email so we can send the official PPSR certificate." }, 400);
       const states = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
       const plate = String(body.state || "").trim().toUpperCase();
       const rego = String(body.rego || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
