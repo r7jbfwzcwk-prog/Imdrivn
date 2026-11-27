@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.ppsr-vin-search]
 verify_jwt = true
+
+[functions.ppsr-status]
+verify_jwt = false

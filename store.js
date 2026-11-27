@@ -62,6 +62,48 @@ const SiteSettings = {
 };
 SiteSettings.ready = SiteSettings.load();
 
+function ppsrCanberraParts(date){
+  const fmt=new Intl.DateTimeFormat('en-AU',{timeZone:'Australia/Sydney',weekday:'short',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  const raw=Object.fromEntries(fmt.formatToParts(date||new Date()).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+  const hour=Number(raw.hour==='24'?'0':raw.hour);
+  const minute=Number(raw.minute);
+  const second=Number(raw.second||0);
+  return {weekday:String(raw.weekday),year:Number(raw.year),month:Number(raw.month),day:Number(raw.day),hour,minute,second,minutes:hour*60+minute};
+}
+function ppsrScheduledWindow(now){
+  const p=ppsrCanberraParts(now||new Date());
+  const holiday=(p.month===12&&p.day>=21)||(p.month===1&&p.day===1);
+  const inWindow=p.weekday==='Wed'&&!holiday&&p.minutes>=(20*60+55);
+  if(!inWindow)return {state:'ok',down:false,reason:null,message:'',source:'ok'};
+  return {state:'down',down:true,reason:'weekly_maintenance',message:'PPSR is down for weekly maintenance',source:'schedule'};
+}
+function mergePpsrStatus(scheduled,flag){
+  if(flag&&flag.source==='manual'&&(flag.state==='down'||flag.down))return {state:'down',down:true,reason:'manual',message:flag.message||'PPSR is down for maintenance',source:'manual',window_end:flag.window_end||null};
+  if(scheduled&&scheduled.down)return Object.assign({},scheduled,{health:flag&&flag.health});
+  if(flag&&(flag.state==='down'||flag.down))return {state:'down',down:true,reason:flag.reason||'outage',message:flag.message||'PPSR is down for maintenance',source:flag.source||'health',health:flag.health};
+  return {state:'ok',down:false,reason:null,message:'',source:'ok',health:flag&&flag.health};
+}
+const PpsrStatus={
+  value:{state:'ok',down:false},
+  ready:null,
+  isDown(){return !!(this.value&&this.value.down)},
+  message(){return (this.value&&this.value.message)||'PPSR is down for weekly maintenance'},
+  async load(){
+    const scheduled=ppsrScheduledWindow();
+    let flag=null;
+    if(sb){
+      try{
+        const {data,error}=await sb.from('site_settings').select('value').eq('key','ppsr_status').maybeSingle();
+        if(!error&&data)flag=data.value;
+      }catch(e){}
+    }
+    this.value=mergePpsrStatus(scheduled,flag);
+    return this.value;
+  }
+};
+PpsrStatus.ready=PpsrStatus.load();
+
+
 function memberActive() {
   const status = Auth.profile && Auth.profile.membership_status;
   return status === 'active' || status === 'trialing';
@@ -1128,7 +1170,7 @@ const VinOrders = {
   async pay(body) {
     if (!sb) throw new Error('Orders are offline right now.');
     const { data, error } = await sb.functions.invoke('create-checkout', { body: Object.assign({ kind: 'vin', origin: location.origin }, body) });
-    if (error || !data || !data.url) throw new Error((data && data.error) || 'Checkout is not ready yet.');
+    if (error || !data || !data.url) { const err = new Error((data && data.error) || 'Checkout is not ready yet.'); if (data && data.down) err.down = true; throw err; }
     return data;
   },
   async freeSearch(body) {

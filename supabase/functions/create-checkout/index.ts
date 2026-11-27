@@ -2,6 +2,7 @@
 // Boost is a one-off $2 AUD payment for any signed-in owner, even while membership is off.
 // Top Ad is a one-off pin: 3 days $3, 5 days $5, 7 days $6 AUD.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { readPpsrStatus, refreshPpsrStatus } from "../_shared/ppsr-status.ts";
 
 const PROMO_END = Date.parse("2026-12-31T23:59:59+10:00");
 const TRIAL_END = Math.floor(Date.parse("2027-01-01T00:00:00+10:00") / 1000);
@@ -34,6 +35,11 @@ Deno.serve(async (req) => {
       const missing: string[] = [];
       if (!stripeKey) missing.push("STRIPE_SECRET_KEY");
       if (!webhookSecret) missing.push("STRIPE_WEBHOOK_SECRET");
+      if (kind === "vin-status") {
+        const status = await readPpsrStatus(admin);
+        const ready = missing.length === 0 && !status.down;
+        return json({ ready, missing, down: status.down, message: status.message, reason: status.reason, ppsr: status });
+      }
       return json({ ready: missing.length === 0, missing });
     }
     if (!stripeKey) return json({ error: "Checkout is not ready yet.", missing: ["STRIPE_SECRET_KEY"] }, 503);
@@ -71,6 +77,13 @@ Deno.serve(async (req) => {
     }
 
     if (kind === "vin") {
+      let ppsr = await readPpsrStatus(admin);
+      if (!ppsr.down) {
+        try { ppsr = await refreshPpsrStatus(admin); } catch (_e) { /* schedule/flag still apply */ }
+      }
+      if (ppsr.down) {
+        return json({ error: ppsr.message || "PPSR is down for weekly maintenance", down: true, reason: ppsr.reason }, 503);
+      }
       const vin = String(body.vin || "").trim().toUpperCase();
       if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return json({ error: "VIN must be 17 characters and cannot include I, O, or Q." }, 400);
       const email = String(user.email || "").trim();

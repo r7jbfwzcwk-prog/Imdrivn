@@ -7,7 +7,10 @@
 // The certificate step runs in the background (EdgeRuntime.waitUntil) so the report and Stripe webhook return fast.
 // Body extras: { waitCertificate: true } waits for it. Service role only: { mode: "discovery" } for tests,
 // { certificateOnly: true } to retry the certificate on a complete order (no new search, no fee).
+// Refuses to start a search (and will not charge, for new admin tests) while PPSR is down or in the published weekly window.
+// Paid orders that fail mid-search because of an outage are marked status=outage for retry or refund, with no partial report.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { MAX_OUTAGE_RETRIES, OUTAGE_MESSAGE, isOutageError, readPpsrStatus } from "../_shared/ppsr-status.ts";
 
 const SEARCH_SUFFIX = "/2022/11/CollateralRegistrationSearch.svc/soap11";
 const SOAP_ACTION = "http://schemas.ppsr.gov.au/2022/11/services/CollateralRegistrationSearchService2022/SearchBySerialNumber";
@@ -33,6 +36,8 @@ Deno.serve(async (req) => {
       if (!vin) return json({ error: "VIN must be 17 characters and cannot include I, O, or Q." }, 400);
       const email = String(userData.user.email || "").trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "Your account needs an email so we can send the official PPSR certificate." }, 400);
+      const pre = await readPpsrStatus(admin);
+      if (pre.down) return json({ error: pre.message || "PPSR is down for weekly maintenance", down: true, reason: pre.reason }, 503);
       const created = await admin.from("vin_check_orders").insert({
         vin,
         email,
@@ -46,7 +51,7 @@ Deno.serve(async (req) => {
       orderId = created.data.id;
     }
     if (!orderId) return json({ error: "Missing order." }, 400);
-    const order = await admin.from("vin_check_orders").select("id,vin,status,result,search_number,report_sent_at").eq("id", orderId).maybeSingle();
+    const order = await admin.from("vin_check_orders").select("id,vin,status,result,search_number,report_sent_at,outage_retries").eq("id", orderId).maybeSingle();
     if (!order.data) return json({ error: "That order was not found." }, 404);
     const certOnly = isService && body.certificateOnly === true;
     const forceMode = isService && typeof body.mode === "string" ? String(body.mode) : "";
@@ -56,10 +61,20 @@ Deno.serve(async (req) => {
       const cert = await certificateStep(admin, orderId, String(prev.searchNumber || order.data.search_number || ""), modeFor(String(prev.environment || forceMode)), prev);
       return json({ orderId, status: "complete", certificate: cert });
     }
-    if (isService && order.data.status !== "paid" && order.data.status !== "failed" && order.data.status !== "searching") {
+    if (isService && order.data.status !== "paid" && order.data.status !== "failed" && order.data.status !== "searching" && order.data.status !== "outage") {
       return json({ error: "That order is not paid." }, 409);
     }
-    await admin.from("vin_check_orders").update({ status: "searching", error: null, updated_at: new Date().toISOString() }).eq("id", orderId);
+    const ppsr = await readPpsrStatus(admin);
+    if (ppsr.down) {
+      await markOutage(admin, orderId, ppsr.message || OUTAGE_MESSAGE, order.data.outage_retries || 0, false);
+      return json({ orderId, status: "outage", error: ppsr.message || OUTAGE_MESSAGE, down: true }, 503);
+    }
+    const retries = Number(order.data.outage_retries || 0) + (order.data.status === "outage" ? 1 : 0);
+    if (retries > MAX_OUTAGE_RETRIES) {
+      await markOutage(admin, orderId, "PPSR was unavailable after several retries. This order needs a refund.", retries, false);
+      return json({ orderId, status: "outage", error: "This order needs a refund." }, 503);
+    }
+    await admin.from("vin_check_orders").update({ status: "searching", error: null, outage_retries: retries, result: null, updated_at: new Date().toISOString() }).eq("id", orderId);
     try {
       const mode = forceMode ? modeFor(forceMode) : ppsrMode();
       const parsed = await searchVin(order.data.vin, mode);
@@ -92,6 +107,10 @@ Deno.serve(async (req) => {
       return json({ orderId, status: "complete", result: parsed, certificate: cert });
     } catch (err) {
       const message = err instanceof Error ? err.message : "The PPSR search failed.";
+      if (isOutageError(err)) {
+        await markOutage(admin, orderId, OUTAGE_MESSAGE + " (" + message.slice(0, 200) + ")", retries, false);
+        return json({ orderId, status: "outage", error: OUTAGE_MESSAGE, down: true }, 503);
+      }
       await admin.from("vin_check_orders").update({
         status: "failed",
         error: message.slice(0, 800),
@@ -103,6 +122,18 @@ Deno.serve(async (req) => {
     return json({ error: err instanceof Error ? err.message : "Search failed." }, 500);
   }
 });
+
+// deno-lint-ignore no-explicit-any
+async function markOutage(admin: any, orderId: string, message: string, retries: number, increment: boolean) {
+  await admin.from("vin_check_orders").update({
+    status: "outage",
+    error: message.slice(0, 800),
+    result: null,
+    search_number: null,
+    outage_retries: increment ? retries + 1 : retries,
+    updated_at: new Date().toISOString()
+  }).eq("id", orderId);
+}
 
 type Mode = { prefix: string; target: string };
 
